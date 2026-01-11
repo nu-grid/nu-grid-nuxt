@@ -1,0 +1,520 @@
+import type { TableData, TableProps, TableRow } from '@nuxt/ui'
+import type { Updater, VisibilityState } from '@tanstack/vue-table'
+import type { ComponentPublicInstance, PropType, Ref } from 'vue'
+import type {
+  NuGridActionMenuOptions,
+  NuGridColumn,
+  NuGridEventEmitter,
+  NuGridProps,
+} from '../../types'
+import type {
+  NuGridRowSelectionMode,
+  NuGridStates,
+  PinnableHeader,
+  UseNuGridColumnsReturn,
+} from '../../types/_internal'
+import {
+  getCoreRowModel,
+  getExpandedRowModel,
+  getFilteredRowModel,
+  getGroupedRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useVueTable,
+} from '@tanstack/vue-table'
+import { createReusableTemplate, reactiveOmit } from '@vueuse/core'
+import { upperFirst } from 'scule'
+import { computed, watch } from 'vue'
+import { nuGridDefaults } from '../../config/_internal'
+import { nuGridCellTypeRegistry } from '../useNuGridCellTypeRegistry'
+import { useNuGridActionMenu } from './useNuGridActionMenu'
+import { useNuGridRowSelection } from './useNuGridRowSelection'
+
+/**
+ * Shared logic for processing columns with default cell renderers
+ */
+export function useNuGridColumns<T extends TableData>(
+  propsColumns: Ref<NuGridColumn<T>[] | undefined>,
+  data: Ref<T[]>,
+  rowSelectionMode?: Ref<NuGridRowSelectionMode<T>>,
+  actionMenuOptions?: Ref<NuGridActionMenuOptions<T> | undefined | false>,
+  columnVisibilityState?: Ref<VisibilityState>,
+): UseNuGridColumnsReturn<T> {
+  // Use the row selection composable
+  const rowSelection = rowSelectionMode
+    ? useNuGridRowSelection<T>(rowSelectionMode, columnVisibilityState)
+    : null
+
+  // Use the action menu composable
+  const actionMenu = actionMenuOptions
+    ? useNuGridActionMenu<T>(actionMenuOptions, columnVisibilityState)
+    : null
+
+  const columns = computed<NuGridColumn<T>[]>(() => {
+    const cols =
+      propsColumns.value
+      ?? Object.keys(data.value[0] ?? {}).map((accessorKey: string) => ({
+        accessorKey,
+        header: upperFirst(accessorKey),
+      }))
+
+    let processedCols = processColumns(cols)
+
+    // Use the row selection composable to prepend selection column
+    if (rowSelection) {
+      processedCols = rowSelection.prependSelectionColumn(processedCols)
+    }
+
+    // Use the action menu composable to append action menu column
+    if (actionMenu) {
+      processedCols = actionMenu.appendActionMenuColumn(processedCols)
+    }
+
+    return processedCols
+  })
+
+  // Cache plugin lookups per cellDataType to avoid repeated lookups during column processing
+  // This cache persists across column recomputations, improving performance
+  const pluginCache = new Map<string, ReturnType<typeof nuGridCellTypeRegistry.get> | undefined>()
+
+  function processColumns(columns: NuGridColumn<T>[]): NuGridColumn<T>[] {
+    return columns.map((column) => {
+      const col = { ...column } as NuGridColumn<T>
+
+      if ('columns' in col && col.columns) {
+        col.columns = processColumns(col.columns as NuGridColumn<T>[])
+      }
+
+      // Apply plugin defaults if column has a cellDataType
+      const cellDataType = (col as any).cellDataType
+      if (cellDataType) {
+        // Use cache to avoid repeated plugin lookups
+        let plugin = pluginCache.get(cellDataType)
+        if (plugin === undefined) {
+          plugin = nuGridCellTypeRegistry.get(cellDataType)
+          pluginCache.set(cellDataType, plugin)
+        }
+
+        if (plugin?.defaultColumnDef) {
+          // Merge plugin defaults with column definition
+          // Column definition takes precedence
+          Object.assign(col, plugin.defaultColumnDef, col)
+        }
+
+        // Use plugin default cell renderer if no cell renderer is provided
+        if (!col.cell && plugin?.defaultCellRenderer) {
+          col.cell = ({ getValue, row, column: colColumn, table }) => {
+            const context: any = {
+              cell: { getValue, column: colColumn },
+              row,
+              getValue,
+              column: colColumn,
+              table,
+            }
+            return plugin.defaultCellRenderer!(context)
+          }
+        }
+
+        // Apply plugin formatter if no custom cell renderer and plugin provides formatter
+        if (!col.cell && plugin?.formatter) {
+          col.cell = ({ getValue, row, column: colColumn, table }) => {
+            const rawValue = getValue()
+            // Create plugin context for formatter
+            const pluginContext: any = {
+              cell: { getValue: () => rawValue, column: colColumn },
+              row,
+              columnDef: colColumn.columnDef,
+              column: colColumn,
+              getValue: () => rawValue,
+              isFocused: false,
+              canEdit: true,
+              data: data.value,
+              tableApi: table,
+              startEditing: () => {},
+              stopEditing: () => {},
+              emitChange: () => {},
+            }
+            const formattedValue = plugin.formatter!(rawValue, pluginContext)
+            if (formattedValue === '' || formattedValue === null || formattedValue === undefined) {
+              return '\u00A0'
+            }
+            return formattedValue
+          }
+        }
+      }
+
+      // Default cell renderer if still no cell renderer
+      if (!col.cell) {
+        col.cell = ({ getValue }) => {
+          const value = getValue()
+          if (value === '' || value === null || value === undefined) {
+            return '\u00A0'
+          }
+          return String(value)
+        }
+      }
+
+      return col
+    })
+  }
+
+  return { columns, rowSelection, actionMenu }
+}
+
+/**
+ * Helper function to update state values
+ */
+export function valueUpdater<T extends Updater<any>>(updaterOrValue: T, ref: Ref) {
+  ref.value = typeof updaterOrValue === 'function' ? updaterOrValue(ref.value) : updaterOrValue
+}
+
+/**
+ * Resolve value or function
+ */
+export function resolveValue<T, A = undefined>(prop: T | ((arg: A) => T), arg?: A): T | undefined {
+  if (typeof prop === 'function') {
+    // @ts-expect-error: TS can't know if prop is a function here
+    return prop(arg)
+  }
+  return prop
+}
+
+/**
+ * Resolve style object from string or function
+ */
+export function resolveStyleObject<T>(
+  prop: string | Record<string, string> | ((arg: T) => string | Record<string, string>) | undefined,
+  arg?: T,
+): Record<string, string> {
+  const resolved = resolveValue(prop, arg)
+  if (!resolved) return {}
+  if (typeof resolved === 'string') return {}
+  return resolved
+}
+
+/**
+ * Determine the effective pinning state for a header.
+ * For regular columns (colSpan <= 1), returns the column's pinning state.
+ * For column groups (colSpan > 1), returns the pinning state only if ALL leaf columns
+ * share the same pinning state. Returns false for mixed pinning.
+ *
+ * This should be used for BOTH the CSS class and the inline style to ensure consistency.
+ */
+export function getHeaderEffectivePinning(header: PinnableHeader): false | 'left' | 'right' {
+  const pinned = header.column.getIsPinned()
+
+  if (!pinned) {
+    return false
+  }
+
+  // For regular columns, use the column's own pinning state
+  if (header.colSpan <= 1) {
+    return pinned
+  }
+
+  // For column groups, check if all leaf columns share the same pinning state
+  const leafHeaders = header.getLeafHeaders()
+
+  if (leafHeaders.length === 0) {
+    return false
+  }
+
+  const allSamePinning = leafHeaders.every((leaf) => leaf.column.getIsPinned() === pinned)
+
+  if (!allSamePinning) {
+    // Mixed pinning - treat as not pinned
+    return false
+  }
+
+  return pinned
+}
+
+/**
+ * Calculate pinning style for a header cell.
+ * Handles both regular columns (colSpan === 1) and column group headers (colSpan > 1).
+ *
+ * For column groups, the position is calculated based on the leaf headers:
+ * - Left-pinned groups: use the first leaf header's left position
+ * - Right-pinned groups: use the last leaf header's right position
+ */
+export function getHeaderPinningStyle(
+  header: PinnableHeader,
+  options: { zIndex?: number; includeZIndex?: boolean } = {},
+): Record<string, string | number> {
+  const { zIndex = 20, includeZIndex = true } = options
+
+  // Use effective pinning which handles mixed pinning for groups
+  const effectivePinned = getHeaderEffectivePinning(header)
+
+  if (!effectivePinned) {
+    return {}
+  }
+
+  // Helper to build the result with optional zIndex
+  const buildResult = (positionStyle: Record<string, string>) => {
+    if (includeZIndex && zIndex !== undefined) {
+      return { ...positionStyle, zIndex }
+    }
+    return positionStyle
+  }
+
+  // For regular columns (colSpan <= 1), use the column's own position
+  if (header.colSpan <= 1) {
+    if (effectivePinned === 'left') {
+      return buildResult({ left: `${header.column.getStart('left')}px` })
+    }
+    if (effectivePinned === 'right') {
+      return buildResult({ right: `${header.column.getAfter('right')}px` })
+    }
+    return {}
+  }
+
+  // For column groups (colSpan > 1), calculate position from leaf headers
+  const leafHeaders = header.getLeafHeaders()
+
+  if (leafHeaders.length === 0) {
+    return {}
+  }
+
+  if (effectivePinned === 'left') {
+    // For left-pinned groups, use the first leaf column's start position
+    const firstLeaf = leafHeaders[0]
+    if (!firstLeaf) return {}
+    return buildResult({ left: `${firstLeaf.column.getStart('left')}px` })
+  }
+
+  if (effectivePinned === 'right') {
+    // For right-pinned groups, use the last leaf column's after position
+    const lastLeaf = leafHeaders[leafHeaders.length - 1]
+    if (!lastLeaf) return {}
+    return buildResult({ right: `${lastLeaf.column.getAfter('right')}px` })
+  }
+
+  return {}
+}
+
+export function createRowReusableTemplate<T>() {
+  return createReusableTemplate<{
+    row: TableRow<T>
+    style?: Record<string, string>
+    dataIndex?: number
+    measureRef?: (el: Element | ComponentPublicInstance | null) => void
+  }>({
+    inheritAttrs: false,
+    props: {
+      row: {
+        type: Object,
+        required: true,
+      },
+      style: {
+        type: Object,
+        required: false,
+      },
+      dataIndex: {
+        type: Number,
+        required: false,
+      },
+      measureRef: {
+        type: Function as PropType<(el: Element | ComponentPublicInstance | null) => void>,
+        required: false,
+      },
+    },
+  })
+}
+/**
+ * Create table API instance with all features configured
+ */
+export function useNuGridApi<T extends TableData>(
+  props: NuGridProps<T> | TableProps<T>,
+  data: Ref<T[]>,
+  columns: Ref<NuGridColumn<T>[]>,
+  states: NuGridStates,
+  rowSelectionMode?: Ref<NuGridRowSelectionMode<T>>,
+  eventEmitter?: NuGridEventEmitter<T>,
+) {
+  const meta = computed(() => props.meta ?? {})
+
+  // Use the row selection composable to get enableMultiRowSelection
+  const rowSelection = rowSelectionMode ? useNuGridRowSelection<T>(rowSelectionMode) : null
+
+  // Filter out props that are not part of TableProps by using reactive omit
+  const filteredProps = reactiveOmit(
+    props as any,
+    'as',
+    'data',
+    'columns',
+    'virtualization',
+    'caption',
+    'sticky',
+    'loading',
+    'loadingColor',
+    'loadingAnimation',
+    'class',
+    'ui',
+  )
+
+  const tableApi = useVueTable({
+    ...filteredProps,
+    data,
+    columns: columns.value,
+    meta: meta.value,
+    // Use rowId prop for stable row identity (required for animations)
+    // Falls back to index if the specified field is not present
+    getRowId: (originalRow, index) => {
+      const rowIdProp = (props as NuGridProps<T>).rowId ?? nuGridDefaults.rowId
+      if (typeof rowIdProp === 'function') {
+        return rowIdProp(originalRow as T)
+      }
+      const id = (originalRow as any)[rowIdProp]
+      return id !== undefined ? String(id) : String(index)
+    },
+    getCoreRowModel: getCoreRowModel(),
+    ...(props.globalFilterOptions || {}),
+    onGlobalFilterChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, states.globalFilterState),
+    ...(props.columnFiltersOptions || {}),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnFiltersChange: (updaterOrValue) => {
+      valueUpdater(updaterOrValue, states.columnFiltersState)
+      if (eventEmitter?.filterChanged) {
+        eventEmitter.filterChanged({ columnFilters: states.columnFiltersState.value })
+      }
+    },
+    onColumnOrderChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.columnOrderState),
+    ...(props.visibilityOptions || {}),
+    onColumnVisibilityChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, states.columnVisibilityState),
+    ...(props.columnPinningOptions || {}),
+    onColumnPinningChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, states.columnPinningState),
+    ...(props.columnSizingOptions || {}),
+    onColumnSizingChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, states.columnSizingState),
+    onColumnSizingInfoChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, states.columnSizingInfoState),
+    columnResizeMode: props.columnSizingOptions?.columnResizeMode ?? 'onChange',
+    ...(props.rowSelectionOptions || {}),
+    get enableMultiRowSelection() {
+      return rowSelection?.enableMultiRowSelection.value ?? true
+    },
+    get enableRowSelection() {
+      return rowSelection?.enableRowSelection.value ?? true
+    },
+    onRowSelectionChange: (updaterOrValue) =>
+      valueUpdater(updaterOrValue, states.rowSelectionState),
+    ...(props.rowPinningOptions || {}),
+    onRowPinningChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.rowPinningState),
+    ...(props.sortingOptions || {}),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: (updaterOrValue) => {
+      valueUpdater(updaterOrValue, states.sortingState)
+      if (eventEmitter?.sortChanged) {
+        eventEmitter.sortChanged({ sorting: states.sortingState.value })
+      }
+    },
+    // Use Tanstack's default grouping utility, can be overridden by user's groupingOptions
+    getGroupedRowModel: getGroupedRowModel(),
+    ...(props.groupingOptions || {}),
+    onGroupingChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.groupingState),
+    ...(props.expandedOptions || {}),
+    getExpandedRowModel: getExpandedRowModel(),
+    onExpandedChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.expandedState),
+    ...(props.paginationOptions || {}),
+    // Conditionally include pagination row model when paging is enabled
+    ...(() => {
+      const pagingProp = (props as NuGridProps<T>).paging
+      const isPaginationEnabled =
+        pagingProp === true || (typeof pagingProp === 'object' && pagingProp?.enabled !== false)
+      return isPaginationEnabled ? { getPaginationRowModel: getPaginationRowModel() } : {}
+    })(),
+    onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.paginationState),
+    ...(props.facetedOptions || {}),
+    state: {
+      get globalFilter() {
+        return states.globalFilterState.value
+      },
+      get columnFilters() {
+        return states.columnFiltersState.value
+      },
+      get columnOrder() {
+        return states.columnOrderState.value
+      },
+      get columnVisibility() {
+        return states.columnVisibilityState.value
+      },
+      get columnPinning() {
+        return states.columnPinningState.value
+      },
+      get expanded() {
+        return states.expandedState.value
+      },
+      get rowSelection() {
+        return states.rowSelectionState.value
+      },
+      get sorting() {
+        return states.sortingState.value
+      },
+      get grouping() {
+        return states.groupingState.value
+      },
+      get rowPinning() {
+        return states.rowPinningState.value
+      },
+      get columnSizing() {
+        return states.columnSizingState.value
+      },
+      get columnSizingInfo() {
+        return states.columnSizingInfoState.value
+      },
+      get pagination() {
+        return states.paginationState.value
+      },
+    },
+  })
+
+  // Watch for column changes and update the table
+  watch(columns, (newColumns) => {
+    tableApi.setOptions((prev) => ({
+      ...prev,
+      columns: newColumns,
+    }))
+  })
+
+  return tableApi
+}
+
+/**
+ * Check if table has footer columns
+ */
+export function useNuGridFooter<T extends TableData>(columns: Ref<NuGridColumn<T>[]>) {
+  const hasFooter = computed(() => {
+    function hasFooterRecursive(columns: NuGridColumn<T>[]): boolean {
+      for (const column of columns) {
+        if ('footer' in column && column.footer != null) {
+          return true
+        }
+        if ('columns' in column && hasFooterRecursive(column.columns as NuGridColumn<T>[])) {
+          return true
+        }
+      }
+      return false
+    }
+
+    return hasFooterRecursive(columns.value)
+  })
+
+  return { hasFooter }
+}
+
+/**
+ * Watch for data changes
+ */
+export function useNuGridDataWatch<T extends TableData>(props: NuGridProps<T>, data: Ref<T[]>) {
+  watch(
+    () => props.data,
+    () => {
+      data.value = props.data ? [...props.data] : []
+    },
+    props.watchOptions,
+  )
+}

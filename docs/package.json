@@ -1,0 +1,36 @@
+{
+  "name": "docs",
+  "type": "module",
+  "private": true,
+  "packageManager": "pnpm@10.21.0",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "catalog:",
+    "@iconify-json/simple-icons": "catalog:",
+    "@iconify-json/vscode-icons": "catalog:",
+    "@nuxt/content": "catalog:",
+    "@nuxt/image": "catalog:",
+    "@nuxt/ui": "catalog:",
+    "better-sqlite3": "catalog:",
+    "nuxt": "catalog:",
+    "nuxt-component-meta": "catalog:",
+    "nuxt-og-image": "catalog:",
+    "prettier": "catalog:",
+    "shiki-stream": "catalog:",
+    "shiki-transformer-color-highlight": "catalog:",
+    "sortablejs": "catalog:"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vue-tsc": "catalog:"
+  }
+}

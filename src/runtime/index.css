@@ -1,0 +1,63 @@
+@source './components';
+@source './cell-types';
+@source './config';
+@source './themes';
+
+/* NuGrid row animation presets - use CSS variables for customizable duration/easing */
+/* Override the rowAnimation theme slot to use a different preset */
+
+@theme static {
+  /* Refresh (default) - subtle fade + small translate, no full disappearance */
+  --animate-nugrid-refresh: nugrid-refresh var(--nugrid-animation-duration, 300ms)
+    var(--nugrid-animation-easing, ease-out) both;
+  @keyframes nugrid-refresh {
+    from {
+      opacity: 0.6;
+      translate: 0 14px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  /* Fade - keep rows visible, gently brighten */
+  --animate-nugrid-fade: nugrid-fade var(--nugrid-animation-duration, 300ms)
+    var(--nugrid-animation-easing, ease-out) both;
+  @keyframes nugrid-fade {
+    from {
+      opacity: 0.55;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Slide - shallow lift with partial opacity to avoid gaps */
+  --animate-nugrid-slide: nugrid-slide var(--nugrid-animation-duration, 300ms)
+    var(--nugrid-animation-easing, ease-out) both;
+  @keyframes nugrid-slide {
+    from {
+      opacity: 0.6;
+      translate: 0 28px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  /* Scale - light zoom with persistent visibility */
+  --animate-nugrid-scale: nugrid-scale var(--nugrid-animation-duration, 300ms)
+    var(--nugrid-animation-easing, ease-out) both;
+  @keyframes nugrid-scale {
+    from {
+      opacity: 0.62;
+      scale: 0.92;
+    }
+    to {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+}

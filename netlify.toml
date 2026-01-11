@@ -1,0 +1,8 @@
+[build]
+base = '/'
+command = 'pnpm run netlify-build'
+publish = 'docs/dist'
+functions = 'docs/.netlify/functions-internal'
+
+[build.environment]
+NODE_VERSION = '24'

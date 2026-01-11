@@ -1,0 +1,40 @@
+# Note this will only work with Release-Please if you have given it a PAT.
+# The default GITHUB_TOKEN does not have permission to run workflows on releases
+name: Publish to NPM with pnpm
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Use Node LTS ✨
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Install dependencies 📦️
+        run: pnpm install --frozen-lockfile
+
+      - name: Build 🔨
+        run: pnpm build
+
+      - name: Publish 🚀
+        run: pnpm publish --no-git-checks

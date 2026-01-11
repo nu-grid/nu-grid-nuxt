@@ -1,0 +1,9 @@
+{
+  "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    "types": ["vitest/globals"],
+    "noUncheckedIndexedAccess": false
+  },
+  "include": ["test/**/*.ts", "src/**/*.ts", "src/**/*.vue"],
+  "exclude": ["dist", "docs", "node_modules", "playgrounds"]
+}
