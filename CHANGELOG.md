@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.1.0...v0.1.1) (2026-01-11)
+
+
+### 🏡 Miscellaneous Chores
+
+* Release 0.1.1 ([83924ed](https://github.com/nu-grid/nu-grid-nuxt/commit/83924ed57376209719d370c4b2d55b48088b9ace))
+
 ## [0.1.0](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.1.0...v0.1.0) (2026-01-11)
 
 
