@@ -6,4 +6,4 @@ functions = 'docs/.netlify/functions-internal'
 
 [build.environment]
 NODE_VERSION = '24'
-NODE_OPTIONS = --max-old-space-size=4096
+NODE_OPTIONS = '--max-old-space-size=4096'
