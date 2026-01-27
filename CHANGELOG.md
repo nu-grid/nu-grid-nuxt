@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.1.1...v0.1.2) (2026-01-27)
+
+
+### 🏡 Miscellaneous Chores
+
+* Fix pnpm publish ([09e2160](https://github.com/nu-grid/nu-grid-nuxt/commit/09e21608aac2bf6ea1b669f26951076521d1868f))
+
 ## [0.1.1](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.1.0...v0.1.1) (2026-01-11)
 
 
