@@ -19,7 +19,7 @@ import type {
 import { FlexRender } from '@tanstack/vue-table'
 import { createReusableTemplate } from '@vueuse/core'
 import { Primitive } from 'reka-ui'
-import { computed, inject } from 'vue'
+import { computed, inject, toValue } from 'vue'
 import {
   getHeaderEffectivePinning,
   getHeaderPinningStyle,
