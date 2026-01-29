@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.1.2...v0.1.3) (2026-01-29)
+
+
+### 🏡 Miscellaneous Chores
+
+* Fix css export ([960b8cb](https://github.com/nu-grid/nu-grid-nuxt/commit/960b8cb564bc37ad103f5cee2b9d1204566a5908))
+
 ## [0.1.2](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.1.1...v0.1.2) (2026-01-27)
 
 
