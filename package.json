@@ -11,7 +11,11 @@
     ".": {
       "types": "./dist/types.d.mts",
       "import": "./dist/module.mjs",
-      "style": "./src/runtime/index.css"
+      "style": "./dist/runtime/index.css"
+    },
+    "./css": {
+      "style": "./dist/runtime/index.css",
+      "default": "./dist/runtime/index.css"
     },
     "./types": {
       "types": "./dist/runtime/types/index.d.ts",
@@ -26,7 +30,7 @@
       "import": "./dist/runtime/types/cells.js"
     }
   },
-  "style": "./src/runtime/index.css",
+  "style": "./dist/runtime/index.css",
   "main": "./dist/module.mjs",
   "typesVersions": {
     "*": {
