@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { Cell, Row } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
+
 import type { NuGridActionMenuColumnMeta } from '../../types/_internal'
+import { computed, ref, watch } from 'vue'
 
 defineOptions({ inheritAttrs: false })
 

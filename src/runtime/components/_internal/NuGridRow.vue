@@ -11,7 +11,7 @@ import type {
   NuGridPerformanceContext,
   NuGridRowInteractionsContext,
 } from '../../types/_internal'
-import { inject } from 'vue'
+import { computed, inject } from 'vue'
 import { resolveStyleObject, resolveValue } from '../../composables/_internal'
 import NuGridCellContent from './NuGridCellContent.vue'
 

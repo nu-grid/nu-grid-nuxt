@@ -78,7 +78,8 @@
   },
   "peerDependencies": {
     "@nuxt/ui": "^4.0.0",
-    "@vueuse/nuxt": "^14.0.0"
+    "@vueuse/nuxt": "^14.0.0",
+    "reka-ui": "^2.0.0"
   },
   "peerDependenciesMeta": {
     "write-excel-file": {

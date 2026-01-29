@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { NuGridCellEditorEmits, NuGridCellEditorProps } from '../../types'
-import { ref } from 'vue'
+
+import { computed, ref } from 'vue'
 import NuGridCellCheckbox from '../../components/NuGridCellCheckbox.vue'
 import { useNuGridCellEditor } from '../../composables/useNuGridCellEditor'
 

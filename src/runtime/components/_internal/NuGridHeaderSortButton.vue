@@ -4,6 +4,7 @@ import type { Header } from '@tanstack/vue-table'
 
 import type { NuGridSortIcon } from '../../types'
 import type { NuGridCoreContext, NuGridUIConfigContext } from '../../types/_internal'
+import { computed, inject } from 'vue'
 import { nuGridDefaults } from '../../config/_internal'
 
 defineOptions({ inheritAttrs: false })
