@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.1.4...v0.2.0) (2026-01-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* fix all broken imports
+
+### 🏡 Miscellaneous Chores
+
+* Fix all broken imports ([afccbca](https://github.com/nu-grid/nu-grid-nuxt/commit/afccbcaf0c7426ed8c84b26a451437be678511b9))
+* Lockfile ([14ade51](https://github.com/nu-grid/nu-grid-nuxt/commit/14ade51d62ff1be7746aae9923cfc4add5e4420f))
+
 ## [0.1.4](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.1.3...v0.1.4) (2026-01-29)
 
 
