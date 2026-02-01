@@ -320,7 +320,7 @@ const {
   resizingGroupId,
   resizingColumnId,
   manuallyResizedColumns,
-} = useNuGridColumnResize(props, tableApi)
+} = useNuGridColumnResize(props, tableApi, tableRef)
 
 // Column drag and drop
 const dragFns = useNuGridColumnDragDrop(tableApi, states.columnOrderState, tableRef)

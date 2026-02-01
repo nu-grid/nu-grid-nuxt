@@ -30,7 +30,7 @@ if (!coreContext || !performanceContext || !uiConfigContext) {
   throw new Error('NuGridColumnMenu must be used within a NuGrid component.')
 }
 
-const { tableApi } = coreContext
+const { tableApi, ui, propsUi } = coreContext
 const { allLeafColumns } = performanceContext
 const { getColumnMenuItems, showColumnVisibility, columnMenuButton } = uiConfigContext
 
@@ -498,7 +498,7 @@ const filterComponent = computed(() => {
   <div
     v-if="shouldShowMenu"
     :class="[
-      'relative z-0 flex shrink-0 items-center px-1 transition-opacity duration-200',
+      ui.columnMenu({ class: [propsUi?.columnMenu] }),
       menuOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-within:opacity-100',
     ]"
   >

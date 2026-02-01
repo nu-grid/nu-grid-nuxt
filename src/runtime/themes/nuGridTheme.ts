@@ -16,7 +16,7 @@ export const nuGridTheme = {
     // Scrollbar styling - uses tailwind-scrollbar plugin
     scrollbar:
       'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/50 hover:scrollbar-thumb-gray-500/60 dark:scrollbar-thumb-gray-500/50 dark:hover:scrollbar-thumb-gray-400/60 scrollbar-thumb-rounded',
-    th: 'flex shrink-0 items-stretch overflow-hidden p-0! group text-left rtl:text-right text-sm font-semibold text-highlighted py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
+    th: 'flex shrink-0 items-stretch p-0! group text-left rtl:text-right text-sm font-semibold text-highlighted py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
     td: 'flex shrink-0 items-center overflow-hidden p-4 whitespace-nowrap text-sm text-muted outline-none! focus-visible:outline-none! border-b border-default',
     tr: 'flex outline-none! focus-visible:outline-none!',
     loading: 'flex-1',
@@ -25,7 +25,7 @@ export const nuGridTheme = {
     // Additional NuGrid-specific slots
     rowDragHandle: 'flex shrink-0 items-center justify-center px-2 w-10 min-w-10 max-w-10',
     colResizeHandle:
-      'flex shrink-0 items-center justify-center w-4 cursor-col-resize select-none touch-none opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200 relative z-10 hover:bg-primary-500/10 [&:hover_.col-resizer]:bg-primary-500/80',
+      'flex items-center justify-center w-4 h-full cursor-col-resize select-none touch-none opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200 hover:bg-primary-500/10 [&:hover_.col-resizer]:bg-primary-500/80',
     colResizer: 'w-0.5 h-3/5 rounded-sm transition-colors duration-200 bg-gray-400/60 col-resizer',
     rowDragHeaderHandle: 'shrink-0 w-10 min-w-10 max-w-10',
     thInner: 'flex flex-1 items-center px-3 py-2 truncate',
@@ -34,7 +34,10 @@ export const nuGridTheme = {
     sortHandleHover:
       'flex shrink-0 items-center px-1 cursor-pointer select-none text-gray-400/60 opacity-0 group-hover:opacity-100 focus-within:opacity-100 hover:text-primary-500 transition-opacity duration-200',
     rowDragIcon: 'inline-block w-4 h-4',
-    headerContainer: 'flex items-stretch w-full h-full',
+    headerContainer: 'relative flex items-stretch w-full h-full',
+    headerControls: 'absolute right-0 inset-y-0 flex items-center z-10 bg-inherit',
+    columnMenu:
+      'flex items-center px-1 transition-opacity duration-200',
     footerContent: 'w-full truncate',
     groupHeader:
       'flex items-stretch cursor-pointer bg-primary/10 hover:bg-primary/15 transition-colors',

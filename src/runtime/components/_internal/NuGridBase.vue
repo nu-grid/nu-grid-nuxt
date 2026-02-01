@@ -543,37 +543,23 @@ function getVirtualItemStyle(
                     :sort-icons="header.column.columnDef.sortIcons"
                   />
                 </div>
-                <NuGridHeaderSortButton
-                  v-if="
-                    (header.column.columnDef.sortIcons?.position
-                      ?? gridSortIcons?.position
-                      ?? 'edge') === 'edge'
-                  "
-                  :header="header"
-                  :sort-icons="header.column.columnDef.sortIcons"
-                />
-                <NuGridColumnMenu :header="header" />
-                <div
-                  v-if="header.column.getCanResize()"
-                  :class="
-                    ui.colResizeHandle({
-                      class: [propsUi?.colResizeHandle],
-                      colResizing:
-                        resizingColumnId === header.column.id || header.column.getIsResizing(),
-                    })
-                  "
-                  :data-col-resizing="
-                    resizingColumnId === header.column.id || header.column.getIsResizing()
-                      ? 'true'
-                      : undefined
-                  "
-                  @mousedown="handleResizeStart($event, header)"
-                  @touchstart.passive="handleResizeStart($event, header)"
-                >
+                <!-- Header controls wrapper - absolutely positioned to not affect column width -->
+                <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
+                  <NuGridHeaderSortButton
+                    v-if="
+                      (header.column.columnDef.sortIcons?.position
+                        ?? gridSortIcons?.position
+                        ?? 'edge') === 'edge'
+                    "
+                    :header="header"
+                    :sort-icons="header.column.columnDef.sortIcons"
+                  />
+                  <NuGridColumnMenu :header="header" />
                   <div
+                    v-if="header.column.getCanResize()"
                     :class="
-                      ui.colResizer({
-                        class: [propsUi?.colResizer],
+                      ui.colResizeHandle({
+                        class: [propsUi?.colResizeHandle],
                         colResizing:
                           resizingColumnId === header.column.id || header.column.getIsResizing(),
                       })
@@ -583,7 +569,24 @@ function getVirtualItemStyle(
                         ? 'true'
                         : undefined
                     "
-                  />
+                    @mousedown="handleResizeStart($event, header)"
+                    @touchstart.passive="handleResizeStart($event, header)"
+                  >
+                    <div
+                      :class="
+                        ui.colResizer({
+                          class: [propsUi?.colResizer],
+                          colResizing:
+                            resizingColumnId === header.column.id || header.column.getIsResizing(),
+                        })
+                      "
+                      :data-col-resizing="
+                        resizingColumnId === header.column.id || header.column.getIsResizing()
+                          ? 'true'
+                          : undefined
+                      "
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -756,37 +759,23 @@ function getVirtualItemStyle(
                       :sort-icons="header.column.columnDef.sortIcons"
                     />
                   </div>
-                  <NuGridHeaderSortButton
-                    v-if="
-                      (header.column.columnDef.sortIcons?.position
-                        ?? gridSortIcons?.position
-                        ?? 'edge') === 'edge'
-                    "
-                    :header="header"
-                    :sort-icons="header.column.columnDef.sortIcons"
-                  />
-                  <NuGridColumnMenu :header="header" />
-                  <div
-                    v-if="header.column.getCanResize()"
-                    :class="
-                      ui.colResizeHandle({
-                        class: [propsUi?.colResizeHandle],
-                        colResizing:
-                          resizingColumnId === header.column.id || header.column.getIsResizing(),
-                      })
-                    "
-                    :data-col-resizing="
-                      resizingColumnId === header.column.id || header.column.getIsResizing()
-                        ? 'true'
-                        : undefined
-                    "
-                    @mousedown="handleResizeStart($event, header)"
-                    @touchstart.passive="handleResizeStart($event, header)"
-                  >
+                  <!-- Header controls wrapper - absolutely positioned to not affect column width -->
+                  <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
+                    <NuGridHeaderSortButton
+                      v-if="
+                        (header.column.columnDef.sortIcons?.position
+                          ?? gridSortIcons?.position
+                          ?? 'edge') === 'edge'
+                      "
+                      :header="header"
+                      :sort-icons="header.column.columnDef.sortIcons"
+                    />
+                    <NuGridColumnMenu :header="header" />
                     <div
+                      v-if="header.column.getCanResize()"
                       :class="
-                        ui.colResizer({
-                          class: [propsUi?.colResizer],
+                        ui.colResizeHandle({
+                          class: [propsUi?.colResizeHandle],
                           colResizing:
                             resizingColumnId === header.column.id || header.column.getIsResizing(),
                         })
@@ -796,7 +785,24 @@ function getVirtualItemStyle(
                           ? 'true'
                           : undefined
                       "
-                    />
+                      @mousedown="handleResizeStart($event, header)"
+                      @touchstart.passive="handleResizeStart($event, header)"
+                    >
+                      <div
+                        :class="
+                          ui.colResizer({
+                            class: [propsUi?.colResizer],
+                            colResizing:
+                              resizingColumnId === header.column.id || header.column.getIsResizing(),
+                          })
+                        "
+                        :data-col-resizing="
+                          resizingColumnId === header.column.id || header.column.getIsResizing()
+                            ? 'true'
+                            : undefined
+                        "
+                      />
+                    </div>
                   </div>
                 </div>
               </template>
@@ -950,50 +956,53 @@ function getVirtualItemStyle(
                               :sort-icons="header.column.columnDef.sortIcons"
                             />
                           </div>
-                          <NuGridHeaderSortButton
-                            v-if="
-                              (header.column.columnDef.sortIcons?.position
-                                ?? gridSortIcons?.position
-                                ?? 'edge') === 'edge'
-                            "
-                            :header="header"
-                            :sort-icons="header.column.columnDef.sortIcons"
-                          />
-                          <NuGridColumnMenu :header="header" />
-                          <div
-                            v-if="header.column.getCanResize()"
-                            :class="
-                              ui.colResizeHandle({
-                                class: [propsUi?.colResizeHandle],
-                                colResizing:
-                                  resizingColumnId === header.column.id
-                                  || header.column.getIsResizing(),
-                              })
-                            "
-                            :data-col-resizing="
-                              resizingColumnId === header.column.id || header.column.getIsResizing()
-                                ? 'true'
-                                : undefined
-                            "
-                            @mousedown="handleResizeStart($event, header)"
-                            @touchstart.passive="handleResizeStart($event, header)"
-                          >
+                          <!-- Header controls wrapper - absolutely positioned to not affect column width -->
+                          <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
+                            <NuGridHeaderSortButton
+                              v-if="
+                                (header.column.columnDef.sortIcons?.position
+                                  ?? gridSortIcons?.position
+                                  ?? 'edge') === 'edge'
+                              "
+                              :header="header"
+                              :sort-icons="header.column.columnDef.sortIcons"
+                            />
+                            <NuGridColumnMenu :header="header" />
                             <div
+                              v-if="header.column.getCanResize()"
                               :class="
-                                ui.colResizer({
-                                  class: [propsUi?.colResizer],
+                                ui.colResizeHandle({
+                                  class: [propsUi?.colResizeHandle],
                                   colResizing:
                                     resizingColumnId === header.column.id
                                     || header.column.getIsResizing(),
                                 })
                               "
                               :data-col-resizing="
-                                resizingColumnId === header.column.id
-                                || header.column.getIsResizing()
+                                resizingColumnId === header.column.id || header.column.getIsResizing()
                                   ? 'true'
                                   : undefined
                               "
-                            />
+                              @mousedown="handleResizeStart($event, header)"
+                              @touchstart.passive="handleResizeStart($event, header)"
+                            >
+                              <div
+                                :class="
+                                  ui.colResizer({
+                                    class: [propsUi?.colResizer],
+                                    colResizing:
+                                      resizingColumnId === header.column.id
+                                      || header.column.getIsResizing(),
+                                  })
+                                "
+                                :data-col-resizing="
+                                  resizingColumnId === header.column.id
+                                  || header.column.getIsResizing()
+                                    ? 'true'
+                                    : undefined
+                                "
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1156,39 +1165,23 @@ function getVirtualItemStyle(
                                 :sort-icons="header.column.columnDef.sortIcons"
                               />
                             </div>
-                            <NuGridHeaderSortButton
-                              v-if="
-                                (header.column.columnDef.sortIcons?.position
-                                  ?? gridSortIcons?.position
-                                  ?? 'edge') === 'edge'
-                              "
-                              :header="header"
-                              :sort-icons="header.column.columnDef.sortIcons"
-                            />
-                            <NuGridColumnMenu :header="header" />
-                            <div
-                              v-if="header.column.getCanResize()"
-                              :class="
-                                ui.colResizeHandle({
-                                  class: [propsUi?.colResizeHandle],
-                                  colResizing:
-                                    resizingColumnId === header.column.id
-                                    || header.column.getIsResizing(),
-                                })
-                              "
-                              :data-col-resizing="
-                                resizingColumnId === header.column.id
-                                || header.column.getIsResizing()
-                                  ? 'true'
-                                  : undefined
-                              "
-                              @mousedown="handleResizeStart($event, header)"
-                              @touchstart.passive="handleResizeStart($event, header)"
-                            >
+                            <!-- Header controls wrapper - absolutely positioned to not affect column width -->
+                            <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
+                              <NuGridHeaderSortButton
+                                v-if="
+                                  (header.column.columnDef.sortIcons?.position
+                                    ?? gridSortIcons?.position
+                                    ?? 'edge') === 'edge'
+                                "
+                                :header="header"
+                                :sort-icons="header.column.columnDef.sortIcons"
+                              />
+                              <NuGridColumnMenu :header="header" />
                               <div
+                                v-if="header.column.getCanResize()"
                                 :class="
-                                  ui.colResizer({
-                                    class: [propsUi?.colResizer],
+                                  ui.colResizeHandle({
+                                    class: [propsUi?.colResizeHandle],
                                     colResizing:
                                       resizingColumnId === header.column.id
                                       || header.column.getIsResizing(),
@@ -1200,7 +1193,26 @@ function getVirtualItemStyle(
                                     ? 'true'
                                     : undefined
                                 "
-                              />
+                                @mousedown="handleResizeStart($event, header)"
+                                @touchstart.passive="handleResizeStart($event, header)"
+                              >
+                                <div
+                                  :class="
+                                    ui.colResizer({
+                                      class: [propsUi?.colResizer],
+                                      colResizing:
+                                        resizingColumnId === header.column.id
+                                        || header.column.getIsResizing(),
+                                    })
+                                  "
+                                  :data-col-resizing="
+                                    resizingColumnId === header.column.id
+                                    || header.column.getIsResizing()
+                                      ? 'true'
+                                      : undefined
+                                  "
+                                />
+                              </div>
                             </div>
                           </div>
                         </template>

@@ -1,7 +1,8 @@
 import type { TableData } from '@nuxt/ui'
 import type { Header, Table } from '@tanstack/vue-table'
+import type { Ref } from 'vue'
 import type { NuGridProps } from '../../types'
-import { onUnmounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 function isTouchStartEvent(e: unknown): e is TouchEvent {
   return (e as TouchEvent).type === 'touchstart'
@@ -13,6 +14,7 @@ function isTouchStartEvent(e: unknown): e is TouchEvent {
 export function useNuGridColumnResize<T extends TableData>(
   props: NuGridProps<T>,
   tableApi: Table<T>,
+  tableRef: Ref<HTMLElement | null>,
 ) {
   // Track which group is currently being resized (for visual feedback)
   const resizingGroupId = ref<string | null>(null)
@@ -24,6 +26,163 @@ export function useNuGridColumnResize<T extends TableData>(
 
   // Store initial sizes when resize starts to detect actual size changes
   const resizeStartSizes = new Map<string, number>()
+
+  /**
+   * Sync specific columns' actual DOM widths to TanStack's columnSizing.
+   * This prevents "jump" when switching from flex to fixed width during resize.
+   * Uses getBoundingClientRect for sub-pixel precision to minimize visual jump.
+   *
+   * IMPORTANT: We measure from BODY CELLS (not headers) because headers and cells
+   * are in separate flex containers and can have different widths. Measuring from
+   * cells ensures the content doesn't jump when switching to fixed width mode.
+   */
+  function syncColumnWidthsFromDOM(columnIds: string[]): void {
+    if (!tableRef.value) return
+
+    const newSizing: Record<string, number> = {}
+
+    // First, try to find body cells (more stable for content alignment)
+    const tbody = tableRef.value.querySelector('[data-tbody]')
+    const firstRow = tbody?.querySelector('[data-row-id]')
+
+    for (const columnId of columnIds) {
+      let measuredWidth = 0
+
+      // Prefer measuring from first body row cell (content columns)
+      if (firstRow) {
+        const bodyCell = firstRow.querySelector(`[data-column-id="${columnId}"]`) as HTMLElement
+        if (bodyCell) {
+          const rect = bodyCell.getBoundingClientRect()
+          measuredWidth = rect.width
+        }
+      }
+
+      // Fallback to header if no body cell found
+      if (measuredWidth === 0) {
+        const headerCell = tableRef.value!.querySelector(`[data-column-id="${columnId}"]`) as HTMLElement
+        if (headerCell) {
+          const rect = headerCell.getBoundingClientRect()
+          measuredWidth = rect.width
+        }
+      }
+
+      if (measuredWidth > 0) {
+        newSizing[columnId] = measuredWidth
+      }
+    }
+
+    if (Object.keys(newSizing).length > 0) {
+      tableApi.setColumnSizing((old) => ({
+        ...old,
+        ...newSizing,
+      }))
+    }
+  }
+
+  /**
+   * Sync all flex columns' widths from DOM.
+   * This prevents header/cell width mismatch caused by sub-pixel flex distribution
+   * differences between separate flex containers (thead row vs tbody row).
+   */
+  function syncInitialFlexWidths(): void {
+    if (props.layout?.autoSize !== 'fill') return
+    if (!tableRef.value) return
+
+    const allColumns = tableApi.getVisibleLeafColumns()
+    const flexColumns = allColumns
+      .filter((col) => {
+        const colDef = col.columnDef as { grow?: boolean }
+        return colDef.grow !== false
+      })
+      .map((col) => col.id)
+
+    if (flexColumns.length === 0) return
+
+    // Sync DOM widths to TanStack state
+    syncColumnWidthsFromDOM(flexColumns)
+
+    // Mark all flex columns as "manually resized" so they use fixed widths
+    // This ensures headers and cells use the same measured widths
+    manuallyResizedColumns.value = new Set(flexColumns)
+  }
+
+  // Track container width to detect resize
+  let lastContainerWidth = 0
+  let resizeObserver: ResizeObserver | null = null
+  let rafId: number | null = null
+
+  function handleContainerResize(entries: ResizeObserverEntry[]) {
+    const entry = entries[0]
+    if (!entry) return
+
+    const newWidth = entry.contentRect.width
+    // Only re-sync if width actually changed significantly (more than 1px)
+    if (Math.abs(newWidth - lastContainerWidth) > 1) {
+      lastContainerWidth = newWidth
+
+      // Use rAF for immediate but batched updates
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId)
+      }
+      rafId = requestAnimationFrame(() => {
+        rafId = null
+        // Reset manually resized columns to allow flex recalculation
+        manuallyResizedColumns.value = new Set()
+        // Wait for flex to recalculate, then sync widths
+        nextTick(() => {
+          syncInitialFlexWidths()
+        })
+      })
+    }
+  }
+
+  // Sync flex column widths after initial render to prevent header/cell mismatch
+  onMounted(() => {
+    // Use double nextTick to ensure DOM is fully rendered including virtualized content
+    nextTick(() => {
+      nextTick(() => {
+        syncInitialFlexWidths()
+
+        // Set up ResizeObserver to re-sync on container resize
+        if (tableRef.value && typeof ResizeObserver !== 'undefined') {
+          // Find the root container (parent of tableRef)
+          const rootEl = tableRef.value.parentElement
+          if (rootEl) {
+            lastContainerWidth = rootEl.getBoundingClientRect().width
+            resizeObserver = new ResizeObserver(handleContainerResize)
+            resizeObserver.observe(rootEl)
+          }
+        }
+      })
+    })
+  })
+
+  // Re-sync when autoSize mode changes to 'fill'
+  watch(
+    () => props.layout?.autoSize,
+    (newValue, oldValue) => {
+      if (newValue === 'fill' && oldValue !== 'fill') {
+        // Reset manually resized columns and re-sync
+        manuallyResizedColumns.value = new Set()
+        nextTick(() => {
+          nextTick(() => {
+            syncInitialFlexWidths()
+          })
+        })
+      }
+    },
+  )
+
+  // Clean up ResizeObserver
+  onUnmounted(() => {
+    if (resizeObserver) {
+      resizeObserver.disconnect()
+      resizeObserver = null
+    }
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId)
+    }
+  })
 
   function getResizeHandler(header: any) {
     if (props.layout?.resizeMode === 'shift') {
@@ -40,19 +199,43 @@ export function useNuGridColumnResize<T extends TableData>(
       document.body.classList.add('is-resizing-column')
       resizingColumnId.value = header.column.id
 
-      // Record initial size to detect actual changes
-      // Note: For fill mode, syncFlexColumnWidths() should have already
-      // set the actual rendered width in columnSizing after first render
-      resizeStartSizes.set(header.column.id, header.column.getSize())
+      // For fill mode, sync actual DOM widths to TanStack BEFORE switching to fixed width.
+      // This prevents "jump" when the flex-rendered width differs from TanStack's stored value.
+      if (props.layout?.autoSize === 'fill') {
+        // Sync ALL flex columns' widths to freeze the entire row layout.
+        // This prevents other flex columns from redistributing when we switch some to fixed.
+        const allColumns = tableApi.getVisibleLeafColumns()
+        const columnsToSync = allColumns
+          .filter((col) => {
+            const colDef = col.columnDef as { grow?: boolean }
+            // Only sync flex columns (grow !== false) that haven't been manually resized yet
+            return colDef.grow !== false && !manuallyResizedColumns.value.has(col.id)
+          })
+          .map((col) => col.id)
 
-      // For fill mode, immediately add to manuallyResizedColumns so CSS
-      // switches from flex to fixed width and responds to size changes during drag
-      if (
-        props.layout?.autoSize === 'fill'
-        && !manuallyResizedColumns.value.has(header.column.id)
-      ) {
-        manuallyResizedColumns.value = new Set([...manuallyResizedColumns.value, header.column.id])
+        // Sync DOM widths to TanStack (this updates getSize() return values)
+        syncColumnWidthsFromDOM(columnsToSync)
+
+        // Mark the resized column (and next column in shift mode) as manually resized
+        const newSet = new Set(manuallyResizedColumns.value)
+        newSet.add(header.column.id)
+
+        // In shift mode, also mark the next column as manually resized
+        if (props.layout?.resizeMode === 'shift') {
+          const currentIndex = allColumns.findIndex((col) => col.id === header.column.id)
+          if (currentIndex >= 0 && currentIndex < allColumns.length - 1) {
+            const nextColumn = allColumns[currentIndex + 1]
+            if (nextColumn) {
+              newSet.add(nextColumn.id)
+            }
+          }
+        }
+
+        manuallyResizedColumns.value = newSet
       }
+
+      // Record initial size AFTER syncing (so it reflects actual DOM width)
+      resizeStartSizes.set(header.column.id, header.column.getSize())
 
       // For shift resize mode, also track the next column since it will be affected
       if (props.layout?.resizeMode === 'shift') {
