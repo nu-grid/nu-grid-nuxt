@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.2.0...v0.2.1) (2026-02-01)
+
+
+### 🏡 Miscellaneous Chores
+
+* Add sticky headers to docs ([184a6f1](https://github.com/nu-grid/nu-grid-nuxt/commit/184a6f1247842ec8b00fd4f1f56a709d0abc20c2))
+
 ## [0.2.0](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.1.4...v0.2.0) (2026-01-29)
 
 
