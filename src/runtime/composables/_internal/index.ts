@@ -2,6 +2,9 @@
  * @internal
  */
 
+// Column flex styling
+export * from './column-flex-style'
+
 // Keyboard handlers
 export * from './keyboard-handlers'
 

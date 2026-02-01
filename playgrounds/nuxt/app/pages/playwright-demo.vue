@@ -117,7 +117,7 @@ const startEditKeys = ref<('enter' | 'f2' | 'bs' | 'alpha' | 'numeric')[]>([
   'alpha',
   'numeric',
 ])
-const autoSizeStrategy = ref<'fitCell' | 'fitGrid' | false>('fitGrid')
+const autoSizeStrategy = ref<'content' | 'fill' | false>('fill')
 
 // State models
 const columnFilters = ref([{ id: 'email', value: '' }])
@@ -319,7 +319,7 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
 
 function triggerAutoSize() {
   if (table.value?.autoSizeColumns) {
-    table.value.autoSizeColumns(autoSizeStrategy.value as 'fitCell' | 'fitGrid')
+    table.value.autoSizeColumns(autoSizeStrategy.value as 'content' | 'fill')
     toast.add({
       title: 'Columns Auto-sized',
       description: `Applied ${autoSizeStrategy.value} strategy`,
@@ -416,8 +416,8 @@ function triggerAutoSize() {
         <USelect
           v-model="autoSizeStrategy"
           :items="[
-            { label: 'Fit Cell Contents', value: 'fitCell' },
-            { label: 'Fit Grid Width', value: 'fitGrid' },
+            { label: 'Content Width', value: 'content' },
+            { label: 'Fill Container', value: 'fill' },
             { label: 'No Autosize', value: false },
           ]"
           placeholder="Autosize Mode"
@@ -465,14 +465,10 @@ function triggerAutoSize() {
       :focus="{ mode: focusMode, cmdArrows: macCursorPaging ? 'paging' : 'firstlast' }"
       :layout="{
         mode: 'div',
-        maintainWidth: true,
+        resizeMode: 'shift',
         stickyHeaders: stickyHeadersEnabled,
         autoSize:
-          autoSizeStrategy === 'fitCell'
-            ? 'fitCell'
-            : autoSizeStrategy === 'fitGrid'
-              ? 'fitGrid'
-              : false,
+          autoSizeStrategy === 'content' ? 'content' : autoSizeStrategy === 'fill' ? 'fill' : false,
       }"
       resize-columns
       reorder-columns

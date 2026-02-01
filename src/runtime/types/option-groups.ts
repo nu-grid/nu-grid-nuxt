@@ -334,8 +334,18 @@ export type NuGridLayoutMode = 'div' | 'group' | 'splitgroup'
 
 /**
  * Auto-size strategy
+ * - 'fill': Columns fill container using CSS flex
+ * - 'content': Columns size to cell content
+ * - false: No auto-sizing
  */
-export type NuGridAutoSizeStrategy = 'fitCell' | 'fitGrid' | false
+export type NuGridAutoSizeStrategy = 'fill' | 'content' | false
+
+/**
+ * Column resize mode
+ * - 'shift': Resizing a column shifts adjacent columns to maintain table width
+ * - 'expand': Resizing a column expands/shrinks the table width
+ */
+export type NuGridResizeMode = 'shift' | 'expand'
 
 /**
  * Layout and display configuration
@@ -364,18 +374,27 @@ export interface NuGridLayoutOptions {
 
   /**
    * Auto-size strategy for columns
-   * - 'fitCell': Fit cell contents
-   * - 'fitGrid': Fit cell contents and scale to grid width
-   * - false: Disable auto-sizing
-   * @defaultValue false
+   * - 'fill': Columns fill container using CSS flex distribution.
+   *   Use `grow: false` for fixed-width columns, `widthPercentage` for weighted distribution.
+   *   Instant layout with no JavaScript measurement delay.
+   * - 'content': Measure cell contents and set exact pixel widths.
+   *   Ignores `grow` and `widthPercentage` settings.
+   *   May cause visual flash on initial load due to measurement.
+   * - false: No auto-sizing, columns use their defined `size` values.
+   * @defaultValue 'fill'
    */
   autoSize?: NuGridAutoSizeStrategy
 
   /**
-   * Maintain table width during column resize
-   * @defaultValue false
+   * Column resize behavior
+   * - 'shift': Resizing a column shifts adjacent columns to maintain table width (default)
+   * - 'expand': Resizing a column expands/shrinks the table width
+   *
+   * With `autoSize: 'fill'` + `resizeMode: 'expand'`: Grid fills container initially,
+   * but user can resize columns to expand beyond the container (enabling horizontal scroll).
+   * @defaultValue 'shift'
    */
-  maintainWidth?: boolean
+  resizeMode?: NuGridResizeMode
 }
 
 /**

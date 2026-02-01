@@ -18,9 +18,16 @@ export function useNuGridColumnResize<T extends TableData>(
   const resizingGroupId = ref<string | null>(null)
   const resizingColumnId = ref<string | null>(null)
 
+  // Track columns that have been manually resized by the user
+  // Used to switch from CSS flex to fixed width after user resize
+  const manuallyResizedColumns = ref<Set<string>>(new Set())
+
+  // Store initial sizes when resize starts to detect actual size changes
+  const resizeStartSizes = new Map<string, number>()
+
   function getResizeHandler(header: any) {
-    if (props.layout?.maintainWidth) {
-      return createMaintainWidthResizeHandler(header, tableApi)
+    if (props.layout?.resizeMode === 'shift') {
+      return createShiftResizeHandler(header, tableApi, manuallyResizedColumns)
     }
     return header.getResizeHandler()
   }
@@ -32,6 +39,33 @@ export function useNuGridColumnResize<T extends TableData>(
       event.stopPropagation()
       document.body.classList.add('is-resizing-column')
       resizingColumnId.value = header.column.id
+
+      // Record initial size to detect actual changes
+      // Note: For fill mode, syncFlexColumnWidths() should have already
+      // set the actual rendered width in columnSizing after first render
+      resizeStartSizes.set(header.column.id, header.column.getSize())
+
+      // For fill mode, immediately add to manuallyResizedColumns so CSS
+      // switches from flex to fixed width and responds to size changes during drag
+      if (
+        props.layout?.autoSize === 'fill'
+        && !manuallyResizedColumns.value.has(header.column.id)
+      ) {
+        manuallyResizedColumns.value = new Set([...manuallyResizedColumns.value, header.column.id])
+      }
+
+      // For shift resize mode, also track the next column since it will be affected
+      if (props.layout?.resizeMode === 'shift') {
+        const allColumns = tableApi.getVisibleLeafColumns()
+        const currentIndex = allColumns.findIndex((col) => col.id === header.column.id)
+        if (currentIndex >= 0 && currentIndex < allColumns.length - 1) {
+          const nextColumn = allColumns[currentIndex + 1]
+          if (nextColumn) {
+            resizeStartSizes.set(nextColumn.id, nextColumn.getSize())
+          }
+        }
+      }
+
       resizeHandler(event)
     }
   }
@@ -47,12 +81,32 @@ export function useNuGridColumnResize<T extends TableData>(
     resizingColumnId.value = null
     resizingGroupId.value = header.id
 
-    const resizeHandler = createGroupResizeHandler(header, tableApi)
+    // Record initial sizes for all leaf columns in the group
+    const leafHeaders = header.getLeafHeaders()
+    for (const leafHeader of leafHeaders) {
+      resizeStartSizes.set(leafHeader.column.id, leafHeader.column.getSize())
+    }
+
+    const resizeHandler = createGroupResizeHandler(header, tableApi, manuallyResizedColumns)
     resizeHandler(event)
   }
 
   function handleResizeEnd() {
     document.body.classList.remove('is-resizing-column')
+
+    // Check if any columns actually changed size and mark them as manually resized
+    for (const [columnId, startSize] of resizeStartSizes) {
+      const column = tableApi.getColumn(columnId)
+      if (column) {
+        const currentSize = column.getSize()
+        // Only mark as manually resized if size actually changed (with small tolerance)
+        if (Math.abs(currentSize - startSize) > 1) {
+          manuallyResizedColumns.value = new Set([...manuallyResizedColumns.value, columnId])
+        }
+      }
+    }
+    resizeStartSizes.clear()
+
     resizingColumnId.value = null
     resizingGroupId.value = null
   }
@@ -76,16 +130,18 @@ export function useNuGridColumnResize<T extends TableData>(
     handleResizeEnd,
     resizingGroupId,
     resizingColumnId,
+    manuallyResizedColumns,
   }
 }
 
 /**
- * Custom resize handler that maintains table width by redistributing size changes
- * to following columns
+ * Shift resize handler - redistributes size changes to adjacent columns
+ * to maintain the total table width
  */
-export function createMaintainWidthResizeHandler<TData>(
+export function createShiftResizeHandler<TData>(
   header: Header<TData, any>,
   table: Table<TData>,
+  _manuallyResizedColumns?: { value: Set<string> },
 ): (event: MouseEvent | TouchEvent) => void {
   return (e: MouseEvent | TouchEvent) => {
     const column = table.getColumn(header.column.id)
@@ -306,6 +362,7 @@ export function createMaintainWidthResizeHandler<TData>(
 export function createGroupResizeHandler<TData>(
   header: Header<TData, any>,
   table: Table<TData>,
+  _manuallyResizedColumns?: { value: Set<string> },
 ): (event: MouseEvent | TouchEvent) => void {
   return (e: MouseEvent | TouchEvent) => {
     ;(e as any).persist?.()

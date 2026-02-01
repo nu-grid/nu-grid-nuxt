@@ -19,7 +19,7 @@ describe('presets', () => {
       expect(preset.focus?.retain).toBe(true)
       expect(preset.editing?.enabled).toBe(true)
       expect(preset.layout?.stickyHeaders).toBe(true)
-      expect(preset.layout?.autoSize).toBe('fitCell')
+      expect(preset.layout?.autoSize).toBe('content')
     })
 
     it('should return kanban preset', () => {
@@ -47,8 +47,7 @@ describe('presets', () => {
         preset.validation && typeof preset.validation === 'object' && preset.validation.validateOn,
       ).toBe('blur')
       expect(preset.layout?.scrollbars).toBe('native')
-      expect(preset.layout?.autoSize).toBe('fitGrid')
-      expect(preset.layout?.maintainWidth).toBe(true)
+      expect(preset.layout?.autoSize).toBe('fill')
     })
 
     it('should return analytics preset', () => {
@@ -93,7 +92,7 @@ describe('presets', () => {
       })
 
       expect(result.layout?.stickyHeaders).toBe(false)
-      expect(result.layout?.autoSize).toBe('fitCell') // From preset
+      expect(result.layout?.autoSize).toBe('content') // From preset
     })
 
     it('should allow adding new properties', () => {

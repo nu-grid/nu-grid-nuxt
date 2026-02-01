@@ -293,6 +293,9 @@ const rows = orderedRows
 // Sticky headers
 const stickyEnabled = computed(() => props.layout?.stickyHeaders ?? false)
 
+// Resize mode for column sizing behavior
+const resizeMode = computed(() => props.layout?.resizeMode ?? 'shift')
+
 const {
   virtualizer,
   virtualizationEnabled,
@@ -311,8 +314,13 @@ const {
 })
 
 // Column resize
-const { handleResizeStart, handleGroupResizeStart, resizingGroupId, resizingColumnId } =
-  useNuGridColumnResize(props, tableApi)
+const {
+  handleResizeStart,
+  handleGroupResizeStart,
+  resizingGroupId,
+  resizingColumnId,
+  manuallyResizedColumns,
+} = useNuGridColumnResize(props, tableApi)
 
 // Column drag and drop
 const dragFns = useNuGridColumnDragDrop(tableApi, states.columnOrderState, tableRef)
@@ -538,6 +546,7 @@ provide('nugrid-resize', {
   handleGroupResizeStart,
   resizingGroupId,
   resizingColumnId,
+  manuallyResizedColumns,
 })
 
 provide('nugrid-virtualization', {
@@ -573,6 +582,8 @@ provide('nugrid-ui-config', {
   columnMenuButton: computed(() => props.columnDefaults?.menu?.button),
   wrapText: computed(() => props.columnDefaults?.wrapText ?? false),
   checkboxTheme,
+  autoSizeMode: autosizeFns.autoSizeMode,
+  resizeMode,
 })
 
 provide('nugrid-validation', {
@@ -761,6 +772,7 @@ defineExpose({
   tableApi,
   autoSizeColumns: autosizeFns.autoSizeColumns,
   autoSizeColumn: autosizeFns.autoSizeColumn,
+  autosizeReady: autosizeFns.autosizeReady,
   getState: statePersistence.getState,
   setState: statePersistence.setState,
   addRowState,

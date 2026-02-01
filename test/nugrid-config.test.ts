@@ -160,12 +160,12 @@ describe('nuGridDefaults', () => {
       expect(nuGridDefaults.layout.scrollbars).toBe('scroll')
     })
 
-    it('should default autoSize to false', () => {
-      expect(nuGridDefaults.layout.autoSize).toBe(false)
+    it('should default autoSize to fill', () => {
+      expect(nuGridDefaults.layout.autoSize).toBe('fill')
     })
 
-    it('should default maintainWidth to false', () => {
-      expect(nuGridDefaults.layout.maintainWidth).toBe(false)
+    it('should default resizeMode to shift', () => {
+      expect(nuGridDefaults.layout.resizeMode).toBe('shift')
     })
   })
 
@@ -321,7 +321,7 @@ describe('presets', () => {
       expect(preset.focus?.retain).toBe(true)
       expect(preset.editing?.enabled).toBe(true)
       expect(preset.layout?.stickyHeaders).toBe(true)
-      expect(preset.layout?.autoSize).toBe('fitCell')
+      expect(preset.layout?.autoSize).toBe('content')
     })
 
     it('should return kanban preset', () => {
@@ -345,8 +345,7 @@ describe('presets', () => {
         preset.validation && typeof preset.validation === 'object' && preset.validation.validateOn,
       ).toBe('blur')
       expect(preset.layout?.scrollbars).toBe('native')
-      expect(preset.layout?.autoSize).toBe('fitGrid')
-      expect(preset.layout?.maintainWidth).toBe(true)
+      expect(preset.layout?.autoSize).toBe('fill')
     })
 
     it('should return analytics preset', () => {
@@ -560,18 +559,18 @@ describe('prop-utils', () => {
     })
 
     it('should work with layout group', () => {
-      const props = { layout: { stickyHeaders: true, autoSize: 'fitGrid' } }
-      const { mode, stickyHeaders, scrollbars, autoSize, maintainWidth } = usePropsWithDefaults(
+      const props = { layout: { stickyHeaders: true, autoSize: 'fill' } }
+      const { mode, stickyHeaders, scrollbars, autoSize, resizeMode } = usePropsWithDefaults(
         props,
         'layout',
-        ['mode', 'stickyHeaders', 'scrollbars', 'autoSize', 'maintainWidth'],
+        ['mode', 'stickyHeaders', 'scrollbars', 'autoSize', 'resizeMode'],
       )
 
       expect(mode.value).toBe('div') // Default
       expect(stickyHeaders.value).toBe(true)
       expect(scrollbars.value).toBe('scroll') // Default
-      expect(autoSize.value).toBe('fitGrid')
-      expect(maintainWidth.value).toBe(false) // Default
+      expect(autoSize.value).toBe('fill')
+      expect(resizeMode.value).toBe('shift') // Default
     })
 
     it('should handle empty props object', () => {

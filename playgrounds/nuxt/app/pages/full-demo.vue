@@ -21,7 +21,7 @@ const startEditKeys = ref<('enter' | 'f2' | 'bs' | 'alpha' | 'numeric')[]>([
 ])
 
 // Autosize strategy
-const autoSizeStrategy = ref<'fitCell' | 'fitGrid' | false>('fitGrid')
+const autoSizeStrategy = ref<'content' | 'fill' | false>('fill')
 
 const columnFilters = ref([
   {
@@ -273,7 +273,7 @@ function onRowSelectionChanged(selection: Record<string, boolean>) {
 
 function triggerAutoSize() {
   if (table.value?.autoSizeColumns) {
-    table.value.autoSizeColumns(autoSizeStrategy.value as 'fitCell' | 'fitGrid')
+    table.value.autoSizeColumns(autoSizeStrategy.value as 'content' | 'fill')
     toast.add({
       title: 'Columns Auto-sized',
       description: `Applied ${autoSizeStrategy.value} strategy`,
@@ -467,8 +467,8 @@ function triggerAutoSize() {
               <USelect
                 v-model="autoSizeStrategy"
                 :items="[
-                  { label: 'Fit Cell Contents', value: 'fitCell' },
-                  { label: 'Fit Grid Width', value: 'fitGrid' },
+                  { label: 'Content Width', value: 'content' },
+                  { label: 'Fill Container', value: 'fill' },
                   { label: 'No Autosize', value: false },
                 ]"
                 :ui="{
@@ -544,13 +544,13 @@ function triggerAutoSize() {
             v-model:column-pinning="columnPinning"
             :focus="{ mode: focusMode, cmdArrows: macCursorPaging ? 'paging' : 'firstlast' }"
             :layout="{
-              maintainWidth: true,
+              resizeMode: 'shift',
               stickyHeaders: stickyHeadersEnabled,
               autoSize:
-                autoSizeStrategy === 'fitCell'
-                  ? 'fitCell'
-                  : autoSizeStrategy === 'fitGrid'
-                    ? 'fitGrid'
+                autoSizeStrategy === 'content'
+                  ? 'content'
+                  : autoSizeStrategy === 'fill'
+                    ? 'fill'
                     : false,
             }"
             selection="multi"

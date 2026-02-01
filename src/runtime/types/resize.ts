@@ -12,4 +12,6 @@ export interface NuGridColumnResize<T extends TableData = TableData> {
   handleResizeEnd: () => void
   resizingGroupId: Ref<string | null>
   resizingColumnId: Ref<string | null>
+  /** Set of column IDs that have been manually resized by the user */
+  manuallyResizedColumns: Ref<Set<string>>
 }

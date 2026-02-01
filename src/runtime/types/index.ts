@@ -80,6 +80,7 @@ export type {
   NuGridLookupOptions,
   NuGridMultiRowOptions,
   NuGridPagingOptions,
+  NuGridResizeMode,
   NuGridSelectionOptions,
   NuGridStateOptions,
   NuGridStatePart,

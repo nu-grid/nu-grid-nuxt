@@ -10,4 +10,5 @@ export interface NuGridResizeContext<T extends TableData = TableData> {
   handleGroupResizeStart: NuGridColumnResize<T>['handleGroupResizeStart']
   resizingGroupId: NuGridColumnResize<T>['resizingGroupId']
   resizingColumnId: NuGridColumnResize<T>['resizingColumnId']
+  manuallyResizedColumns: NuGridColumnResize<T>['manuallyResizedColumns']
 }

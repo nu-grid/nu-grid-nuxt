@@ -4,14 +4,14 @@ import type { Ref } from 'vue'
 
 import type { NuGridProps } from '../../types'
 import { useDebounceFn } from '@vueuse/core'
-import { nextTick, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { usePropWithDefault } from '../../config/_internal'
 
 /**
  * Autosize functionality for tables similar to AG Grid
  * Supports two modes:
- * - fitCell: Auto-size columns to fit cell contents
- * - fitGrid: Auto-size columns to fit cell contents and scale up to fill grid width
+ * - content: Auto-size columns to fit cell contents
+ * - fill: Auto-size columns to fit cell contents and scale up to fill grid width
  */
 export function useNuGridAutosize<T extends TableData>(
   props: NuGridProps<T>,
@@ -117,22 +117,60 @@ export function useNuGridAutosize<T extends TableData>(
 
   const autoSize = usePropWithDefault(props, 'layout', 'autoSize')
 
-  function autoSizeColumns(mode?: 'fitCell' | 'fitGrid') {
+  /**
+   * Pre-set equal column widths for fill mode
+   * This runs synchronously before first paint to minimize visual jump
+   */
+  function presetEqualColumnWidths() {
+    if (!tableRef.value) return
+
+    const containerWidth = tableRef.value.offsetWidth
+    if (containerWidth <= 0) return
+
+    const visibleColumns = tableApi.getVisibleLeafColumns()
+    // Skip columns with grow: false (they use fixed size)
+    const resizableColumns = visibleColumns.filter((col) => {
+      const columnDef = col.columnDef as { grow?: boolean }
+      return columnDef.grow !== false
+    })
+
+    if (resizableColumns.length === 0) return
+
+    const equalWidth = containerWidth / resizableColumns.length
+    const newSizing: Record<string, number> = {}
+
+    resizableColumns.forEach((column) => {
+      const minSize = column.columnDef.minSize ?? 20
+      const maxSize = column.columnDef.maxSize ?? Number.MAX_SAFE_INTEGER
+      newSizing[column.id] = Math.max(minSize, Math.min(equalWidth, maxSize))
+    })
+
+    tableApi.setColumnSizing((old) => ({
+      ...old,
+      ...newSizing,
+    }))
+  }
+
+  function autoSizeColumns(mode?: 'content' | 'fill') {
     const effectiveMode = mode || autoSize.value
     if (!effectiveMode || !tableRef.value) return
 
     const visibleColumns = tableApi.getVisibleLeafColumns()
-    const skipColumns = props.skipAutoSizeColumns || []
     const newSizing: Record<string, number> = {}
 
+    // Skip columns with grow: false (they use fixed size)
     const columnsToMeasure = visibleColumns
-      .filter((column) => !skipColumns.includes(column.id))
+      .filter((column) => {
+        const columnDef = column.columnDef as { grow?: boolean }
+        return columnDef.grow !== false
+      })
       .map((column) => column.id)
 
     const measuredWidths = measureAllColumnsContentWidth(columnsToMeasure)
 
     const columnWidths = visibleColumns.map((column) => {
-      if (skipColumns.includes(column.id)) {
+      const columnDef = column.columnDef as { grow?: boolean }
+      if (columnDef.grow === false) {
         return { id: column.id, width: column.getSize(), skip: true }
       }
 
@@ -146,7 +184,7 @@ export function useNuGridAutosize<T extends TableData>(
 
     const totalContentWidth = columnWidths.reduce((sum, col) => sum + col.width, 0)
 
-    if (effectiveMode === 'fitGrid' && tableRef.value) {
+    if (effectiveMode === 'fill' && tableRef.value) {
       const containerWidth = tableRef.value.offsetWidth
 
       // If content is smaller than container, scale up proportionally
@@ -192,8 +230,9 @@ export function useNuGridAutosize<T extends TableData>(
     const column = tableApi.getColumn(columnId)
     if (!column) return
 
-    const skipColumns = props.skipAutoSizeColumns || []
-    if (skipColumns.includes(columnId)) return
+    // Skip columns with grow: false (they use fixed size)
+    const columnDef = column.columnDef as { grow?: boolean }
+    if (columnDef.grow === false) return
 
     const visibleColumns = tableApi.getVisibleLeafColumns()
     const columnIndex = visibleColumns.findIndex((col) => col.id === columnId)
@@ -215,12 +254,95 @@ export function useNuGridAutosize<T extends TableData>(
     autoSizeColumns()
   }, 100)
 
+  // Track if initial autosize has run and grid is ready to show
+  let initialAutosizeComplete = false
+  // For fill, CSS flex handles initial distribution so ready immediately
+  // For content, need to wait for measurement
+  const autosizeReady = ref(!autoSize.value || autoSize.value === 'fill')
+
+  /**
+   * Measure actual rendered widths of flex columns from the DOM
+   * and sync them to TanStack's columnSizing (without marking as manually resized)
+   * This allows resize to work correctly from the first click
+   */
+  function syncFlexColumnWidths() {
+    if (!tableRef.value) return
+
+    const visibleColumns = tableApi.getVisibleLeafColumns()
+    const columnSizing = tableApi.getState().columnSizing
+    const newSizing: Record<string, number> = {}
+
+    // Find all header cells and measure their widths
+    const headerCells = tableRef.value.querySelectorAll('[data-column-id]')
+    const measuredWidths = new Map<string, number>()
+
+    headerCells.forEach((cell) => {
+      const columnId = cell.getAttribute('data-column-id')
+      if (columnId && !measuredWidths.has(columnId)) {
+        measuredWidths.set(columnId, (cell as HTMLElement).offsetWidth)
+      }
+    })
+
+    // For flex columns (not already in columnSizing), set their measured width
+    for (const column of visibleColumns) {
+      const columnDef = column.columnDef as { grow?: boolean }
+      const isFlexColumn = columnDef.grow !== false && !columnSizing[column.id]
+
+      if (isFlexColumn) {
+        const measuredWidth = measuredWidths.get(column.id)
+        if (measuredWidth && measuredWidth > 0) {
+          newSizing[column.id] = measuredWidth
+        }
+      }
+    }
+
+    // Set the measured widths in TanStack (this doesn't trigger visual change
+    // because CSS styling checks manuallyResizedColumns, not columnSizing)
+    if (Object.keys(newSizing).length > 0) {
+      tableApi.setColumnSizing((old) => ({
+        ...old,
+        ...newSizing,
+      }))
+    }
+  }
+
   // Auto-size on mount and when data changes if autoSize is set
   watch(
     [() => props.data, autoSize],
     () => {
       if (autoSize.value) {
-        nextTick(debouncedAutosize)
+        // For fill, CSS flex handles distribution - no JS measurement needed
+        if (autoSize.value === 'fill') {
+          autosizeReady.value = true
+          initialAutosizeComplete = true
+
+          // After first render, sync flex column widths to TanStack
+          // so resize works correctly from the first click
+          if (props.data && props.data.length > 0) {
+            nextTick(() => {
+              // Use requestAnimationFrame to ensure DOM is fully painted
+              requestAnimationFrame(() => {
+                syncFlexColumnWidths()
+              })
+            })
+          }
+          return
+        }
+
+        // For content mode, measure and set column widths
+        if (!initialAutosizeComplete && props.data && props.data.length > 0) {
+          nextTick(() => {
+            autoSizeColumns()
+            initialAutosizeComplete = true
+            autosizeReady.value = true
+          })
+        } else if (initialAutosizeComplete) {
+          // Debounce subsequent updates
+          nextTick(debouncedAutosize)
+        }
+      } else {
+        // If autoSize is disabled, mark as ready immediately
+        autosizeReady.value = true
       }
     },
     { immediate: true, flush: 'post' },
@@ -229,5 +351,8 @@ export function useNuGridAutosize<T extends TableData>(
   return {
     autoSizeColumns,
     autoSizeColumn,
+    presetEqualColumnWidths,
+    autosizeReady,
+    autoSizeMode: autoSize,
   }
 }

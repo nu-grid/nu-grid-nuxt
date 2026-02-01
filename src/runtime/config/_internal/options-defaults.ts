@@ -46,8 +46,8 @@ export const nuGridDefaults = {
     mode: 'div',
     stickyHeaders: false,
     scrollbars: 'scroll',
-    autoSize: false,
-    maintainWidth: false,
+    autoSize: 'fill',
+    resizeMode: 'shift',
   },
   columnDefaults: {
     sortIcons: {
@@ -116,7 +116,6 @@ export const nuGridDefaults = {
     autoPageSizeMinimum: 5,
     suppressPanel: false,
   },
-  skipAutoSizeColumns: [],
   cellTypes: [],
   addNewRow: false,
   rowId: 'id',

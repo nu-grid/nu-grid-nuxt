@@ -5,8 +5,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
  *
  * This test suite verifies that the autosize algorithm correctly:
  * 1. Measures column content widths
- * 2. Applies fitCellContents mode (size to content)
- * 3. Applies fitGridWidth mode (scale up to fill container)
+ * 2. Applies contentContents mode (size to content)
+ * 3. Applies fillWidth mode (scale up to fill container)
  * 4. Respects min/max constraints on columns
  * 5. Skips columns marked for exclusion
  */
@@ -20,7 +20,7 @@ interface Column {
 }
 
 /**
- * Simulates the autosize logic for fitCellContents mode
+ * Simulates the autosize logic for contentContents mode
  */
 function simulateFitCellContents(
   columns: Column[],
@@ -42,7 +42,7 @@ function simulateFitCellContents(
 }
 
 /**
- * Simulates the autosize logic for fitGridWidth mode
+ * Simulates the autosize logic for fillWidth mode
  */
 function simulateFitGridWidth(
   columns: Column[],
@@ -99,7 +99,7 @@ describe('table Autosize', () => {
     ]
   })
 
-  describe('fitCellContents mode', () => {
+  describe('contentContents mode', () => {
     it('should size columns to fit their content', () => {
       const result = simulateFitCellContents(columns)
 
@@ -135,7 +135,7 @@ describe('table Autosize', () => {
     })
   })
 
-  describe('fitGridWidth mode', () => {
+  describe('fillWidth mode', () => {
     it('should scale up columns when content is smaller than container', () => {
       const containerWidth = 800
       const totalContentWidth = 80 + 180 + 220 + 90 // 570

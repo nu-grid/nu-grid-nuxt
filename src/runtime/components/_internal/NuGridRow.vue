@@ -9,10 +9,12 @@ import type {
   NuGridInteractionRouterContext,
   NuGridMultiRowContext,
   NuGridPerformanceContext,
+  NuGridResizeContext,
   NuGridRowInteractionsContext,
+  NuGridUIConfigContext,
 } from '../../types/_internal'
 import { computed, inject } from 'vue'
-import { resolveStyleObject, resolveValue } from '../../composables/_internal'
+import { getFlexCellStyle, resolveStyleObject, resolveValue } from '../../composables/_internal'
 import NuGridCellContent from './NuGridCellContent.vue'
 
 const props = defineProps<{
@@ -39,6 +41,8 @@ const interactionRouterContext = inject<NuGridInteractionRouterContext<T>>(
   'nugrid-interaction-router',
 )!
 const multiRowContext = inject<NuGridMultiRowContext>('nugrid-multi-row')
+const uiConfigContext = inject<NuGridUIConfigContext<T>>('nugrid-ui-config')
+const resizeContext = inject<NuGridResizeContext<T>>('nugrid-resize')
 
 if (
   !coreContext
@@ -59,6 +63,17 @@ const { rowInteractions } = rowInteractionsContext
 const { interactionRouter } = interactionRouterContext
 
 const { onRowSelect, onRowHover, onRowContextmenu } = rowInteractions
+
+/** Flex style options for cell styling */
+const flexStyleOptions = computed(() => ({
+  useCssFlexDistribution: uiConfigContext?.autoSizeMode?.value === 'fill',
+  manuallyResizedColumns: resizeContext?.manuallyResizedColumns.value ?? new Set<string>(),
+}))
+
+/** Get cell style with flex distribution support */
+function getCellStyle(cell: Cell<T, unknown>): Record<string, string | number> {
+  return getFlexCellStyle(cell.column, flexStyleOptions.value)
+}
 
 const tdClassCache = new Map<string, string>()
 
@@ -775,9 +790,7 @@ function getMultiRowPinningStyle(
         "
         :style="{
           ...resolveStyleObject(cell.column.columnDef.meta?.style?.td, cell),
-          width: `${cell.column.getSize()}px`,
-          minWidth: `${cell.column.getSize()}px`,
-          maxWidth: `${cell.column.getSize()}px`,
+          ...getCellStyle(cell),
           ...(cell.column.getIsPinned() === 'left'
             ? { left: `${cell.column.getStart('left')}px` }
             : {}),

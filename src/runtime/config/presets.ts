@@ -23,7 +23,7 @@ const presets: Record<NuGridPreset, NuGridPresetOptions<TableData>> = {
   editable: {
     focus: { mode: 'cell', retain: true },
     editing: { enabled: true },
-    layout: { stickyHeaders: true, autoSize: 'fitCell' },
+    layout: { stickyHeaders: true, autoSize: 'content' },
   },
 
   /**
@@ -44,7 +44,7 @@ const presets: Record<NuGridPreset, NuGridPresetOptions<TableData>> = {
     focus: { mode: 'cell', retain: true, cmdArrows: 'firstlast', pageStep: 5 },
     editing: { enabled: true, startClicks: 'single' },
     validation: { validateOn: 'blur' },
-    layout: { scrollbars: 'native', autoSize: 'fitGrid', maintainWidth: true },
+    layout: { scrollbars: 'native', autoSize: 'fill' },
   },
 
   /**

@@ -194,7 +194,7 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    *   mode: 'group',
    *   stickyHeaders: true,
    *   scrollbars: 'scroll',
-   *   autoSize: 'fitGrid'
+   *   autoSize: 'fill'
    * }
    */
   layout?: NuGridLayoutOptions
@@ -391,13 +391,6 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    * @see CELL_TYPE_GUIDE.md for detailed documentation
    */
   cellTypes?: NuGridCellType<T>[]
-
-  /**
-   * Columns to skip when autosizing
-   * Provide an array of column IDs that should not be auto-sized
-   * @defaultValue []
-   */
-  skipAutoSizeColumns?: string[]
 
   /**
    * Row dragging configuration

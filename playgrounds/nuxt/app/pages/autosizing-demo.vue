@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { NuGridAutoSizeStrategy, NuGridColumn } from '#nu-grid/types'
+import type { NuGridAutoSizeStrategy, NuGridColumn, NuGridResizeMode } from '#nu-grid/types'
 import type { User } from '~/types'
 
 const UAvatar = resolveComponent('UAvatar')
@@ -10,11 +10,11 @@ const toast = useToast()
 const table = useTemplateRef('table')
 
 // Autosize strategy
-const autoSizeStrategy = ref<NuGridAutoSizeStrategy>('fitGrid')
+const autoSizeStrategy = ref<NuGridAutoSizeStrategy>('fill')
 
 // Layout options
-const fullWidthMode = ref(false)
-const maintainTableWidth = ref(true)
+const fullWidthMode = ref(true)
+const shiftResizeMode = ref(true)
 const stickyHeadersEnabled = ref(false)
 
 const columnVisibility = ref()
@@ -22,7 +22,7 @@ const rowSelection = ref({})
 const columnSizing = ref({})
 const columnPinning = ref({})
 
-const { data, status } = await useFetch<User[]>('/api/customers', {
+const { data } = await useFetch<User[]>('/api/customers', {
   lazy: true,
   deep: true,
 })
@@ -30,7 +30,9 @@ const { data, status } = await useFetch<User[]>('/api/customers', {
 const columns: NuGridColumn<User>[] = [
   {
     id: 'select',
+    size: 50,
     minSize: 40,
+    grow: false, // Fixed width - doesn't participate in flex
     enableEditing: false,
     header: ({ table }) =>
       h(UCheckbox, {
@@ -51,14 +53,17 @@ const columns: NuGridColumn<User>[] = [
   {
     accessorKey: 'id',
     header: 'ID',
+    size: 80,
     minSize: 40,
+    grow: false, // Fixed width - doesn't grow
     enableEditing: false,
     enableFocusing: false,
   },
   {
     accessorKey: 'name',
     header: 'Customer Name',
-    minSize: 40,
+    minSize: 150,
+    widthPercentage: 40, // Takes ~40% of remaining flex space
     cell: ({ row }) => {
       return h('div', { class: 'flex items-center gap-3' }, [
         h(UAvatar, {
@@ -74,13 +79,22 @@ const columns: NuGridColumn<User>[] = [
   },
   {
     accessorKey: 'email',
-    minSize: 40,
+    minSize: 150,
     header: 'Email Address',
+    widthPercentage: 40, // Takes ~40% of remaining flex space
+  },
+  {
+    accessorKey: 'location',
+    minSize: 100,
+    header: 'Location',
+    widthPercentage: 20, // Takes ~20% of remaining flex space
   },
   {
     accessorKey: 'status',
     header: 'Status',
+    size: 120,
     minSize: 100,
+    grow: false, // Fixed width - doesn't grow
     cell: ({ row }) => {
       const color = {
         subscribed: 'success',
@@ -98,7 +112,7 @@ const layoutOptions = computed(() => ({
   mode: 'div' as const,
   stickyHeaders: stickyHeadersEnabled.value,
   autoSize: autoSizeStrategy.value,
-  maintainWidth: maintainTableWidth.value,
+  resizeMode: (shiftResizeMode.value ? 'shift' : 'expand') as NuGridResizeMode,
 }))
 
 function triggerAutoSize() {
@@ -129,7 +143,7 @@ function resetColumnSizes() {
         :value="`${table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0} / ${table?.tableApi?.getFilteredRowModel().rows.length || 0}`"
       />
       <DemoStatusItem label="Full Width" :value="fullWidthMode" boolean />
-      <DemoStatusItem label="Maintain Width" :value="maintainTableWidth" boolean />
+      <DemoStatusItem label="Resize Mode" :value="shiftResizeMode ? 'shift' : 'expand'" />
       <DemoStatusItem label="Sticky Headers" :value="stickyHeadersEnabled" boolean />
       <DemoStatusItem
         label="AutoSize Strategy"
@@ -150,13 +164,13 @@ function resetColumnSizes() {
         </UButton>
 
         <UButton
-          :color="maintainTableWidth ? 'primary' : 'neutral'"
-          :variant="maintainTableWidth ? 'solid' : 'outline'"
+          :color="shiftResizeMode ? 'primary' : 'neutral'"
+          :variant="shiftResizeMode ? 'solid' : 'outline'"
           icon="i-lucide-move-horizontal"
           block
-          @click="maintainTableWidth = !maintainTableWidth"
+          @click="shiftResizeMode = !shiftResizeMode"
         >
-          {{ maintainTableWidth ? 'Maintain' : 'Auto' }} Width
+          Resize: {{ shiftResizeMode ? 'Shift' : 'Expand' }}
         </UButton>
 
         <UButton
@@ -174,8 +188,8 @@ function resetColumnSizes() {
         <USelect
           v-model="autoSizeStrategy"
           :items="[
-            { label: 'Fit Cell Contents', value: 'fitCell' },
-            { label: 'Fit Grid Width', value: 'fitGrid' },
+            { label: 'Content Width', value: 'content' },
+            { label: 'Fill Container', value: 'fill' },
             { label: 'No Autosize', value: false },
           ]"
           :ui="{
@@ -212,37 +226,37 @@ function resetColumnSizes() {
 
     <template #info>
       <p class="mb-3 text-sm text-muted">
-        This page demonstrates the column auto-sizing feature with a simplified table. Try different
-        strategies to see how columns adapt to content or fill available space.
+        This page demonstrates the column auto-sizing feature with grow/widthPercentage controls.
       </p>
       <ul class="list-inside list-disc space-y-1 text-sm text-muted">
+        <li><strong>grow: false</strong> - Select, ID, Status columns have fixed widths</li>
         <li>
-          <strong>Full Width:</strong> Toggle to make the table expand to full container width
+          <strong>widthPercentage</strong> - Name (40%), Email (40%), Location (20%) share flex
+          space
         </li>
         <li>
-          <strong>Maintain Width:</strong> When enabled, table maintains its width during column
-          resizing
+          <strong>Fill Container:</strong> Fixed columns stay fixed, flex columns fill remaining
+          space
         </li>
-        <li><strong>Fit Cell Contents:</strong> Sizes columns based on actual content width</li>
         <li>
-          <strong>Fit Grid Width:</strong> Sizes based on content and scales to fill container
+          <strong>Content Width:</strong> All columns size to content (ignores grow/percentage)
         </li>
-        <li><strong>Manual Resize:</strong> Drag column borders to manually adjust sizes</li>
       </ul>
     </template>
 
-    <div :class="fullWidthMode ? 'w-full' : ''">
+    <div :class="['h-full', fullWidthMode ? 'w-full' : '']">
       <NuGrid
+        v-if="data"
         ref="table"
         v-model:column-visibility="columnVisibility"
         v-model:row-selection="rowSelection"
         v-model:column-sizing="columnSizing"
         v-model:column-pinning="columnPinning"
         :layout="layoutOptions"
+        :virtualization="true"
         :column-defaults="{ resize: true, reorder: true }"
         :data="data"
         :columns="columns"
-        :loading="status === 'pending'"
         :ui="{
           base: fullWidthMode
             ? 'w-full min-w-0 border-separate border-spacing-0'
@@ -254,6 +268,7 @@ function resetColumnSizes() {
           separator: 'h-0',
         }"
       />
+      <div v-else class="flex h-64 items-center justify-center text-muted">Loading...</div>
     </div>
 
     <template #code>
@@ -262,14 +277,14 @@ function resetColumnSizes() {
   :data=&quot;data&quot;
   :columns=&quot;columns&quot;
   :layout=&quot;{
-    autoSize: 'fitGrid',  // or 'fitCell' or false
-    maintainWidth: true
+    autoSize: 'fill',  // or 'content' or false
+    resizeMode: 'shift'   // or 'expand'
   }&quot;
 />
 
 // Programmatic auto-sizing
-table.value.autoSizeColumns('fitCell')
-table.value.autoSizeColumns('fitGrid')"
+table.value.autoSizeColumns('content')
+table.value.autoSizeColumns('fill')"
       />
     </template>
 

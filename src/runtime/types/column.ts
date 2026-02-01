@@ -276,4 +276,42 @@ export type NuGridColumn<T extends TableData> = TableColumn<T> & {
    * span: '*'
    */
   span?: number | '*'
+
+  /**
+   * Controls whether the column participates in flex distribution in fill mode
+   * - true (default): Column flexes to fill available space (uses widthPercentage or equal share)
+   * - false: Column uses its fixed `size` and doesn't grow/shrink
+   *
+   * Use grow: false for columns that should have a fixed width regardless of container size,
+   * such as checkbox columns, ID columns, or action columns.
+   * @defaultValue true
+   * @example
+   * // Fixed-width columns that don't grow
+   * { id: 'select', size: 50, grow: false }    // Checkbox column
+   * { accessorKey: 'id', size: 80, grow: false } // ID column
+   * { accessorKey: 'status', size: 120, grow: false } // Status badge column
+   *
+   * @example
+   * // Flex columns that share remaining space (default behavior)
+   * { accessorKey: 'name' }   // Grows with equal share
+   * { accessorKey: 'email' }  // Grows with equal share
+   */
+  grow?: boolean
+
+  /**
+   * Weighted flex-grow value for proportional distribution in fill mode
+   * Columns with higher values take more space relative to other flex columns
+   * Only applies when grow !== false (flex columns only)
+   * @example
+   * // Name takes 40%, Email takes 40%, Location takes 20% of flex space
+   * { accessorKey: 'name', widthPercentage: 40 }
+   * { accessorKey: 'email', widthPercentage: 40 }
+   * { accessorKey: 'location', widthPercentage: 20 }
+   *
+   * @example
+   * // Without widthPercentage, flex columns share space equally (flex-grow: 1)
+   * { accessorKey: 'name' }  // Equal share
+   * { accessorKey: 'email' } // Equal share
+   */
+  widthPercentage?: number
 }

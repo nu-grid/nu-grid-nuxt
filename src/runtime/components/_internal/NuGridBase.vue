@@ -21,6 +21,7 @@ import { createReusableTemplate } from '@vueuse/core'
 import { Primitive } from 'reka-ui'
 import { computed, inject, toValue } from 'vue'
 import {
+  getFlexHeaderStyle,
   getHeaderEffectivePinning,
   getHeaderPinningStyle,
   resolveStyleObject,
@@ -76,8 +77,13 @@ const rows = computed(() => {
   return [...currentRows]
 })
 const { dragFns, rowDragOptions } = dragContext
-const { handleResizeStart, handleGroupResizeStart, resizingGroupId, resizingColumnId } =
-  resizeContext
+const {
+  handleResizeStart,
+  handleGroupResizeStart,
+  resizingGroupId,
+  resizingColumnId,
+  manuallyResizedColumns,
+} = resizeContext
 const {
   virtualizer,
   virtualizationEnabled,
@@ -92,7 +98,35 @@ const {
   scrollbarClass,
   scrollbarThemeClass,
   scrollbarAttr,
+  autoSizeMode,
+  resizeMode,
 } = uiConfigContext
+
+// Check if we should use CSS flex distribution (no fixed widths)
+const useCssFlexDistribution = computed(() => autoSizeMode?.value === 'fill')
+
+// For expand mode with fill: once columns are resized, switch to explicit width
+// This allows the table to grow beyond the container
+const shouldUseFlexWidth = computed(() => {
+  if (!useCssFlexDistribution.value) return false
+  // In shift mode, always use 100% to maintain container fit
+  if (resizeMode?.value === 'shift') return true
+  // In expand mode, switch to explicit width once any column is resized
+  return manuallyResizedColumns.value.size === 0
+})
+
+/** Flex style options for header/cell styling */
+const flexStyleOptions = computed(() => ({
+  useCssFlexDistribution: useCssFlexDistribution.value,
+  manuallyResizedColumns: manuallyResizedColumns.value,
+}))
+
+/** Get header style with flex distribution support */
+function getStandardHeaderStyle(
+  header: (typeof headerGroups.value)[number]['headers'][number],
+): Record<string, string | number> {
+  return getFlexHeaderStyle(header, flexStyleOptions.value)
+}
 
 // Multi-row support
 const multiRowEnabled = computed(() => multiRowContext?.enabled.value ?? false)
@@ -216,10 +250,25 @@ function getAlignedHeaderStyle(
 
   // Row 0 or non-aligned mode: use standard flex sizing
   if (visualRowIndex === 0 || !alignColumns.value) {
+    // For fill mode, use flex with min/max constraints from column definitions
+    const useCssFlexDistribution = autoSizeMode?.value === 'fill'
+    const minSize = header.column.columnDef.minSize ?? 50
+    const maxSize = header.column.columnDef.maxSize
+
+    if (useCssFlexDistribution) {
+      return {
+        flexGrow: 1,
+        flexShrink: 1,
+        flexBasis: 0,
+        minWidth: `${minSize}px`,
+        ...(maxSize && maxSize < Number.MAX_SAFE_INTEGER ? { maxWidth: `${maxSize}px` } : {}),
+      }
+    }
+
     return {
       flexGrow: 1,
       flexBasis: `${header.getSize()}px`,
-      minWidth: `${header.column.columnDef.minSize ?? 50}px`,
+      minWidth: `${minSize}px`,
     }
   }
 
@@ -314,8 +363,10 @@ function getVirtualItemStyle(
   const useDynamicHeight = virtualizer.value.dynamicRowHeightsEnabled?.value ?? false
   const stickyTop = stickyOffsets.value.get(virtualRow.index)
   const resolvedHeight = getVirtualItemHeight(virtualRow.index)
-  // Use explicit table width for proper horizontal scrolling with sticky columns
-  const width = totalTableWidth.value
+  // For CSS flex distribution (fill with shift mode, or expand mode before any resize):
+  // use 100% to fill container and enable flex
+  // Once columns are resized in expand mode, switch to explicit width for horizontal scrolling
+  const width = shouldUseFlexWidth.value ? '100%' : totalTableWidth.value
 
   if (stickyEnabled.value && type === 'column-headers') {
     if (stickyTop !== undefined) {
@@ -365,7 +416,10 @@ function getVirtualItemStyle(
     :data-scrollbars="scrollbarAttr"
   >
     <DefineTableTemplate>
-      <div ref="tableRef" :class="ui.base({ class: [propsUi?.base] })">
+      <div
+        ref="tableRef"
+        :class="ui.base({ class: [propsUi?.base, autoSizeMode === 'fill' && 'w-full'] })"
+      >
         <div v-if="caption || !!slots.caption" :class="ui.caption({ class: [propsUi?.caption] })">
           <slot name="caption">
             {{ caption }}
@@ -613,9 +667,7 @@ function getVirtualItemStyle(
               ]"
               :style="{
                 ...resolveStyleObject(header.column.columnDef.meta?.style?.th, header),
-                width: `${header.getSize()}px`,
-                minWidth: `${header.getSize()}px`,
-                maxWidth: `${header.getSize()}px`,
+                ...getStandardHeaderStyle(header),
                 ...getHeaderPinningStyle(header),
                 ...(header.colSpan > 1 ? { flexGrow: header.colSpan } : {}),
                 ...(header.rowSpan > 1 ? { alignSelf: 'stretch' } : {}),
@@ -1016,9 +1068,7 @@ function getVirtualItemStyle(
                         ]"
                         :style="{
                           ...resolveStyleObject(header.column.columnDef.meta?.style?.th, header),
-                          width: `${header.getSize()}px`,
-                          minWidth: `${header.getSize()}px`,
-                          maxWidth: `${header.getSize()}px`,
+                          ...getStandardHeaderStyle(header),
                           ...getHeaderPinningStyle(header),
                           ...(header.colSpan > 1 ? { flexGrow: header.colSpan } : {}),
                           ...(header.rowSpan > 1 ? { alignSelf: 'stretch' } : {}),

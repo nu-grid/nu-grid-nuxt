@@ -962,8 +962,8 @@ describe('complete public types export verification', () => {
 
   describe('autosize types', () => {
     it('nuGridAutoSizeStrategy type is usable', () => {
-      const strategy: NuGridAutoSizeStrategy = 'fitCell'
-      expect(strategy).toBe('fitCell')
+      const strategy: NuGridAutoSizeStrategy = 'content'
+      expect(strategy).toBe('content')
     })
   })
 

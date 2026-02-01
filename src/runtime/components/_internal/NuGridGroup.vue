@@ -24,6 +24,7 @@ import { Primitive } from 'reka-ui'
 import { upperFirst } from 'scule'
 import { computed, inject, ref, toValue } from 'vue'
 import {
+  getFlexHeaderStyle,
   getHeaderEffectivePinning,
   getHeaderPinningStyle,
   resolveStyleObject,
@@ -69,7 +70,8 @@ if (
 // Destructure from contexts
 const { tableRef, rootRef, tableApi, ui, hasFooter, propsUi } = coreContext
 const { dragFns, rowDragOptions } = dragContext
-const { handleGroupResizeStart, resizingGroupId, resizingColumnId } = resizeContext
+const { handleGroupResizeStart, resizingGroupId, resizingColumnId, manuallyResizedColumns } =
+  resizeContext
 const { stickyEnabled } = virtualizationContext
 const { groupingFns } = groupingContext
 const { headerGroups, headerGroupsLength, footerGroups } = performanceContext
@@ -78,8 +80,20 @@ const {
   scrollbarClass,
   scrollbarThemeClass,
   scrollbarAttr,
+  autoSizeMode,
 } = uiConfigContext
 const { rowSelectionMode } = rowInteractionsContext
+
+/** Flex style options for header styling */
+const flexStyleOptions = computed(() => ({
+  useCssFlexDistribution: autoSizeMode?.value === 'fill',
+  manuallyResizedColumns: manuallyResizedColumns.value,
+}))
+
+/** Get header style with flex distribution support */
+function getHeaderStyle(header: Header<T, unknown>): Record<string, string | number> {
+  return getFlexHeaderStyle(header, flexStyleOptions.value)
+}
 
 const [DefineTableTemplate, ReuseNuGridTemplate] = createReusableTemplate({ inheritAttrs: false })
 
@@ -301,9 +315,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
       ]"
       :style="{
         ...resolveStyleObject(header.column.columnDef.meta?.style?.th, header),
-        width: `${header.getSize()}px`,
-        minWidth: `${header.getSize()}px`,
-        maxWidth: `${header.getSize()}px`,
+        ...getHeaderStyle(header),
         ...getHeaderPinningStyle(header),
         ...(header.rowSpan > 1 ? { alignSelf: 'stretch' } : {}),
       }"
@@ -409,7 +421,10 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
   </DefineHeaderCellTemplate>
 
   <DefineTableTemplate>
-    <div ref="tableRef" :class="ui.base({ class: [propsUi?.base] })">
+    <div
+      ref="tableRef"
+      :class="ui.base({ class: [propsUi?.base, autoSizeMode === 'fill' && 'w-full'] })"
+    >
       <div v-if="caption || !!slots.caption" :class="ui.caption({ class: [propsUi?.caption] })">
         <slot name="caption">
           {{ caption }}
@@ -564,9 +579,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                         ]"
                         :style="{
                           ...resolveStyleObject(header.column.columnDef.meta?.style?.th, header),
-                          width: `${header.getSize()}px`,
-                          minWidth: `${header.getSize()}px`,
-                          maxWidth: `${header.getSize()}px`,
+                          ...getHeaderStyle(header),
                           ...getHeaderPinningStyle(header),
                           ...(header.colSpan > 1 ? { flexGrow: header.colSpan } : {}),
                           ...(header.rowSpan > 1 ? { alignSelf: 'stretch' } : {}),
@@ -662,9 +675,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
             ]"
             :style="{
               ...resolveStyleObject(header.column.columnDef.meta?.style?.th, header),
-              width: `${header.getSize()}px`,
-              minWidth: `${header.getSize()}px`,
-              maxWidth: `${header.getSize()}px`,
+              ...getHeaderStyle(header),
               ...getHeaderPinningStyle(header),
               ...(header.colSpan > 1 ? { flexGrow: header.colSpan } : {}),
               ...(header.rowSpan > 1 ? { alignSelf: 'stretch' } : {}),
