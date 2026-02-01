@@ -1,5 +1,4 @@
-import type { ColumnSizingState } from '@tanstack/vue-table'
-import type { Column, Header } from '@tanstack/vue-table'
+import type { Column, ColumnSizingState, Header } from '@tanstack/vue-table'
 
 interface ColumnDefWithFlex {
   grow?: boolean
@@ -37,7 +36,8 @@ export function getFlexHeaderStyle<T>(
   const widthPercentage = columnDef.widthPercentage
   const fixedSize = columnDef.size ?? header.getSize()
   // Check both runtime Set and persisted columnSizing state (for SSR)
-  const hasBeenResized = manuallyResizedColumns.has(header.column.id)
+  const hasBeenResized =
+    manuallyResizedColumns.has(header.column.id)
     || (columnSizing !== undefined && header.column.id in columnSizing)
 
   // Pinned columns always use fixed width
@@ -99,7 +99,8 @@ export function getFlexCellStyle<T>(
   const widthPercentage = columnDef.widthPercentage
   const fixedSize = columnDef.size ?? column.getSize()
   // Check both runtime Set and persisted columnSizing state (for SSR)
-  const hasBeenResized = manuallyResizedColumns.has(column.id)
+  const hasBeenResized =
+    manuallyResizedColumns.has(column.id)
     || (columnSizing !== undefined && column.id in columnSizing)
 
   // Pinned columns always use fixed width

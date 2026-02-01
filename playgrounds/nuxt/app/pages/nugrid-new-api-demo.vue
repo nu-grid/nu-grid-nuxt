@@ -116,7 +116,7 @@ const exampleCode = `<NuGrid
     validateOn: 'submit',
     onInvalid: 'block'
   }"
-  :selection="{
+  :row-selection="{
     mode: 'multi',
     placement: 'start'
   }"
@@ -244,7 +244,7 @@ const exampleCode = `<NuGrid
             }
           : false
       "
-      :selection="
+      :row-selection="
         currentPreset === 'editable'
           ? {
               mode: 'multi',

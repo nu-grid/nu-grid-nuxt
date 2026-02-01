@@ -162,7 +162,7 @@ const columns: NuGridColumn<StockData>[] = [
       :data="data"
       :columns="columns"
       :focus="{ mode: 'cell' }"
-      selection="multi"
+      row-selection="multi"
       resize-columns
     />
   </div>

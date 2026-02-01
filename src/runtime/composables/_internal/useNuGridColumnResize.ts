@@ -59,7 +59,9 @@ export function useNuGridColumnResize<T extends TableData>(
 
       // Fallback to header if no body cell found
       if (measuredWidth === 0) {
-        const headerCell = tableRef.value!.querySelector(`[data-column-id="${columnId}"]`) as HTMLElement
+        const headerCell = tableRef.value!.querySelector(
+          `[data-column-id="${columnId}"]`,
+        ) as HTMLElement
         if (headerCell) {
           const rect = headerCell.getBoundingClientRect()
           measuredWidth = rect.width
@@ -184,10 +186,7 @@ export function useNuGridColumnResize<T extends TableData>(
       }))
 
       // Mark these columns as manually resized so they use fixed widths
-      manuallyResizedColumns.value = new Set([
-        ...manuallyResizedColumns.value,
-        ...columnIds,
-      ])
+      manuallyResizedColumns.value = new Set([...manuallyResizedColumns.value, ...columnIds])
     }
   }
 

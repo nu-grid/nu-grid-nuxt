@@ -40,9 +40,9 @@ describe('nuGridDefaults', () => {
       expect(typeof nuGridDefaults.validation).toBe('object')
     })
 
-    it('should have selection options', () => {
-      expect(nuGridDefaults.selection).toBeDefined()
-      expect(typeof nuGridDefaults.selection).toBe('object')
+    it('should have rowSelection options', () => {
+      expect(nuGridDefaults.rowSelection).toBeDefined()
+      expect(typeof nuGridDefaults.rowSelection).toBe('object')
     })
 
     it('should have layout options', () => {
@@ -129,21 +129,21 @@ describe('nuGridDefaults', () => {
     })
   })
 
-  describe('selection defaults', () => {
+  describe('rowSelection defaults', () => {
     it('should default mode to multi', () => {
-      expect(nuGridDefaults.selection.mode).toBe('multi')
+      expect(nuGridDefaults.rowSelection.mode).toBe('multi')
     })
 
     it('should default placement to start', () => {
-      expect(nuGridDefaults.selection.placement).toBe('start')
+      expect(nuGridDefaults.rowSelection.placement).toBe('start')
     })
 
     it('should default enabled to true', () => {
-      expect(nuGridDefaults.selection.enabled).toBe(true)
+      expect(nuGridDefaults.rowSelection.enabled).toBe(true)
     })
 
     it('should default hidden to false', () => {
-      expect(nuGridDefaults.selection.hidden).toBe(false)
+      expect(nuGridDefaults.rowSelection.hidden).toBe(false)
     })
   })
 
@@ -415,11 +415,11 @@ describe('prop-utils', () => {
       expect(validationDefaults.onInvalid).toBe('block')
     })
 
-    it('should return selection defaults', () => {
-      const selectionDefaults = getDefaults('selection')
-      expect(selectionDefaults.mode).toBe('multi')
-      expect(selectionDefaults.placement).toBe('start')
-      expect(selectionDefaults.enabled).toBe(true)
+    it('should return rowSelection defaults', () => {
+      const rowSelectionDefaults = getDefaults('rowSelection')
+      expect(rowSelectionDefaults.mode).toBe('multi')
+      expect(rowSelectionDefaults.placement).toBe('start')
+      expect(rowSelectionDefaults.enabled).toBe(true)
     })
 
     it('should return layout defaults', () => {
@@ -467,9 +467,9 @@ describe('prop-utils', () => {
       expect(validateOn.value).toBe('blur')
     })
 
-    it('should work with selection props', () => {
-      const props = { selection: { mode: 'single' } }
-      const mode = usePropWithDefault(props, 'selection', 'mode')
+    it('should work with rowSelection props', () => {
+      const props = { rowSelection: { mode: 'single' } }
+      const mode = usePropWithDefault(props, 'rowSelection', 'mode')
       expect(mode.value).toBe('single')
     })
 
@@ -543,9 +543,9 @@ describe('prop-utils', () => {
       expect(onInvalid.value).toBe('block')
     })
 
-    it('should work with selection group', () => {
-      const props = { selection: { mode: 'single', hidden: true } }
-      const { mode, placement, enabled, hidden } = usePropsWithDefaults(props, 'selection', [
+    it('should work with rowSelection group', () => {
+      const props = { rowSelection: { mode: 'single', hidden: true } }
+      const { mode, placement, enabled, hidden } = usePropsWithDefaults(props, 'rowSelection', [
         'mode',
         'placement',
         'enabled',

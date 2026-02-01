@@ -117,7 +117,7 @@ const columns: NuGridColumn<User>[] = [
   { accessorKey: 'department', header: 'Department', size: 120 },
 ]
 
-const rowSelection = ref({})
+const selectedRows = ref({})
 const columnPinning = ref({ left: ['__selection', 'id'], right: ['__actions'] })
 const emailFilter = ref('')
 const editingEnabled = ref(true)
@@ -150,7 +150,7 @@ function getRowActions(row: NuGridRow<User>): NuGridActionMenuItem[] {
 }
 
 const selectedCount = computed(() => {
-  return Object.values(rowSelection.value).filter(Boolean).length
+  return Object.values(selectedRows.value).filter(Boolean).length
 })
 
 watch(emailFilter, (value) => {
@@ -203,11 +203,11 @@ watch(emailFilter, (value) => {
 
     <NuGrid
       ref="grid"
-      v-model:row-selection="rowSelection"
+      v-model:selected-rows="selectedRows"
       v-model:column-pinning="columnPinning"
       :data="data"
       :columns="columns"
-      :selection="{ mode: 'multi' }"
+      :row-selection="{ mode: 'multi' }"
       :actions="{ getActions: getRowActions }"
       :editing="{ enabled: editingEnabled, startClicks: 'double' }"
       :focus="{ mode: focusMode, retain: true }"

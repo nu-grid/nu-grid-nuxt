@@ -80,7 +80,7 @@ const columns: NuGridColumn<Employee>[] = [
 
 const selectionMode = ref<'none' | 'single' | 'multi'>('multi')
 const disableInactive = ref(true)
-const rowSelection = ref({})
+const selectedRows = ref({})
 
 function canSelectRow(row: NuGridRow<Employee>): boolean {
   if (!disableInactive.value) return true
@@ -98,7 +98,7 @@ const selectionOptions = computed<false | NuGridRowSelectOptions<Employee>>(() =
 const selectedRows = computed(() => gridRef.value?.getSelectedRows<Employee>() ?? [])
 
 function clearSelection() {
-  rowSelection.value = {}
+  selectedRows.value = {}
 }
 </script>
 
@@ -155,10 +155,10 @@ function clearSelection() {
 
     <NuGrid
       ref="grid"
-      v-model:row-selection="rowSelection"
+      v-model:selected-rows="selectedRows"
       :data="data"
       :columns="columns"
-      :selection="selectionOptions"
+      :row-selection="selectionOptions"
       :focus="{ mode: 'cell', retain: true }"
     />
 

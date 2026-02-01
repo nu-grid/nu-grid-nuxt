@@ -24,7 +24,7 @@ export const nuGridDefaults = {
     validateOnAddRow: true,
     icon: 'i-lucide-alert-circle',
   },
-  selection: {
+  rowSelection: {
     mode: 'multi',
     placement: 'start',
     enabled: true,

@@ -472,7 +472,7 @@ const columns = computed<NuGridColumn<Article>[]>(() => [
 ])
 
 const columnVisibility = ref()
-const rowSelection = ref({})
+const selectedRows = ref({})
 const columnSizing = ref({})
 const columnPinning = ref({})
 
@@ -628,7 +628,7 @@ const columns = [
     <NuGrid
       ref="table"
       v-model:column-visibility="columnVisibility"
-      v-model:row-selection="rowSelection"
+      v-model:selected-rows="selectedRows"
       v-model:column-sizing="columnSizing"
       v-model:column-pinning="columnPinning"
       :editing="{ enabled: editingEnabled, startKeys: 'all', startClicks: 'double' }"

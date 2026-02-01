@@ -129,11 +129,11 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    *
    * @example
    * // Enable selection with defaults (multi-select)
-   * selection: true
+   * rowSelection: true
    *
    * @example
    * // Multi-select with sync callback
-   * selection: {
+   * rowSelection: {
    *   mode: 'multi',
    *   placement: 'start',
    *   sync: (ids) => { selectedIds.value = ids }
@@ -141,12 +141,12 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    *
    * @example
    * // Single select with conditional enabling
-   * selection: {
+   * rowSelection: {
    *   mode: 'single',
    *   rowSelectionEnabled: (row) => row.original.selectable
    * }
    */
-  selection?: boolean | 'single' | 'multi' | NuGridSelectionOptions<T>
+  rowSelection?: boolean | 'single' | 'multi' | NuGridSelectionOptions<T>
 
   /**
    * Actions column configuration

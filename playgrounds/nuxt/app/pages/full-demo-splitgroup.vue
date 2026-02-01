@@ -35,7 +35,7 @@ const columnFilters = ref([
   },
 ])
 const columnVisibility = ref()
-const rowSelection = ref({ 1: true })
+const selectedRows = ref({ 1: true })
 const columnSizing = ref({})
 const columnPinning = ref({
   left: ['__selection', 'id'],
@@ -553,7 +553,7 @@ const grouping_options = ref<NuGridGroupingOptions>({
             ref="table"
             v-model:column-filters="columnFilters"
             v-model:column-visibility="columnVisibility"
-            v-model:row-selection="rowSelection"
+            v-model:selected-rows="selectedRows"
             v-model:pagination="pagination"
             v-model:column-sizing="columnSizing"
             v-model:column-pinning="columnPinning"
@@ -569,7 +569,7 @@ const grouping_options = ref<NuGridGroupingOptions>({
                     ? 'fill'
                     : false,
             }"
-            selection="multi"
+            row-selection="multi"
             :editing="{
               enabled: editingEnabled,
               startKeys: startEditKeys,

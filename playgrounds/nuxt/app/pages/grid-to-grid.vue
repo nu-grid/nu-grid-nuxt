@@ -34,8 +34,8 @@ const columnVisibility = ref()
 const columnSizing = ref({})
 
 // Separate state for each grid
-const rowSelectionLeft = ref({})
-const rowSelectionRight = ref({})
+const selectedRowsLeft = ref({})
+const selectedRowsRight = ref({})
 
 const paginationLeft = ref({
   pageIndex: 0,
@@ -217,7 +217,7 @@ const columns: NuGridColumn<User>[] = [
               ref="tableLeft"
               v-model:column-filters="columnFilters"
               v-model:column-visibility="columnVisibility"
-              v-model:row-selection="rowSelectionLeft"
+              v-model:selected-rows="selectedRowsLeft"
               v-model:pagination="paginationLeft"
               v-model:column-sizing="columnSizing"
               :row-drag-options="rowDragOptionsLeft"
@@ -243,7 +243,7 @@ const columns: NuGridColumn<User>[] = [
               ref="tableRight"
               v-model:column-filters="columnFilters"
               v-model:column-visibility="columnVisibility"
-              v-model:row-selection="rowSelectionRight"
+              v-model:selected-rows="selectedRowsRight"
               v-model:pagination="paginationRight"
               v-model:column-sizing="columnSizing"
               :row-drag-options="rowDragOptionsRight"

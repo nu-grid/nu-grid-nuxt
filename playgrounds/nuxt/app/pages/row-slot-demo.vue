@@ -78,7 +78,7 @@ const useRowSlot = ref(true)
 const focusMode = ref<'row' | 'none'>('row')
 
 // Row selection
-const rowSelection = ref({})
+const selectedRows = ref({})
 
 // Status colors
 const statusColors: Record<string, string> = {
@@ -164,7 +164,7 @@ const exampleCode = `<NuGrid :data="data" :columns="columns">
       />
       <DemoStatusItem
         label="Selected"
-        :value="useRowSlot ? 'N/A' : Object.keys(rowSelection).length"
+        :value="useRowSlot ? 'N/A' : Object.keys(selectedRows).length"
         :color="useRowSlot ? 'text-muted' : 'text-info'"
       />
     </template>
@@ -217,16 +217,16 @@ const exampleCode = `<NuGrid :data="data" :columns="columns">
         </div>
       </DemoControlGroup>
 
-      <DemoControlGroup v-if="!useRowSlot && Object.keys(rowSelection).length > 0">
+      <DemoControlGroup v-if="!useRowSlot && Object.keys(selectedRows).length > 0">
         <UButton
           block
           color="error"
           variant="subtle"
           icon="i-lucide-trash"
           size="sm"
-          @click="rowSelection = {}"
+          @click="selectedRows = {}"
         >
-          Clear Selection ({{ Object.keys(rowSelection).length }})
+          Clear Selection ({{ Object.keys(selectedRows).length }})
         </UButton>
       </DemoControlGroup>
     </template>
@@ -266,10 +266,10 @@ const exampleCode = `<NuGrid :data="data" :columns="columns">
     <div class="h-[400px] overflow-auto">
       <NuGrid
         :key="useRowSlot ? 'custom' : 'default'"
-        v-model:row-selection="rowSelection"
+        v-model:selected-rows="selectedRows"
         :data="data"
         :columns="columns"
-        :selection="{ mode: 'multi' }"
+        :row-selection="{ mode: 'multi' }"
         :focus="{ mode: focusMode }"
         :ui="{
           base: 'w-max min-w-full border-separate border-spacing-0',

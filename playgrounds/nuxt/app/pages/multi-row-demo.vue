@@ -156,7 +156,7 @@ const columns = computed<NuGridColumn<Contact>[]>(() => [
 ])
 
 const columnVisibility = ref()
-const rowSelection = ref({})
+const selectedRows = ref({})
 const columnSizing = ref({})
 const columnPinning = ref({})
 
@@ -342,7 +342,7 @@ const exampleCode = `<NuGrid
     <NuGrid
       ref="table"
       v-model:column-visibility="columnVisibility"
-      v-model:row-selection="rowSelection"
+      v-model:selected-rows="selectedRows"
       v-model:column-sizing="columnSizing"
       v-model:column-pinning="columnPinning"
       :multi-row="{ enabled: multiRowEnabled, rowCount, alignColumns }"

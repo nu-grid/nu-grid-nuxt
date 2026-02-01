@@ -18,7 +18,7 @@ const shiftResizeMode = ref(true)
 const stickyHeadersEnabled = ref(false)
 
 const columnVisibility = ref()
-const rowSelection = ref({})
+const selectedRows = ref({})
 const columnSizing = ref({})
 const columnPinning = ref({})
 
@@ -249,7 +249,7 @@ function resetColumnSizes() {
         v-if="data"
         ref="table"
         v-model:column-visibility="columnVisibility"
-        v-model:row-selection="rowSelection"
+        v-model:selected-rows="selectedRows"
         v-model:column-sizing="columnSizing"
         v-model:column-pinning="columnPinning"
         :layout="layoutOptions"
@@ -291,7 +291,7 @@ table.value.autoSizeColumns('fill')"
     <template #extra>
       <div class="flex items-center justify-between gap-3 border-t border-default pt-4">
         <div class="text-sm text-muted">Total rows: {{ data?.length ?? 0 }}</div>
-        <div class="text-sm text-muted">Selected: {{ Object.keys(rowSelection).length }}</div>
+        <div class="text-sm text-muted">Selected: {{ Object.keys(selectedRows).length }}</div>
       </div>
     </template>
   </DemoLayout>

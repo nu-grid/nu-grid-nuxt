@@ -97,10 +97,10 @@ describe('presets', () => {
 
     it('should allow adding new properties', () => {
       const result = applyNuGridPreset('readOnly', {
-        selection: { mode: 'multiple' },
+        rowSelection: { mode: 'multiple' },
       } as any)
 
-      expect((result as any).selection?.mode).toBe('multiple')
+      expect((result as any).rowSelection?.mode).toBe('multiple')
       expect(result.focus?.mode).toBe('row') // From preset
     })
 

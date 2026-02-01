@@ -115,7 +115,7 @@ const rowSelectionMode = computed<false | NuGridRowSelectOptions<Employee>>(() =
 })
 
 // Row selection state
-const rowSelection = ref({})
+const selectionState = ref({})
 
 // Focus mode control
 const focusMode = ref<'cell' | 'row'>('cell')
@@ -179,7 +179,7 @@ const selectedRows = computed((): Employee[] => {
 
 // Clear selection
 function clearSelection() {
-  rowSelection.value = {}
+  selectionState.value = {}
 }
 
 // Handle selection mode change
@@ -188,8 +188,8 @@ function onSelectionModeChange(newMode: 'none' | 'single' | 'multi') {
 }
 
 const exampleCode = `<NuGrid
-  v-model:row-selection="rowSelection"
-  :selection="{
+  v-model:selected-rows="selectedRowState"
+  :row-selection="{
     mode: 'multi',
     hidden: false,
     enabled: true,
@@ -390,8 +390,8 @@ const exampleCode = `<NuGrid
     <div class="overflow-x-auto">
       <NuGrid
         ref="table"
-        v-model:row-selection="rowSelection"
-        :selection="rowSelectionMode"
+        v-model:selected-rows="selectionState"
+        :row-selection="rowSelectionMode"
         :data="data"
         :columns="columns"
         :focus="{ mode: focusMode, retain: retainFocus }"

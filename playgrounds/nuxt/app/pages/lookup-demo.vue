@@ -254,7 +254,7 @@ const columns = computed<NuGridColumn<Product>[]>(() => [
 ])
 
 const columnVisibility = ref()
-const rowSelection = ref({})
+const selectedRows = ref({})
 const columnSizing = ref({})
 const columnPinning = ref({})
 
@@ -427,7 +427,7 @@ const asyncLookupCode = `{
       <NuGrid
         ref="table"
         v-model:column-visibility="columnVisibility"
-        v-model:row-selection="rowSelection"
+        v-model:selected-rows="selectedRows"
         v-model:column-sizing="columnSizing"
         v-model:column-pinning="columnPinning"
         :editing="{

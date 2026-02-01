@@ -25,7 +25,7 @@ type OptionsTypeMap = {
       ? NuGridEditingOptions
       : K extends 'validation'
         ? NuGridValidationOptions
-        : K extends 'selection'
+        : K extends 'rowSelection'
           ? NuGridSelectionOptions
           : K extends 'layout'
             ? NuGridLayoutOptions

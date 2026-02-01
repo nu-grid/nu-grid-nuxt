@@ -40,8 +40,7 @@ export const nuGridThemeCompact = {
     rowDragIcon: 'inline-block w-3.5 h-3.5',
     headerContainer: 'relative flex items-stretch w-full h-full bg-gray-50 dark:bg-gray-800',
     headerControls: 'absolute right-0 inset-y-0 flex items-center z-10 bg-inherit',
-    columnMenu:
-      'flex items-center px-1 transition-opacity duration-200',
+    columnMenu: 'flex items-center px-1 transition-opacity duration-200',
     footerContent: 'w-full truncate',
     // Group header styling
     groupHeader:

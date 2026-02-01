@@ -29,8 +29,8 @@ describe('prop-utils', () => {
       expect(defaults.validateOn).toBeDefined()
     })
 
-    it('should return selection defaults', () => {
-      const defaults = getDefaults('selection')
+    it('should return rowSelection defaults', () => {
+      const defaults = getDefaults('rowSelection')
 
       expect(defaults).toBeDefined()
     })

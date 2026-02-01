@@ -297,7 +297,7 @@ const columnVisibility = ref<Record<string, boolean>>()
 const columnSizing = ref<Record<string, number>>({})
 const columnPinning = ref<{ left?: string[]; right?: string[] }>({})
 const sorting = ref([])
-const rowSelection = ref<Record<string, boolean>>({})
+const selectedRows = ref<Record<string, boolean>>({})
 
 // Grid configuration
 const resizeColumns = ref(true)
@@ -357,7 +357,7 @@ const exampleCode = `// Disable menu for a column
       <DemoStatusItem label="Active Sorts" :value="sorting.length" />
       <DemoStatusItem
         label="Selected Rows"
-        :value="Object.keys(rowSelection || {}).filter((k) => rowSelection[k]).length"
+        :value="Object.keys(selectedRows || {}).filter((k) => selectedRows[k]).length"
       />
       <DemoStatusItem label="Grid Customization" :value="useGridLevelCustomization" />
     </template>
@@ -474,8 +474,8 @@ const exampleCode = `// Disable menu for a column
       v-model:column-sizing="columnSizing"
       v-model:column-pinning="columnPinning"
       v-model:sorting="sorting"
-      v-model:row-selection="rowSelection"
-      :selection="rowSelectionMode"
+      v-model:selected-rows="selectedRows"
+      :row-selection="rowSelectionMode"
       :layout="{ stickyHeaders }"
       :column-defaults="{
         resize: resizeColumns,

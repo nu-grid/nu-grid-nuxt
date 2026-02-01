@@ -235,7 +235,7 @@ const exampleCode = `<NuGrid
   :data="data"
   :columns="columns"
   :focus="{ mode: 'cell' }"
-  selection="multi"
+  row-selection="multi"
   resize-columns
 />`
 </script>
@@ -334,7 +334,7 @@ const exampleCode = `<NuGrid
       :columns="columns"
       :focus="{ mode: focusMode }"
       resize-columns
-      selection="multi"
+      row-selection="multi"
       class="border-compact-border max-h-[400px] rounded border dark:border-compact-border-dark"
     />
 

@@ -12,7 +12,7 @@ import NuGridCellCheckbox from '../../components/NuGridCellCheckbox.vue'
 import { getDefaults } from '../../config/_internal'
 import { nuGridCellTypeRegistry } from '../useNuGridCellTypeRegistry'
 
-const selectionDefaults = getDefaults('selection')
+const selectionDefaults = getDefaults('rowSelection')
 
 interface SelectionTotalsCache<T extends TableData> {
   lastCoreRows: Row<T>[]

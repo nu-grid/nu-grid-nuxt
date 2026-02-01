@@ -23,11 +23,11 @@ const columns: NuGridColumn<Employee>[] = [
   { accessorKey: 'role', header: 'Role', size: 120 },
 ]
 
-const rowSelection = ref({})
+const selectedRows = ref({})
 const table = useTemplateRef('table')
 
 const selectedCount = computed(() => {
-  return Object.values(rowSelection.value).filter(Boolean).length
+  return Object.values(selectedRows.value).filter(Boolean).length
 })
 </script>
 
@@ -35,10 +35,10 @@ const selectedCount = computed(() => {
   <div class="w-full space-y-4">
     <NuGrid
       ref="table"
-      v-model:row-selection="rowSelection"
+      v-model:selected-rows="selectedRows"
       :data="data"
       :columns="columns"
-      selection="multi"
+      row-selection="multi"
       :ui="{
         base: 'w-full border-separate border-spacing-0',
         thead: '[&>tr]:bg-elevated/50',

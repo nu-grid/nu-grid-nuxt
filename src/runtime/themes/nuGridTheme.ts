@@ -36,8 +36,7 @@ export const nuGridTheme = {
     rowDragIcon: 'inline-block w-4 h-4',
     headerContainer: 'relative flex items-stretch w-full h-full',
     headerControls: 'absolute right-0 inset-y-0 flex items-center z-10 bg-inherit',
-    columnMenu:
-      'flex items-center px-1 transition-opacity duration-200',
+    columnMenu: 'flex items-center px-1 transition-opacity duration-200',
     footerContent: 'w-full truncate',
     groupHeader:
       'flex items-stretch cursor-pointer bg-primary/10 hover:bg-primary/15 transition-colors',

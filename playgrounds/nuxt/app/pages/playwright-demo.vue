@@ -122,7 +122,7 @@ const autoSizeStrategy = ref<'content' | 'fill' | false>('fill')
 // State models
 const columnFilters = ref([{ id: 'email', value: '' }])
 const columnVisibility = ref()
-const rowSelection = ref({ 1: true })
+const selectedRows = ref({ 1: true })
 const columnSizing = ref({})
 const columnPinning = ref({
   left: ['select', 'id'],
@@ -459,7 +459,7 @@ function triggerAutoSize() {
       ref="table"
       v-model:column-filters="columnFilters"
       v-model:column-visibility="columnVisibility"
-      v-model:row-selection="rowSelection"
+      v-model:selected-rows="selectedRows"
       v-model:column-sizing="columnSizing"
       v-model:column-pinning="columnPinning"
       :focus="{ mode: focusMode, cmdArrows: macCursorPaging ? 'paging' : 'firstlast' }"

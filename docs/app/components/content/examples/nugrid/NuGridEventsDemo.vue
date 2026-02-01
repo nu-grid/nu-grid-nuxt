@@ -32,7 +32,7 @@ const columns: NuGridColumn<User>[] = [
   },
 ]
 
-const rowSelection = ref({})
+const selectedRows = ref({})
 const eventLog = ref<string[]>([])
 
 function logEvent(type: string, message: string) {
@@ -67,10 +67,10 @@ function clearLog() {
     <div class="grid md:grid-cols-2 gap-4">
       <div>
         <NuGrid
-          v-model:row-selection="rowSelection"
+          v-model:selected-rows="selectedRows"
           :data="data"
           :columns="columns"
-          :selection="{ mode: 'multi' }"
+          :row-selection="{ mode: 'multi' }"
           :editing="{ enabled: true, startClicks: 'double' }"
           :focus="{ mode: 'cell', retain: true }"
           @cell-value-changed="onCellValueChanged"

@@ -163,7 +163,7 @@ const columnSizingState = defineModel<ColumnSizingState>('columnSizing', { defau
 const columnSizingInfoState = defineModel<ColumnSizingInfoState>('columnSizingInfo', {
   default: {},
 })
-const rowSelectionState = defineModel<RowSelectionState>('rowSelection', { default: {} })
+const rowSelectionState = defineModel<RowSelectionState>('selectedRows', { default: {} })
 const rowPinningState = defineModel<RowPinningState>('rowPinning', { default: {} })
 const sortingState = defineModel<SortingState>('sorting', { default: [] })
 const groupingState = defineModel<GroupingState>('grouping', { default: [] })
@@ -188,7 +188,7 @@ initPaginationState()
 
 // Create row selection mode ref and columns with visibility integration
 // Disable selection when row slot is provided (no checkbox column available)
-const rowSelectionModeRef = computed(() => (hasRowSlot.value ? false : (props.selection ?? false)))
+const rowSelectionModeRef = computed(() => (hasRowSlot.value ? false : (props.rowSelection ?? false)))
 const actionMenuRef = computed(() => props.actions ?? false)
 const { columns } = useNuGridColumns(
   propsColumns,

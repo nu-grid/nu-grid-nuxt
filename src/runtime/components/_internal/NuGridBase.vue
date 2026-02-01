@@ -794,7 +794,8 @@ function getVirtualItemStyle(
                           ui.colResizer({
                             class: [propsUi?.colResizer],
                             colResizing:
-                              resizingColumnId === header.column.id || header.column.getIsResizing(),
+                              resizingColumnId === header.column.id
+                              || header.column.getIsResizing(),
                           })
                         "
                         :data-col-resizing="
@@ -980,7 +981,8 @@ function getVirtualItemStyle(
                                 })
                               "
                               :data-col-resizing="
-                                resizingColumnId === header.column.id || header.column.getIsResizing()
+                                resizingColumnId === header.column.id
+                                || header.column.getIsResizing()
                                   ? 'true'
                                   : undefined
                               "

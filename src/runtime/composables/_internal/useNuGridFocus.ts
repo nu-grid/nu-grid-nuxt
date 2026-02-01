@@ -39,7 +39,7 @@ export function useNuGridFocus<T extends TableData>(
   const cmdArrows = usePropWithDefault(props, 'focus', 'cmdArrows')
   const alignOnModel = usePropWithDefault(props, 'focus', 'alignOnModel')
   const enableEditing = usePropWithDefault(props, 'editing', 'enabled')
-  const rowSelectionMode = computed(() => props.selection ?? false)
+  const rowSelectionMode = computed(() => props.rowSelection ?? false)
 
   const focusedCell = ref<NuGridFocusedCell | null>(null)
   const gridHasFocus = ref(false)
