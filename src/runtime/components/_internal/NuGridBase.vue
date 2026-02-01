@@ -119,6 +119,7 @@ const shouldUseFlexWidth = computed(() => {
 const flexStyleOptions = computed(() => ({
   useCssFlexDistribution: useCssFlexDistribution.value,
   manuallyResizedColumns: manuallyResizedColumns.value,
+  columnSizing: tableApi.getState().columnSizing,
 }))
 
 /** Get header style with flex distribution support */

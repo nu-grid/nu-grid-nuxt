@@ -79,14 +79,38 @@ export function useNuGridColumnResize<T extends TableData>(
     }
   }
 
+  // Track if state was restored (skip initial sync in that case)
+  let stateWasRestored = false
+
   /**
    * Sync all flex columns' widths from DOM.
    * This prevents header/cell width mismatch caused by sub-pixel flex distribution
    * differences between separate flex containers (thead row vs tbody row).
+   *
+   * @param forceSync - If true, always sync from DOM (used for container resize).
+   *                    If false, skip if state was already restored from persistence.
    */
-  function syncInitialFlexWidths(): void {
+  function syncInitialFlexWidths(forceSync = false): void {
     if (props.layout?.autoSize !== 'fill') return
     if (!tableRef.value) return
+
+    // Skip entirely if state was already restored via ratios (unless forced)
+    if (stateWasRestored && !forceSync) {
+      stateWasRestored = false
+      return
+    }
+
+    // On initial load (not forced), check if we have restored sizing from state persistence
+    // If columns already have sizing, mark them as manually resized but don't overwrite
+    if (!forceSync) {
+      const currentSizing = tableApi.getState().columnSizing
+      const restoredColumnIds = Object.keys(currentSizing)
+      if (restoredColumnIds.length > 0) {
+        // State was restored - mark restored columns as manually resized
+        manuallyResizedColumns.value = new Set(restoredColumnIds)
+        return
+      }
+    }
 
     const allColumns = tableApi.getVisibleLeafColumns()
     const flexColumns = allColumns
@@ -104,6 +128,83 @@ export function useNuGridColumnResize<T extends TableData>(
     // Mark all flex columns as "manually resized" so they use fixed widths
     // This ensures headers and cells use the same measured widths
     manuallyResizedColumns.value = new Set(flexColumns)
+  }
+
+  /**
+   * Get the current container width for percentage calculations
+   */
+  function getContainerWidth(): number {
+    if (!tableRef.value) return 0
+    const rootEl = tableRef.value.parentElement
+    return rootEl?.getBoundingClientRect().width ?? 0
+  }
+
+  /**
+   * Convert current pixel sizing to percentage ratios
+   * Returns a map of columnId -> ratio (0-1)
+   */
+  function getSizingAsRatios(): Record<string, number> {
+    const containerWidth = getContainerWidth()
+    if (containerWidth === 0) return {}
+
+    const currentSizing = tableApi.getState().columnSizing
+    const ratios: Record<string, number> = {}
+
+    for (const [columnId, pixelWidth] of Object.entries(currentSizing)) {
+      ratios[columnId] = pixelWidth / containerWidth
+    }
+
+    return ratios
+  }
+
+  /**
+   * Apply sizing from percentage ratios
+   * Converts ratios back to pixels based on current container width
+   */
+  function applySizingFromRatios(ratios: Record<string, number>): void {
+    const containerWidth = getContainerWidth()
+    if (containerWidth === 0) return
+
+    const pixelSizing: Record<string, number> = {}
+    const columnIds: string[] = []
+
+    for (const [columnId, ratio] of Object.entries(ratios)) {
+      pixelSizing[columnId] = Math.round(ratio * containerWidth)
+      columnIds.push(columnId)
+    }
+
+    if (Object.keys(pixelSizing).length > 0) {
+      // Mark that state was restored to skip initial flex sync
+      stateWasRestored = true
+
+      // Apply pixel sizing
+      tableApi.setColumnSizing((old) => ({
+        ...old,
+        ...pixelSizing,
+      }))
+
+      // Mark these columns as manually resized so they use fixed widths
+      manuallyResizedColumns.value = new Set([
+        ...manuallyResizedColumns.value,
+        ...columnIds,
+      ])
+    }
+  }
+
+  /**
+   * Apply restored column sizing (in pixels) and mark columns as manually resized
+   */
+  function applyRestoredSizing(sizing: Record<string, number>): void {
+    if (Object.keys(sizing).length === 0) return
+
+    // Mark that state was restored to skip initial flex sync
+    stateWasRestored = true
+
+    // Mark these columns as manually resized so they use fixed widths
+    manuallyResizedColumns.value = new Set([
+      ...manuallyResizedColumns.value,
+      ...Object.keys(sizing),
+    ])
   }
 
   // Track container width to detect resize
@@ -130,7 +231,7 @@ export function useNuGridColumnResize<T extends TableData>(
         manuallyResizedColumns.value = new Set()
         // Wait for flex to recalculate, then sync widths
         nextTick(() => {
-          syncInitialFlexWidths()
+          syncInitialFlexWidths(true) // Force sync on container resize
         })
       })
     }
@@ -314,6 +415,11 @@ export function useNuGridColumnResize<T extends TableData>(
     resizingGroupId,
     resizingColumnId,
     manuallyResizedColumns,
+    // State persistence helpers
+    getContainerWidth,
+    getSizingAsRatios,
+    applySizingFromRatios,
+    applyRestoredSizing,
   }
 }
 

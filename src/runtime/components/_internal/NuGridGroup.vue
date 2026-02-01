@@ -88,6 +88,7 @@ const { rowSelectionMode } = rowInteractionsContext
 const flexStyleOptions = computed(() => ({
   useCssFlexDistribution: autoSizeMode?.value === 'fill',
   manuallyResizedColumns: manuallyResizedColumns.value,
+  columnSizing: tableApi.getState().columnSizing,
 }))
 
 /** Get header style with flex distribution support */

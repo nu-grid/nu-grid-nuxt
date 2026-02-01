@@ -320,7 +320,17 @@ const {
   resizingGroupId,
   resizingColumnId,
   manuallyResizedColumns,
+  getContainerWidth,
+  getSizingAsRatios,
+  applySizingFromRatios,
 } = useNuGridColumnResize(props, tableApi, tableRef)
+
+// Connect resize helpers to state persistence for ratio-based sizing
+statePersistence.setResizeHelpers({
+  getContainerWidth,
+  getSizingAsRatios,
+  applySizingFromRatios,
+})
 
 // Column drag and drop
 const dragFns = useNuGridColumnDragDrop(tableApi, states.columnOrderState, tableRef)
@@ -687,6 +697,9 @@ useNuGridFocusInit(props, focusFns, groupingFns?.navigableRows ?? rows)
 // Emit ready event after grid is fully initialized
 onMounted(() => {
   nextTick(() => {
+    // Apply any pending column sizing ratios from restored state
+    // This must happen after the resize composable has initialized
+    statePersistence.applyPendingRatios()
     emit('ready')
   })
 })

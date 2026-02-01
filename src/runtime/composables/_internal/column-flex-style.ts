@@ -1,3 +1,4 @@
+import type { ColumnSizingState } from '@tanstack/vue-table'
 import type { Column, Header } from '@tanstack/vue-table'
 
 interface ColumnDefWithFlex {
@@ -13,6 +14,8 @@ interface FlexStyleOptions {
   useCssFlexDistribution: boolean
   /** Set of column IDs that have been manually resized */
   manuallyResizedColumns: Set<string>
+  /** Column sizing state from TanStack (for SSR - detects restored sizing) */
+  columnSizing?: ColumnSizingState
 }
 
 /**
@@ -25,7 +28,7 @@ export function getFlexHeaderStyle<T>(
   header: Header<T, unknown>,
   options: FlexStyleOptions,
 ): Record<string, string | number> {
-  const { useCssFlexDistribution, manuallyResizedColumns } = options
+  const { useCssFlexDistribution, manuallyResizedColumns, columnSizing } = options
   const isPinned = header.column.getIsPinned()
   const columnDef = header.column.columnDef as ColumnDefWithFlex
   const minSize = columnDef.minSize ?? 50
@@ -33,7 +36,9 @@ export function getFlexHeaderStyle<T>(
   const grow = columnDef.grow
   const widthPercentage = columnDef.widthPercentage
   const fixedSize = columnDef.size ?? header.getSize()
+  // Check both runtime Set and persisted columnSizing state (for SSR)
   const hasBeenResized = manuallyResizedColumns.has(header.column.id)
+    || (columnSizing !== undefined && header.column.id in columnSizing)
 
   // Pinned columns always use fixed width
   if (isPinned) {
@@ -85,7 +90,7 @@ export function getFlexCellStyle<T>(
   column: Column<T, unknown>,
   options: FlexStyleOptions,
 ): Record<string, string | number> {
-  const { useCssFlexDistribution, manuallyResizedColumns } = options
+  const { useCssFlexDistribution, manuallyResizedColumns, columnSizing } = options
   const isPinned = column.getIsPinned()
   const columnDef = column.columnDef as ColumnDefWithFlex
   const minSize = columnDef.minSize ?? 50
@@ -93,7 +98,9 @@ export function getFlexCellStyle<T>(
   const grow = columnDef.grow
   const widthPercentage = columnDef.widthPercentage
   const fixedSize = columnDef.size ?? column.getSize()
+  // Check both runtime Set and persisted columnSizing state (for SSR)
   const hasBeenResized = manuallyResizedColumns.has(column.id)
+    || (columnSizing !== undefined && column.id in columnSizing)
 
   // Pinned columns always use fixed width
   if (isPinned) {

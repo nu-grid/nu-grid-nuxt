@@ -27,12 +27,23 @@ export interface NuGridStateSnapshot {
   columnPinning?: ColumnPinningState
   columnSizing?: ColumnSizingState
   columnSizingInfo?: ColumnSizingInfoState
+  /** Column sizing stored as ratios (0-1) relative to container width for resolution-independent persistence */
+  columnSizingRatios?: Record<string, number>
   rowSelection?: RowSelectionState
   rowPinning?: RowPinningState
   sorting?: SortingState
   grouping?: GroupingState
   expanded?: ExpandedState
   pagination?: PaginationState
+}
+
+export interface NuGridStatePersistenceHelpers {
+  /** Get current container width for ratio calculations */
+  getContainerWidth: () => number
+  /** Get current sizing as ratios */
+  getSizingAsRatios: () => Record<string, number>
+  /** Apply sizing from ratios and mark columns as manually resized */
+  applySizingFromRatios: (ratios: Record<string, number>) => void
 }
 
 /**
@@ -45,6 +56,7 @@ export function useNuGridStatePersistence<T extends TableData = TableData>(
   storageId: string | undefined,
   onStateChanged?: (state: NuGridStateSnapshot) => void,
   eventEmitter?: NuGridEventEmitter<T>,
+  resizeHelpers?: NuGridStatePersistenceHelpers,
 ) {
   // Helper to emit state changes via both event emitter and callback
   // Check each handler exists to avoid overhead when no listeners
@@ -55,10 +67,18 @@ export function useNuGridStatePersistence<T extends TableData = TableData>(
     onStateChanged?.(state)
   }
 
+  // Track if we have pending ratios to apply after mount
+  let pendingRatios: Record<string, number> | null = null
+
+  // Mutable reference to resize helpers (can be set after initialization)
+  let helpers = resizeHelpers
+
   if (!enabled || !storageId) {
     return {
       getState: () => ({}),
       setState: (_snapshot: NuGridStateSnapshot) => {},
+      applyPendingRatios: () => {},
+      setResizeHelpers: (_helpers: NuGridStatePersistenceHelpers) => {},
     }
   }
 
@@ -139,6 +159,13 @@ export function useNuGridStatePersistence<T extends TableData = TableData>(
     }
     if (hasKeys(states.columnSizingState.value)) {
       snapshot.columnSizing = states.columnSizingState.value
+      // Also store as ratios for resolution-independent restoration
+      if (helpers?.getSizingAsRatios) {
+        const ratios = helpers.getSizingAsRatios()
+        if (hasKeys(ratios)) {
+          snapshot.columnSizingRatios = ratios
+        }
+      }
     }
     if (hasKeys(states.columnSizingInfoState.value)) {
       snapshot.columnSizingInfo = states.columnSizingInfoState.value
@@ -199,7 +226,15 @@ export function useNuGridStatePersistence<T extends TableData = TableData>(
     if (snapshot.columnPinning !== undefined) {
       states.columnPinningState.value = snapshot.columnPinning
     }
-    if (snapshot.columnSizing !== undefined) {
+    // Prefer ratios for resolution-independent sizing, fall back to pixels
+    if (snapshot.columnSizingRatios !== undefined && hasKeys(snapshot.columnSizingRatios)) {
+      // Store ratios for deferred application after mount (when resize helpers are available)
+      pendingRatios = snapshot.columnSizingRatios
+      // Also apply pixel sizing as fallback (will be overwritten by ratios after mount)
+      if (snapshot.columnSizing !== undefined) {
+        states.columnSizingState.value = snapshot.columnSizing
+      }
+    } else if (snapshot.columnSizing !== undefined) {
       states.columnSizingState.value = snapshot.columnSizing
     }
     if (snapshot.columnSizingInfo !== undefined) {
@@ -222,6 +257,17 @@ export function useNuGridStatePersistence<T extends TableData = TableData>(
     }
     if (snapshot.pagination !== undefined) {
       states.paginationState.value = snapshot.pagination
+    }
+  }
+
+  /**
+   * Apply pending column sizing ratios after resize helpers are available.
+   * Should be called from NuGrid after mount when resize composable is initialized.
+   */
+  function applyPendingRatios() {
+    if (pendingRatios && helpers?.applySizingFromRatios) {
+      helpers.applySizingFromRatios(pendingRatios)
+      pendingRatios = null
     }
   }
 
@@ -320,8 +366,17 @@ export function useNuGridStatePersistence<T extends TableData = TableData>(
     initialActivationComplete = true
   }
 
+  /**
+   * Set resize helpers after initialization (for when resize composable is created later)
+   */
+  function setResizeHelpers(newHelpers: NuGridStatePersistenceHelpers) {
+    helpers = newHelpers
+  }
+
   return {
     getState,
     setState,
+    applyPendingRatios,
+    setResizeHelpers,
   }
 }

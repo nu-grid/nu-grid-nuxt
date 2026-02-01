@@ -68,6 +68,7 @@ const { onRowSelect, onRowHover, onRowContextmenu } = rowInteractions
 const flexStyleOptions = computed(() => ({
   useCssFlexDistribution: uiConfigContext?.autoSizeMode?.value === 'fill',
   manuallyResizedColumns: resizeContext?.manuallyResizedColumns.value ?? new Set<string>(),
+  columnSizing: tableApi.getState().columnSizing,
 }))
 
 /** Get cell style with flex distribution support */
