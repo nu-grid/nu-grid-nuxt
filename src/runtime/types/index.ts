@@ -97,6 +97,9 @@ export type { NuGridRow } from './row'
 // Row Selection (public types only)
 export type { NuGridRowSelectOptions } from './row-selection'
 
+// Slots
+export type { NuGridCellSlotProps } from './slots'
+
 // Sort Icon
 export type { NuGridSortIcon } from './sort-icon'
 

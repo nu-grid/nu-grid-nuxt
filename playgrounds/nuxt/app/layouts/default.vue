@@ -29,6 +29,14 @@ const links = [
         },
       },
       {
+        label: 'Cell Slots',
+        icon: 'i-lucide-layout-template',
+        to: '/cell-slots-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
         label: 'Long Text',
         icon: 'i-lucide-text',
         to: '/long-text-demo',

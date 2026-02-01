@@ -16,6 +16,27 @@ const props = defineProps<Props>()
 // Inject UI config for column defaults
 const uiConfig = inject<{ wrapText: ComputedRef<boolean> } | null>('nugrid-ui-config', null)
 
+// Inject cell slots from parent grid component
+const cellSlots = inject<Record<string, (props: any) => any> | null>('nugrid-cell-slots', null)
+
+// Get the cell slot for this column (if any)
+const cellSlot = computed(() => {
+  if (!cellSlots) return null
+  const slotName = `${props.cell.column.id}-cell`
+  return cellSlots[slotName] ?? null
+})
+
+// Compute the props to pass to the cell slot
+const cellSlotProps = computed(() => ({
+  cell: props.cell,
+  row: props.row,
+  column: props.cell.column,
+  cellIndex: props.cell.column.getIndex(),
+  value: props.cell.getValue(),
+  isEditing: props.cellEditingFns.isEditingCell(props.row, props.cell.column.id),
+  isInvalid: props.cellEditingFns.hasCellValidationError(props.row.id, props.cell.column.id),
+}))
+
 // Ref for the cell content wrapper
 const wrapperRef = ref<HTMLElement | null>(null)
 
@@ -266,8 +287,13 @@ const editorContent = computed(() => {
   </div>
   <!-- Display mode: tooltip handled by grid-level event delegation -->
   <div v-else ref="wrapperRef" :class="wrapperClass" :style="wrapperStyle">
+    <!-- Cell slot takes highest priority in display mode -->
+    <component :is="cellSlot" v-if="cellSlot" v-bind="cellSlotProps" />
     <!-- Function-based renderer -->
-    <component :is="functionRendererResult" v-if="shouldUsePluginRenderer && isRendererFunction" />
+    <component
+      :is="functionRendererResult"
+      v-else-if="shouldUsePluginRenderer && isRendererFunction"
+    />
     <!-- Component-based plugin renderer -->
     <component
       :is="pluginRendererComponent"

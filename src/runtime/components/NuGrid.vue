@@ -601,6 +601,13 @@ provide('nugrid-interaction-router', {
   interactionRouter,
 })
 
+// Provide cell slots for NuGridCellContent to use
+// Filter slots to only include those ending with '-cell'
+const cellSlots = Object.fromEntries(
+  Object.entries(slots).filter(([name]) => name.endsWith('-cell')),
+)
+provide('nugrid-cell-slots', cellSlots)
+
 // Provide the centralized event emitter (created earlier so composables can use it)
 provide(NUGRID_EVENTS_KEY, eventEmitter)
 
