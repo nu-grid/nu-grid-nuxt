@@ -58,8 +58,32 @@ export function getDefaults<K extends DefaultsKey>(key: K): DefaultsGroup<K> {
 }
 
 /**
+ * Normalize prop value that may be a boolean shorthand
+ * - `true` → use defaults (return undefined so defaults are used)
+ * - `false` → disabled (handled specially per prop)
+ * - object → use the object's values
+ */
+function normalizePropGroup(propValue: unknown): Record<string, unknown> | undefined {
+  if (propValue === true) {
+    // Boolean true means "enable with defaults" - return empty object to use all defaults
+    return {}
+  }
+  if (propValue === false || propValue === undefined || propValue === null) {
+    // Disabled or not set
+    return undefined
+  }
+  if (typeof propValue === 'object') {
+    return propValue as Record<string, unknown>
+  }
+  return undefined
+}
+
+/**
  * Creates a computed ref that extracts a prop value with fallback to nuGridDefaults.
  * Defaults are automatically sourced from the centralized nuGridDefaults.
+ *
+ * Supports boolean shorthand for props like `editing: true` which means
+ * "enable editing with default settings".
  *
  * @param props - The props object (reactive)
  * @param group - The defaults group key (e.g., 'focus', 'editing', 'validation')
@@ -75,14 +99,18 @@ export function usePropWithDefault<
   K extends keyof OptionsTypeMap[G] & keyof DefaultsGroup<G>,
 >(props: Record<string, any>, group: G, key: K): ComputedRef<NonNullable<OptionsTypeMap[G][K]>> {
   const defaults = nuGridDefaults[group] as DefaultsGroup<G>
-  return computed(
-    () => (props[group]?.[key as string] ?? defaults[key]) as NonNullable<OptionsTypeMap[G][K]>,
-  )
+  return computed(() => {
+    const normalized = normalizePropGroup(props[group])
+    return (normalized?.[key as string] ?? defaults[key]) as NonNullable<OptionsTypeMap[G][K]>
+  })
 }
 
 /**
  * Creates multiple computed refs for a prop group with defaults from nuGridDefaults.
  * Useful when extracting several properties from the same group.
+ *
+ * Supports boolean shorthand for props like `editing: true` which means
+ * "enable editing with default settings".
  *
  * @param props - The props object (reactive)
  * @param group - The defaults group key
@@ -107,9 +135,10 @@ export function usePropsWithDefaults<
   const defaults = nuGridDefaults[group] as DefaultsGroup<G>
   const result = {} as { [P in K]: ComputedRef<NonNullable<OptionsTypeMap[G][P]>> }
   for (const key of keys) {
-    result[key] = computed(
-      () => (props[group]?.[key as string] ?? defaults[key]) as NonNullable<OptionsTypeMap[G][K]>,
-    )
+    result[key] = computed(() => {
+      const normalized = normalizePropGroup(props[group])
+      return (normalized?.[key as string] ?? defaults[key]) as NonNullable<OptionsTypeMap[G][K]>
+    })
   }
   return result
 }

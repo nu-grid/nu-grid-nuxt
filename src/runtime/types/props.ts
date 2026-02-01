@@ -81,6 +81,10 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    * Groups editing-related settings including start triggers and behaviors
    *
    * @example
+   * // Enable editing with defaults
+   * editing: true
+   *
+   * @example
    * // Enable editing with custom triggers
    * editing: {
    *   enabled: true,
@@ -90,7 +94,7 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    *   canEdit: (row, columnId) => row.original.status !== 'locked'
    * }
    */
-  editing?: NuGridEditingOptions<T>
+  editing?: boolean | NuGridEditingOptions<T>
 
   /**
    * Enhanced validation configuration
@@ -124,6 +128,10 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    * Provides preset-based setup with sync callback for external state
    *
    * @example
+   * // Enable selection with defaults (multi-select)
+   * selection: true
+   *
+   * @example
    * // Multi-select with sync callback
    * selection: {
    *   mode: 'multi',
@@ -138,7 +146,7 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    *   rowSelectionEnabled: (row) => row.original.selectable
    * }
    */
-  selection?: false | 'single' | 'multi' | NuGridSelectionOptions<T>
+  selection?: boolean | 'single' | 'multi' | NuGridSelectionOptions<T>
 
   /**
    * Actions column configuration

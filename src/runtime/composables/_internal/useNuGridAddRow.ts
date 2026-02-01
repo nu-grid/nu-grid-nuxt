@@ -604,7 +604,13 @@ export function useNuGridAddRow<T extends TableData>(options: {
 
   // Helper to check if a cell is editable (replicates logic from useNuGridCellEditing)
   function isCellEditable(row: Row<T>, cell: Cell<T, any>): boolean {
-    if (options.props.editing?.enabled === false) {
+    // Handle boolean shorthand: editing: false means disabled
+    // editing: true or editing: { ... } means enabled (unless enabled: false in object)
+    const editingProp = options.props.editing
+    if (editingProp === false) {
+      return false
+    }
+    if (typeof editingProp === 'object' && editingProp?.enabled === false) {
       return false
     }
 

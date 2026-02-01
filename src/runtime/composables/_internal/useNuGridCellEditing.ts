@@ -1346,8 +1346,10 @@ export function useNuGridCellEditing<T extends TableData>(
     }
 
     // Check if a custom default editor is provided for this data type
-    if (props.editing?.defaultEditors?.[cellDataType]) {
-      const customEditor = props.editing.defaultEditors[cellDataType]
+    // (only when editing is an object with defaultEditors, not boolean shorthand)
+    const editingConfig = typeof props.editing === 'object' ? props.editing : undefined
+    if (editingConfig?.defaultEditors?.[cellDataType]) {
+      const customEditor = editingConfig.defaultEditors[cellDataType]
       if (customEditor) {
         const context = createEditorContext(cell, row)
         return renderEditor(customEditor, context)
