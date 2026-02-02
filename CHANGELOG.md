@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.3.0](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.2.0...v0.3.0) (2026-02-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename props to clearer names
+* improved autosizing to use flex
+
+### ✨ Features
+
+* Add cell data type auto inferrence ([1071939](https://github.com/nu-grid/nu-grid-nuxt/commit/107193922996a07651c0c8b1aa756f4a15f3dcca))
+* Allow selection prop to be a bool ([e0995df](https://github.com/nu-grid/nu-grid-nuxt/commit/e0995df1e7a789744bf5595a7887c5cc70ab1b8e))
+* Cell templates ([1527c19](https://github.com/nu-grid/nu-grid-nuxt/commit/1527c193d96a85d10b88fdf64bcfa228404f8b58))
+* Improve column resizing smoothness ([6bc48e7](https://github.com/nu-grid/nu-grid-nuxt/commit/6bc48e76a144b96deddcb65c6551db60454f0579))
+* Improved autosizing to use flex ([ff5ac59](https://github.com/nu-grid/nu-grid-nuxt/commit/ff5ac59b22a7201260c8665998270b56494c3f7d))
+* Improved state persistence of column sizes ([89816ae](https://github.com/nu-grid/nu-grid-nuxt/commit/89816aeecd0bac881d80910e5f81d82b1ba90b17))
+
+
+### 🐛 Bug Fixes
+
+* Ability to clear state properly ([b6e1916](https://github.com/nu-grid/nu-grid-nuxt/commit/b6e19161911fb223abb515898cbebe5f86dd9a25))
+* Grid height in height restricted containers ([3d4d7a2](https://github.com/nu-grid/nu-grid-nuxt/commit/3d4d7a2218e0d62912c9d59b22c6160f0d8f9bb0))
+
+
+### 🏡 Miscellaneous Chores
+
+* Add sticky headers to docs ([184a6f1](https://github.com/nu-grid/nu-grid-nuxt/commit/184a6f1247842ec8b00fd4f1f56a709d0abc20c2))
+
+
+### ♻️ Code Refactoring
+
+* Rename props to clearer names ([72743c8](https://github.com/nu-grid/nu-grid-nuxt/commit/72743c82ca7ff40a5b12f704923017aa53e4e873))
+
 ## [0.2.0](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.1.4...v0.2.0) (2026-01-29)
 
 
