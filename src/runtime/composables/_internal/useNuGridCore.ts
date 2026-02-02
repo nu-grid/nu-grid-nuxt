@@ -26,6 +26,7 @@ import { createReusableTemplate, reactiveOmit } from '@vueuse/core'
 import { upperFirst } from 'scule'
 import { computed, watch } from 'vue'
 import { nuGridDefaults } from '../../config/_internal'
+import { extractColumnValues, inferCellDataType } from '../../utils/inferCellDataType'
 import { nuGridCellTypeRegistry } from '../useNuGridCellTypeRegistry'
 import { useNuGridActionMenu } from './useNuGridActionMenu'
 import { useNuGridRowSelection } from './useNuGridRowSelection'
@@ -39,6 +40,7 @@ export function useNuGridColumns<T extends TableData>(
   rowSelectionMode?: Ref<NuGridRowSelectionMode<T>>,
   actionMenuOptions?: Ref<NuGridActionMenuOptions<T> | undefined | false>,
   columnVisibilityState?: Ref<VisibilityState>,
+  dataTypeInference?: Ref<boolean>,
 ): UseNuGridColumnsReturn<T> {
   // Use the row selection composable
   const rowSelection = rowSelectionMode
@@ -51,6 +53,10 @@ export function useNuGridColumns<T extends TableData>(
     : null
 
   const columns = computed<NuGridColumn<T>[]>(() => {
+    // Access dataTypeInference.value directly to establish reactive dependency
+    // (processColumns accesses it, but Vue needs to see it in the computed callback)
+    const inferenceEnabled = dataTypeInference?.value !== false
+
     const cols =
       propsColumns.value
       ?? Object.keys(data.value[0] ?? {}).map((accessorKey: string) => ({
@@ -58,7 +64,7 @@ export function useNuGridColumns<T extends TableData>(
         header: upperFirst(accessorKey),
       }))
 
-    let processedCols = processColumns(cols)
+    let processedCols = processColumns(cols, inferenceEnabled)
 
     // Use the row selection composable to prepend selection column
     if (rowSelection) {
@@ -77,17 +83,39 @@ export function useNuGridColumns<T extends TableData>(
   // This cache persists across column recomputations, improving performance
   const pluginCache = new Map<string, ReturnType<typeof nuGridCellTypeRegistry.get> | undefined>()
 
-  function processColumns(columns: NuGridColumn<T>[]): NuGridColumn<T>[] {
+  function processColumns(
+    columns: NuGridColumn<T>[],
+    inferenceEnabled: boolean,
+  ): NuGridColumn<T>[] {
     return columns.map((column) => {
       const col = { ...column } as NuGridColumn<T>
 
       if ('columns' in col && col.columns) {
-        col.columns = processColumns(col.columns as NuGridColumn<T>[])
+        col.columns = processColumns(col.columns as NuGridColumn<T>[], inferenceEnabled)
       }
 
-      // Apply plugin defaults if column has a cellDataType
+      // Infer cellDataType from data if not explicitly set
+      // Skip inference if:
+      // - dataTypeInference is false (globally disabled)
+      // - cellDataType is explicitly set (including false to opt-out)
+      // - column has no accessorKey (display columns, computed columns)
+      const accessorKey = (col as any).accessorKey
+      if (
+        inferenceEnabled
+        && (col as any).cellDataType === undefined
+        && accessorKey
+        && data.value.length > 0
+      ) {
+        const values = extractColumnValues(data.value, accessorKey)
+        const inferredType = inferCellDataType(values, accessorKey)
+        if (inferredType) {
+          ;(col as any).cellDataType = inferredType
+        }
+      }
+
+      // Apply plugin defaults if column has a cellDataType (skip if false = opt-out)
       const cellDataType = (col as any).cellDataType
-      if (cellDataType) {
+      if (cellDataType && cellDataType !== false) {
         // Use cache to avoid repeated plugin lookups
         let plugin = pluginCache.get(cellDataType)
         if (plugin === undefined) {

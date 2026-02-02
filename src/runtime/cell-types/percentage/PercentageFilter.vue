@@ -31,10 +31,18 @@ function clearFilter() {
   filterValue2.value = null
   props.context.clearFilter()
 }
+
+// Convert percentage display value to storage value
+function toStorageValue(displayValue: string | number | null): number | null {
+  if (displayValue === null || displayValue === '') return null
+  const num = Number(displayValue)
+  if (Number.isNaN(num)) return null
+  return num / 100 // Convert percentage to decimal
+}
 </script>
 
 <template>
-  <div class="min-w-50 space-y-2 p-2">
+  <div class="min-w-[200px] space-y-2 p-2">
     <div class="flex items-center gap-2">
       <USelect
         v-model="operator"
@@ -52,24 +60,31 @@ function clearFilter() {
         @click="clearFilter"
       />
     </div>
-    <UInput
-      v-model="filterValue"
-      type="number"
-      placeholder="Value..."
-      autofocus
-      @update:model-value="context.setFilterValue($event ? Number($event) : null)"
-    />
-    <UInput
-      v-if="operator === 'between'"
-      v-model="filterValue2"
-      type="number"
-      placeholder="To..."
-      @update:model-value="
-        context.setFilterValue({
-          from: filterValue,
-          to: filterValue2 ? Number(filterValue2) : null,
-        })
-      "
-    />
+    <div class="flex items-center gap-1">
+      <UInput
+        v-model="filterValue"
+        type="number"
+        placeholder="Value..."
+        autofocus
+        class="flex-1"
+        @update:model-value="context.setFilterValue(toStorageValue($event))"
+      />
+      <span class="text-gray-500 dark:text-gray-400 shrink-0">%</span>
+    </div>
+    <div v-if="operator === 'between'" class="flex items-center gap-1">
+      <UInput
+        v-model="filterValue2"
+        type="number"
+        placeholder="To..."
+        class="flex-1"
+        @update:model-value="
+          context.setFilterValue({
+            from: toStorageValue(filterValue),
+            to: toStorageValue(filterValue2),
+          })
+        "
+      />
+      <span class="text-gray-500 dark:text-gray-400 shrink-0">%</span>
+    </div>
   </div>
 </template>

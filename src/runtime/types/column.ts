@@ -73,11 +73,13 @@ export type NuGridColumn<T extends TableData> = TableColumn<T> & {
 
   /**
    * Data type for the cell, determines which default editor to use
-   * Built-in types: 'text', 'number', 'date', 'boolean', 'selection', 'action-menu', 'lookup'
+   * - Automatically inferred from row data if not specified (when dataTypeInference is enabled)
+   * - Set to `false` to disable inference and use default text rendering
+   * Built-in types: 'text', 'number', 'date', 'boolean', 'currency', 'percentage', 'selection', 'action-menu', 'lookup'
    * Custom types can be registered via cellTypes prop
-   * @defaultValue 'text'
+   * @defaultValue undefined (inferred from data)
    */
-  cellDataType?: string
+  cellDataType?: string | false
 
   /**
    * Lookup/dropdown configuration for cells using cellDataType: 'lookup'

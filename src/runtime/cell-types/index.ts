@@ -5,6 +5,7 @@ import { currencyCellType } from './currency'
 import { dateCellType } from './date'
 import { lookupCellType } from './lookup'
 import { numberCellType } from './number'
+import { percentageCellType } from './percentage'
 import { ratingCellType } from './rating'
 import { selectionCellType } from './selection'
 import { textareaCellType, textCellType } from './text'
@@ -23,6 +24,7 @@ export const builtInCellTypes: NuGridCellType[] = [
   actionMenuCellType,
   ratingCellType,
   currencyCellType,
+  percentageCellType,
   lookupCellType,
 ]
 
@@ -34,6 +36,7 @@ export {
   dateCellType,
   lookupCellType,
   numberCellType,
+  percentageCellType,
   ratingCellType,
   selectionCellType,
   textareaCellType,

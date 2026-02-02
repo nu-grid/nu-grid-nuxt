@@ -6,6 +6,10 @@
 // Column helper for type-safe column definitions
 export * from './columnHelper'
 
+// Data type inference utility
+// Allows custom inference logic or understanding of how types are detected
+export { extractColumnValues, inferCellDataType } from './inferCellDataType'
+
 // Standard Schema validation utilities
 // NOTE: excelExport is intentionally NOT exported here to avoid SSR issues.
 // The write-excel-file dependency uses file-saver which accesses navigator.userAgent

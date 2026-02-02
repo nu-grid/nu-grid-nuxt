@@ -40,9 +40,10 @@ declare module '@tanstack/vue-table' {
      * Data type for the cell, determines which default editor to use
      * Built-in types: 'text', 'number', 'date', 'boolean', 'selection', 'action-menu'
      * Custom types can be registered via cellTypes prop
-     * @defaultValue 'text'
+     * Set to `false` to disable type inference for this column
+     * @defaultValue undefined (inferred from data)
      */
-    cellDataType?: string
+    cellDataType?: string | false
 
     /**
      * Sort icon configuration for this column's header

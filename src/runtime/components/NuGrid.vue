@@ -18,8 +18,9 @@ import type {
 } from '@tanstack/vue-table'
 import type { Primitive } from 'reka-ui'
 
-import type { NuGridStateSnapshot } from '../composables/_internal/useNuGridStatePersistence'
+import type { Ref } from 'vue'
 
+import type { NuGridStateSnapshot } from '../composables/_internal/useNuGridStatePersistence'
 import type {
   NuGridAddRowState,
   NuGridCellClickEvent,
@@ -188,14 +189,18 @@ initPaginationState()
 
 // Create row selection mode ref and columns with visibility integration
 // Disable selection when row slot is provided (no checkbox column available)
-const rowSelectionModeRef = computed(() => (hasRowSlot.value ? false : (props.rowSelection ?? false)))
+const rowSelectionModeRef = computed(() =>
+  hasRowSlot.value ? false : (props.rowSelection ?? false),
+)
 const actionMenuRef = computed(() => props.actions ?? false)
+const dataTypeInferenceRef = computed(() => props.dataTypeInference ?? true)
 const { columns } = useNuGridColumns(
   propsColumns,
   data,
   rowSelectionModeRef,
   actionMenuRef,
   columnVisibilityState,
+  dataTypeInferenceRef,
 )
 
 const { ui, checkboxTheme } = useNuGridUI(props as any)

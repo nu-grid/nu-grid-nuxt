@@ -29,6 +29,14 @@ const links = [
         },
       },
       {
+        label: 'Data Type Inference',
+        icon: 'i-lucide-sparkles',
+        to: '/data-type-inference-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
         label: 'Cell Slots',
         icon: 'i-lucide-layout-template',
         to: '/cell-slots-demo',

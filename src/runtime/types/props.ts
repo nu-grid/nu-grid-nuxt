@@ -401,6 +401,30 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
   cellTypes?: NuGridCellType<T>[]
 
   /**
+   * Enable automatic data type inference from row data
+   * When enabled, columns without explicit cellDataType will have their
+   * type inferred from the actual values (number, boolean, date, currency, percentage, etc.)
+   *
+   * Detection is based on:
+   * - JavaScript types (boolean, Date objects, numbers)
+   * - String patterns (currency symbols, percentage signs)
+   * - Column name heuristics (e.g., 'price' columns with 2 decimal numbers become currency)
+   *
+   * @defaultValue true
+   *
+   * @example
+   * // Disable type inference globally
+   * dataTypeInference: false
+   *
+   * @example
+   * // Disable inference for a specific column
+   * columns: [
+   *   { accessorKey: 'score', cellDataType: false } // No inference, use default text
+   * ]
+   */
+  dataTypeInference?: boolean
+
+  /**
    * Row dragging configuration
    * Enables drag and drop reordering of rows
    * @defaultValue undefined

@@ -95,7 +95,7 @@ const selectionOptions = computed<false | NuGridRowSelectOptions<Employee>>(() =
   }
 })
 
-const selectedRows = computed(() => gridRef.value?.getSelectedRows<Employee>() ?? [])
+const selectedRowsArray = computed(() => gridRef.value?.getSelectedRows<Employee>() ?? [])
 
 function clearSelection() {
   selectedRows.value = {}
@@ -143,13 +143,13 @@ function clearSelection() {
       </UButton>
 
       <UButton
-        v-if="selectedRows.length > 0"
+        v-if="selectedRowsArray.length > 0"
         color="error"
         variant="subtle"
         size="sm"
         @click="clearSelection"
       >
-        Clear ({{ selectedRows.length }})
+        Clear ({{ selectedRowsArray.length }})
       </UButton>
     </div>
 
@@ -162,10 +162,15 @@ function clearSelection() {
       :focus="{ mode: 'cell', retain: true }"
     />
 
-    <div v-if="selectedRows.length > 0" class="rounded-lg border border-default p-3 bg-elevated/30">
+    <div
+      v-if="selectedRowsArray.length > 0"
+      class="rounded-lg border border-default p-3 bg-elevated/30"
+    >
       <p class="text-sm font-medium mb-2">Selected Employees:</p>
       <ul class="text-sm text-muted space-y-1">
-        <li v-for="emp in selectedRows" :key="emp.id">{{ emp.name }} ({{ emp.department }})</li>
+        <li v-for="emp in selectedRowsArray" :key="emp.id">
+          {{ emp.name }} ({{ emp.department }})
+        </li>
       </ul>
     </div>
 
