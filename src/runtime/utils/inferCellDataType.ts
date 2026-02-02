@@ -42,7 +42,7 @@ function isPercentageRange(value: number): boolean {
  * Infer the cell data type from an array of values and optional column name
  *
  * Detection priority:
- * 1. boolean - typeof value === 'boolean'
+ * 1. boolean - true/false, 0/1, or "true"/"false" strings
  * 2. date - value instanceof Date
  * 3. currency - string pattern OR number with 2 decimals + column name heuristic
  * 4. percentage - string pattern OR number 0-1 + column name heuristic
@@ -76,7 +76,15 @@ export function inferCellDataType(values: unknown[], columnName?: string): strin
   const isPercentageColumn = columnName ? PERCENTAGE_COLUMN_PATTERN.test(columnName) : false
 
   for (const value of samples) {
+    // Boolean detection: true/false, 0/1, "true"/"false"
     if (typeof value === 'boolean') {
+      booleanCount++
+    } else if (value === 0 || value === 1) {
+      booleanCount++
+    } else if (
+      typeof value === 'string'
+      && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')
+    ) {
       booleanCount++
     } else if (value instanceof Date) {
       dateCount++

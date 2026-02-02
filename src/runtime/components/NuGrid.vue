@@ -252,7 +252,7 @@ const statePersistence = useNuGridStatePersistence(
   eventEmitter,
 )
 
-const tableApi = useNuGridApi(props, data, columns, states, rowSelectionModeRef, eventEmitter)
+const { tableApi, columnsUpdatedSignal } = useNuGridApi(props, data, columns, states, rowSelectionModeRef, eventEmitter)
 
 const tableRows = computed(() => tableApi.getRowModel().rows)
 // Row interactions
@@ -461,10 +461,25 @@ const autosizeFns = useNuGridAutosize(props, tableApi, tableRef)
 // Performance optimization: Cache frequently accessed TanStack Table API results
 // These computed properties prevent redundant API calls in templates
 // Column visibility changes via row selection hidden property will trigger reactivity through columnVisibilityState
-const headerGroups = computed(() => tableApi.getHeaderGroups())
+
+// columnsUpdatedSignal triggers re-evaluation after tableApi.setOptions() completes
+// The reactive getter in useVueTable ensures TanStack sees column changes internally
+const headerGroups = computed(() => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  columnsUpdatedSignal.value
+  return tableApi.getHeaderGroups()
+})
 const headerGroupsLength = computed(() => headerGroups.value.length)
-const footerGroups = computed(() => tableApi.getFooterGroups())
-const allLeafColumns = computed(() => tableApi.getAllLeafColumns())
+const footerGroups = computed(() => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  columnsUpdatedSignal.value
+  return tableApi.getFooterGroups()
+})
+const allLeafColumns = computed(() => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  columnsUpdatedSignal.value
+  return tableApi.getAllLeafColumns()
+})
 
 // Performance optimization #1: Cache visible cells for each row
 // This prevents multiple calls to row.getVisibleCells() during rendering

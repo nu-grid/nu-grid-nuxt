@@ -24,7 +24,7 @@ import {
 } from '@tanstack/vue-table'
 import { createReusableTemplate, reactiveOmit } from '@vueuse/core'
 import { upperFirst } from 'scule'
-import { computed, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { nuGridDefaults } from '../../config/_internal'
 import { extractColumnValues, inferCellDataType } from '../../utils/inferCellDataType'
 import { nuGridCellTypeRegistry } from '../useNuGridCellTypeRegistry'
@@ -415,8 +415,12 @@ export function useNuGridApi<T extends TableData>(
   const tableApi = useVueTable({
     ...filteredProps,
     data,
-    columns: columns.value,
-    meta: meta.value,
+    get columns() {
+      return columns.value
+    },
+    get meta() {
+      return meta.value
+    },
     // Use rowId prop for stable row identity (required for animations)
     // Falls back to index if the specified field is not present
     getRowId: (originalRow, index) => {
@@ -533,15 +537,22 @@ export function useNuGridApi<T extends TableData>(
     },
   })
 
+  // Signal that gets incremented after columns are updated in the table
+  // This allows components to react AFTER setOptions has been called
+  const columnsUpdatedSignal = ref(0)
+
   // Watch for column changes and update the table
-  watch(columns, (newColumns) => {
+  watch(columns, async (newColumns) => {
     tableApi.setOptions((prev) => ({
       ...prev,
       columns: newColumns,
     }))
+    // Wait for Vue to process the table update, then signal that columns were updated
+    await nextTick()
+    columnsUpdatedSignal.value++
   })
 
-  return tableApi
+  return { tableApi, columnsUpdatedSignal }
 }
 
 /**
