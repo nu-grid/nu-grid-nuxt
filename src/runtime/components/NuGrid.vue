@@ -66,6 +66,7 @@ import {
   useNuGridRowInteractions,
   useNuGridScrollbars,
   useNuGridScrollState,
+  useNuGridSearch,
   useNuGridStatePersistence,
   useNuGridTooltipHandler,
   useNuGridUI,
@@ -84,6 +85,7 @@ import { NUGRID_EVENTS_KEY } from '../types/events'
 import NuGridBase from './_internal/NuGridBase.vue'
 import NuGridGroup from './_internal/NuGridGroup.vue'
 import NuGridPaging from './_internal/NuGridPaging.vue'
+import NuGridSearchPanel from './_internal/NuGridSearchPanel.vue'
 import NuGridSplitGroup from './_internal/NuGridSplitGroup.vue'
 import NuGridTooltip from './_internal/NuGridTooltip.vue'
 
@@ -159,6 +161,7 @@ useNuGridDataWatch(props, data)
 
 const rootRef = ref<InstanceType<typeof Primitive>>()
 const tableRef = ref<HTMLDivElement | null>(null)
+const wrapperRef = ref<HTMLDivElement | null>(null)
 
 const globalFilterState = defineModel<string>('globalFilter', { default: undefined })
 const columnFiltersState = defineModel<ColumnFiltersState>('columnFilters', { default: [] })
@@ -598,6 +601,38 @@ provide('nugrid-performance', {
   shouldHaveBorder,
 })
 
+// Search highlight color mapping
+const HIGHLIGHT_COLOR_CLASSES: Record<string, string> = {
+  primary: '', // Use theme default
+  yellow: 'bg-yellow-200 dark:bg-yellow-500/30',
+  green: 'bg-green-200 dark:bg-green-500/30',
+  blue: 'bg-blue-200 dark:bg-blue-500/30',
+  orange: 'bg-orange-200 dark:bg-orange-500/30',
+  red: 'bg-red-200 dark:bg-red-500/30',
+}
+const BASE_HIGHLIGHT_CLASSES = 'rounded-sm px-0.5 -mx-0.5'
+
+// Compute search highlight class based on props
+const searchHighlightClass = computed(() => {
+  const searchOpts = props.search
+  if (!searchOpts || searchOpts === true) {
+    // Use theme default for primary color
+    return ui.value.searchHighlight?.() ?? ''
+  }
+  const color = searchOpts.highlightColor ?? 'primary'
+  if (color === 'primary') {
+    // Use theme default
+    return ui.value.searchHighlight?.() ?? ''
+  }
+  // Check if it's a known preset
+  const presetClass = HIGHLIGHT_COLOR_CLASSES[color]
+  if (presetClass !== undefined) {
+    return `${presetClass} ${BASE_HIGHLIGHT_CLASSES}`
+  }
+  // Custom class - use as-is (user provides full styling)
+  return color
+})
+
 provide('nugrid-ui-config', {
   sortIcons: computed(() => props.columnDefaults?.sortIcons),
   scrollbarClass,
@@ -610,6 +645,10 @@ provide('nugrid-ui-config', {
   checkboxTheme,
   autoSizeMode: autosizeFns.autoSizeMode,
   resizeMode,
+  // Search theme slots
+  searchPanel: computed(() => ui.value.searchPanel?.() ?? ''),
+  searchInput: computed(() => ui.value.searchInput?.() ?? ''),
+  searchHighlight: searchHighlightClass,
 })
 
 provide('nugrid-validation', {
@@ -700,6 +739,55 @@ provide('nugrid-paging', pagingContext)
 // Register paging keyboard handler
 const pagingKeyboardHandler = createPagingKeyboardHandler<T>(pagingContext)
 interactionRouter.registerKeyboardHandler(pagingKeyboardHandler)
+
+// Search
+// Use wrapperRef instead of rootElement because the search panel is a sibling to the grid,
+// both contained within the wrapper div. This ensures focus detection works when the
+// search input has focus (which is outside the grid root but inside the wrapper).
+const searchContext = useNuGridSearch({
+  props,
+  tableApi,
+  globalFilterState,
+  interactionRouter,
+  isEditing: computed(() => editingCellRef.value !== null),
+  gridRoot: computed(() => wrapperRef.value),
+  onFocusFirstResult: () => {
+    // Focus the first cell when search results return
+    // Uses focusFnsRef.value since focusFns is set up after this call
+    const focus = focusFnsRef.value
+    if (!focus) return
+
+    const filteredRows = tableApi.getFilteredRowModel().rows
+    if (filteredRows.length === 0) return
+
+    const firstRow = filteredRows[0]
+    const query = globalFilterState.value?.toLowerCase() ?? ''
+
+    // Find which column contains the match (for cell focus mode)
+    let matchColumnIndex = focus.findFirstFocusableColumn()
+    if (query) {
+      const visibleCells = firstRow.getVisibleCells()
+      for (let i = 0; i < visibleCells.length; i++) {
+        const cell = visibleCells[i]
+        // Skip columns that don't allow global filtering
+        if (cell.column.columnDef.enableGlobalFilter === false) continue
+        // Check if this cell's value contains the search query
+        const value = cell.getValue()
+        if (value != null && String(value).toLowerCase().includes(query)) {
+          matchColumnIndex = i
+          break
+        }
+      }
+    }
+
+    if (firstRow && matchColumnIndex >= 0) {
+      // Must set focused cell state AND focus the DOM element
+      focus.setFocusedCell({ rowIndex: 0, columnIndex: matchColumnIndex })
+      focus.focusCell(firstRow, 0, matchColumnIndex)
+    }
+  },
+})
+provide('nugrid-search', searchContext)
 
 // Scroll state for LazyCell components
 provide('nugrid-scroll-state', {
@@ -830,6 +918,12 @@ defineExpose({
   getPinnedColumns,
   // Focus methods
   focusRowById: focusFns.focusRowById,
+  // Search methods
+  searchFocus: () => searchContext.focusSearchInput(),
+  searchSetQuery: (query: string) => searchContext.setQuery(query),
+  searchClear: () => searchContext.clear(),
+  searchGetQuery: () => searchContext.searchQuery.value,
+  searchIsActive: () => searchContext.isSearching.value,
 })
 
 const childGrid = computed(() => {
@@ -840,7 +934,8 @@ const childGrid = computed(() => {
 </script>
 
 <template>
-  <div class="nugrid-wrapper flex flex-col h-full w-full">
+  <div ref="wrapperRef" class="nugrid-wrapper flex flex-col h-full w-full">
+    <NuGridSearchPanel v-if="searchContext.showPanel.value" class="shrink-0" />
     <div class="nugrid-grid-container grow shrink min-h-0">
       <component :is="childGrid">
         <template v-for="(_, name) in $slots" #[name]="slotProps" :key="name">

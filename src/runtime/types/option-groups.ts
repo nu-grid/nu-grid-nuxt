@@ -752,3 +752,87 @@ export interface NuGridExcelExportOptions {
    */
   groupHeaderFormat?: string
 }
+
+/**
+ * Search/filter configuration
+ * Controls the search-as-you-type feature with debounced filtering
+ */
+export interface NuGridSearchOptions {
+  /**
+   * Whether search is enabled
+   * @defaultValue false
+   */
+  enabled?: boolean
+
+  /**
+   * Placeholder text for the search input
+   * @defaultValue 'Search...'
+   */
+  placeholder?: string
+
+  /**
+   * Debounce delay in milliseconds before filtering
+   * @defaultValue 300
+   */
+  debounce?: number
+
+  /**
+   * Whether to auto-focus the search input on mount
+   * @defaultValue false
+   */
+  autofocus?: boolean
+
+  /**
+   * Whether to show the clear button
+   * @defaultValue true
+   */
+  clearable?: boolean
+
+  /**
+   * Icon to display in the search input
+   * @defaultValue 'i-lucide-search'
+   */
+  icon?: string
+
+  /**
+   * Icon for the clear button
+   * @defaultValue 'i-lucide-x'
+   */
+  clearIcon?: string
+
+  /**
+   * Hide the built-in search panel
+   * Use this when you want to render your own search controls
+   * The search logic still works via v-model:global-filter
+   * @defaultValue false
+   */
+  suppressPanel?: boolean
+
+  /**
+   * Enable type-to-search behavior
+   * When true, typing while the grid is focused (but not editing) will start filtering
+   * @defaultValue true
+   */
+  typeToSearch?: boolean
+
+  /**
+   * Automatically focus the first matching cell/row when search results change
+   * Set to true if you want the grid to take focus when results are found
+   * Set to false (default) to keep focus in the search input
+   * @defaultValue false
+   */
+  focusOnResults?: boolean
+
+  /**
+   * Highlight color for matching text in cells
+   * - 'primary': Uses the app's primary color (default)
+   * - 'yellow': Classic yellow highlight
+   * - 'green': Green highlight
+   * - 'blue': Blue highlight
+   * - 'orange': Orange highlight
+   * - 'red': Red highlight
+   * - Custom string: Any valid Tailwind classes for custom styling
+   * @defaultValue 'primary'
+   */
+  highlightColor?: 'primary' | 'yellow' | 'green' | 'blue' | 'orange' | 'red' | string
+}

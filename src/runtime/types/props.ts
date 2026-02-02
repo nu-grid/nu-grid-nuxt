@@ -11,6 +11,7 @@ import type {
   NuGridLayoutOptions,
   NuGridMultiRowOptions,
   NuGridPagingOptions,
+  NuGridSearchOptions,
   NuGridSelectionOptions,
   NuGridStateOptions,
   NuGridTooltipOptions,
@@ -299,6 +300,39 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    * }
    */
   paging?: boolean | NuGridPagingOptions
+
+  /**
+   * Search configuration
+   * Controls the search-as-you-type feature with debounced filtering and match highlighting
+   *
+   * @example
+   * // Enable with defaults
+   * search: true
+   *
+   * @example
+   * // Custom configuration
+   * search: {
+   *   enabled: true,
+   *   placeholder: 'Filter rows...',
+   *   debounce: 500,
+   *   autofocus: true
+   * }
+   *
+   * @example
+   * // Hide built-in panel (use external search via v-model:global-filter)
+   * search: {
+   *   enabled: true,
+   *   suppressPanel: true
+   * }
+   *
+   * @example
+   * // Disable type-to-search (require clicking into search input)
+   * search: {
+   *   enabled: true,
+   *   typeToSearch: false
+   * }
+   */
+  search?: boolean | NuGridSearchOptions
 
   /**
    * State persistence configuration

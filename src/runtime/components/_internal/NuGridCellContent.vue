@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { Component, ComputedRef } from 'vue'
+import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
 import type { NuGridAddRowContext, NuGridCellEditing } from '../../types/_internal'
 import { FlexRender } from '@tanstack/vue-table'
 import { computed, inject, ref, resolveComponent, watch } from 'vue'
 import { nuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegistry'
+import NuGridHighlightedText from './NuGridHighlightedText.vue'
 
 interface Props {
   cell: any
@@ -15,6 +17,9 @@ const props = defineProps<Props>()
 
 // Inject UI config for column defaults
 const uiConfig = inject<{ wrapText: ComputedRef<boolean> } | null>('nugrid-ui-config', null)
+
+// Inject search context for highlighting
+const searchContext = inject<NuGridSearchContext | null>('nugrid-search', null)
 
 // Inject cell slots from parent grid component
 const cellSlots = inject<Record<string, (props: any) => any> | null>('nugrid-cell-slots', null)
@@ -248,6 +253,21 @@ const editorContent = computed(() => {
   const _showErrors = props.cellEditingFns.showValidationErrors.value
   return props.cellEditingFns.renderCellContent(props.cell, props.row)
 })
+
+// Check if search highlighting should be applied to this cell
+const shouldHighlight = computed(() => {
+  if (!searchContext?.isSearching.value) return false
+  // Check if this column is searchable
+  const columnDef = props.cell.column.columnDef
+  return columnDef.enableSearching !== false
+})
+
+// Get the cell value as a string for highlighting
+const cellTextValue = computed(() => {
+  const value = props.cell.getValue()
+  if (value === null || value === undefined) return ''
+  return String(value)
+})
 </script>
 
 <template>
@@ -291,6 +311,11 @@ const editorContent = computed(() => {
       :is="pluginRendererComponent"
       v-else-if="shouldUsePluginRenderer && pluginRendererComponent"
       v-bind="pluginRendererProps"
+    />
+    <!-- Use highlighted text when search is active and this column is searchable -->
+    <NuGridHighlightedText
+      v-else-if="shouldHighlight && cellTextValue"
+      :text="cellTextValue"
     />
     <FlexRender v-else :render="cell.column.columnDef.cell" :props="cell.getContext()" />
   </div>

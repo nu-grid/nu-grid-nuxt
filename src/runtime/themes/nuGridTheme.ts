@@ -79,6 +79,11 @@ export const nuGridTheme = {
     // Add row indicator - shown when add row is idle (not focused or editing)
     addRowIndicator:
       'absolute inset-0 flex items-center px-3 pointer-events-none text-sm text-muted z-10',
+    // Search panel styling
+    searchPanel: 'flex items-center gap-2 px-4 py-2 border-b border-default bg-elevated',
+    searchInput: 'w-full min-w-[200px] max-w-sm',
+    // Search highlight styling for matching text in cells (uses primary color by default)
+    searchHighlight: 'bg-primary-200 dark:bg-primary-500/30 rounded-sm px-0.5 -mx-0.5',
   },
   variants: {
     ...theme.variants,

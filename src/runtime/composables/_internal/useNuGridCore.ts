@@ -381,6 +381,37 @@ export function useNuGridApi<T extends TableData>(
     'ui',
   )
 
+  // Custom global filter function that respects column.enableSearching property
+  const globalFilterFn = (row: any, columnId: string, filterValue: string) => {
+    if (!filterValue || filterValue.length === 0) return true
+
+    const searchLower = filterValue.toLowerCase()
+
+    // Get all columns and filter to only those with enableSearching !== false
+    const searchableColumns = columns.value.filter((col) => {
+      // Skip columns without accessor keys (display columns, etc.)
+      if (!('accessorKey' in col) && !('id' in col)) return false
+      // Check enableSearching property (defaults to true)
+      return col.enableSearching !== false
+    })
+
+    // Search across all searchable columns
+    for (const col of searchableColumns) {
+      const key = ('accessorKey' in col ? col.accessorKey : col.id) as string
+      if (!key) continue
+
+      const cellValue = row.getValue(key)
+      if (cellValue == null) continue
+
+      const stringValue = String(cellValue).toLowerCase()
+      if (stringValue.includes(searchLower)) {
+        return true
+      }
+    }
+
+    return false
+  }
+
   const tableApi = useVueTable({
     ...filteredProps,
     data,
@@ -398,6 +429,8 @@ export function useNuGridApi<T extends TableData>(
     },
     getCoreRowModel: getCoreRowModel(),
     ...(props.globalFilterOptions || {}),
+    // Use custom global filter that respects enableSearching column property
+    globalFilterFn,
     onGlobalFilterChange: (updaterOrValue) =>
       valueUpdater(updaterOrValue, states.globalFilterState),
     ...(props.columnFiltersOptions || {}),

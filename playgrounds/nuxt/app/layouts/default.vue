@@ -149,6 +149,22 @@ const links = [
         },
       },
       {
+        label: 'Search',
+        icon: 'i-lucide-search',
+        to: '/search-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
+        label: 'Search External',
+        icon: 'i-lucide-search-code',
+        to: '/search-external-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
         label: 'Group Paging',
         icon: 'i-lucide-layers',
         to: '/group-paging-demo',

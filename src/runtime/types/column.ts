@@ -316,4 +316,14 @@ export type NuGridColumn<T extends TableData> = TableColumn<T> & {
    * { accessorKey: 'email' } // Equal share
    */
   widthPercentage?: number
+
+  /**
+   * Controls whether this column is included in global search/filter
+   * When false, this column's values will not be searched when using the search feature
+   * @defaultValue true
+   * @example
+   * // Exclude internal ID column from search
+   * { accessorKey: 'internalId', header: 'ID', enableSearching: false }
+   */
+  enableSearching?: boolean
 }

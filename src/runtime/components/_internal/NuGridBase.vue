@@ -16,6 +16,7 @@ import type {
   NuGridVirtualItemStyle,
   NuGridVirtualizationContext,
 } from '../../types/_internal'
+import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
 import { FlexRender } from '@tanstack/vue-table'
 import { createReusableTemplate } from '@vueuse/core'
 import { Primitive } from 'reka-ui'
@@ -48,6 +49,7 @@ const uiConfigContext = inject<NuGridUIConfigContext<T>>('nugrid-ui-config')!
 const addRowContext = inject<NuGridAddRowContext<T>>('nugrid-add-row')!
 const multiRowContext = inject<NuGridMultiRowContext>('nugrid-multi-row')
 const animationContext = inject<NuGridAnimationContext>('nugrid-animation')!
+const searchContext = inject<NuGridSearchContext | null>('nugrid-search', null)
 
 if (
   !coreContext
@@ -352,6 +354,14 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
 
 // Get total table width for virtualized rows (needed for horizontal sticky columns)
 const totalTableWidth = computed(() => `${tableApi.getTotalSize()}px`)
+
+// Empty state message - show "No results found" when search is active
+const emptyMessage = computed(() => {
+  if (searchContext?.isSearching.value) {
+    return 'No results found.'
+  }
+  return props.empty || 'No data available.'
+})
 
 function getVirtualItemStyle(
   type: GroupVirtualRowType,
@@ -1299,7 +1309,22 @@ function getVirtualItemStyle(
           <div v-else :class="ui.tr({ class: propsUi?.tr })">
             <div :class="ui.empty({ class: propsUi?.empty })">
               <slot name="empty">
-                {{ empty || 'No data available.' }}
+                <div class="flex flex-col items-center justify-center gap-3 py-8 text-center">
+                  <div class="rounded-full bg-muted/50 p-3">
+                    <UIcon
+                      :name="searchContext?.isSearching.value ? 'i-lucide-search-x' : 'i-lucide-inbox'"
+                      class="size-6 text-muted"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <p class="text-sm font-medium text-muted">
+                      {{ emptyMessage }}
+                    </p>
+                    <p v-if="searchContext?.isSearching.value" class="text-xs text-dimmed">
+                      Try adjusting your search terms
+                    </p>
+                  </div>
+                </div>
               </slot>
             </div>
           </div>
