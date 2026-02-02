@@ -77,6 +77,38 @@ export interface NuGridFocusedRowChangedEvent<T extends TableData = TableData> {
   previousRow: Row<T> | null
 }
 
+/**
+ * Event payload for keydown events.
+ * Fires before NuGrid's internal handlers, allowing custom keyboard shortcuts.
+ * Set `handled = true` to prevent NuGrid's default handling.
+ */
+export interface NuGridKeydownEvent<T extends TableData = TableData> {
+  /** The keyboard event */
+  event: KeyboardEvent
+  /** The currently focused row (null if no row focused) */
+  row: Row<T> | null
+  /** The original row data for convenience (same as row.original) */
+  rowData: T | null
+  /** Current row ID (null if no row focused) */
+  rowId: string | null
+  /** Current row index (-1 if no row focused) */
+  rowIndex: number
+  /** The currently focused column (null if no cell focused, or focus mode is 'row') */
+  column: Column<T, unknown> | null
+  /** Current column ID (null if no cell focused, or focus mode is 'row') */
+  columnId: string | null
+  /** The column header name (null if no cell focused, or focus mode is 'row') */
+  columnName: string | null
+  /** Current column index (-1 if no cell focused, or focus mode is 'row') */
+  columnIndex: number
+  /** The currently focused cell (null if no cell focused, or focus mode is 'row') */
+  cell: Cell<T, unknown> | null
+  /** The current cell value (null if no cell focused, or focus mode is 'row') */
+  value: unknown
+  /** Set to true to prevent NuGrid's internal handling of this key */
+  handled: boolean
+}
+
 // ============================================================================
 // EDITING LIFECYCLE EVENTS
 // ============================================================================
@@ -178,6 +210,10 @@ export interface NuGridEventEmitter<T extends TableData = TableData> {
   focusedCellChanged?: (event: NuGridFocusedCellChangedEvent<T>) => void
   /** Emit when the focused row changes */
   focusedRowChanged?: (event: NuGridFocusedRowChangedEvent<T>) => void
+
+  // Keyboard events
+  /** Emit when a keydown event wasn't handled by internal handlers */
+  keydown?: (event: NuGridKeydownEvent<T>) => void
 
   // Editing lifecycle events
   /** Emit when cell editing starts */

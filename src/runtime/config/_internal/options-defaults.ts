@@ -9,6 +9,7 @@ export const nuGridDefaults = {
     loopNavigation: false,
     pageStep: 10,
     alignOnModel: 'nearest',
+    autoFocus: false,
   },
   editing: {
     enabled: false,

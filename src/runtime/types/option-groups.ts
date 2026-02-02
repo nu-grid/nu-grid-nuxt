@@ -57,6 +57,12 @@ export interface NuGridFocusOptions {
    * @defaultValue 'nearest'
    */
   alignOnModel?: 'nearest' | 'top' | 'center'
+
+  /**
+   * Automatically focus the first row/cell when data loads
+   * @defaultValue false
+   */
+  autoFocus?: boolean
 }
 
 /**

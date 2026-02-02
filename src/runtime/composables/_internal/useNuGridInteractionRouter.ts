@@ -509,20 +509,51 @@ export function useNuGridInteractionRouter<T extends TableData>(
       return
     }
 
-    // Skip if no non-document handlers (document-level are handled separately)
-    if (cachedNonDocumentHandlers.length === 0) {
-      return
-    }
-
     // Build context using the provided builder
     const context = keyboardConfig.buildContext(event)
     if (!context) {
       return // Context builder returned null, skip routing
     }
 
+    // Emit keydown event FIRST so consumers can intercept before internal handling
+    // Consumer can set handled = true to prevent NuGrid's internal handling
+    if (eventEmitter?.keydown) {
+      const { focusedCell, focusedRow, cell } = context
+      const column = cell?.column ?? null
+      // Get column header - could be string or function
+      const columnDef = column?.columnDef
+      const columnName = columnDef
+        ? typeof columnDef.header === 'string'
+          ? columnDef.header
+          : column?.id ?? null
+        : null
+      const keydownEvent = {
+        event,
+        row: focusedRow,
+        rowData: focusedRow?.original ?? null,
+        rowId: focusedRow?.id ?? null,
+        rowIndex: focusedCell?.rowIndex ?? -1,
+        column,
+        columnId: column?.id ?? null,
+        columnName,
+        columnIndex: focusedCell?.columnIndex ?? -1,
+        cell: cell ?? null,
+        value: cell?.getValue() ?? null,
+        handled: false,
+      }
+      eventEmitter.keydown(keydownEvent)
+
+      // If consumer marked the event as handled, skip internal handling
+      if (keydownEvent.handled) {
+        return
+      }
+    }
+
     // Only dispatch to non-document-level handlers
     // Document-level handlers are dispatched separately via handleDocumentKeyDown
-    dispatchHandlers(cachedNonDocumentHandlers as GenericHandler[], context, debug)
+    if (cachedNonDocumentHandlers.length > 0) {
+      dispatchHandlers(cachedNonDocumentHandlers as GenericHandler[], context, debug)
+    }
   }
 
   function ensureKeyboardListener() {

@@ -2010,7 +2010,7 @@ export function useNuGridFocus<T extends TableData>(
 }
 
 /**
- * Initialize focus on first cell when data loads (for keyboard navigation)
+ * Initialize focus on first row/cell when data loads (for keyboard navigation)
  * Should be called after creating the focus composable
  */
 export function useNuGridFocusInit<T extends TableData>(
@@ -2019,17 +2019,23 @@ export function useNuGridFocusInit<T extends TableData>(
   rows: Ref<Row<T>[]>,
 ) {
   const focusMode = usePropWithDefault(props, 'focus', 'mode')
+  const autoFocus = usePropWithDefault(props, 'focus', 'autoFocus')
+
   watch(
-    [focusMode, rows],
-    ([mode, rowList]) => {
-      if (mode === 'cell' && rowList && rowList.length > 0 && !focusFns.focusedCell.value) {
+    [focusMode, autoFocus, rows],
+    ([mode, autoFocusEnabled, rowList]) => {
+      // Only auto-focus if enabled and we have rows and no current focus
+      if (!autoFocusEnabled || !rowList || rowList.length === 0 || focusFns.focusedCell.value) {
+        return
+      }
+
+      if (mode === 'cell' || mode === 'row') {
         nextTick(() => {
           const firstRow = rowList[0]
           if (firstRow) {
-            // Set focus to first focusable cell and update focusedCell ref
-            const firstFocusableColumn = focusFns.findFirstFocusableColumn(firstRow)
-            focusFns.setFocusedCell({ rowIndex: 0, columnIndex: firstFocusableColumn })
-            focusFns.focusCell(firstRow, 0, firstFocusableColumn)
+            const columnIndex = mode === 'cell' ? focusFns.findFirstFocusableColumn(firstRow) : 0
+            focusFns.setFocusedCell({ rowIndex: 0, columnIndex })
+            focusFns.focusCell(firstRow, 0, columnIndex)
           }
         })
       }

@@ -92,6 +92,9 @@ const scrollAlign = ref<'nearest' | 'top' | 'center'>('nearest')
 // Sticky headers toggle
 const stickyHeaders = ref(true)
 
+// Auto focus toggle
+const autoFocus = ref(false)
+
 // Manual ID input
 const manualRowId = ref('')
 
@@ -177,6 +180,7 @@ function focusRow(id: string) {
       <DemoStatusItem label="Raw ID" :value="focusedRowId ?? 'null'" />
       <DemoStatusItem label="Scroll Align" :value="scrollAlign" />
       <DemoStatusItem label="Sticky Headers" :value="stickyHeaders ? 'On' : 'Off'" />
+      <DemoStatusItem label="Auto Focus" :value="autoFocus ? 'On' : 'Off'" />
       <DemoStatusItem label="Total Rows" :value="data.length" />
     </template>
 
@@ -247,6 +251,10 @@ function focusRow(id: string) {
           <span class="text-sm">Sticky Headers</span>
           <USwitch v-model="stickyHeaders" />
         </div>
+        <div class="mt-2 flex items-center justify-between">
+          <span class="text-sm">Auto Focus</span>
+          <USwitch v-model="autoFocus" />
+        </div>
       </DemoControlGroup>
 
       <DemoControlGroup label="Manual ID Input">
@@ -291,21 +299,26 @@ function focusRow(id: string) {
           <code class="rounded bg-default/50 px-1">center</code>
         </li>
         <li>Invalid IDs are logged as warnings and ignored</li>
+        <li>
+          Enable <code class="rounded bg-default/50 px-1">autoFocus</code> to focus first row on
+          load
+        </li>
       </ul>
       <div class="rounded bg-default/50 p-2 text-sm text-muted">
-        <strong>Tip:</strong> Select an alignment mode, then use the focus buttons to see the
-        difference in scroll behavior.
+        <strong>Tip:</strong> Toggle Auto Focus and reload to see the first row focused
+        automatically.
       </div>
     </template>
 
     <!-- Grid -->
     <div class="h-96 overflow-hidden rounded-lg border border-default">
       <NuGrid
+        :key="`grid-${autoFocus}`"
         ref="gridRef"
         v-model:focused-row-id="focusedRowId"
         :data="data"
         :columns="columns"
-        :focus="{ mode: 'cell', alignOnModel: 'top' }"
+        :focus="{ mode: 'cell', alignOnModel: 'top', autoFocus }"
         :layout="{ stickyHeaders }"
       />
     </div>

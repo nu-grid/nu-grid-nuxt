@@ -55,6 +55,8 @@ export type {
   // Focus events
   NuGridFocusedCellChangedEvent,
   NuGridFocusedRowChangedEvent,
+  // Keyboard events
+  NuGridKeydownEvent,
   NuGridRowClickEvent,
   NuGridSortChangedEvent,
 } from './events'

@@ -32,6 +32,7 @@ import type {
   NuGridFilterChangedEvent,
   NuGridFocusedCellChangedEvent,
   NuGridFocusedRowChangedEvent,
+  NuGridKeydownEvent,
   NuGridProps,
   NuGridRowClickEvent,
   NuGridSortChangedEvent,
@@ -117,6 +118,8 @@ const emit = defineEmits<{
   // New state change events
   sortChanged: [event: NuGridSortChangedEvent]
   filterChanged: [event: NuGridFilterChangedEvent]
+  // Keyboard events
+  keydown: [event: NuGridKeydownEvent<T>]
 }>()
 
 const slots = defineSlots<TableSlots<T>>()
@@ -139,6 +142,8 @@ const eventEmitter: NuGridEventEmitter<T> = {
   // State change events
   sortChanged: (e) => emit('sortChanged', e),
   filterChanged: (e) => emit('filterChanged', e),
+  // Keyboard events
+  keydown: (e) => emit('keydown', e),
   // Migrated existing events
   rowDragged: (e) => emit('rowDragged', e),
   stateChanged: (e) => emit('stateChanged', e),

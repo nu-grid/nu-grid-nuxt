@@ -8,6 +8,7 @@ import type {
   NuGridFilterChangedEvent,
   NuGridFocusedCellChangedEvent,
   NuGridFocusedRowChangedEvent,
+  NuGridKeydownEvent,
   NuGridRowClickEvent,
   NuGridSortChangedEvent,
 } from '#nu-grid/types'
@@ -67,6 +68,11 @@ const eventLog = ref<EventLogEntry[]>([])
 const maxLogEntries = 50
 let eventCounter = 0
 
+const toast = useToast()
+
+// Intercept Enter key to demonstrate event.handled
+const interceptEnter = ref(false)
+
 // Event filters
 const enabledEvents = ref({
   cellClicked: true,
@@ -75,6 +81,7 @@ const enabledEvents = ref({
   rowDoubleClicked: false,
   focusedCellChanged: true,
   focusedRowChanged: false,
+  keydown: true,
   cellEditingStarted: true,
   cellEditingCancelled: true,
   cellValueChanged: true,
@@ -97,6 +104,7 @@ function logEvent(name: string, payload: any) {
           }
         }
         if (key === 'event') return '[MouseEvent]'
+        if (key === 'keyboardEvent') return '[KeyboardEvent]'
         return value
       },
       2,
@@ -159,6 +167,27 @@ function onFocusedRowChanged(e: NuGridFocusedRowChangedEvent<Employee>) {
   }
 }
 
+function onKeydown(e: NuGridKeydownEvent<Employee>) {
+  if (enabledEvents.value.keydown) {
+    logEvent('keydown', {
+      key: e.event.key,
+      rowData: e.rowData,
+      columnName: e.columnName,
+      value: e.value,
+    })
+  }
+
+  // Demonstrate event.handled - intercept Enter key to prevent editing
+  if (interceptEnter.value && e.event.key === 'Enter') {
+    e.handled = true
+    toast.add({
+      title: 'Enter Intercepted',
+      description: `Prevented editing "${e.columnName}" for ${e.rowData?.name}`,
+      color: 'info',
+    })
+  }
+}
+
 function onCellEditingStarted(e: NuGridCellEditingStartedEvent<Employee>) {
   if (enabledEvents.value.cellEditingStarted) {
     logEvent('cellEditingStarted', { rowId: e.row.id, columnId: e.column.id, value: e.value })
@@ -203,6 +232,7 @@ function getEventColor(name: string): string {
     rowDoubleClicked: 'text-cyan-600',
     focusedCellChanged: 'text-purple-500',
     focusedRowChanged: 'text-purple-600',
+    keydown: 'text-pink-500',
     cellEditingStarted: 'text-green-500',
     cellEditingCancelled: 'text-orange-500',
     cellValueChanged: 'text-emerald-500',
@@ -221,6 +251,7 @@ const exampleCode = `<NuGrid
   @row-double-clicked="onRowDoubleClicked"
   @focused-cell-changed="onFocusedCellChanged"
   @focused-row-changed="onFocusedRowChanged"
+  @keydown="onKeydown"
   @cell-editing-started="onCellEditingStarted"
   @cell-editing-cancelled="onCellEditingCancelled"
   @cell-value-changed="onCellValueChanged"
@@ -300,6 +331,32 @@ const exampleCode = `<NuGrid
             focusedRowChanged
           </UButton>
         </div>
+      </DemoControlGroup>
+
+      <DemoControlGroup label="Keyboard Events">
+        <div class="space-y-1">
+          <UButton
+            block
+            :color="enabledEvents.keydown ? 'primary' : 'neutral'"
+            :variant="enabledEvents.keydown ? 'solid' : 'outline'"
+            size="xs"
+            @click="enabledEvents.keydown = !enabledEvents.keydown"
+          >
+            keydown
+          </UButton>
+          <UButton
+            block
+            :color="interceptEnter ? 'warning' : 'neutral'"
+            :variant="interceptEnter ? 'solid' : 'outline'"
+            size="xs"
+            @click="interceptEnter = !interceptEnter"
+          >
+            Intercept Enter
+          </UButton>
+        </div>
+        <p v-if="interceptEnter" class="mt-2 text-xs text-muted">
+          Enter key will be intercepted via <code class="rounded bg-default/50 px-1">event.handled = true</code>
+        </p>
       </DemoControlGroup>
 
       <DemoControlGroup label="Editing Events">
@@ -384,6 +441,9 @@ const exampleCode = `<NuGrid
         </li>
         <li><strong>Focus Events:</strong> focusedCellChanged, focusedRowChanged</li>
         <li>
+          <strong>Keyboard Events:</strong> keydown (for custom shortcuts like Enter-to-navigate)
+        </li>
+        <li>
           <strong>Editing Events:</strong> cellEditingStarted, cellEditingCancelled,
           cellValueChanged
         </li>
@@ -391,7 +451,7 @@ const exampleCode = `<NuGrid
       </ul>
       <div class="rounded bg-default/50 p-2 text-sm text-muted">
         <strong>Tip:</strong> Double-click a cell to edit it, then press Escape to cancel or Enter
-        to save. Click column headers to sort.
+        to save. Press any unhandled key (like 'x') to see the keydown event logged.
       </div>
     </template>
 
@@ -408,6 +468,7 @@ const exampleCode = `<NuGrid
         @row-double-clicked="onRowDoubleClicked"
         @focused-cell-changed="onFocusedCellChanged"
         @focused-row-changed="onFocusedRowChanged"
+        @keydown="onKeydown"
         @cell-editing-started="onCellEditingStarted"
         @cell-editing-cancelled="onCellEditingCancelled"
         @cell-value-changed="onCellValueChanged"

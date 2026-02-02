@@ -660,7 +660,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                       :is-expanded="false"
                     />
                   </div>
-
                 </div>
               </template>
 
