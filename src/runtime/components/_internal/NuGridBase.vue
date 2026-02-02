@@ -805,7 +805,6 @@ function getVirtualItemStyle(
 
         <div
           data-tbody
-          :class="ui.tbody({ class: [propsUi?.tbody] })"
           :style="
             virtualizer
               ? { position: 'relative', height: `${virtualizer.getTotalSize()}px` }

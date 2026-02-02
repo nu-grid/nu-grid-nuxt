@@ -459,7 +459,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
 
       <div
         data-tbody
-        :class="ui.tbody({ class: [propsUi?.tbody] })"
         :style="
           virtualizationEnabled && virtualizer
             ? {
