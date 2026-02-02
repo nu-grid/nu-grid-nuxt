@@ -6,6 +6,7 @@ const toast = useToast()
 const gridRef = useTemplateRef<{
   getState: () => NuGridStateSnapshot
   setState: (state: NuGridStateSnapshot) => void
+  clearState: () => void
 }>('grid')
 
 // Sample data for the demo
@@ -169,25 +170,17 @@ function setExampleState(type: 'sorted' | 'filtered' | 'custom') {
   toast.add({ title: 'State Applied', description: `${type} state has been applied` })
 }
 
-// Clear all state
+// Clear all state (clears both cookie and localStorage, restores grid to original state)
 function clearState() {
-  if (!gridRef.value?.setState) {
+  if (!gridRef.value?.clearState) {
     toast.add({ title: 'Error', description: 'Grid reference not available', color: 'error' })
     return
   }
 
-  gridRef.value.setState({
-    globalFilter: '',
-    columnFilters: [],
-    columnOrder: [],
-    columnVisibility: {},
-    rowSelection: {},
-    sorting: [],
-    grouping: [],
-    pagination: { pageIndex: 0, pageSize: 10 } as any,
-  })
+  gridRef.value.clearState()
+  currentState.value = null
 
-  toast.add({ title: 'State Cleared', description: 'All grid state has been reset' })
+  toast.add({ title: 'State Cleared', description: 'All grid state and storage have been cleared' })
 }
 
 // Save state to a variable (simulating custom storage)

@@ -800,6 +800,10 @@ defineExpose({
   autosizeReady: autosizeFns.autosizeReady,
   getState: statePersistence.getState,
   setState: statePersistence.setState,
+  clearState: () => {
+    statePersistence.clearState()
+    manuallyResizedColumns.value = new Set()
+  },
   addRowState,
   excelExport,
   getSelectedRows,

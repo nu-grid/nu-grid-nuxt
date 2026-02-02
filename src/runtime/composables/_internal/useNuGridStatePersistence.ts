@@ -77,6 +77,7 @@ export function useNuGridStatePersistence<T extends TableData = TableData>(
     return {
       getState: () => ({}),
       setState: (_snapshot: NuGridStateSnapshot) => {},
+      clearState: () => {},
       applyPendingRatios: () => {},
       setResizeHelpers: (_helpers: NuGridStatePersistenceHelpers) => {},
     }
@@ -373,9 +374,58 @@ export function useNuGridStatePersistence<T extends TableData = TableData>(
     helpers = newHelpers
   }
 
+  /**
+   * Clear all persisted state from both cookie and localStorage,
+   * and reset the grid to its default state
+   */
+  function clearState() {
+    try {
+      isRestoring = true
+
+      // Clear localStorage
+      if (storedState) {
+        storedState.value = null
+      }
+
+      // Clear cookie
+      if (cookieStateRef) {
+        cookieStateRef.value = null
+      }
+
+      // Reset all states to defaults
+      states.globalFilterState.value = ''
+      states.columnFiltersState.value = []
+      states.columnOrderState.value = []
+      states.columnVisibilityState.value = {}
+      states.columnPinningState.value = {}
+      states.columnSizingState.value = {}
+      states.columnSizingInfoState.value = {} as ColumnSizingInfoState
+      states.rowSelectionState.value = {}
+      states.rowPinningState.value = {}
+      states.sortingState.value = []
+      states.groupingState.value = []
+      states.expandedState.value = {}
+      states.paginationState.value = { pageIndex: 0, pageSize: 10 }
+
+      // Clear pending ratios
+      pendingRatios = null
+
+      // Emit the cleared state
+      emitStateChanged({})
+
+      nextTick(() => {
+        isRestoring = false
+      })
+    } catch (error) {
+      console.warn('[NuGrid State] Failed to clear state:', error)
+      isRestoring = false
+    }
+  }
+
   return {
     getState,
     setState,
+    clearState,
     applyPendingRatios,
     setResizeHelpers,
   }

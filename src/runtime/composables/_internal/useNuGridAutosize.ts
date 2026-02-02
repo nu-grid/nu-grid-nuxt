@@ -318,7 +318,7 @@ export function useNuGridAutosize<T extends TableData>(
 
           // After first render, sync flex column widths to TanStack
           // so resize works correctly from the first click
-          if (props.data && props.data.length > 0) {
+          if (props.data && props.data.length > 0 && typeof requestAnimationFrame !== 'undefined') {
             nextTick(() => {
               // Use requestAnimationFrame to ensure DOM is fully painted
               requestAnimationFrame(() => {
