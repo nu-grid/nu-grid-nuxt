@@ -13,13 +13,14 @@ export const nuGridTheme = {
     checkboxContainer: '',
     checkboxIcon: '',
     // Base slots with div mode styles merged in - pb-3 provides space for horizontal scrollbar
-    base: 'flex flex-col pb-3 w-max min-w-0 border-separate border-spacing-0',
+    base: 'flex flex-col pb-3 w-max min-w-0',
     // Scrollbar styling - uses tailwind-scrollbar plugin
     scrollbar:
       'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/50 hover:scrollbar-thumb-gray-500/60 dark:scrollbar-thumb-gray-500/50 dark:hover:scrollbar-thumb-gray-400/60 scrollbar-thumb-rounded',
     th: 'flex shrink-0 items-stretch p-0! group text-left rtl:text-right text-sm font-semibold text-highlighted py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
     td: 'flex shrink-0 items-center overflow-hidden p-4 whitespace-nowrap text-sm text-muted outline-none! focus-visible:outline-none! border-b border-default',
     tr: 'flex outline-none! focus-visible:outline-none!',
+    tbody: 'divide-y-0',
     loading: 'flex-1',
     empty: 'flex-1',
     separator: 'flex-1 h-0',

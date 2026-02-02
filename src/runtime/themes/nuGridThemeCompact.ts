@@ -23,6 +23,7 @@ export const nuGridThemeCompact = {
     // Tighter cell padding: px-2 py-1 instead of p-4
     td: 'flex shrink-0 items-center overflow-hidden border-r border-gray-300/50 dark:border-gray-600/50 last:border-r-0 px-2 py-1 whitespace-nowrap text-sm text-gray-900 dark:text-white outline-none! focus-visible:outline-none!',
     tr: 'flex border-b border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 outline-none! focus-visible:outline-none!',
+    tbody: 'divide-y-0',
     loading: 'flex-1',
     empty: 'flex-1',
     separator: 'flex-1',
