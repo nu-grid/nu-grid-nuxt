@@ -9,7 +9,8 @@ export const nuGridThemeCompact = {
   slots: {
     ...theme.slots,
     // Root container - extends base with height to fill parent container
-    root: 'relative overflow-auto h-full',
+    // min-h-0 allows shrinking in flex contexts (overrides default min-height: auto)
+    root: 'relative overflow-auto h-full min-h-0',
     checkboxBase: 'ring-blue-800 dark:ring-blue-400',
     checkboxIndicator: 'bg-blue-800! dark:bg-blue-400',
     checkboxContainer: '',

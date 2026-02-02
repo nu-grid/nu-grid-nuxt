@@ -173,6 +173,14 @@ const links = [
     type: 'trigger',
     children: [
       {
+        label: 'Container Height',
+        icon: 'i-lucide-ruler',
+        to: '/container-height-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
         label: 'AutoSizing',
         icon: 'i-lucide-maximize',
         to: '/autosizing-demo',
