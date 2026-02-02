@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.3.0...v0.3.1) (2026-02-02)
+
+
+### 🐛 Bug Fixes
+
+* Double row bottom border ([3ba2c38](https://github.com/nu-grid/nu-grid-nuxt/commit/3ba2c38f47427aedb3db364f9350dc64e0dd08fe))
+* Set resize mode to shift for auto sizing set to fill ([17b6a48](https://github.com/nu-grid/nu-grid-nuxt/commit/17b6a48c79858e584e4d851f2f418d8531f60b06))
+
 ## [0.3.0](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.2.0...v0.3.0) (2026-02-02)
 
 
