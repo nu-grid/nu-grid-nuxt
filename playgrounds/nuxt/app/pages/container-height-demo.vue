@@ -46,8 +46,8 @@ const gridUi = {
     <template #controls>
       <DemoControlGroup label="About">
         <p class="text-xs text-muted">
-          This demo shows grids in various container configurations to verify height constraints work
-          correctly. The grid should respect container height and show scrollbars when content
+          This demo shows grids in various container configurations to verify height constraints
+          work correctly. The grid should respect container height and show scrollbars when content
           exceeds the container.
         </p>
       </DemoControlGroup>
@@ -55,8 +55,8 @@ const gridUi = {
 
     <template #info>
       <p class="mb-3 text-sm text-muted">
-        NuGrid uses <code class="rounded bg-default px-1 py-0.5 text-xs">h-full min-h-0</code> on the
-        root element to properly constrain to container height in flex contexts.
+        NuGrid uses <code class="rounded bg-default px-1 py-0.5 text-xs">h-full min-h-0</code> on
+        the root element to properly constrain to container height in flex contexts.
       </p>
       <div class="rounded bg-default/50 p-2 text-sm text-muted">
         <strong>Key CSS:</strong>
@@ -88,7 +88,9 @@ const gridUi = {
           Parent has h-[250px], grid uses flex-1 to fill remaining space after header.
         </p>
         <div class="flex h-[250px] flex-col rounded-lg border border-default">
-          <div class="shrink-0 border-b border-default bg-elevated/50 px-3 py-2 text-sm font-medium">
+          <div
+            class="shrink-0 border-b border-default bg-elevated/50 px-3 py-2 text-sm font-medium"
+          >
             Header (shrink-0)
           </div>
           <div class="min-h-0 flex-1">
@@ -136,7 +138,9 @@ const gridUi = {
           Multiple levels of flex nesting - each level needs min-h-0 for proper shrinking.
         </p>
         <div class="flex h-[280px] flex-col rounded-lg border border-default">
-          <div class="shrink-0 border-b border-default bg-elevated/50 px-3 py-2 text-sm font-medium">
+          <div
+            class="shrink-0 border-b border-default bg-elevated/50 px-3 py-2 text-sm font-medium"
+          >
             Level 1 Header
           </div>
           <div class="flex min-h-0 flex-1 flex-col">
