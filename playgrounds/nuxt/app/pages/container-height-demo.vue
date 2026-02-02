@@ -27,14 +27,6 @@ const columns: NuGridColumn<Item>[] = [
   { accessorKey: 'category', header: 'Category', size: 100 },
   { accessorKey: 'value', header: 'Value', size: 100 },
 ]
-
-const gridUi = {
-  base: 'w-max min-w-full border-separate border-spacing-0',
-  thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-  tbody: '[&>tr]:last:[&>td]:border-b-0',
-  th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-  td: 'border-b border-default',
-}
 </script>
 
 <template>
@@ -77,7 +69,7 @@ const gridUi = {
           Grid should be constrained to 200px and scroll vertically.
         </p>
         <div class="h-[200px] rounded-lg border border-default">
-          <NuGrid :data="data" :columns="columns" :ui="gridUi" />
+          <NuGrid :data="data" :columns="columns" />
         </div>
       </section>
 
@@ -94,7 +86,7 @@ const gridUi = {
             Header (shrink-0)
           </div>
           <div class="min-h-0 flex-1">
-            <NuGrid :data="data" :columns="columns" :ui="gridUi" />
+            <NuGrid :data="data" :columns="columns" />
           </div>
         </div>
       </section>
@@ -110,7 +102,7 @@ const gridUi = {
             Grid Header (auto)
           </div>
           <div class="min-h-0">
-            <NuGrid :data="data" :columns="columns" :ui="gridUi" />
+            <NuGrid :data="data" :columns="columns" />
           </div>
         </div>
       </section>
@@ -123,10 +115,10 @@ const gridUi = {
         </p>
         <div class="flex h-[200px] gap-4">
           <div class="min-w-0 flex-1 rounded-lg border border-default">
-            <NuGrid :data="data.slice(0, 25)" :columns="columns" :ui="gridUi" />
+            <NuGrid :data="data.slice(0, 25)" :columns="columns" />
           </div>
           <div class="min-w-0 flex-1 rounded-lg border border-default">
-            <NuGrid :data="data.slice(25)" :columns="columns" :ui="gridUi" />
+            <NuGrid :data="data.slice(25)" :columns="columns" />
           </div>
         </div>
       </section>
@@ -150,7 +142,7 @@ const gridUi = {
               Level 2 Subheader
             </div>
             <div class="min-h-0 flex-1">
-              <NuGrid :data="data" :columns="columns" :ui="gridUi" />
+              <NuGrid :data="data" :columns="columns" />
             </div>
           </div>
         </div>
@@ -163,7 +155,7 @@ const gridUi = {
           Very small container - grid should still work with scrolling.
         </p>
         <div class="h-[120px] rounded-lg border border-default">
-          <NuGrid :data="data" :columns="columns" :ui="gridUi" />
+          <NuGrid :data="data" :columns="columns" />
         </div>
       </section>
     </div>

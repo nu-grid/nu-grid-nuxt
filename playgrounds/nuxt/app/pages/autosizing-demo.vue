@@ -257,16 +257,6 @@ function resetColumnSizes() {
         :column-defaults="{ resize: true, reorder: true }"
         :data="data"
         :columns="columns"
-        :ui="{
-          base: fullWidthMode
-            ? 'w-full min-w-0 border-separate border-spacing-0'
-            : 'w-max min-w-0 border-separate border-spacing-0',
-          thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-          tbody: '[&>tr]:last:[&>td]:border-b-0',
-          th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-          td: 'border-b border-default',
-          separator: 'h-0',
-        }"
       />
       <div v-else class="flex h-64 items-center justify-center text-muted">Loading...</div>
     </div>

@@ -47,7 +47,7 @@ export const nuGridDefaults = {
     stickyHeaders: false,
     scrollbars: 'scroll',
     autoSize: 'fill',
-    resizeMode: 'shift',
+    // resizeMode defaults to 'shift' when autoSize is 'fill', otherwise 'expand'
   },
   columnDefaults: {
     sortIcons: {

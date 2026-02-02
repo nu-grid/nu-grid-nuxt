@@ -299,7 +299,13 @@ const rows = orderedRows
 const stickyEnabled = computed(() => props.layout?.stickyHeaders ?? false)
 
 // Resize mode for column sizing behavior
-const resizeMode = computed(() => props.layout?.resizeMode ?? 'shift')
+// Default to 'shift' when autoSize is 'fill' to maintain full-width distribution
+const resizeMode = computed(() => {
+  if (props.layout?.resizeMode) return props.layout.resizeMode
+  // When autoSize is 'fill', default to 'shift' to keep columns filling the container
+  if (props.layout?.autoSize === 'fill') return 'shift'
+  return 'expand'
+})
 
 const {
   virtualizer,

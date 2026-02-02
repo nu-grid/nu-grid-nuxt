@@ -212,7 +212,7 @@ const columns: NuGridColumn<User>[] = [
           <div class="border-b border-default bg-elevated p-3">
             <h3 class="font-semibold">Left Grid ({{ dataLeft.length }} items)</h3>
           </div>
-          <div class="h-[400px] overflow-auto">
+          <div class="h-100 overflow-auto">
             <NuGrid
               ref="tableLeft"
               v-model:column-filters="columnFilters"
@@ -224,9 +224,6 @@ const columns: NuGridColumn<User>[] = [
               :layout="{ resizeMode: 'shift' }"
               :data="dataLeft"
               :columns="columns"
-              :ui="{
-                base: 'w-max min-w-full',
-              }"
               @row-dragged="onRowDraggedLeft"
             >
             </NuGrid>
@@ -238,7 +235,7 @@ const columns: NuGridColumn<User>[] = [
           <div class="border-b border-default bg-elevated p-3">
             <h3 class="font-semibold">Right Grid ({{ dataRight.length }} items)</h3>
           </div>
-          <div class="h-[400px] overflow-auto">
+          <div class="h-100 overflow-auto">
             <NuGrid
               ref="tableRight"
               v-model:column-filters="columnFilters"
@@ -250,9 +247,6 @@ const columns: NuGridColumn<User>[] = [
               :layout="{ resizeMode: 'shift' }"
               :data="dataRight"
               :columns="columns"
-              :ui="{
-                base: 'w-max min-w-full',
-              }"
               @row-dragged="onRowDraggedRight"
             >
             </NuGrid>

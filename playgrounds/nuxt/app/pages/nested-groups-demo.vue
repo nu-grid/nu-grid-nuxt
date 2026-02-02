@@ -316,14 +316,6 @@ const gridMode = computed(() =>
       :focus="{ retain: true }"
       :editing="{ enabled: true, startClicks: 'double' }"
       resize-columns
-      :ui="{
-        root: 'h-full w-full',
-        base: 'w-max min-w-full border-separate border-spacing-0',
-        thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-        tbody: '[&>tr]:last:[&>td]:border-b-0',
-        th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-        td: 'border-b border-default',
-      }"
     />
 
     <!-- Code Example -->

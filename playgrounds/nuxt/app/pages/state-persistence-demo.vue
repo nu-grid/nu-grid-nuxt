@@ -429,13 +429,6 @@ function setState() {
       :columns="columns"
       :state="persistState ? { key: stateStorageId } : false"
       :column-defaults="{ resize: true, reorder: true }"
-      :ui="{
-        base: 'w-max min-w-full border-separate border-spacing-0',
-        thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-        tbody: '[&>tr]:last:[&>td]:border-b-0',
-        th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-        td: 'border-b border-default',
-      }"
       @state-changed="onStateChanged"
       @ready="() => getCurrentState(true)"
     />

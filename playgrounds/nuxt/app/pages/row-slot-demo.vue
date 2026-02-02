@@ -271,14 +271,6 @@ const exampleCode = `<NuGrid :data="data" :columns="columns">
         :columns="columns"
         :row-selection="{ mode: 'multi' }"
         :focus="{ mode: focusMode }"
-        :ui="{
-          base: 'w-max min-w-full border-separate border-spacing-0',
-          thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-          tbody: '[&>tr]:last:[&>td]:border-b-0',
-          th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-          td: 'border-b border-default',
-          tr: useRowSlot ? 'hover:bg-elevated/50' : '',
-        }"
       >
         <template v-if="useRowSlot" #row="{ row }">
           <div class="flex w-full items-center gap-4 px-4 py-3">

@@ -379,12 +379,6 @@ const columns: NuGridColumn<User>[] = [
       :focus="{ retain: true }"
       :editing="{ enabled: true, startClicks: 'single', startKeys: 'all' }"
       resize-columns
-      :ui="{
-        base: 'w-max min-w-full border-separate border-spacing-0',
-        thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
-        th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
-        td: 'border-b border-default',
-      }"
       @cell-change="handleCellChange"
     />
 
