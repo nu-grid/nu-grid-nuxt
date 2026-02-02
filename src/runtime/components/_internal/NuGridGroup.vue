@@ -243,19 +243,16 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
 </script>
 
 <template>
-  <!-- Reusable Group Subheader Template -->
   <DefineGroupSubheaderTemplate v-slot="{ groupId, groupRow, itemCount, depth = 0 }">
     <div
       :data-group-header="groupId"
       :class="ui.groupHeader({ class: [propsUi?.groupHeader] })"
       :style="{ width: `${tableApi.getTotalSize()}px` }"
     >
-      <!-- Fixed left part (doesn't scroll horizontally) -->
       <div
         :class="ui.groupHeaderLeft({ class: [propsUi?.groupHeaderLeft] })"
         :style="{ paddingLeft: depth > 0 ? `${depth * 24}px` : undefined }"
       >
-        <!-- Group selection checkbox -->
         <NuGridGroupCheckbox
           v-if="rowSelectionEnabled"
           :model-value="getGroupCheckboxState(groupId)"
@@ -284,12 +281,10 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           </span>
         </div>
       </div>
-      <!-- Spacer that scrolls (optional, for visual continuity) -->
       <div :class="ui.groupHeaderSpacer({ class: [propsUi?.groupHeaderSpacer] })" />
     </div>
   </DefineGroupSubheaderTemplate>
 
-  <!-- Reusable Header Cell Template -->
   <DefineHeaderCellTemplate v-slot="{ header, rowIndex }">
     <div
       :data-column-id="header.column.id"
@@ -376,7 +371,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           :header="header"
         />
 
-        <!-- Column resize handle (works for both regular columns and column groups) -->
         <div
           v-if="header.column.getCanResize() || header.colSpan > 1"
           :class="
@@ -432,7 +426,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
         </slot>
       </div>
 
-      <!-- Column headers shown once at the top (non-virtualized) -->
       <div
         v-if="!virtualizationEnabled"
         ref="columnHeadersRef"
@@ -447,7 +440,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           :key="headerGroup.id"
           :class="ui.tr({ class: propsUi?.tr })"
         >
-          <!-- Drag handle header placeholder -->
           <div
             v-if="rowDragOptions.enabled"
             :class="[
@@ -480,7 +472,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
         <slot name="body-top" />
 
         <template v-if="groupRows.length">
-          <!-- Virtualized rendering -->
           <template v-if="virtualizationEnabled && virtualizer">
             <template v-for="virtualRow in virtualizer.getVirtualItems()" :key="virtualRow.index">
               <div
@@ -493,7 +484,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                 :style="virtStyle(virtualRow)"
               >
                 <template v-if="virtualRowItems[virtualRow.index]">
-                  <!-- Column Headers (shown once at top in virtualized mode) -->
                   <template v-if="virtualRowItems[virtualRow.index]?.type === 'column-headers'">
                     <div
                       :class="[
@@ -509,7 +499,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                         :key="headerGroup.id"
                         :class="ui.tr({ class: propsUi?.tr })"
                       >
-                        <!-- Drag handle header placeholder -->
                         <div
                           v-if="rowDragOptions.enabled"
                           :class="[
@@ -527,7 +516,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     </div>
                   </template>
 
-                  <!-- Group Subheader -->
                   <ReuseGroupSubheaderTemplate
                     v-else-if="virtualRowItems[virtualRow.index]?.type === 'group-header'"
                     :group-id="virtualRowItems[virtualRow.index]?.groupId!"
@@ -540,7 +528,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     :depth="virtualRowItems[virtualRow.index]?.depth ?? 0"
                   />
 
-                  <!-- Data Row -->
                   <component
                     :is="
                       addRowContext.isAddRowRow(virtualRowItems[virtualRow.index]?.dataRow!)
@@ -554,7 +541,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     :row="virtualRowItems[virtualRow.index]?.dataRow!"
                   />
 
-                  <!-- Footer Row -->
                   <div
                     v-else-if="virtualRowItems[virtualRow.index]?.type === 'footer'"
                     :class="ui.tfoot({ class: [propsUi?.tfoot] })"
@@ -603,10 +589,8 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
             </template>
           </template>
 
-          <!-- Non-virtualized rendering -->
           <template v-else>
             <template v-for="item in virtualRowItems" :key="item.index">
-              <!-- Group Subheader Row - uses measured column header height for accurate sticky positioning -->
               <div
                 v-if="item.type === 'group-header'"
                 :class="[stickyEnabled ? 'sticky top-(--header-height,0px) z-20 bg-default' : '']"
@@ -623,7 +607,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                 />
               </div>
 
-              <!-- Data rows for this group (only if expanded) -->
               <template v-else-if="item.type === 'data' && item.dataRow">
                 <component
                   :is="addRowContext.isAddRowRow(item.dataRow) ? NuGridAddRow : NuGridRow"
@@ -652,7 +635,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
         <slot name="body-bottom" />
       </div>
 
-      <!-- Footer (non-virtualized, only when not in groups or no data) -->
       <div
         v-if="hasFooter && !virtualizationEnabled && groupRows.length === 0"
         :class="ui.tfoot({ class: [propsUi?.tfoot] })"

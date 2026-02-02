@@ -235,7 +235,6 @@ const transitionStyle = computed(() => ({
 
 <template>
   <div ref="elementRef" class="lazy-cell" :style="dimensionStyle">
-    <!-- Actual content (with fade-in transition) -->
     <div
       v-if="showContent"
       class="lazy-cell-content"
@@ -244,10 +243,8 @@ const transitionStyle = computed(() => ({
       <slot />
     </div>
 
-    <!-- Placeholder (shown while waiting) -->
     <div v-else class="lazy-cell-placeholder" :style="dimensionStyle">
       <slot name="placeholder">
-        <!-- Default placeholder: subtle skeleton -->
         <div class="lazy-cell-skeleton" />
       </slot>
     </div>

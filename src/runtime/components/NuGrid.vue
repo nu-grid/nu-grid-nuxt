@@ -843,10 +843,8 @@ const childGrid = computed(() => {
         </template>
       </component>
     </div>
-    <!-- Paging panel (outside scrolling area) -->
     <NuGridPaging v-if="pagingContext.showPanel.value" class="shrink-0" />
   </div>
-  <!-- Single shared tooltip instance for all cells -->
   <NuGridTooltip />
 </template>
 

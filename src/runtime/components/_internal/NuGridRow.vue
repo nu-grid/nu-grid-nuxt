@@ -414,7 +414,6 @@ function getMultiRowPinningStyle(
 </script>
 
 <template>
-  <!-- Multi-row mode: wrap all visual rows in a container -->
   <div
     v-if="multiRowEnabled && multiRowCount > 1"
     :ref="measureRef"
@@ -439,7 +438,6 @@ function getMultiRowPinningStyle(
     @pointerleave="onRowHover($event, null)"
     @contextmenu="onRowContextmenu($event, row)"
   >
-    <!-- Drag handle (only shown once for the entire multi-row item) -->
     <div
       v-if="rowDragOptions.enabled"
       v-bind="rowDragFns.rowDragHandleProps(row)"
@@ -457,7 +455,6 @@ function getMultiRowPinningStyle(
       />
     </div>
 
-    <!-- Visual rows container (non-aligned mode) -->
     <div
       v-if="!alignedCellsByVisualRow"
       :class="ui.multiRowContent({ class: [propsUi?.multiRowContent] })"
@@ -527,9 +524,7 @@ function getMultiRowPinningStyle(
       </div>
     </div>
 
-    <!-- Aligned mode: pinned columns span all rows, content in the middle -->
     <div v-else :class="ui.alignedLayout({ class: [propsUi?.alignedLayout] })">
-      <!-- Left-pinned cells spanning all visual rows -->
       <div
         v-if="alignedLeftPinnedCells.length > 0"
         :class="ui.alignedPinnedLeft({ class: [propsUi?.alignedPinnedLeft] })"
@@ -581,7 +576,6 @@ function getMultiRowPinningStyle(
         </div>
       </div>
 
-      <!-- Non-pinned content area with visual rows -->
       <div :class="ui.alignedContent({ class: [propsUi?.alignedContent] })">
         <div
           v-for="(alignedItems, visualRowIndex) in alignedCellsByVisualRow"
@@ -590,7 +584,6 @@ function getMultiRowPinningStyle(
           :class="ui.visualRow({ class: [propsUi?.visualRow] })"
         >
           <template v-for="(item, itemIndex) in alignedItems" :key="itemIndex">
-            <!-- Cell item -->
             <div
               v-if="item.type === 'cell' && item.cell"
               :data-cell-index="item.cellIndex"
@@ -641,7 +634,6 @@ function getMultiRowPinningStyle(
               </slot>
             </div>
 
-            <!-- Filler item (empty space for remaining columns) -->
             <div
               v-else-if="item.type === 'filler'"
               :class="ui.alignedFiller({ class: [propsUi?.alignedFiller] })"
@@ -655,7 +647,6 @@ function getMultiRowPinningStyle(
         </div>
       </div>
 
-      <!-- Right-pinned cells spanning all visual rows -->
       <div
         v-if="alignedRightPinnedCells.length > 0"
         :class="ui.alignedPinnedRight({ class: [propsUi?.alignedPinnedRight] })"
@@ -708,7 +699,6 @@ function getMultiRowPinningStyle(
       </div>
     </div>
 
-    <!-- Expanded content for multi-row mode -->
     <div
       v-if="row.getIsExpanded() && !!slots.expanded"
       :class="ui.visualRow({ class: [propsUi?.visualRow] })"
@@ -719,7 +709,6 @@ function getMultiRowPinningStyle(
     </div>
   </div>
 
-  <!-- Single-row mode - row element is direct child for TransitionGroup FLIP -->
   <div
     v-else
     :ref="measureRef"
@@ -760,10 +749,8 @@ function getMultiRowPinningStyle(
       />
     </div>
 
-    <!-- Row slot: allows user to replace entire row content -->
     <component :is="rowSlot" v-if="rowSlot" :row="row" :cells="getVisibleCells(row)" />
 
-    <!-- Default cell rendering -->
     <template v-else>
       <div
         v-for="(cell, cellIndex) in getVisibleCells(row)"

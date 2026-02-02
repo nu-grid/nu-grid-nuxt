@@ -111,7 +111,6 @@ const indicatorLeftOffset = computed(() => {
     @pointerleave.stop
     @contextmenu.prevent
   >
-    <!-- Add row indicator overlay - shown when idle -->
     <div
       v-if="showIndicator"
       :class="ui.addRowIndicator({ class: propsUi?.addRowIndicator })"

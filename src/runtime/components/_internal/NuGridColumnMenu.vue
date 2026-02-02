@@ -521,7 +521,6 @@ const filterComponent = computed(() => {
       />
     </UDropdownMenu>
 
-    <!-- Filter popover - positioned relative to menu button -->
     <UPopover
       v-if="filterComponent && filterContext"
       v-model:open="filterPopoverOpen"

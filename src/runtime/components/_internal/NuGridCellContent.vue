@@ -254,7 +254,6 @@ const editorContent = computed(() => {
   <div v-if="shouldHideContent" :class="wrapperClass">
     <span class="invisible select-none" aria-hidden="true">Aa</span>
   </div>
-  <!-- Editing mode: textarea needs overlay for popout, others render inline -->
   <div
     v-else-if="isEditing && cellDataType === 'textarea'"
     ref="wrapperRef"
@@ -262,7 +261,6 @@ const editorContent = computed(() => {
     :style="wrapperStyle"
     data-editing
   >
-    <!-- Original content stays visible to maintain exact height -->
     <component :is="functionRendererResult" v-if="shouldUsePluginRenderer && isRendererFunction" />
     <component
       :is="pluginRendererComponent"
@@ -270,12 +268,10 @@ const editorContent = computed(() => {
       v-bind="pluginRendererProps"
     />
     <FlexRender v-else :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-    <!-- Textarea overlay expands beyond cell -->
     <div class="absolute inset-0 -mx-2.5 -my-2">
       <component :is="editorContent" />
     </div>
   </div>
-  <!-- Regular editors render inline without overlay, negative margin compensates for input border/padding -->
   <div
     v-else-if="isEditing"
     ref="wrapperRef"
@@ -285,22 +281,17 @@ const editorContent = computed(() => {
   >
     <component :is="editorContent" />
   </div>
-  <!-- Display mode: tooltip handled by grid-level event delegation -->
   <div v-else ref="wrapperRef" :class="wrapperClass" :style="wrapperStyle">
-    <!-- Cell slot takes highest priority in display mode -->
     <component :is="cellSlot" v-if="cellSlot" v-bind="cellSlotProps" />
-    <!-- Function-based renderer -->
     <component
       :is="functionRendererResult"
       v-else-if="shouldUsePluginRenderer && isRendererFunction"
     />
-    <!-- Component-based plugin renderer -->
     <component
       :is="pluginRendererComponent"
       v-else-if="shouldUsePluginRenderer && pluginRendererComponent"
       v-bind="pluginRendererProps"
     />
-    <!-- Display mode - render custom or default cell content -->
     <FlexRender v-else :render="cell.column.columnDef.cell" :props="cell.getContext()" />
   </div>
 </template>

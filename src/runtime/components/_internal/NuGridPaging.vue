@@ -43,7 +43,6 @@ const showPageSizeSelector = computed(() => paging.pageSizeOptions.value.length 
     class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-t border-default
       sm:gap-4"
   >
-    <!-- Row count display (hidden on small screens) -->
     <div class="hidden text-sm text-muted sm:block">
       <template v-if="paging.totalRows.value > 0">
         Showing {{ startRow }} to {{ endRow }} of {{ paging.totalRows.value }} rows
@@ -51,9 +50,7 @@ const showPageSizeSelector = computed(() => paging.pageSizeOptions.value.length 
       <template v-else> No rows </template>
     </div>
 
-    <!-- Controls -->
     <div class="flex flex-1 items-center justify-end gap-2 sm:flex-none sm:gap-4">
-      <!-- Page size selector (hidden on small screens) -->
       <USelect
         v-if="showPageSizeSelector"
         v-model="selectedPageSize"
@@ -62,7 +59,6 @@ const showPageSizeSelector = computed(() => paging.pageSizeOptions.value.length 
         class="hidden w-32 md:block"
       />
 
-      <!-- Paging controls -->
       <UPagination
         v-model:page="currentPage"
         :total="paging.totalRows.value"

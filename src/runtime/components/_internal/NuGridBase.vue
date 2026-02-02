@@ -427,7 +427,6 @@ function getVirtualItemStyle(
           </slot>
         </div>
 
-        <!-- Multi-row headers: render headers grouped by visual row -->
         <div
           v-if="!virtualizationEnabled && multiRowEnabled && headersByVisualRow"
           :class="[
@@ -443,7 +442,6 @@ function getVirtualItemStyle(
             :data-visual-row="visualRowIndex"
             :class="ui.multiRowHeaderRow({ class: [propsUi?.multiRowHeaderRow] })"
           >
-            <!-- Drag handle header placeholder (only on first visual row) -->
             <div
               v-if="rowDragOptions.enabled && visualRowIndex === 0"
               :class="[
@@ -452,7 +450,6 @@ function getVirtualItemStyle(
               ]"
               :style="{ gridRow: `span ${multiRowCount}` }"
             />
-            <!-- Left pinned spacer for visual rows 1+ (aligns with pinned columns from row 0) -->
             <div
               v-if="alignColumns && visualRowIndex > 0 && leftPinnedWidth > 0"
               class="nugrid-header-pinned-spacer"
@@ -544,7 +541,6 @@ function getVirtualItemStyle(
                     :sort-icons="header.column.columnDef.sortIcons"
                   />
                 </div>
-                <!-- Header controls wrapper - absolutely positioned to not affect column width -->
                 <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
                   <NuGridHeaderSortButton
                     v-if="
@@ -591,7 +587,6 @@ function getVirtualItemStyle(
                 </div>
               </div>
             </div>
-            <!-- Right pinned spacer for visual rows 1+ (aligns with pinned columns from row 0) -->
             <div
               v-if="alignColumns && visualRowIndex > 0 && rightPinnedWidth > 0"
               class="nugrid-header-pinned-spacer"
@@ -610,7 +605,6 @@ function getVirtualItemStyle(
           <div :class="ui.separator({ class: [propsUi?.separator] })" />
         </div>
 
-        <!-- Standard headers: original single-row rendering -->
         <div
           v-else-if="!virtualizationEnabled"
           :class="[
@@ -624,7 +618,6 @@ function getVirtualItemStyle(
             :key="headerGroup.id"
             :class="ui.tr({ class: propsUi?.tr })"
           >
-            <!-- Drag handle header placeholder -->
             <div
               v-if="rowDragOptions.enabled"
               :class="[
@@ -689,7 +682,6 @@ function getVirtualItemStyle(
               @dragend="dragFns.handleColumnDragEnd"
               @dragleave="dragFns.handleColumnDragLeave"
             >
-              <!-- Column Group Header (multi-column spanning or in group row) -->
               <template v-if="header.colSpan > 1 || rowIndex < headerGroupsLength - 1">
                 <div :class="ui.headerContainer({ class: [propsUi?.headerContainer] })">
                   <div :class="ui.thGroupInner({ class: [propsUi?.thGroupInner] })">
@@ -701,7 +693,6 @@ function getVirtualItemStyle(
                       />
                     </slot>
                   </div>
-                  <!-- Group resize handle -->
                   <div
                     v-if="header.colSpan > 1"
                     :class="
@@ -726,7 +717,6 @@ function getVirtualItemStyle(
                   </div>
                 </div>
               </template>
-              <!-- Regular Column Header -->
               <template v-else>
                 <div :class="ui.headerContainer({ class: [propsUi?.headerContainer] })">
                   <div
@@ -760,7 +750,6 @@ function getVirtualItemStyle(
                       :sort-icons="header.column.columnDef.sortIcons"
                     />
                   </div>
-                  <!-- Header controls wrapper - absolutely positioned to not affect column width -->
                   <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
                     <NuGridHeaderSortButton
                       v-if="
@@ -848,7 +837,6 @@ function getVirtualItemStyle(
                   ]"
                   :style="getVirtualItemStyle('column-headers', virtualRow)"
                 >
-                  <!-- Multi-row virtualized headers -->
                   <template v-if="multiRowEnabled && headersByVisualRow">
                     <div
                       v-for="(visualRowHeaders, visualRowIndex) in headersByVisualRow"
@@ -856,7 +844,6 @@ function getVirtualItemStyle(
                       :data-visual-row="visualRowIndex"
                       :class="ui.multiRowHeaderRow({ class: [propsUi?.multiRowHeaderRow] })"
                     >
-                      <!-- Drag handle header placeholder (only on first visual row) -->
                       <div
                         v-if="rowDragOptions.enabled && visualRowIndex === 0"
                         :class="[
@@ -865,7 +852,6 @@ function getVirtualItemStyle(
                         ]"
                         :style="{ gridRow: `span ${multiRowCount}` }"
                       />
-                      <!-- Left pinned spacer for visual rows 1+ -->
                       <div
                         v-if="alignColumns && visualRowIndex > 0 && leftPinnedWidth > 0"
                         class="nugrid-header-pinned-spacer"
@@ -958,7 +944,6 @@ function getVirtualItemStyle(
                               :sort-icons="header.column.columnDef.sortIcons"
                             />
                           </div>
-                          <!-- Header controls wrapper - absolutely positioned to not affect column width -->
                           <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
                             <NuGridHeaderSortButton
                               v-if="
@@ -1009,7 +994,6 @@ function getVirtualItemStyle(
                           </div>
                         </div>
                       </div>
-                      <!-- Right pinned spacer for visual rows 1+ -->
                       <div
                         v-if="alignColumns && visualRowIndex > 0 && rightPinnedWidth > 0"
                         class="nugrid-header-pinned-spacer"
@@ -1026,7 +1010,6 @@ function getVirtualItemStyle(
                     </div>
                   </template>
 
-                  <!-- Standard virtualized headers -->
                   <template v-else>
                     <div
                       v-for="(headerGroup, rowIndex) in headerGroups"
@@ -1099,7 +1082,6 @@ function getVirtualItemStyle(
                         @dragend="dragFns.handleColumnDragEnd"
                         @dragleave="dragFns.handleColumnDragLeave"
                       >
-                        <!-- Column Group Header (multi-column spanning or in group row) -->
                         <template v-if="header.colSpan > 1 || rowIndex < headerGroupsLength - 1">
                           <div :class="ui.headerContainer({ class: [propsUi?.headerContainer] })">
                             <div :class="ui.thGroupInner({ class: [propsUi?.thGroupInner] })">
@@ -1111,7 +1093,6 @@ function getVirtualItemStyle(
                                 />
                               </slot>
                             </div>
-                            <!-- Group resize handle -->
                             <div
                               v-if="header.colSpan > 1"
                               :class="
@@ -1134,7 +1115,6 @@ function getVirtualItemStyle(
                             </div>
                           </div>
                         </template>
-                        <!-- Regular Column Header -->
                         <template v-else>
                           <div :class="ui.headerContainer({ class: [propsUi?.headerContainer] })">
                             <div
@@ -1168,7 +1148,6 @@ function getVirtualItemStyle(
                                 :sort-icons="header.column.columnDef.sortIcons"
                               />
                             </div>
-                            <!-- Header controls wrapper - absolutely positioned to not affect column width -->
                             <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
                               <NuGridHeaderSortButton
                                 v-if="
@@ -1301,7 +1280,6 @@ function getVirtualItemStyle(
               </template>
             </template>
 
-            <!-- Non-virtualized rows (animation handled by useVirtualizedRowAnimation composable) -->
             <template v-else>
               <component
                 :is="addRowContext.isAddRowRow(row) ? NuGridAddRow : NuGridRow"

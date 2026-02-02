@@ -227,7 +227,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
 </script>
 
 <template>
-  <!-- Reusable Group Header Template -->
   <DefineGroupHeaderTemplate v-slot="{ groupId, groupRow, itemCount, depth = 0 }">
     <div
       :data-group-header="groupId"
@@ -235,7 +234,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
       :style="{ width: `${tableApi.getTotalSize()}px` }"
       @click="toggleGroup(groupId)"
     >
-      <!-- Fixed left part (doesn't scroll horizontally) -->
       <div
         :class="[
           ui.groupHeaderLeft({ class: [propsUi?.groupHeaderLeft] }),
@@ -259,12 +257,10 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           ({{ itemCount }} items)
         </span>
       </div>
-      <!-- Spacer that scrolls (optional, for visual continuity) -->
       <div :class="ui.groupHeaderSpacer({ class: [propsUi?.groupHeaderSpacer] })" />
     </div>
   </DefineGroupHeaderTemplate>
 
-  <!-- Reusable Header Cell Template -->
   <DefineHeaderCellTemplate v-slot="{ header, groupId, isExpanded, rowIndex }">
     <div
       :data-column-id="header.column.id"
@@ -344,7 +340,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           :header="header"
         />
 
-        <!-- Column resize handle (works for both regular columns and column groups) -->
         <div
           v-if="header.column.getCanResize() || header.colSpan > 1"
           :class="
@@ -389,7 +384,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
     </div>
   </DefineHeaderCellTemplate>
 
-  <!-- Reusable Footer Cell Template -->
   <DefineFooterCellTemplate v-slot="{ header, index, isExpanded }">
     <div
       :data-pinned="header.column.getIsPinned()"
@@ -407,12 +401,10 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           : {}),
       }"
     >
-      <!-- Collapsed state: show summary with Σ column.id -->
       <div v-if="!isExpanded" :class="ui.collapsedText({ class: [propsUi?.collapsedText] })">
         <template v-if="index === 0"> Summary </template>
         <template v-else> Σ {{ header.column.id }} </template>
       </div>
-      <!-- Expanded state: show actual footer content -->
       <div v-else :class="ui.expandedText({ class: [propsUi?.expandedText] })">
         <slot :name="`${header.id}-footer`" v-bind="header.getContext()">
           <FlexRender
@@ -439,8 +431,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
         </slot>
       </div>
 
-      <!-- Top-level headers are not shown since we show them inside each group -->
-
       <div
         data-tbody
         :class="ui.tbody({ class: [propsUi?.tbody] })"
@@ -456,7 +446,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
         <slot name="body-top" />
 
         <template v-if="groupRows.length">
-          <!-- Virtualized rendering -->
           <template v-if="virtualizationEnabled && virtualizer">
             <template v-for="virtualRow in virtualizer.getVirtualItems()" :key="virtualRow.index">
               <div
@@ -469,7 +458,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                 :style="virtStyle(virtualRow)"
               >
                 <template v-if="virtualRowItems[virtualRow.index]">
-                  <!-- Group Header -->
                   <ReuseGroupHeaderTemplate
                     v-if="virtualRowItems[virtualRow.index]?.type === 'group-header'"
                     :group-id="virtualRowItems[virtualRow.index]?.groupId!"
@@ -482,18 +470,15 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     :depth="virtualRowItems[virtualRow.index]?.depth ?? 0"
                   />
 
-                  <!-- Column Headers -->
                   <template
                     v-else-if="virtualRowItems[virtualRow.index]?.type === 'column-headers'"
                   >
-                    <!-- Collapsed state -->
                     <div
                       v-if="!isGroupExpanded(virtualRowItems[virtualRow.index]?.groupId!)"
                       :class="ui.thead({ class: [propsUi?.thead, 'border-t-0 border-b-0'] })"
                       :data-sticky-header="stickyEnabled ? 'true' : undefined"
                     >
                       <div :class="ui.tr({ class: propsUi?.tr })">
-                        <!-- Drag handle header placeholder -->
                         <div
                           v-if="rowDragOptions.enabled"
                           :class="[
@@ -514,7 +499,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                       </div>
                     </div>
 
-                    <!-- Expanded state -->
                     <div
                       v-else
                       :class="ui.thead({ class: [propsUi?.thead, 'border-t-0'] })"
@@ -525,7 +509,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                         :key="headerGroup.id"
                         :class="ui.tr({ class: propsUi?.tr })"
                       >
-                        <!-- Drag handle header placeholder -->
                         <div
                           v-if="rowDragOptions.enabled"
                           :class="[
@@ -545,7 +528,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     </div>
                   </template>
 
-                  <!-- Data Row -->
                   <component
                     :is="
                       addRowContext.isAddRowRow(virtualRowItems[virtualRow.index]?.dataRow!)
@@ -559,7 +541,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     :row="virtualRowItems[virtualRow.index]?.dataRow!"
                   />
 
-                  <!-- Footer Row -->
                   <div
                     v-else-if="virtualRowItems[virtualRow.index]?.type === 'footer'"
                     :class="
@@ -589,13 +570,10 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
             </template>
           </template>
 
-          <!-- Non-virtualized rendering (existing logic) -->
           <template v-else>
             <template v-for="item in virtualRowItems" :key="item.index">
-              <!-- Group Header -->
               <template v-if="item.type === 'group-header'">
                 <div :class="['flex flex-col']">
-                  <!-- Combined sticky container for group header and column headers -->
                   <div
                     :class="[
                       stickyEnabled
@@ -603,7 +581,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                         : 'bg-default',
                     ]"
                   >
-                    <!-- Group Header Row with fixed left side -->
                     <ReuseGroupHeaderTemplate
                       :group-id="item.groupId!"
                       :group-row="item.groupRow"
@@ -613,14 +590,12 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                       "
                       :depth="item.depth ?? 0"
                     />
-                    <!-- Collapsed state -->
                     <template v-if="!isGroupExpanded(item.groupId!)">
                       <div
                         :class="ui.thead({ class: [propsUi?.thead, 'border-t-0 border-b-0'] })"
                         :data-sticky-header="stickyEnabled ? 'true' : undefined"
                       >
                         <div :class="ui.tr({ class: propsUi?.tr })">
-                          <!-- Drag handle header placeholder -->
                           <div
                             v-if="rowDragOptions.enabled"
                             :class="[
@@ -642,7 +617,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                       </div>
                     </template>
 
-                    <!-- Expanded state -->
                     <template v-else>
                       <div
                         :class="ui.thead({ class: [propsUi?.thead, 'border-t-0'] })"
@@ -653,7 +627,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                           :key="headerGroup.id"
                           :class="ui.tr({ class: propsUi?.tr })"
                         >
-                          <!-- Drag handle header placeholder -->
                           <div
                             v-if="rowDragOptions.enabled"
                             :class="[
@@ -674,7 +647,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     </template>
                   </div>
 
-                  <!-- Collapsed state summary row -->
                   <div
                     v-if="!isGroupExpanded(item.groupId!)"
                     :class="ui.tr({ class: [propsUi?.tr, 'bg-elevated/20 border-t-0'] })"
@@ -690,12 +662,9 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     />
                   </div>
 
-                  <!-- Data rows and nested groups are handled by virtualRowItems iteration -->
-                  <!-- Footer is rendered separately when we encounter footer items -->
                 </div>
               </template>
 
-              <!-- Data Row -->
               <template v-else-if="item.type === 'data' && item.dataRow">
                 <component
                   :is="addRowContext.isAddRowRow(item.dataRow) ? NuGridAddRow : NuGridRow"
@@ -703,7 +672,6 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                 />
               </template>
 
-              <!-- Footer Row -->
               <template v-else-if="item.type === 'footer'">
                 <div
                   :class="

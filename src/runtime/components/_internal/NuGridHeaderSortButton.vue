@@ -88,7 +88,6 @@ const shouldHideUnsorted = computed(() => {
     "
     @click="props.header.column.getToggleSortingHandler()?.($event)"
   >
-    <!-- Multi-sort: Show chip with icon and index inside -->
     <UChip
       v-if="sortIndex !== null"
       :text="sortIndex"
@@ -97,7 +96,6 @@ const shouldHideUnsorted = computed(() => {
     >
       <UIcon :name="icon" class="size-4" />
     </UChip>
-    <!-- Single sort or unsorted: Just show icon -->
     <UIcon v-else :name="icon" class="size-4" />
   </div>
 </template>
