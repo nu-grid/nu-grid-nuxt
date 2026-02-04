@@ -4,7 +4,7 @@ import type { ComputedRef, Ref } from 'vue'
 import type { NuGridEventEmitter, NuGridPagingOptions, NuGridProps } from '../../types'
 import { getPaginationRowModel } from '@tanstack/vue-table'
 import { useResizeObserver } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { nuGridDefaults } from '../../config/_internal'
 
 /**
@@ -266,46 +266,53 @@ export function useNuGridPaging<T extends TableData = TableData>(
     }
   }
 
-  // Navigation methods
-  const setPageIndex = (index: number) => {
+  // Navigation methods - use nextTick to ensure state is updated before emitting
+  const setPageIndex = async (index: number) => {
     tableApi?.setPageIndex(index)
+    await nextTick()
     emitPageChanged()
   }
 
-  const setPageSize = (size: number) => {
+  const setPageSize = async (size: number) => {
     tableApi?.setPageSize(size)
+    await nextTick()
     emitPageChanged()
   }
 
-  const firstPage = () => {
+  const firstPage = async () => {
     tableApi?.firstPage()
+    await nextTick()
     emitPageChanged()
   }
 
-  const lastPage = () => {
+  const lastPage = async () => {
     tableApi?.lastPage()
+    await nextTick()
     emitPageChanged()
   }
 
-  const nextPage = () => {
+  const nextPage = async () => {
     tableApi?.nextPage()
+    await nextTick()
     emitPageChanged()
   }
 
-  const previousPage = () => {
+  const previousPage = async () => {
     tableApi?.previousPage()
+    await nextTick()
     emitPageChanged()
   }
 
   // Watch sorting changes - reset to first page and emit pageChanged for server-side pagination
   watch(
     () => tableApi?.getState().sorting,
-    (newSorting, oldSorting) => {
+    async (newSorting, oldSorting) => {
       // Skip if sorting didn't actually change (deep equality check)
       if (JSON.stringify(newSorting) === JSON.stringify(oldSorting)) return
       // Only auto-reset for manual pagination (server-side)
       if (manualPaginationEnabled.value && enabled.value) {
         tableApi?.setPageIndex(0)
+        await nextTick()
         emitPageChanged()
       }
     },
@@ -315,12 +322,13 @@ export function useNuGridPaging<T extends TableData = TableData>(
   // Watch column filter changes - reset to first page and emit pageChanged for server-side pagination
   watch(
     () => tableApi?.getState().columnFilters,
-    (newFilters, oldFilters) => {
+    async (newFilters, oldFilters) => {
       // Skip if filters didn't actually change (deep equality check)
       if (JSON.stringify(newFilters) === JSON.stringify(oldFilters)) return
       // Only auto-reset for manual pagination (server-side)
       if (manualPaginationEnabled.value && enabled.value) {
         tableApi?.setPageIndex(0)
+        await nextTick()
         emitPageChanged()
       }
     },
@@ -330,12 +338,13 @@ export function useNuGridPaging<T extends TableData = TableData>(
   // Watch global filter changes - reset to first page and emit pageChanged for server-side pagination
   watch(
     () => tableApi?.getState().globalFilter,
-    (newFilter, oldFilter) => {
+    async (newFilter, oldFilter) => {
       // Skip if filter didn't actually change
       if (newFilter === oldFilter) return
       // Only auto-reset for manual pagination (server-side)
       if (manualPaginationEnabled.value && enabled.value) {
         tableApi?.setPageIndex(0)
+        await nextTick()
         emitPageChanged()
       }
     },
