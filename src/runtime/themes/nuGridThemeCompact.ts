@@ -9,15 +9,17 @@ export const nuGridThemeCompact = {
   slots: {
     ...theme.slots,
     // Root container - extends base with height to fill parent container
-    // min-h-0 allows shrinking in flex contexts (overrides default min-height: auto)
-    root: 'relative overflow-auto h-full min-h-0',
+    // min-h-0 and min-w-0 allow shrinking in flex contexts (overrides default min-height/width: auto)
+    // Without min-w-0, the root expands to fit content instead of scrolling horizontally
+    root: 'relative overflow-auto h-full min-h-0 min-w-0',
     checkboxBase: 'ring-blue-800 dark:ring-blue-400',
     checkboxIndicator: 'bg-blue-800! dark:bg-blue-400',
     checkboxContainer: '',
     checkboxIcon: '',
     // style the checkboxes to match compact theme
     // Base slots with div mode styles merged in
-    base: 'flex flex-col bg-white dark:bg-gray-900',
+    // overflow-visible! overrides Nuxt UI table's overflow-clip, w-max allows content to extend for horizontal scrolling
+    base: 'flex flex-col bg-white dark:bg-gray-900 w-max min-w-0 overflow-visible!',
     // Tighter spacing: px-2 py-1.5 instead of px-4 py-3.5
     th: 'flex shrink-0 items-stretch p-0! group bg-gray-50 dark:bg-gray-800 border-r border-gray-300 dark:border-gray-600 last:border-r-0 text-left rtl:text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide',
     // Tighter cell padding: px-2 py-1 instead of p-4
@@ -91,6 +93,14 @@ export const nuGridThemeCompact = {
   },
   variants: {
     ...theme.variants,
+    // Override Nuxt UI's virtualize variant to prevent overflow-clip on base
+    virtualize: {
+      false: {
+        base: '', // Don't add overflow-clip - we use overflow-visible in base slot
+        tbody: 'divide-y divide-default',
+      },
+      true: {},
+    },
     gridFocused: {
       true: {},
       false: {},

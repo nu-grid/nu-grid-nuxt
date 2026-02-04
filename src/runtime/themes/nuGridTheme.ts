@@ -5,15 +5,17 @@ export const nuGridTheme = {
   slots: {
     ...theme.slots,
     // Root container - extends base with height to fill parent container
-    // min-h-0 allows shrinking in flex contexts (overrides default min-height: auto)
-    root: 'relative overflow-auto h-full min-h-0',
+    // min-h-0 and min-w-0 allow shrinking in flex contexts (overrides default min-height/width: auto)
+    // Without min-w-0, the root expands to fit content instead of scrolling horizontally
+    root: 'relative overflow-auto h-full min-h-0 min-w-0',
     // style the checkboxes to match compact theme
     checkboxBase: '',
     checkboxIndicator: '',
     checkboxContainer: '',
     checkboxIcon: '',
     // Base slots with div mode styles merged in - pb-3 provides space for horizontal scrollbar
-    base: 'flex flex-col pb-3 w-max min-w-0',
+    // overflow-visible! overrides Nuxt UI table's overflow-clip, allowing content to extend for horizontal scrolling
+    base: 'flex flex-col pb-3 w-max min-w-0 overflow-visible!',
     // Scrollbar styling - uses tailwind-scrollbar plugin
     scrollbar:
       'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/50 hover:scrollbar-thumb-gray-500/60 dark:scrollbar-thumb-gray-500/50 dark:hover:scrollbar-thumb-gray-400/60 scrollbar-thumb-rounded',
@@ -87,6 +89,14 @@ export const nuGridTheme = {
   },
   variants: {
     ...theme.variants,
+    // Override Nuxt UI's virtualize variant to prevent overflow-clip on base
+    virtualize: {
+      false: {
+        base: '', // Don't add overflow-clip - we use overflow-visible in base slot
+        tbody: 'divide-y divide-default',
+      },
+      true: {},
+    },
     gridFocused: {
       true: {},
       false: {},

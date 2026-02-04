@@ -958,7 +958,7 @@ const childGrid = computed(() => {
 <template>
   <div ref="wrapperRef" class="nugrid-wrapper flex flex-col h-full w-full">
     <NuGridSearchPanel v-if="searchContext.showPanel.value" class="shrink-0" />
-    <div class="nugrid-grid-container grow shrink min-h-0">
+    <div class="nugrid-grid-container grow shrink min-h-0 min-w-0">
       <component :is="childGrid">
         <template v-for="(_, name) in $slots" #[name]="slotProps" :key="name">
           <slot :name="name" v-bind="slotProps as any" />
