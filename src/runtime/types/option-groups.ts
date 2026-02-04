@@ -503,10 +503,17 @@ export interface NuGridTooltipOptions {
   truncatedOnly?: boolean
 
   /**
-   * Delay in milliseconds before showing the tooltip
-   * @defaultValue 500
+   * Delay in milliseconds before showing the tooltip (initial appearance)
+   * @defaultValue 2000
    */
   showDelay?: number
+
+  /**
+   * Delay in milliseconds before showing tooltip when moving between cells
+   * Used when a tooltip was recently visible, for faster discovery
+   * @defaultValue 500
+   */
+  switchDelay?: number
 
   /**
    * Delay in milliseconds before hiding the tooltip

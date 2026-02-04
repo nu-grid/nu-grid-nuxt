@@ -82,13 +82,15 @@ const data = ref<Product[]>([
 
 // Tooltip options
 const truncatedOnly = ref(true)
-const showDelay = ref(500)
+const showDelay = ref(2000)
+const switchDelay = ref(500)
 const hideDelay = ref(100)
 const mouseFollow = ref(false)
 
 const tooltipOptions = computed<NuGridTooltipOptions>(() => ({
   truncatedOnly: truncatedOnly.value,
   showDelay: showDelay.value,
+  switchDelay: switchDelay.value,
   hideDelay: hideDelay.value,
   mouseFollow: mouseFollow.value,
 }))
@@ -167,7 +169,8 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
 const gridTooltipCode = `<NuGrid
   :tooltip="{
     truncatedOnly: true,
-    showDelay: 500,
+    showDelay: 2000,
+    switchDelay: 500,  // Faster when moving between cells
     hideDelay: 100,
     mouseFollow: false
   }"
@@ -205,6 +208,7 @@ const columnTooltipCode = `const columns = [
         :color="truncatedOnly ? 'text-success' : 'text-warning'"
       />
       <DemoStatusItem label="Show Delay" :value="`${showDelay}ms`" />
+      <DemoStatusItem label="Switch Delay" :value="`${switchDelay}ms`" />
       <DemoStatusItem label="Hide Delay" :value="`${hideDelay}ms`" />
       <DemoStatusItem
         label="Mouse Follow"
@@ -242,17 +246,32 @@ const columnTooltipCode = `const columns = [
         </UButton>
       </DemoControlGroup>
 
-      <DemoControlGroup label="Show Delay">
-        <div class="grid grid-cols-3 gap-1">
+      <DemoControlGroup label="Show Delay (Initial)">
+        <div class="grid grid-cols-4 gap-1">
           <UButton
-            v-for="delay in [100, 500, 1000]"
+            v-for="delay in [500, 1000, 2000, 3000]"
             :key="delay"
             :color="showDelay === delay ? 'primary' : 'neutral'"
             :variant="showDelay === delay ? 'solid' : 'outline'"
             size="xs"
             @click="showDelay = delay"
           >
-            {{ delay === 1000 ? '1s' : `${delay}ms` }}
+            {{ delay >= 1000 ? `${delay / 1000}s` : `${delay}ms` }}
+          </UButton>
+        </div>
+      </DemoControlGroup>
+
+      <DemoControlGroup label="Switch Delay">
+        <div class="grid grid-cols-4 gap-1">
+          <UButton
+            v-for="delay in [100, 300, 500, 1000]"
+            :key="delay"
+            :color="switchDelay === delay ? 'primary' : 'neutral'"
+            :variant="switchDelay === delay ? 'solid' : 'outline'"
+            size="xs"
+            @click="switchDelay = delay"
+          >
+            {{ delay >= 1000 ? `${delay / 1000}s` : `${delay}ms` }}
           </UButton>
         </div>
       </DemoControlGroup>
@@ -301,7 +320,10 @@ const columnTooltipCode = `const columns = [
             text
           </li>
           <li>
-            <strong>showDelay:</strong> Milliseconds to wait before showing tooltip (default: 500ms)
+            <strong>showDelay:</strong> Initial delay before showing tooltip (default: 2000ms)
+          </li>
+          <li>
+            <strong>switchDelay:</strong> Delay when moving between cells (default: 500ms)
           </li>
           <li><strong>hideDelay:</strong> Milliseconds before hiding tooltip (default: 100ms)</li>
           <li><strong>mouseFollow:</strong> When true, tooltip follows the mouse cursor</li>

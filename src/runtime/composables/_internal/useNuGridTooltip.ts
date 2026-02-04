@@ -59,8 +59,13 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
   // Use computed refs to access tooltip options reactively (same pattern as cell editing)
   const truncatedOnly = usePropWithDefault(props, 'tooltip', 'truncatedOnly')
   const showDelay = usePropWithDefault(props, 'tooltip', 'showDelay')
+  const switchDelay = usePropWithDefault(props, 'tooltip', 'switchDelay')
   const hideDelay = usePropWithDefault(props, 'tooltip', 'hideDelay')
   const mouseFollow = usePropWithDefault(props, 'tooltip', 'mouseFollow')
+
+  // Track when tooltip was last visible for switch delay logic
+  let lastTooltipVisibleTime = 0
+  const SWITCH_DELAY_WINDOW = 1000 // Use switch delay if tooltip was visible within 1 second
 
   // Check if tooltips are disabled
   const getOptions = () => {
@@ -68,6 +73,7 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
     return {
       truncatedOnly: truncatedOnly.value,
       showDelay: showDelay.value,
+      switchDelay: switchDelay.value,
       hideDelay: hideDelay.value,
       mouseFollow: mouseFollow.value,
     }
@@ -108,17 +114,19 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
       showTimeout = null
     }
 
-    // If tooltip is already visible, update immediately (no delay when switching cells)
+    // Check if tooltip was recently visible (use shorter switch delay)
+    const wasRecentlyVisible = tooltipState.value !== null
+      || (Date.now() - lastTooltipVisibleTime) < SWITCH_DELAY_WINDOW
+    const delay = wasRecentlyVisible ? opts.switchDelay : opts.showDelay
+
+    // Hide any existing tooltip first, then show with delay
+    // This prevents the tooltip from immediately appearing on new cells
     if (tooltipState.value) {
-      tooltipState.value = {
-        text,
-        x: lastMouseX,
-        y: lastMouseY,
-      }
-      return
+      lastTooltipVisibleTime = Date.now()
+      tooltipState.value = null
     }
 
-    // Delay before showing tooltip (only when not already visible)
+    // Delay before showing tooltip
     showTimeout = setTimeout(() => {
       tooltipState.value = {
         text,
@@ -126,7 +134,7 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
         y: lastMouseY,
       }
       showTimeout = null
-    }, opts.showDelay)
+    }, delay)
   }
 
   function hideTooltip() {
@@ -144,6 +152,9 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
     currentHoveredCell = null
     // Small delay to prevent flicker when moving between cells
     hideTimeout = setTimeout(() => {
+      if (tooltipState.value) {
+        lastTooltipVisibleTime = Date.now()
+      }
       tooltipState.value = null
     }, opts.hideDelay)
   }
@@ -156,6 +167,9 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
     if (hideTimeout) {
       clearTimeout(hideTimeout)
       hideTimeout = null
+    }
+    if (tooltipState.value) {
+      lastTooltipVisibleTime = Date.now()
     }
     tooltipState.value = null
     currentHoveredCell = null

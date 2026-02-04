@@ -92,7 +92,8 @@ export const nuGridDefaults = {
   },
   tooltip: {
     truncatedOnly: true,
-    showDelay: 500,
+    showDelay: 2000,
+    switchDelay: 500,
     hideDelay: 100,
     mouseFollow: false,
   },
