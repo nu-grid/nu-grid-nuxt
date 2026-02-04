@@ -1,7 +1,7 @@
 import type { TableData } from '@nuxt/ui'
 import type { Table } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
-import type { NuGridPagingOptions, NuGridProps } from '../../types'
+import type { NuGridEventEmitter, NuGridPagingOptions, NuGridProps } from '../../types'
 import { getPaginationRowModel } from '@tanstack/vue-table'
 import { useResizeObserver } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
@@ -17,7 +17,7 @@ export interface NuGridPagingContext {
   pageSize: ComputedRef<number>
   /** Current page index (0-based) */
   pageIndex: ComputedRef<number>
-  /** Total number of rows (after filtering) */
+  /** Total number of rows (after filtering, or from server in manual mode) */
   totalRows: ComputedRef<number>
   /** Total number of pages */
   totalPages: ComputedRef<number>
@@ -27,6 +27,8 @@ export interface NuGridPagingContext {
   showPanel: ComputedRef<boolean>
   /** Whether auto page size is enabled */
   autoPageSize: ComputedRef<boolean>
+  /** Whether server-side (manual) pagination is enabled */
+  manualPagination: ComputedRef<boolean>
   /** Navigate to a specific page (0-based index) */
   setPageIndex: (index: number) => void
   /** Set the page size */
@@ -58,6 +60,8 @@ interface UseNuGridPagingOptions<T extends TableData> {
   headerHeight?: number
   /** Paging panel height for auto page size calculation */
   pagingPanelHeight?: number
+  /** Event emitter for paging events */
+  eventEmitter?: NuGridEventEmitter<T>
 }
 
 /**
@@ -85,6 +89,8 @@ export function resolvePagingOptions(
     autoPageSize: prop.autoPageSize ?? defaults.autoPageSize,
     autoPageSizeMinimum: prop.autoPageSizeMinimum ?? defaults.autoPageSizeMinimum,
     suppressPanel: prop.suppressPanel ?? defaults.suppressPanel,
+    manualPagination: prop.manualPagination ?? defaults.manualPagination,
+    rowCount: prop.rowCount,
   }
 }
 
@@ -112,7 +118,7 @@ export function getPagingRowModelIfEnabled(prop: boolean | NuGridPagingOptions |
 export function useNuGridPaging<T extends TableData = TableData>(
   options: UseNuGridPagingOptions<T>,
 ): NuGridPagingContext {
-  const { props, tableApi, rootRef } = options
+  const { props, tableApi, rootRef, eventEmitter } = options
 
   // Resolve paging options
   const resolvedOptions = computed(() => resolvePagingOptions(props.paging))
@@ -122,6 +128,7 @@ export function useNuGridPaging<T extends TableData = TableData>(
   const autoPageSizeEnabled = computed(() => resolvedOptions.value.autoPageSize ?? false)
   const suppressPanel = computed(() => resolvedOptions.value.suppressPanel ?? false)
   const showPanel = computed(() => enabled.value && !suppressPanel.value)
+  const manualPaginationEnabled = computed(() => resolvedOptions.value.manualPagination ?? false)
 
   // Page size selector options
   const pageSizeOptions = computed(() => {
@@ -212,44 +219,82 @@ export function useNuGridPaging<T extends TableData = TableData>(
   })
 
   const totalRows = computed(() => {
+    // In manual pagination mode, use the rowCount from props
+    if (manualPaginationEnabled.value) {
+      return resolvedOptions.value.rowCount ?? 0
+    }
     return tableApi?.getFilteredRowModel().rows.length ?? 0
   })
 
   const totalPages = computed(() => {
+    // In manual pagination mode, calculate from rowCount
+    if (manualPaginationEnabled.value) {
+      const rows = resolvedOptions.value.rowCount ?? 0
+      const size = pageSize.value
+      return size > 0 ? Math.ceil(rows / size) : 0
+    }
     return tableApi?.getPageCount() ?? 0
   })
 
   const canNextPage = computed(() => {
+    // In manual pagination mode, calculate based on rowCount
+    if (manualPaginationEnabled.value) {
+      return pageIndex.value < totalPages.value - 1
+    }
     return tableApi?.getCanNextPage() ?? false
   })
 
   const canPreviousPage = computed(() => {
+    // In manual pagination mode, just check if not on first page
+    if (manualPaginationEnabled.value) {
+      return pageIndex.value > 0
+    }
     return tableApi?.getCanPreviousPage() ?? false
   })
+
+  // Helper to emit page changed event
+  const emitPageChanged = () => {
+    if (eventEmitter?.pageChanged) {
+      const state = tableApi?.getState()
+      eventEmitter.pageChanged({
+        pageIndex: state?.pagination.pageIndex ?? 0,
+        pageSize: state?.pagination.pageSize ?? 20,
+        sorting: state?.sorting ?? [],
+        columnFilters: state?.columnFilters ?? [],
+        globalFilter: state?.globalFilter as string | undefined,
+      })
+    }
+  }
 
   // Navigation methods
   const setPageIndex = (index: number) => {
     tableApi?.setPageIndex(index)
+    emitPageChanged()
   }
 
   const setPageSize = (size: number) => {
     tableApi?.setPageSize(size)
+    emitPageChanged()
   }
 
   const firstPage = () => {
     tableApi?.firstPage()
+    emitPageChanged()
   }
 
   const lastPage = () => {
     tableApi?.lastPage()
+    emitPageChanged()
   }
 
   const nextPage = () => {
     tableApi?.nextPage()
+    emitPageChanged()
   }
 
   const previousPage = () => {
     tableApi?.previousPage()
+    emitPageChanged()
   }
 
   return {
@@ -261,6 +306,7 @@ export function useNuGridPaging<T extends TableData = TableData>(
     pageSizeOptions,
     showPanel,
     autoPageSize: autoPageSizeEnabled,
+    manualPagination: manualPaginationEnabled,
     setPageIndex,
     setPageSize,
     firstPage,

@@ -171,6 +171,24 @@ export interface NuGridFilterChangedEvent {
   columnFilters: ColumnFiltersState
 }
 
+/**
+ * Event payload for page changed events (server-side pagination)
+ * Emitted when the page index or page size changes, allowing the parent
+ * to fetch new data from the server.
+ */
+export interface NuGridPageChangedEvent {
+  /** The new page index (0-based) */
+  pageIndex: number
+  /** The current page size */
+  pageSize: number
+  /** Current sorting state (for server-side sorting) */
+  sorting: SortingState
+  /** Current column filters (for server-side filtering) */
+  columnFilters: ColumnFiltersState
+  /** Current global filter/search query (for server-side search) */
+  globalFilter: string | undefined
+}
+
 // ============================================================================
 // CENTRALIZED EVENT EMITTER
 // ============================================================================
@@ -228,6 +246,8 @@ export interface NuGridEventEmitter<T extends TableData = TableData> {
   sortChanged?: (event: NuGridSortChangedEvent) => void
   /** Emit when column filters change */
   filterChanged?: (event: NuGridFilterChangedEvent) => void
+  /** Emit when the page changes (for server-side pagination) */
+  pageChanged?: (event: NuGridPageChangedEvent) => void
 
   // Migrated existing events
   /** Emit when a row is dragged and dropped */

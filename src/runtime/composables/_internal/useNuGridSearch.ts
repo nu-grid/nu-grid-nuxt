@@ -38,6 +38,8 @@ export interface NuGridSearchContext {
   icon: ComputedRef<string>
   /** Clear button icon */
   clearIcon: ComputedRef<string>
+  /** Highlight color for matching text */
+  highlightColor: ComputedRef<string>
   /** Clear the search query */
   clear: () => void
   /** Set the search query */

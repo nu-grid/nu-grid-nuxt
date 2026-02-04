@@ -149,6 +149,14 @@ const links = [
         },
       },
       {
+        label: 'Server-Side Paging',
+        icon: 'i-lucide-server',
+        to: '/server-paging-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
         label: 'Search',
         icon: 'i-lucide-search',
         to: '/search-demo',

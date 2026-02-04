@@ -596,7 +596,7 @@ export interface NuGridLookupOptions {
 
 /**
  * Paging configuration
- * Controls client-side paging with built-in UI panel
+ * Controls client-side or server-side paging with built-in UI panel
  */
 export interface NuGridPagingOptions {
   /**
@@ -642,6 +642,22 @@ export interface NuGridPagingOptions {
    * @defaultValue false
    */
   suppressPanel?: boolean
+
+  /**
+   * Enable server-side (manual) pagination
+   * When true, the grid expects paginated data from the server and won't slice the data itself.
+   * You must provide `rowCount` with the total number of rows from the server.
+   * Listen to the `pageChanged` event to fetch new data when the page changes.
+   * @defaultValue false
+   */
+  manualPagination?: boolean
+
+  /**
+   * Total row count from the server (required when manualPagination is true)
+   * Used to calculate total pages and display correct pagination info.
+   * This should be updated when the server returns new data with updated counts.
+   */
+  rowCount?: number
 }
 
 /**

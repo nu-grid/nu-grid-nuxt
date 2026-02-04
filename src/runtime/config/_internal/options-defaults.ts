@@ -116,6 +116,7 @@ export const nuGridDefaults = {
     autoPageSize: false,
     autoPageSizeMinimum: 5,
     suppressPanel: false,
+    manualPagination: false,
   },
   search: {
     enabled: false,

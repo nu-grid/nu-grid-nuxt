@@ -490,7 +490,17 @@ export function useNuGridApi<T extends TableData>(
       const pagingProp = (props as NuGridProps<T>).paging
       const isPaginationEnabled =
         pagingProp === true || (typeof pagingProp === 'object' && pagingProp?.enabled !== false)
+      // Always include getPaginationRowModel when paging is enabled (even for manual pagination)
       return isPaginationEnabled ? { getPaginationRowModel: getPaginationRowModel() } : {}
+    })(),
+    // Enable manual pagination mode in TanStack Table when configured
+    ...(() => {
+      const pagingProp = (props as NuGridProps<T>).paging
+      const isManualPagination =
+        typeof pagingProp === 'object' && pagingProp?.manualPagination === true
+      // When manualPagination is true, TanStack won't auto-slice data
+      // Our paging composable handles pageCount/totalPages calculation using rowCount prop
+      return isManualPagination ? { manualPagination: true } : {}
     })(),
     onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.paginationState),
     ...(props.facetedOptions || {}),

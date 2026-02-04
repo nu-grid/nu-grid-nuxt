@@ -33,6 +33,7 @@ import type {
   NuGridFocusedCellChangedEvent,
   NuGridFocusedRowChangedEvent,
   NuGridKeydownEvent,
+  NuGridPageChangedEvent,
   NuGridProps,
   NuGridRowClickEvent,
   NuGridSortChangedEvent,
@@ -120,6 +121,7 @@ const emit = defineEmits<{
   // New state change events
   sortChanged: [event: NuGridSortChangedEvent]
   filterChanged: [event: NuGridFilterChangedEvent]
+  pageChanged: [event: NuGridPageChangedEvent]
   // Keyboard events
   keydown: [event: NuGridKeydownEvent<T>]
 }>()
@@ -144,6 +146,7 @@ const eventEmitter: NuGridEventEmitter<T> = {
   // State change events
   sortChanged: (e) => emit('sortChanged', e),
   filterChanged: (e) => emit('filterChanged', e),
+  pageChanged: (e) => emit('pageChanged', e),
   // Keyboard events
   keydown: (e) => emit('keydown', e),
   // Migrated existing events
@@ -748,6 +751,7 @@ const pagingContext = useNuGridPaging({
   props,
   tableApi,
   rootRef: rootElement,
+  eventEmitter,
 })
 provide('nugrid-paging', pagingContext)
 
@@ -776,14 +780,17 @@ const searchContext = useNuGridSearch({
     if (filteredRows.length === 0) return
 
     const firstRow = filteredRows[0]
+    if (!firstRow) return
+
     const query = globalFilterState.value?.toLowerCase() ?? ''
 
     // Find which column contains the match (for cell focus mode)
-    let matchColumnIndex = focus.findFirstFocusableColumn()
+    let matchColumnIndex = focus.findFirstFocusableColumn(firstRow)
     if (query) {
       const visibleCells = firstRow.getVisibleCells()
       for (let i = 0; i < visibleCells.length; i++) {
         const cell = visibleCells[i]
+        if (!cell) continue
         // Skip columns that don't allow global filtering
         if (cell.column.columnDef.enableGlobalFilter === false) continue
         // Check if this cell's value contains the search query
@@ -795,7 +802,7 @@ const searchContext = useNuGridSearch({
       }
     }
 
-    if (firstRow && matchColumnIndex >= 0) {
+    if (matchColumnIndex >= 0) {
       // Must set focused cell state AND focus the DOM element
       focus.setFocusedCell({ rowIndex: 0, columnIndex: matchColumnIndex })
       focus.focusCell(firstRow, 0, matchColumnIndex)

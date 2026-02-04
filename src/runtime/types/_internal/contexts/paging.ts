@@ -11,7 +11,7 @@ export interface NuGridPagingContext {
   pageSize: ComputedRef<number>
   /** Current page index (0-based) */
   pageIndex: ComputedRef<number>
-  /** Total number of rows (after filtering) */
+  /** Total number of rows (after filtering, or from server in manual mode) */
   totalRows: ComputedRef<number>
   /** Total number of pages */
   totalPages: ComputedRef<number>
@@ -21,6 +21,8 @@ export interface NuGridPagingContext {
   showPanel: ComputedRef<boolean>
   /** Whether auto page size is enabled */
   autoPageSize: ComputedRef<boolean>
+  /** Whether server-side (manual) pagination is enabled */
+  manualPagination: ComputedRef<boolean>
   /** Navigate to a specific page (0-based index) */
   setPageIndex: (index: number) => void
   /** Set the page size */
