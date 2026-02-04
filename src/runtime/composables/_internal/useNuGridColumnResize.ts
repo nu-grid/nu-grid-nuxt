@@ -228,6 +228,8 @@ export function useNuGridColumnResize<T extends TableData>(
         rafId = null
         // Reset manually resized columns to allow flex recalculation
         manuallyResizedColumns.value = new Set()
+        // Also clear columnSizing state so flex can recalculate (SSR check uses this)
+        tableApi.setColumnSizing({})
         // Wait for flex to recalculate, then sync widths
         nextTick(() => {
           syncInitialFlexWidths(true) // Force sync on container resize
