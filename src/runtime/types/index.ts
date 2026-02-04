@@ -117,3 +117,13 @@ export type {
   NuGridValidateOn,
   NuGridValidationOptions,
 } from './validation'
+
+// TanStack Table State Types (re-exported for convenience)
+// These are used in NuGridStateSnapshot and various v-models
+export type {
+  ColumnFiltersState,
+  ColumnPinningState,
+  PaginationState,
+  RowSelectionState,
+  SortingState,
+} from '@tanstack/vue-table'

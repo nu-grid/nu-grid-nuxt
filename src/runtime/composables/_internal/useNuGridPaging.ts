@@ -297,6 +297,50 @@ export function useNuGridPaging<T extends TableData = TableData>(
     emitPageChanged()
   }
 
+  // Watch sorting changes - reset to first page and emit pageChanged for server-side pagination
+  watch(
+    () => tableApi?.getState().sorting,
+    (newSorting, oldSorting) => {
+      // Skip if sorting didn't actually change (deep equality check)
+      if (JSON.stringify(newSorting) === JSON.stringify(oldSorting)) return
+      // Only auto-reset for manual pagination (server-side)
+      if (manualPaginationEnabled.value && enabled.value) {
+        tableApi?.setPageIndex(0)
+        emitPageChanged()
+      }
+    },
+    { deep: true },
+  )
+
+  // Watch column filter changes - reset to first page and emit pageChanged for server-side pagination
+  watch(
+    () => tableApi?.getState().columnFilters,
+    (newFilters, oldFilters) => {
+      // Skip if filters didn't actually change (deep equality check)
+      if (JSON.stringify(newFilters) === JSON.stringify(oldFilters)) return
+      // Only auto-reset for manual pagination (server-side)
+      if (manualPaginationEnabled.value && enabled.value) {
+        tableApi?.setPageIndex(0)
+        emitPageChanged()
+      }
+    },
+    { deep: true },
+  )
+
+  // Watch global filter changes - reset to first page and emit pageChanged for server-side pagination
+  watch(
+    () => tableApi?.getState().globalFilter,
+    (newFilter, oldFilter) => {
+      // Skip if filter didn't actually change
+      if (newFilter === oldFilter) return
+      // Only auto-reset for manual pagination (server-side)
+      if (manualPaginationEnabled.value && enabled.value) {
+        tableApi?.setPageIndex(0)
+        emitPageChanged()
+      }
+    },
+  )
+
   return {
     enabled,
     pageSize,

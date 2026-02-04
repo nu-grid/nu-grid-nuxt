@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { NuGridColumn, NuGridPageChangedEvent, NuGridPagingOptions } from '#nu-grid/types'
+import type { NuGridColumn, NuGridPageChangedEvent, NuGridPagingOptions, SortingState } from '#nu-grid/types'
 import type { User } from '../../server/data/gridTestData'
 
 // Server-side pagination state
 const pageIndex = ref(0)
 const pageSize = ref(20)
 const globalFilter = ref('')
+const sorting = ref<SortingState>([])
 
 // Use useFetch for SSR-compatible data fetching
 const {
@@ -16,7 +17,7 @@ const {
   query: computed(() => ({
     pageIndex: pageIndex.value,
     pageSize: pageSize.value,
-    sorting: '[]',
+    sorting: JSON.stringify(sorting.value),
     globalFilter: globalFilter.value,
   })),
   watch: false, // Don't auto-refetch on query change - we control when to fetch
@@ -31,6 +32,7 @@ const isLoading = computed(() => status.value === 'pending')
 async function handlePageChanged(event: NuGridPageChangedEvent) {
   pageIndex.value = event.pageIndex
   pageSize.value = event.pageSize
+  sorting.value = event.sorting
   if (event.globalFilter !== undefined) {
     globalFilter.value = event.globalFilter
   }
@@ -103,7 +105,12 @@ const columns = computed<NuGridColumn<User>[]>(() => [
   },
 ])
 
-const exampleCode = `// Pagination options for server-side mode
+const exampleCode = `// Server-side state
+const pageIndex = ref(0)
+const pageSize = ref(20)
+const sorting = ref<SortingState>([])
+
+// Pagination options for server-side mode
 const paginationOptions = computed<NuGridPagingOptions>(() => ({
   enabled: true,
   pageSize: pageSize.value,
@@ -111,11 +118,12 @@ const paginationOptions = computed<NuGridPagingOptions>(() => ({
   rowCount: totalCount.value,  // Total rows from server
 }))
 
-// Handle page changes from the grid
+// Handle page changes from the grid (also fires on sort/filter changes)
 async function handlePageChanged(event: NuGridPageChangedEvent) {
   pageIndex.value = event.pageIndex
   pageSize.value = event.pageSize
-  await refresh()  // Refetch data from server
+  sorting.value = event.sorting  // Get sorting state
+  await refresh()  // Refetch data from server with new params
 }
 
 // Template:
@@ -141,6 +149,7 @@ async function handlePageChanged(event: NuGridPageChangedEvent) {
       <DemoStatusItem label="Loading" :value="isLoading ? 'Yes' : 'No'" />
       <DemoStatusItem label="Rows Loaded" :value="data.length" />
       <DemoStatusItem label="Search" :value="globalFilter || 'None'" />
+      <DemoStatusItem label="Sort" :value="sorting.length > 0 ? `${sorting[0].id} ${sorting[0].desc ? 'desc' : 'asc'}` : 'None'" />
     </template>
 
     <!-- Controls -->
