@@ -394,6 +394,14 @@ const links = [
           open.value = false
         },
       },
+      {
+        label: 'SelectMenu Test',
+        icon: 'i-lucide-list-tree',
+        to: '/select-menu-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
     ],
   },
 ] satisfies NavigationMenuItem[]

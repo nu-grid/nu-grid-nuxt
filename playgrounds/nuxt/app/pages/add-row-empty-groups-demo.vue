@@ -19,7 +19,12 @@ interface GridExpose {
 // All possible values for grouping columns
 // These will be shown even when no data exists for them
 const allCategories = ['Electronics', 'Audio', 'Furniture', 'Gaming', 'Office']
-const allStatuses = ['active', 'inactive', 'pending']
+// Status items for lookup dropdown
+const statusItems = [
+  { value: 'active', label: 'Active', icon: 'i-lucide-check-circle' },
+  { value: 'inactive', label: 'Inactive', icon: 'i-lucide-pause-circle' },
+  { value: 'pending', label: 'Pending', icon: 'i-lucide-clock' },
+]
 
 // Start with NO data - all groups are empty to demonstrate the feature
 const data = ref<Product[]>([])
@@ -153,9 +158,13 @@ const columns: NuGridColumn<Product>[] = [
     accessorKey: 'status',
     header: 'Status',
     minSize: 90,
-    size: 100,
-    meta: {
-      selectOptions: allStatuses,
+    size: 120,
+    cellDataType: 'lookup',
+    lookup: {
+      items: statusItems,
+      valueKey: 'value',
+      labelKey: 'label',
+      placeholder: 'Select status...',
     },
   },
   {
@@ -362,7 +371,7 @@ const exampleCode = `// Show empty groups with add rows and summaries
       :columns="columns"
       :add-new-row="addNewRow"
       :layout="{ mode: gridMode }"
-      :focus="{ retain: true }"
+      :focus="{ mode: 'cell', retain: true }"
       :editing="{ enabled: true, startClicks: 'double' }"
       :empty-group-values="emptyGroupValues"
       :summaries="{ grandTotals: true, groupSummaries: true }"

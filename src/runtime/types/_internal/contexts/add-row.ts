@@ -28,4 +28,8 @@ export interface NuGridAddRowContext<T extends TableData = TableData> {
   resetAddRow: (row: Row<T>) => void
   isFinalizing?: Ref<boolean>
   finalizingRowId?: Ref<string | null>
+  /** Version counter that increments when add row values change - used to trigger re-renders */
+  valueVersion?: Ref<number>
+  /** Increment the value version to trigger re-renders of add row cells */
+  triggerValueUpdate?: () => void
 }

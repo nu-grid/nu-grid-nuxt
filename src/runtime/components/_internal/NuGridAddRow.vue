@@ -151,10 +151,6 @@ const indicatorLeftOffset = computed(() => {
       :data-focused="focusFns.isFocusedCell(row, cellIndex)"
       :tabindex="focusFns.getCellTabIndex(row, cellIndex)"
       :class="[
-        cellEditingFns.isEditingCell(row, cell.column.id)
-        && cell.column.columnDef.cellDataType !== 'boolean'
-          ? 'p-3!'
-          : '',
         ui.td({
           class: [propsUi?.td, resolveValue(cell.column.columnDef.meta?.class?.td, cell)],
           pinned: !!cell.column.getIsPinned(),

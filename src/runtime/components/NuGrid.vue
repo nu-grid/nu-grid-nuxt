@@ -232,6 +232,45 @@ const { columns } = useNuGridColumns(
 const { ui, checkboxTheme } = useNuGridUI(props as any)
 const { hasFooter } = useNuGridFooter(columns)
 
+// Validate add row configuration
+if (import.meta.dev) {
+  const addNewRowEnabled = computed(() => {
+    if (!props.addNewRow) return false
+    if (typeof props.addNewRow === 'boolean') return props.addNewRow
+    return props.addNewRow.position !== 'none'
+  })
+
+  const editingEnabled = computed(() => {
+    if (props.editing === false) return false
+    if (props.editing === true) return true
+    return props.editing?.enabled ?? false
+  })
+
+  const focusModeIsCell = computed(() => {
+    const mode = props.focus?.mode ?? 'none'
+    return mode === 'cell'
+  })
+
+  watch(
+    [addNewRowEnabled, editingEnabled, focusModeIsCell],
+    ([addRowEnabled, editEnabled, focusCell]) => {
+      if (addRowEnabled && (!editEnabled || !focusCell)) {
+        const issues: string[] = []
+        if (!editEnabled) {
+          issues.push('editing must be enabled (set editing: true or editing: { enabled: true })')
+        }
+        if (!focusCell) {
+          issues.push('focus mode must be set to "cell" (set focus: { mode: "cell" })')
+        }
+        console.warn(
+          `[NuGrid] Add new row is enabled but required settings are missing:\n  - ${issues.join('\n  - ')}\n\nAll three conditions must be met for add row to work properly.`,
+        )
+      }
+    },
+    { immediate: true },
+  )
+}
+
 watch(
   rowSelectionState,
   (val) => {
@@ -291,6 +330,8 @@ const {
   addRowState,
   isFinalizing: addRowIsFinalizing,
   finalizingRowId: addRowFinalizingRowId,
+  valueVersion: addRowValueVersion,
+  triggerValueUpdate: addRowTriggerValueUpdate,
 } = useNuGridAddRow({
   props,
   data,
@@ -809,6 +850,8 @@ const addRowContext: NuGridAddRowContext<T> = {
   resetAddRow,
   isFinalizing: addRowIsFinalizing,
   finalizingRowId: addRowFinalizingRowId,
+  valueVersion: addRowValueVersion,
+  triggerValueUpdate: addRowTriggerValueUpdate,
 }
 
 provide('nugrid-add-row', addRowContext)

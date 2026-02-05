@@ -395,7 +395,7 @@ const exampleCode = `<NuGrid
       :add-new-row="addNewRow"
       :validation="validationSchemaWithOptions"
       :layout="{ mode: gridMode }"
-      :focus="{ retain: true }"
+      :focus="{ mode: 'cell', retain: true }"
       :editing="{ enabled: true, startClicks: 'double' }"
       resize-columns
       @row-add-requested="handleRowAddRequested"

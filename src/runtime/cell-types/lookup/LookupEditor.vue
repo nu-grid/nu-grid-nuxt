@@ -2,6 +2,7 @@
 import type { NuGridCellEditorEmits, NuGridCellEditorProps, NuGridLookupItem } from '../../types'
 import type { NuGridKeyboardContext } from '../../types/_internal'
 import { computed, isRef, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import NuGridSelectMenu from '../../components/NuGridSelectMenu.vue'
 import { nuGridDefaults } from '../../config/_internal'
 import { ROUTER_PRIORITIES } from '../../types/_internal'
 
@@ -11,6 +12,7 @@ const props = defineProps<NuGridCellEditorProps>()
 const emit = defineEmits<NuGridCellEditorEmits>()
 
 const containerRef = ref<HTMLElement | null>(null)
+const selectMenuRef = ref<InstanceType<typeof NuGridSelectMenu> | null>(null)
 let unregisterKeyboardHandler: (() => void) | null = null
 
 // Access lookup config from column definition
@@ -77,7 +79,6 @@ const autoOpen = computed(
   () => lookupConfig.value?.autoOpen ?? nuGridDefaults.columnDefaults.lookup.autoOpen,
 )
 
-// Behavioral flags to coordinate keyboard interactions
 const valueJustChanged = ref(false) // Prevents exit when value is being changed via selection
 const navigatingViaTab = ref(false) // Indicates Tab navigation in progress
 const escapingMenu = ref(false) // Prevents exit when first Escape closes menu
@@ -195,8 +196,19 @@ function handleKeydown(ctx: NuGridKeyboardContext<any>) {
       // Set flag to prevent handleMenuClose from exiting edit mode
       escapingMenu.value = true
 
-      // Close the menu via the controlled binding
-      isOpen.value = false
+      // Close the menu by dispatching Escape to the active element (uncontrolled mode)
+      const activeEl = document.activeElement as HTMLElement
+      if (activeEl) {
+        const escapeEvent = new KeyboardEvent('keydown', {
+          key: 'Escape',
+          code: 'Escape',
+          keyCode: 27,
+          which: 27,
+          bubbles: true,
+          cancelable: true,
+        })
+        activeEl.dispatchEvent(escapeEvent)
+      }
 
       return { handled: true, preventDefault: true, stopPropagation: true }
     } else {
@@ -314,7 +326,9 @@ onMounted(() => {
       const unwatch = watch(isLoading, (loading) => {
         if (!loading && resolvedItems.value.length > 0) {
           nextTick(() => {
-            isOpen.value = true
+            // Click trigger to open (uncontrolled mode)
+            const trigger = containerRef.value?.querySelector('button, [tabindex]') as HTMLElement
+            trigger?.click()
           })
           unwatch()
         }
@@ -322,7 +336,9 @@ onMounted(() => {
     } else {
       // Static or reactive items - open immediately
       nextTick(() => {
-        isOpen.value = true
+        // Click trigger to open (uncontrolled mode)
+        const trigger = containerRef.value?.querySelector('button, [tabindex]') as HTMLElement
+        trigger?.click()
       })
     }
   }
@@ -344,13 +360,15 @@ watch(
     }
   },
 )
+
+// Note: highlightSelectedOnOpen prop handles highlighting internally in uncontrolled mode
 </script>
 
 <template>
-  <div ref="containerRef" class="w-full">
-    <USelectMenu
+  <div ref="containerRef" class="w-full pl-0.5">
+    <NuGridSelectMenu
+      ref="selectMenuRef"
       :model-value="modelValue"
-      :open="isOpen"
       :items="resolvedItems"
       :value-key="valueKey"
       :label-key="labelKey"
@@ -365,6 +383,7 @@ watch(
         content: 'outline-none',
       }"
       highlight
+      highlight-selected-on-open
       class="w-full outline-none"
       @update:model-value="handleValueChange"
       @update:open="
@@ -384,7 +403,7 @@ watch(
           @click.stop="handleValueChange(null)"
         />
       </template>
-    </USelectMenu>
+    </NuGridSelectMenu>
 
     <div v-if="loadError" class="mt-1 text-xs text-red-500">
       {{ loadError }}

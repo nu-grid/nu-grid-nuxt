@@ -169,15 +169,43 @@ const pluginRendererComponent = computed(() => {
   }
 })
 
+// Helper to get the accessor key for a cell
+const cellAccessorKey = computed(() => {
+  const columnDef = props.cell.column.columnDef
+  if ('accessorKey' in columnDef && columnDef.accessorKey) {
+    return columnDef.accessorKey as string
+  }
+  return props.cell.column.id
+})
+
 // Get renderer props (only compute when needed)
 const pluginRendererProps = computed(() => {
+  // Access reactive dependencies at the TOP to ensure they're tracked before early returns
+  // - valueVersion: triggers re-render when add row values change
+  // - isEditing: triggers re-render when editing state changes (value saved on edit stop)
+  // eslint-disable-next-line ts/no-unused-expressions
+  addRowContext?.valueVersion?.value
+  // eslint-disable-next-line ts/no-unused-expressions
+  isEditing.value
+
   if (!shouldUsePluginRenderer.value || !pluginRenderer.value || isRendererFunction.value) {
     return {}
   }
   const renderer = pluginRenderer.value
 
+  // For add rows, read value directly from row.original to bypass TanStack's cache
+  // This ensures we always get the latest value after editing
+  let cellValue: any
+  if (isAddRow.value) {
+    // Read directly from row.original using the accessor key
+    const key = cellAccessorKey.value
+    cellValue = (props.row.original as any)?.[key]
+  } else {
+    cellValue = props.cell.getValue()
+  }
+
   const baseProps: any = {
-    value: props.cell.getValue(),
+    value: cellValue,
     row: props.row,
     cell: props.cell,
     editable: props.cellEditingFns.isCellEditable(props.row, props.cell),
@@ -198,10 +226,22 @@ const pluginRendererProps = computed(() => {
 const functionRendererResult = computed(() => {
   if (!isRendererFunction.value || !pluginRenderer.value) return null
   const renderer = pluginRenderer.value as (context: any) => any
+
+  // For add rows, read value directly from row.original
+  const getValue = () => {
+    if (isAddRow.value) {
+      // eslint-disable-next-line ts/no-unused-expressions
+      addRowContext?.valueVersion?.value
+      const key = cellAccessorKey.value
+      return (props.row.original as any)?.[key]
+    }
+    return props.cell.getValue()
+  }
+
   return renderer({
     cell: props.cell,
     row: props.row,
-    getValue: () => props.cell.getValue(),
+    getValue,
     column: props.cell.column,
     table: props.cell.table,
   })
@@ -264,7 +304,16 @@ const shouldHighlight = computed(() => {
 
 // Get the cell value as a string for highlighting
 const cellTextValue = computed(() => {
-  const value = props.cell.getValue()
+  // For add rows, read directly from row.original
+  let value: any
+  if (isAddRow.value) {
+    // eslint-disable-next-line ts/no-unused-expressions
+    addRowContext?.valueVersion?.value
+    const key = cellAccessorKey.value
+    value = (props.row.original as any)?.[key]
+  } else {
+    value = props.cell.getValue()
+  }
   if (value === null || value === undefined) return ''
   return String(value)
 })
@@ -313,10 +362,7 @@ const cellTextValue = computed(() => {
       v-bind="pluginRendererProps"
     />
     <!-- Use highlighted text when search is active and this column is searchable -->
-    <NuGridHighlightedText
-      v-else-if="shouldHighlight && cellTextValue"
-      :text="cellTextValue"
-    />
+    <NuGridHighlightedText v-else-if="shouldHighlight && cellTextValue" :text="cellTextValue" />
     <FlexRender v-else :render="cell.column.columnDef.cell" :props="cell.getContext()" />
   </div>
 </template>

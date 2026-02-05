@@ -22,7 +22,7 @@ import type {
 import type { NuGridValidationResult } from '../../utils/standardSchema'
 import { FlexRender } from '@tanstack/vue-table'
 
-import { computed, h, nextTick, onMounted, onUnmounted, ref, resolveComponent } from 'vue'
+import { computed, h, isReadonly, nextTick, onMounted, onUnmounted, ref, resolveComponent } from 'vue'
 
 import { textCellType } from '../../cell-types'
 import { getDefaults, usePropWithDefault } from '../../config/_internal'
@@ -889,6 +889,8 @@ export function useNuGridCellEditing<T extends TableData>(
       } else if (addRowContext?.isAddRowRow(row)) {
         // Keep placeholder row in sync so the edited value remains visible before finalize
         assignValue(row.original as any)
+        // Trigger reactivity for add row cells (they're not in the data array)
+        addRowContext.triggerValueUpdate?.()
       }
 
       // Clear TanStack's cached value so cell.getValue() returns the updated value
@@ -901,8 +903,15 @@ export function useNuGridCellEditing<T extends TableData>(
         }
       }
 
-      // Ensure reactivity for both regular rows and add-row placeholders
-      data.value = [...data.value]
+      // Ensure reactivity for regular rows (not add rows, which use valueVersion)
+      // Only trigger data reactivity if this is NOT an add row
+      if (!addRowContext?.isAddRowRow(row)) {
+        // Note: This may fail silently if data is a computed ref (readonly)
+        // but that's okay - the TanStack cache clear above handles value updates
+        if (!isReadonly(data)) {
+          data.value = [...data.value]
+        }
+      }
     }
 
     let shouldFocusNewAddRowAfterFinalize = false

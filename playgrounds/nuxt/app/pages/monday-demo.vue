@@ -222,7 +222,7 @@ const exampleCode = `<NuGrid
       :layout="{ mode: 'splitgroup' }"
       :add-new-row="{ position: 'bottom' }"
       add-new-text="Add task"
-      :focus="{ retain: true }"
+      :focus="{ mode: 'cell', retain: true }"
       :editing="{ enabled: true, startClicks: 'single', startKeys: 'all' }"
       resize-columns
       @row-add-requested="handleRowAddRequested"

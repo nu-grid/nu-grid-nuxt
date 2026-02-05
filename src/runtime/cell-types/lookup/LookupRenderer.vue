@@ -61,5 +61,5 @@ const displayLabel = computed(() => {
 </script>
 
 <template>
-  <span class="truncate">{{ displayLabel }}</span>
+  <div class="truncate">{{ displayLabel }}</div>
 </template>

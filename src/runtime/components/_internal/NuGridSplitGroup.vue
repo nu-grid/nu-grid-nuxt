@@ -234,7 +234,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
     <div
       :data-group-header="groupId"
       :class="ui.groupHeader({ class: [propsUi?.groupHeader] })"
-      :style="{ width: `${tableApi.getTotalSize()}px` }"
+      :style="{ width: autoSizeMode === 'fill' ? '100%' : `${tableApi.getTotalSize()}px` }"
       @click="toggleGroup(groupId)"
     >
       <div

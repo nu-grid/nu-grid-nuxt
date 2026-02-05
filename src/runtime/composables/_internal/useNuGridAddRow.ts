@@ -82,6 +82,11 @@ export function useNuGridAddRow<T extends TableData>(options: {
   const isFinalizing = ref(false)
   // Store the row ID being finalized to prevent focus handlers from focusing it
   const finalizingRowId = ref<string | null>(null)
+  // Version counter that increments when add row values change - used to trigger re-renders
+  const valueVersion = ref(0)
+  const triggerValueUpdate = () => {
+    valueVersion.value++
+  }
   let unregisterPointer: (() => void) | null = null
 
   // Helper: Get current editing value, handling both Ref and direct value cases
@@ -1092,5 +1097,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
     addRowState,
     isFinalizing,
     finalizingRowId,
+    valueVersion,
+    triggerValueUpdate,
   }
 }
