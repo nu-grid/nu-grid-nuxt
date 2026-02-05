@@ -34,7 +34,14 @@ export type {
 } from './cells'
 
 // Column
-export type { NuGridColumn, NuGridColumnMenuItem, NuGridColumnMenuItemsCallback } from './column'
+export type {
+  NuGridAggregateType,
+  NuGridColumn,
+  NuGridColumnMenuItem,
+  NuGridColumnMenuItemsCallback,
+  NuGridColumnSummary,
+  NuGridSummaryFormatContext,
+} from './column'
 
 // Drag and Drop
 export type { RowDragEvent } from './drag-drop'
@@ -77,6 +84,7 @@ export type {
   NuGridEditingOptions,
   NuGridExcelExportOptions,
   NuGridFocusOptions,
+  NuGridGrandTotalsConfig,
   NuGridLayoutMode,
   NuGridLayoutOptions,
   NuGridLookupItem,
@@ -89,6 +97,7 @@ export type {
   NuGridStateOptions,
   NuGridStatePart,
   NuGridStorageType,
+  NuGridSummaryOptions,
   NuGridTooltipOptions,
 } from './option-groups'
 

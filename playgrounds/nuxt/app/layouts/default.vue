@@ -109,6 +109,22 @@ const links = [
         },
       },
       {
+        label: 'Add Row (Empty Groups)',
+        icon: 'i-lucide-folder-plus',
+        to: '/add-row-empty-groups-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
+        label: 'Summary & Aggregates',
+        icon: 'i-lucide-sigma',
+        to: '/summary-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
         label: 'Monday-style Add Row',
         icon: 'i-lucide-layout-panel-top',
         to: '/monday-demo',

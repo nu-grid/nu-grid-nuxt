@@ -43,6 +43,8 @@ export const nuGridTheme = {
     footerContent: 'w-full truncate',
     groupHeader:
       'flex items-stretch cursor-pointer bg-primary/10 hover:bg-primary/15 transition-colors',
+    // Split group gap - visual spacing between groups
+    splitGroupGap: 'h-4 bg-default',
     groupHeaderLeft:
       'sticky left-0 z-50 flex items-center gap-3 px-4 py-3 border-b-0 border-l-4 border-primary',
     groupIcon: 'shrink-0 w-5 h-5 text-primary transition-transform',

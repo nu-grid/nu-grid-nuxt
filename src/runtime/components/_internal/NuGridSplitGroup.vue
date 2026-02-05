@@ -12,6 +12,7 @@ import type {
   NuGridGroupingContext,
   NuGridPerformanceContext,
   NuGridResizeContext,
+  NuGridSummaryContext,
   NuGridUIConfigContext,
   NuGridVirtualItemStyle,
   NuGridVirtualizationContext,
@@ -51,6 +52,7 @@ const groupingContext = inject<NuGridGroupingContext<T>>('nugrid-grouping')!
 const performanceContext = inject<NuGridPerformanceContext<T>>('nugrid-performance')!
 const uiConfigContext = inject<NuGridUIConfigContext<T>>('nugrid-ui-config')!
 const addRowContext = inject<NuGridAddRowContext<T>>('nugrid-add-row')!
+const summaryContext = inject<NuGridSummaryContext>('nugrid-summary')
 
 if (
   !coreContext
@@ -116,6 +118,7 @@ const [DefineFooterCellTemplate, ReuseFooterCellTemplate] = createReusableTempla
   header: Header<T, unknown>
   index: number
   isExpanded: boolean
+  groupId?: string
 }>({ inheritAttrs: false })
 
 // Use grouping functions from context (created in parent NuGrid.vue)
@@ -384,7 +387,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
     </div>
   </DefineHeaderCellTemplate>
 
-  <DefineFooterCellTemplate v-slot="{ header, index, isExpanded }">
+  <DefineFooterCellTemplate v-slot="{ header, index, isExpanded, groupId }">
     <div
       :data-pinned="header.column.getIsPinned()"
       :class="[
@@ -401,9 +404,16 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           : {}),
       }"
     >
-      <div v-if="!isExpanded" :class="ui.collapsedText({ class: [propsUi?.collapsedText] })">
+      <div v-if="!isExpanded" :class="['truncate']">
         <template v-if="index === 0"> Summary </template>
-        <template v-else> Σ {{ header.column.id }} </template>
+        <template v-else>
+          <!-- Show calculated summary value if available, otherwise show "Σ columnId" -->
+          {{
+            (summaryContext?.groupSummariesEnabled?.value && groupId
+              ? summaryContext.getGroupSummaryValue(groupId, header.column.id)
+              : undefined) ?? `Σ ${header.column.id}`
+          }}
+        </template>
       </div>
       <div v-else :class="ui.expandedText({ class: [propsUi?.expandedText] })">
         <slot :name="`${header.id}-footer`" v-bind="header.getContext()">
@@ -412,8 +422,14 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
             :render="header.column.columnDef.footer"
             :props="header.getContext()"
           />
-          <template v-else-if="index === 0">
-            <span class="italic">Summary</span>
+          <template v-else-if="index === 0"> Summary </template>
+          <template v-else>
+            <!-- Show same calculated summary value as collapsed state -->
+            {{
+              (summaryContext?.groupSummariesEnabled?.value && groupId
+                ? summaryContext.getGroupSummaryValue(groupId, header.column.id)
+                : undefined) ?? ''
+            }}
           </template>
         </slot>
       </div>
@@ -457,23 +473,35 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                 :style="virtStyle(virtualRow)"
               >
                 <template v-if="virtualRowItems[virtualRow.index]">
-                  <ReuseGroupHeaderTemplate
-                    v-if="virtualRowItems[virtualRow.index]?.type === 'group-header'"
-                    :group-id="virtualRowItems[virtualRow.index]?.groupId!"
-                    :group-row="virtualRowItems[virtualRow.index]?.groupRow"
-                    :item-count="
-                      groupedRows[virtualRowItems[virtualRow.index]?.groupId!]?.filter(
-                        (row) => !addRowContext.isAddRowRow(row),
-                      ).length || 0
-                    "
-                    :depth="virtualRowItems[virtualRow.index]?.depth ?? 0"
-                  />
+                  <template v-if="virtualRowItems[virtualRow.index]?.type === 'group-header'">
+                    <!-- Gap between split groups (not before first group) -->
+                    <div
+                      v-if="virtualRow.index > 0"
+                      :class="ui.splitGroupGap({ class: [propsUi?.splitGroupGap] })"
+                    />
+                    <ReuseGroupHeaderTemplate
+                      :group-id="virtualRowItems[virtualRow.index]?.groupId!"
+                      :group-row="virtualRowItems[virtualRow.index]?.groupRow"
+                      :item-count="
+                        groupedRows[virtualRowItems[virtualRow.index]?.groupId!]?.filter(
+                          (row) =>
+                            !addRowContext.isAddRowRow(row)
+                            && !addRowContext.isEmptyGroupPlaceholder(row),
+                        ).length || 0
+                      "
+                      :depth="virtualRowItems[virtualRow.index]?.depth ?? 0"
+                    />
+                  </template>
 
                   <template
                     v-else-if="virtualRowItems[virtualRow.index]?.type === 'column-headers'"
                   >
+                    <!-- Collapsed headers: only show if group summaries are enabled -->
                     <div
-                      v-if="!isGroupExpanded(virtualRowItems[virtualRow.index]?.groupId!)"
+                      v-if="
+                        !isGroupExpanded(virtualRowItems[virtualRow.index]?.groupId!)
+                        && summaryContext?.groupSummariesEnabled?.value
+                      "
                       :class="ui.thead({ class: [propsUi?.thead, 'border-t-0 border-b-0'] })"
                       :data-sticky-header="stickyEnabled ? 'true' : undefined"
                     >
@@ -498,8 +526,9 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                       </div>
                     </div>
 
+                    <!-- Expanded headers: show full column headers -->
                     <div
-                      v-else
+                      v-else-if="isGroupExpanded(virtualRowItems[virtualRow.index]?.groupId!)"
                       :class="ui.thead({ class: [propsUi?.thead, 'border-t-0'] })"
                       :data-sticky-header="stickyEnabled ? 'true' : undefined"
                     >
@@ -525,8 +554,10 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                         />
                       </div>
                     </div>
+                    <!-- No headers shown when collapsed and no summaries configured -->
                   </template>
 
+                  <!-- Skip empty group placeholder rows - they only exist to create the group structure -->
                   <component
                     :is="
                       addRowContext.isAddRowRow(virtualRowItems[virtualRow.index]?.dataRow!)
@@ -536,12 +567,18 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     v-else-if="
                       virtualRowItems[virtualRow.index]?.type === 'data'
                       && virtualRowItems[virtualRow.index]?.dataRow
+                      && !addRowContext.isEmptyGroupPlaceholder(
+                        virtualRowItems[virtualRow.index]?.dataRow!,
+                      )
                     "
                     :row="virtualRowItems[virtualRow.index]?.dataRow!"
                   />
 
                   <div
-                    v-else-if="virtualRowItems[virtualRow.index]?.type === 'footer'"
+                    v-else-if="
+                      virtualRowItems[virtualRow.index]?.type === 'footer'
+                      && summaryContext?.groupSummariesEnabled?.value
+                    "
                     :class="
                       ui.tr({
                         class: [
@@ -562,6 +599,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                       :header="header"
                       :index="index"
                       :is-expanded="isGroupExpanded(virtualRowItems[virtualRow.index]?.groupId!)"
+                      :group-id="virtualRowItems[virtualRow.index]?.groupId"
                     />
                   </div>
                 </template>
@@ -570,8 +608,13 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           </template>
 
           <template v-else>
-            <template v-for="item in virtualRowItems" :key="item.index">
+            <template v-for="(item, arrayIdx) in virtualRowItems" :key="item.index">
               <template v-if="item.type === 'group-header'">
+                <!-- Gap between split groups (not before first group) -->
+                <div
+                  v-if="arrayIdx > 0"
+                  :class="ui.splitGroupGap({ class: [propsUi?.splitGroupGap] })"
+                />
                 <div :class="['flex flex-col']">
                   <div
                     :class="[
@@ -584,12 +627,21 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                       :group-id="item.groupId!"
                       :group-row="item.groupRow"
                       :item-count="
-                        groupedRows[item.groupId!]?.filter((row) => !addRowContext.isAddRowRow(row))
-                          .length || 0
+                        groupedRows[item.groupId!]?.filter(
+                          (row) =>
+                            !addRowContext.isAddRowRow(row)
+                            && !addRowContext.isEmptyGroupPlaceholder(row),
+                        ).length || 0
                       "
                       :depth="item.depth ?? 0"
                     />
-                    <template v-if="!isGroupExpanded(item.groupId!)">
+                    <!-- Collapsed headers: only show if group summaries are enabled -->
+                    <template
+                      v-if="
+                        !isGroupExpanded(item.groupId!)
+                        && summaryContext?.groupSummariesEnabled?.value
+                      "
+                    >
                       <div
                         :class="ui.thead({ class: [propsUi?.thead, 'border-t-0 border-b-0'] })"
                         :data-sticky-header="stickyEnabled ? 'true' : undefined"
@@ -616,7 +668,8 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                       </div>
                     </template>
 
-                    <template v-else>
+                    <!-- Expanded headers: show full column headers -->
+                    <template v-else-if="isGroupExpanded(item.groupId!)">
                       <div
                         :class="ui.thead({ class: [propsUi?.thead, 'border-t-0'] })"
                         :data-sticky-header="stickyEnabled ? 'true' : undefined"
@@ -644,33 +697,28 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                         </div>
                       </div>
                     </template>
-                  </div>
-
-                  <div
-                    v-if="!isGroupExpanded(item.groupId!)"
-                    :class="ui.tr({ class: [propsUi?.tr, 'bg-elevated/20 border-t-0'] })"
-                  >
-                    <ReuseFooterCellTemplate
-                      v-for="(header, index) in tableApi.getHeaderGroups()[
-                        tableApi.getHeaderGroups().length - 1
-                      ]?.headers || []"
-                      :key="index"
-                      :header="header"
-                      :index="index"
-                      :is-expanded="false"
-                    />
+                    <!-- No headers shown when collapsed and no summaries configured -->
                   </div>
                 </div>
               </template>
 
-              <template v-else-if="item.type === 'data' && item.dataRow">
+              <!-- Skip empty group placeholder rows - they only exist to create the group structure -->
+              <template
+                v-else-if="
+                  item.type === 'data'
+                  && item.dataRow
+                  && !addRowContext.isEmptyGroupPlaceholder(item.dataRow)
+                "
+              >
                 <component
                   :is="addRowContext.isAddRowRow(item.dataRow) ? NuGridAddRow : NuGridRow"
                   :row="item.dataRow"
                 />
               </template>
 
-              <template v-else-if="item.type === 'footer'">
+              <template
+                v-else-if="item.type === 'footer' && summaryContext?.groupSummariesEnabled?.value"
+              >
                 <div
                   :class="
                     ui.tr({
@@ -690,6 +738,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     :header="header"
                     :index="index"
                     :is-expanded="isGroupExpanded(item.groupId!)"
+                    :group-id="item.groupId"
                   />
                 </div>
               </template>
@@ -758,6 +807,54 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                   :props="header.getContext()"
                 />
               </slot>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grand Totals Row -->
+      <div
+        v-if="summaryContext?.grandTotalsConfig?.value?.enabled && groupRows.length > 0"
+        :class="ui.tfoot({ class: [propsUi?.tfoot] })"
+      >
+        <div :class="ui.separator({ class: [propsUi?.separator] })" />
+
+        <div
+          :class="
+            ui.tr({
+              class: [propsUi?.tr, 'bg-elevated/30 font-semibold'],
+            })
+          "
+        >
+          <div
+            v-for="(header, index) in tableApi.getHeaderGroups()[
+              tableApi.getHeaderGroups().length - 1
+            ]?.headers || []"
+            :key="header.id"
+            :data-pinned="header.column.getIsPinned()"
+            :class="[
+              ui.td({
+                class: [propsUi?.td],
+                pinned: !!header.column.getIsPinned(),
+              }),
+            ]"
+            :style="{
+              ...getHeaderStyle(header),
+              ...(header.column.getIsPinned() === 'left'
+                ? { left: `${header.column.getStart('left')}px` }
+                : {}),
+              ...(header.column.getIsPinned() === 'right'
+                ? { right: `${header.column.getAfter('right')}px` }
+                : {}),
+            }"
+          >
+            <div class="truncate">
+              <template v-if="index === 0">
+                {{ summaryContext.grandTotalsConfig.value?.label ?? 'Total' }}
+              </template>
+              <template v-else>
+                {{ summaryContext.getGrandTotalValue(header.column.id) ?? '' }}
+              </template>
             </div>
           </div>
         </div>

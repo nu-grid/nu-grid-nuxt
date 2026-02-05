@@ -13,6 +13,7 @@ import type {
   NuGridPerformanceContext,
   NuGridResizeContext,
   NuGridRowInteractionsContext,
+  NuGridSummaryContext,
   NuGridUIConfigContext,
   NuGridVirtualItemStyle,
   NuGridVirtualizationContext,
@@ -52,6 +53,7 @@ const performanceContext = inject<NuGridPerformanceContext<T>>('nugrid-performan
 const uiConfigContext = inject<NuGridUIConfigContext<T>>('nugrid-ui-config')!
 const rowInteractionsContext = inject<NuGridRowInteractionsContext<T>>('nugrid-row-interactions')!
 const addRowContext = inject<NuGridAddRowContext<T>>('nugrid-add-row')!
+const summaryContext = inject<NuGridSummaryContext>('nugrid-summary')
 
 if (
   !coreContext
@@ -281,7 +283,21 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           </span>
         </div>
       </div>
-      <div :class="ui.groupHeaderSpacer({ class: [propsUi?.groupHeaderSpacer] })" />
+      <!-- Group Summary Values (shown in header when collapsed) -->
+      <div
+        v-if="summaryContext?.groupSummariesEnabled?.value && !isGroupExpanded(groupId)"
+        class="flex items-center gap-4 pr-4 text-sm text-muted"
+      >
+        <template
+          v-for="col in summaryContext.summaryColumns?.value || []"
+          :key="col.accessorKey"
+        >
+          <span class="whitespace-nowrap">
+            {{ summaryContext.getGroupSummaryValue(groupId, col.accessorKey) }}
+          </span>
+        </template>
+      </div>
+      <div v-else :class="ui.groupHeaderSpacer({ class: [propsUi?.groupHeaderSpacer] })" />
     </div>
   </DefineGroupSubheaderTemplate>
 
@@ -521,12 +537,13 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     :group-row="virtualRowItems[virtualRow.index]?.groupRow"
                     :item-count="
                       groupedRows[virtualRowItems[virtualRow.index]?.groupId!]?.filter(
-                        (row) => !addRowContext.isAddRowRow(row),
+                        (row) => !addRowContext.isAddRowRow(row) && !addRowContext.isEmptyGroupPlaceholder(row),
                       ).length || 0
                     "
                     :depth="virtualRowItems[virtualRow.index]?.depth ?? 0"
                   />
 
+                  <!-- Skip empty group placeholder rows - they only exist to create the group structure -->
                   <component
                     :is="
                       addRowContext.isAddRowRow(virtualRowItems[virtualRow.index]?.dataRow!)
@@ -536,50 +553,44 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     v-else-if="
                       virtualRowItems[virtualRow.index]?.type === 'data'
                       && virtualRowItems[virtualRow.index]?.dataRow
+                      && !addRowContext.isEmptyGroupPlaceholder(virtualRowItems[virtualRow.index]?.dataRow!)
                     "
                     :row="virtualRowItems[virtualRow.index]?.dataRow!"
                   />
 
+                  <!-- Group Summary Footer Row -->
                   <div
-                    v-else-if="virtualRowItems[virtualRow.index]?.type === 'footer'"
-                    :class="ui.tfoot({ class: [propsUi?.tfoot] })"
+                    v-else-if="virtualRowItems[virtualRow.index]?.type === 'footer' && summaryContext?.groupSummariesEnabled?.value"
+                    :class="
+                      ui.tr({
+                        class: [propsUi?.tr, 'bg-elevated/20 border-t border-default'],
+                      })
+                    "
                   >
-                    <div :class="ui.separator({ class: [propsUi?.separator] })" />
                     <div
-                      v-for="footerGroup in footerGroups"
-                      :key="footerGroup.id"
-                      :class="ui.tr({ class: [propsUi?.tr] })"
+                      v-if="rowDragOptions.enabled"
+                      :class="['w-10 max-w-10 min-w-10 shrink-0', ui.td({ class: [propsUi?.td] })]"
+                    />
+                    <div
+                      v-for="(header, index) in headerGroups[headerGroups.length - 1]?.headers || []"
+                      :key="header.id"
+                      :data-pinned="header.column.getIsPinned()"
+                      :class="[
+                        ui.collapsedHeaderCell({ class: [propsUi?.collapsedHeaderCell] }),
+                        ui.td({ class: [propsUi?.td], pinned: !!header.column.getIsPinned() }),
+                      ]"
+                      :style="{
+                        ...getHeaderStyle(header),
+                        ...getHeaderPinningStyle(header),
+                      }"
                     >
-                      <div
-                        v-for="header in footerGroup.headers"
-                        :key="header.id"
-                        :data-pinned="header.column.getIsPinned()"
-                        :class="[
-                          ui.th({
-                            class: [
-                              propsUi?.th,
-                              resolveValue(header.column.columnDef.meta?.class?.th, header),
-                            ],
-                            pinned: !!getHeaderEffectivePinning(header),
-                          }),
-                        ]"
-                        :style="{
-                          ...resolveStyleObject(header.column.columnDef.meta?.style?.th, header),
-                          ...getHeaderStyle(header),
-                          ...getHeaderPinningStyle(header),
-                          ...(header.colSpan > 1 ? { flexGrow: header.colSpan } : {}),
-                          ...(header.rowSpan > 1 ? { alignSelf: 'stretch' } : {}),
-                        }"
-                      >
-                        <div :class="ui.footerContent({ class: [propsUi?.footerContent] })">
-                          <slot :name="`${header.id}-footer`" v-bind="header.getContext()">
-                            <FlexRender
-                              v-if="!header.isPlaceholder"
-                              :render="header.column.columnDef.footer"
-                              :props="header.getContext()"
-                            />
-                          </slot>
-                        </div>
+                      <div :class="ui.expandedText({ class: [propsUi?.expandedText] })">
+                        <template v-if="index === 0">
+                          Summary
+                        </template>
+                        <template v-else>
+                          {{ summaryContext.getGroupSummaryValue(virtualRowItems[virtualRow.index]?.groupId!, header.column.id) ?? '' }}
+                        </template>
                       </div>
                     </div>
                   </div>
@@ -599,19 +610,58 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                   :group-id="item.groupId!"
                   :group-row="item.groupRow"
                   :item-count="
-                    groupedRows[item.groupId!]?.filter((row) => !addRowContext.isAddRowRow(row))
+                    groupedRows[item.groupId!]?.filter((row) => !addRowContext.isAddRowRow(row) && !addRowContext.isEmptyGroupPlaceholder(row))
                       .length || 0
                   "
                   :depth="item.depth ?? 0"
                 />
               </div>
 
-              <template v-else-if="item.type === 'data' && item.dataRow">
+              <!-- Skip empty group placeholder rows - they only exist to create the group structure -->
+              <template v-else-if="item.type === 'data' && item.dataRow && !addRowContext.isEmptyGroupPlaceholder(item.dataRow)">
                 <component
                   :is="addRowContext.isAddRowRow(item.dataRow) ? NuGridAddRow : NuGridRow"
                   :key="item.dataRow.id"
                   :row="item.dataRow"
                 />
+              </template>
+
+              <!-- Group Summary Footer Row (non-virtualized) -->
+              <template v-else-if="item.type === 'footer' && summaryContext?.groupSummariesEnabled?.value">
+                <div
+                  :class="
+                    ui.tr({
+                      class: [propsUi?.tr, 'bg-elevated/20 border-t border-default'],
+                    })
+                  "
+                >
+                  <div
+                    v-if="rowDragOptions.enabled"
+                    :class="['w-10 max-w-10 min-w-10 shrink-0', ui.td({ class: [propsUi?.td] })]"
+                  />
+                  <div
+                    v-for="(header, index) in headerGroups[headerGroups.length - 1]?.headers || []"
+                    :key="header.id"
+                    :data-pinned="header.column.getIsPinned()"
+                    :class="[
+                      ui.collapsedHeaderCell({ class: [propsUi?.collapsedHeaderCell] }),
+                      ui.td({ class: [propsUi?.td], pinned: !!header.column.getIsPinned() }),
+                    ]"
+                    :style="{
+                      ...getHeaderStyle(header),
+                      ...getHeaderPinningStyle(header),
+                    }"
+                  >
+                    <div :class="ui.expandedText({ class: [propsUi?.expandedText] })">
+                      <template v-if="index === 0">
+                        Summary
+                      </template>
+                      <template v-else>
+                        {{ summaryContext.getGroupSummaryValue(item.groupId!, header.column.id) ?? '' }}
+                      </template>
+                    </div>
+                  </div>
+                </div>
               </template>
             </template>
           </template>
@@ -671,6 +721,54 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                   :props="header.getContext()"
                 />
               </slot>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grand Totals Row -->
+      <div
+        v-if="summaryContext?.grandTotalsConfig?.value?.enabled && groupRows.length > 0"
+        :class="ui.tfoot({ class: [propsUi?.tfoot] })"
+      >
+        <div :class="ui.separator({ class: [propsUi?.separator] })" />
+
+        <div
+          :class="
+            ui.tr({
+              class: [propsUi?.tr, 'bg-elevated/30 font-semibold'],
+            })
+          "
+        >
+          <div
+            v-if="rowDragOptions.enabled"
+            :class="[
+              'w-10 max-w-10 min-w-10 shrink-0',
+              ui.td({ class: [propsUi?.td] }),
+            ]"
+          />
+          <div
+            v-for="(header, index) in headerGroups[headerGroups.length - 1]?.headers || []"
+            :key="header.id"
+            :data-pinned="header.column.getIsPinned()"
+            :class="[
+              ui.td({
+                class: [propsUi?.td],
+                pinned: !!header.column.getIsPinned(),
+              }),
+            ]"
+            :style="{
+              ...getHeaderStyle(header),
+              ...getHeaderPinningStyle(header),
+            }"
+          >
+            <div class="truncate">
+              <template v-if="index === 0">
+                {{ summaryContext.grandTotalsConfig.value?.label ?? 'Total' }}
+              </template>
+              <template v-else>
+                {{ summaryContext.getGrandTotalValue(header.column.id) ?? '' }}
+              </template>
             </div>
           </div>
         </div>

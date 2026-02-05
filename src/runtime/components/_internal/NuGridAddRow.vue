@@ -54,7 +54,22 @@ const { focusFns, cellEditingFns } = focusContext
 const { getVisibleCells, shouldHaveBorder } = performanceContext
 const { interactionRouter } = interactionRouterContext
 const isAddRow = computed(() => addRowContext.isAddRowRow(props.row))
-const showIndicator = computed(() => addRowContext.addRowState.value === 'idle' && isAddRow.value)
+
+// Check if THIS specific add row is being edited or focused
+// Show indicator only when this row is idle (not being edited/focused)
+const isThisRowActive = computed(() => {
+  // Check if this row is being edited
+  if (cellEditingFns.editingCell?.value?.rowId === props.row.id) {
+    return true
+  }
+  // Check if this row is focused (using isFocusedRow which checks by row reference)
+  if (focusFns.isFocusedRow(props.row)) {
+    return true
+  }
+  return false
+})
+
+const showIndicator = computed(() => isAddRow.value && !isThisRowActive.value)
 const indicatorText = computed(() => addRowContext.addNewText.value)
 
 // Calculate left offset for indicator based on uneditable columns

@@ -12,6 +12,7 @@ import type {
   NuGridMultiRowContext,
   NuGridPerformanceContext,
   NuGridResizeContext,
+  NuGridSummaryContext,
   NuGridUIConfigContext,
   NuGridVirtualItemStyle,
   NuGridVirtualizationContext,
@@ -50,6 +51,7 @@ const addRowContext = inject<NuGridAddRowContext<T>>('nugrid-add-row')!
 const multiRowContext = inject<NuGridMultiRowContext>('nugrid-multi-row')
 const animationContext = inject<NuGridAnimationContext>('nugrid-animation')!
 const searchContext = inject<NuGridSearchContext | null>('nugrid-search', null)
+const summaryContext = inject<NuGridSummaryContext>('nugrid-summary')
 
 if (
   !coreContext
@@ -1374,6 +1376,54 @@ function getVirtualItemStyle(
                     :props="header.getContext()"
                   />
                 </slot>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grand Totals Row -->
+        <div
+          v-if="summaryContext?.grandTotalsConfig?.value?.enabled && rows.length > 0 && !virtualizationEnabled"
+          :class="ui.tfoot({ class: [propsUi?.tfoot] })"
+        >
+          <div :class="ui.separator({ class: [propsUi?.separator] })" />
+
+          <div
+            :class="
+              ui.tr({
+                class: [propsUi?.tr, 'bg-elevated/30 font-semibold'],
+              })
+            "
+          >
+            <div
+              v-if="rowDragOptions.enabled"
+              :class="[
+                'w-10 max-w-10 min-w-10 shrink-0',
+                ui.td({ class: [propsUi?.td] }),
+              ]"
+            />
+            <div
+              v-for="(header, index) in headerGroups[headerGroups.length - 1]?.headers || []"
+              :key="header.id"
+              :data-pinned="header.column.getIsPinned()"
+              :class="[
+                ui.td({
+                  class: [propsUi?.td],
+                  pinned: !!header.column.getIsPinned(),
+                }),
+              ]"
+              :style="{
+                ...getStandardHeaderStyle(header),
+                ...getHeaderPinningStyle(header),
+              }"
+            >
+              <div class="truncate">
+                <template v-if="index === 0">
+                  {{ summaryContext.grandTotalsConfig.value?.label ?? 'Total' }}
+                </template>
+                <template v-else>
+                  {{ summaryContext.getGrandTotalValue(header.column.id) ?? '' }}
+                </template>
               </div>
             </div>
           </div>

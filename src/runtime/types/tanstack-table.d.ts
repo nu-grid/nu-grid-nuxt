@@ -121,6 +121,16 @@ declare module '@tanstack/vue-table' {
      * @defaultValue 1
      */
     span?: number | '*'
+
+    /**
+     * Summary/aggregate configuration for this column
+     * Enables automatic calculation of aggregates for group summaries and grand totals
+     */
+    summary?: {
+      aggregate: 'sum' | 'avg' | 'count' | 'min' | 'max' | ((rows: TData[]) => unknown)
+      format?: (value: unknown, context: { groupId?: string; isGrandTotal?: boolean }) => string
+      label?: string
+    }
   }
 }
 

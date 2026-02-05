@@ -913,12 +913,13 @@ export function useNuGridCellEditing<T extends TableData>(
       const isLastEditable = currentIndex === lastEditableIndex
 
       // Finalize when:
-      // 1. Explicitly navigating (ArrowDown, Tab, etc.)
-      // 2. Enter key on the last editable column
+      // 1. Explicitly navigating down (ArrowDown)
+      // 2. Tab on the last editable column
+      // 3. Enter key (always tries to finalize, regardless of column)
       const shouldFinalizeAfterNav =
         navDirection === 'down'
         || (navDirection === 'next' && isLastEditable)
-        || (navDirection === undefined && isLastEditable) // Enter on last editable column
+        || navDirection === undefined // Enter key always tries to finalize
 
       if (shouldFinalizeAfterNav) {
         // Store the parentId (groupId) before finalizing, so we can focus the correct group's addrow
@@ -937,8 +938,10 @@ export function useNuGridCellEditing<T extends TableData>(
           // Navigation requested - continue with navigation but don't finalize
         } else {
           // Validation passed, finalization will happen (refreshAddRows is called in finalizeAddRow)
-          // Focus new addrow when navigating from last editable column (Tab or Enter)
-          if ((navDirection === 'next' || navDirection === undefined) && isLastEditable) {
+          // Focus new addrow when:
+          // - Tab from last editable column
+          // - Enter key (from any column)
+          if ((navDirection === 'next' && isLastEditable) || navDirection === undefined) {
             shouldFocusNewAddRowAfterFinalize = true
           }
         }

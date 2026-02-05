@@ -48,7 +48,10 @@ import type {
 import type { RowDragEvent } from '../types/drag-drop'
 import { computed, nextTick, onMounted, provide, ref, shallowRef, watch } from 'vue'
 import {
+  formatAggregateValue,
+  getColumnSummary,
   useNuGridAddRow,
+  useNuGridAggregates,
   useNuGridAnimation,
   useNuGridApi,
   useNuGridAutosize,
@@ -57,6 +60,7 @@ import {
   useNuGridColumnResize,
   useNuGridColumns,
   useNuGridDataWatch,
+  useNuGridEmptyGroups,
   useNuGridFocus,
   useNuGridFocusInit,
   useNuGridFooter,
@@ -156,11 +160,11 @@ const eventEmitter: NuGridEventEmitter<T> = {
 
 const hasRowSlot = computed(() => !!(slots as any).row)
 
-const data = ref(props.data ?? []) as Ref<T[]>
+const rawData = ref(props.data ?? []) as Ref<T[]>
 
 const propsColumns = computed(() => props.columns)
 
-useNuGridDataWatch(props, data)
+useNuGridDataWatch(props, rawData)
 
 const rootRef = ref<InstanceType<typeof Primitive>>()
 const tableRef = ref<HTMLDivElement | null>(null)
@@ -197,6 +201,17 @@ const initPaginationState = () => {
   }
 }
 initPaginationState()
+
+// Empty groups support: inject placeholder rows for missing group combinations
+const emptyGroupValuesConfig = computed(() => props.emptyGroupValues)
+const { enhancedData, isEmptyGroupPlaceholder } = useNuGridEmptyGroups({
+  data: rawData,
+  groupingState,
+  emptyGroupValues: emptyGroupValuesConfig,
+})
+
+// Use enhanced data (with empty group placeholders) for the table
+const data = enhancedData as unknown as Ref<T[]>
 
 // Create row selection mode ref and columns with visibility integration
 // Disable selection when row slot is provided (no checkbox column available)
@@ -297,9 +312,13 @@ const {
 })
 
 watch(
-  [() => props.addNewRow, groupingState, () => props.data],
+  [() => props.addNewRow, groupingState, data],
   () => {
-    refreshAddRows()
+    // Use nextTick to ensure TanStack has processed the enhanced data
+    // (including placeholder rows) before refreshing add rows
+    nextTick(() => {
+      refreshAddRows()
+    })
   },
   { deep: true, immediate: true },
 )
@@ -386,6 +405,50 @@ groupingFns =
     : null
 groupingFnsRef.value = groupingFns
 
+// Summary/aggregate calculations
+const summaryConfig = computed(() => props.summaries)
+const grandTotalsConfig = computed(() => {
+  const config = summaryConfig.value?.grandTotals
+  if (!config) return undefined
+  if (config === true) {
+    return { enabled: true, position: 'bottom' as const, label: 'Total' }
+  }
+  return { enabled: config.enabled !== false, ...config }
+})
+const groupSummariesEnabled = computed(() => {
+  // Summaries are disabled unless the summaries prop is provided
+  if (!summaryConfig.value) return false
+  const config = summaryConfig.value.groupSummaries
+  // Default to true if any column has summary config
+  return config ?? aggregateFns.hasSummaries.value
+})
+
+const aggregateFns = useNuGridAggregates({
+  data,
+  columns,
+  groupedRows: groupingFns?.groupedRows,
+})
+
+// Helper functions for getting formatted summary values
+const getGroupSummaryValue = (groupId: string, columnId: string): string | undefined => {
+  const groupData = aggregateFns.groupTotals.value[groupId]
+  if (!groupData) return undefined
+
+  const summaryCol = aggregateFns.summaryColumns.value.find((c) => c.accessorKey === columnId)
+  if (!summaryCol) return undefined
+
+  const value = groupData[columnId]
+  return formatAggregateValue(value, summaryCol.summary, { groupId })
+}
+
+const getGrandTotalValue = (columnId: string): string | undefined => {
+  const summaryCol = aggregateFns.summaryColumns.value.find((c) => c.accessorKey === columnId)
+  if (!summaryCol) return undefined
+
+  const value = aggregateFns.grandTotals.value[columnId]
+  return formatAggregateValue(value, summaryCol.summary, { isGrandTotal: true })
+}
+
 // Cell/row focus navigation
 const focusFns = useNuGridFocus(
   props,
@@ -422,6 +485,7 @@ const cellEditingFns = useNuGridCellEditing(
     addRowState,
     addNewText,
     isAddRowRow,
+    isEmptyGroupPlaceholder: (row) => isEmptyGroupPlaceholder(row.original),
     finalizeAddRow,
     resetAddRow,
   },
@@ -610,6 +674,17 @@ provide('nugrid-grouping', {
   groupingFns,
 })
 
+provide('nugrid-summary', {
+  hasSummaries: aggregateFns.hasSummaries,
+  groupSummariesEnabled,
+  grandTotalsConfig,
+  grandTotals: aggregateFns.grandTotals,
+  groupTotals: aggregateFns.groupTotals,
+  summaryColumns: aggregateFns.summaryColumns,
+  getGroupSummaryValue,
+  getGrandTotalValue,
+})
+
 provide('nugrid-performance', {
   headerGroups,
   headerGroupsLength,
@@ -729,6 +804,7 @@ const addRowContext: NuGridAddRowContext<T> = {
   addNewText,
   indicatorSlot: slots['add-row-indicator'] as NuGridAddRowContext<T>['indicatorSlot'],
   isAddRowRow,
+  isEmptyGroupPlaceholder: (row) => isEmptyGroupPlaceholder(row.original),
   finalizeAddRow,
   resetAddRow,
   isFinalizing: addRowIsFinalizing,
@@ -949,8 +1025,9 @@ defineExpose({
 })
 
 const childGrid = computed(() => {
-  if (gridMode === 'splitgroup') return NuGridSplitGroup
-  if (gridMode === 'group') return NuGridGroup
+  const mode = props.layout?.mode ?? 'div'
+  if (mode === 'splitgroup') return NuGridSplitGroup
+  if (mode === 'group') return NuGridGroup
   return NuGridBase
 })
 </script>

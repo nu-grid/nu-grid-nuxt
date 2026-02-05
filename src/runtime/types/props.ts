@@ -14,6 +14,7 @@ import type {
   NuGridSearchOptions,
   NuGridSelectionOptions,
   NuGridStateOptions,
+  NuGridSummaryOptions,
   NuGridTooltipOptions,
 } from './option-groups'
 import type { NuGridTheme } from './theme'
@@ -503,6 +504,66 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    * }
    */
   addNewRow?: boolean | { position: 'none' | 'top' | 'bottom'; addNewText?: string }
+
+  /**
+   * All possible values for grouped columns to ensure empty groups are shown
+   * When grouping is active, this creates placeholder entries for group values
+   * that don't exist in the data, allowing add-row functionality in empty groups.
+   *
+   * Map column IDs to arrays of all possible values for that column.
+   * Works with single-level and nested grouping.
+   *
+   * @defaultValue undefined
+   *
+   * @example
+   * // Single-level grouping - show all categories even if empty
+   * emptyGroupValues: {
+   *   category: ['Electronics', 'Audio', 'Furniture', 'Gaming']
+   * }
+   *
+   * @example
+   * // Nested grouping - show all category/status combinations
+   * emptyGroupValues: {
+   *   category: ['Electronics', 'Audio', 'Furniture'],
+   *   status: ['active', 'inactive', 'pending']
+   * }
+   */
+  emptyGroupValues?: Record<string, unknown[]>
+
+  /**
+   * Summary/footer configuration for aggregated values
+   * Enables calculated summaries in collapsed group rows and grand totals footer
+   *
+   * @defaultValue undefined
+   *
+   * @example
+   * // Enable grand totals at bottom
+   * summaries: {
+   *   grandTotals: true
+   * }
+   *
+   * @example
+   * // Full configuration
+   * summaries: {
+   *   grandTotals: {
+   *     position: 'bottom',
+   *     label: 'Grand Total'
+   *   },
+   *   groupSummaries: true
+   * }
+   *
+   * @example
+   * // Use with column summary config
+   * // In columns:
+   * {
+   *   accessorKey: 'price',
+   *   summary: {
+   *     aggregate: 'sum',
+   *     format: (v) => `$${v.toFixed(2)}`
+   *   }
+   * }
+   */
+  summaries?: NuGridSummaryOptions
 }
 
 /**

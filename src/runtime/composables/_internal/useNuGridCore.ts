@@ -414,7 +414,10 @@ export function useNuGridApi<T extends TableData>(
 
   const tableApi = useVueTable({
     ...filteredProps,
-    data,
+    // Use getter to ensure TanStack properly tracks computed/ref changes
+    get data() {
+      return data.value
+    },
     get columns() {
       return columns.value
     },

@@ -4,6 +4,7 @@ import type { Primitive } from 'reka-ui'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 import type { NuGridProps } from '../../types'
 import { computed, toValue, watch } from 'vue'
+import { isEmptyGroupPlaceholder } from './useNuGridEmptyGroups'
 import {
   useNuGridGroupVirtualization,
   useNuGridStandardGroupVirtualization,
@@ -120,6 +121,7 @@ export function useNuGridGrouping<T extends TableData>(
   }
 
   // Recursively extract data rows from a group, handling nested subgroups
+  // Filters out empty group placeholder rows (used for emptyGroupValues feature)
   function extractDataRows(groupRow: Row<T>): Row<T>[] {
     const dataRows: Row<T>[] = []
 
@@ -131,7 +133,10 @@ export function useNuGridGrouping<T extends TableData>(
       if (subRow.getIsGrouped()) {
         dataRows.push(...extractDataRows(subRow))
       } else {
-        dataRows.push(subRow)
+        // Filter out empty group placeholder rows - they only exist to create group structure
+        if (!isEmptyGroupPlaceholder(subRow.original)) {
+          dataRows.push(subRow)
+        }
       }
     })
 

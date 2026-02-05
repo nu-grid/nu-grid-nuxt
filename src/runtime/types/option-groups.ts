@@ -859,3 +859,59 @@ export interface NuGridSearchOptions {
    */
   highlightColor?: 'primary' | 'yellow' | 'green' | 'blue' | 'orange' | 'red' | string
 }
+
+/**
+ * Grand totals footer configuration
+ */
+export interface NuGridGrandTotalsConfig {
+  /**
+   * Whether grand totals are enabled
+   * @defaultValue true (when used as object)
+   */
+  enabled?: boolean
+
+  /**
+   * Position of the grand totals row
+   * @defaultValue 'bottom'
+   */
+  position?: 'top' | 'bottom'
+
+  /**
+   * Label to show in the first column of the grand totals row
+   * @defaultValue 'Total'
+   */
+  label?: string
+}
+
+/**
+ * Summary/footer configuration for the grid
+ * Controls group summaries and grand totals display
+ */
+export interface NuGridSummaryOptions {
+  /**
+   * Show grand totals row at the bottom (or top) of the grid
+   * - true: Enable grand totals with default settings
+   * - false: Disable grand totals
+   * - Object: Enable with custom configuration
+   * @defaultValue false
+   * @example
+   * // Simple enable
+   * grandTotals: true
+   *
+   * @example
+   * // Custom configuration
+   * grandTotals: {
+   *   position: 'bottom',
+   *   label: 'Grand Total'
+   * }
+   */
+  grandTotals?: boolean | NuGridGrandTotalsConfig
+
+  /**
+   * Show calculated summary values in collapsed group rows
+   * When true and columns have `summary` config, the collapsed group row
+   * shows actual aggregate values instead of placeholder text
+   * @defaultValue true (when any column has summary config)
+   */
+  groupSummaries?: boolean
+}

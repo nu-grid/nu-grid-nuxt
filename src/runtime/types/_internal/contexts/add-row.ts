@@ -22,6 +22,8 @@ export interface NuGridAddRowContext<T extends TableData = TableData> {
   addNewText: ComputedRef<string>
   indicatorSlot?: NuGridAddRowIndicatorSlot<T>
   isAddRowRow: (row: Row<T>) => boolean
+  /** Check if a row is an empty group placeholder (used for emptyGroupValues feature) */
+  isEmptyGroupPlaceholder: (row: Row<T>) => boolean
   finalizeAddRow: (row: Row<T>) => NuGridAddRowFinalizeResult
   resetAddRow: (row: Row<T>) => void
   isFinalizing?: Ref<boolean>

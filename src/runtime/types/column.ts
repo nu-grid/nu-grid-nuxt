@@ -6,6 +6,54 @@ import type { NuGridLookupOptions } from './option-groups'
 import type { NuGridSortIcon } from './sort-icon'
 
 /**
+ * Built-in aggregate types for column summaries
+ */
+export type NuGridAggregateType = 'sum' | 'avg' | 'count' | 'min' | 'max'
+
+/**
+ * Context passed to summary format functions
+ */
+export interface NuGridSummaryFormatContext {
+  /** The group ID if this is a group summary */
+  groupId?: string
+  /** True if this is a grand total (all data) */
+  isGrandTotal?: boolean
+}
+
+/**
+ * Summary configuration for a column
+ * Enables automatic aggregate calculations for group and grand totals
+ */
+export interface NuGridColumnSummary<T = unknown> {
+  /**
+   * The aggregate function to use
+   * - 'sum': Sum of all numeric values
+   * - 'avg': Average of all numeric values
+   * - 'count': Count of all rows
+   * - 'min': Minimum numeric value
+   * - 'max': Maximum numeric value
+   * - Function: Custom aggregate function receiving all rows
+   */
+  aggregate: NuGridAggregateType | ((rows: any[]) => T)
+
+  /**
+   * Optional format function for displaying the aggregated value
+   * @param value The calculated aggregate value
+   * @param context Context with groupId and isGrandTotal flags
+   * @returns Formatted string to display
+   * @example
+   * format: (value) => `$${value.toFixed(2)}`
+   */
+  format?: (value: T, context: NuGridSummaryFormatContext) => string
+
+  /**
+   * Optional label to show before the value
+   * @example 'Total: ' would display as "Total: $1,234.56"
+   */
+  label?: string
+}
+
+/**
  * Extended dropdown menu item for column menus
  * Adds column parameter to onSelect callback
  * Supports all DropdownMenuItem types (separator, label, etc.) but extends onSelect for regular items
@@ -326,4 +374,29 @@ export type NuGridColumn<T extends TableData> = TableColumn<T> & {
    * { accessorKey: 'internalId', header: 'ID', enableSearching: false }
    */
   enableSearching?: boolean
+
+  /**
+   * Summary/aggregate configuration for this column
+   * Enables automatic calculation of aggregates for group summaries and grand totals
+   * @example
+   * // Sum with currency formatting
+   * summary: {
+   *   aggregate: 'sum',
+   *   format: (value) => `$${value.toFixed(2)}`
+   * }
+   * @example
+   * // Average with label
+   * summary: {
+   *   aggregate: 'avg',
+   *   format: (value) => value.toFixed(1),
+   *   label: 'Avg: '
+   * }
+   * @example
+   * // Custom aggregate function
+   * summary: {
+   *   aggregate: (rows) => rows.filter(r => r.active).length,
+   *   format: (value) => `${value} active`
+   * }
+   */
+  summary?: NuGridColumnSummary
 }

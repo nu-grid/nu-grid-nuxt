@@ -11,6 +11,7 @@ import type {
 } from '../../types/_internal'
 import { createRow } from '@tanstack/table-core'
 import { computed, isRef, nextTick, onUnmounted, ref, shallowRef, watch } from 'vue'
+import { isEmptyGroupPlaceholder } from './useNuGridEmptyGroups'
 
 export const ADD_ROW_FLAG = '__nugridAddNewRow'
 
@@ -310,11 +311,13 @@ export function useNuGridAddRow<T extends TableData>(options: {
     const nextRows = new Map<string, Row<T>>()
 
     allGroupRows.forEach((groupRow) => {
-      if (!groupRow.getIsGrouped?.() || !groupRow.subRows?.length) {
+      if (!groupRow.getIsGrouped?.()) {
         return
       }
 
-      const hasNestedGroups = groupRow.subRows.some((subRow: Row<T>) => subRow.getIsGrouped?.())
+      // Check if this is a leaf group (has no nested subgroups)
+      // Empty groups (with no subRows) are still leaf groups and should get add rows
+      const hasNestedGroups = groupRow.subRows?.some((subRow: Row<T>) => subRow.getIsGrouped?.()) ?? false
       if (hasNestedGroups) {
         return
       }

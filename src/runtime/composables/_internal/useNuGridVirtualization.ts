@@ -687,6 +687,15 @@ export function useNuGridStandardGroupVirtualization<T extends TableData>(
           depth,
         })
       }
+
+      // Add footer for this group (for group summaries)
+      items.push({
+        type: 'footer',
+        height: heights.footer,
+        groupId,
+        index: indexRef.value++,
+        depth,
+      })
     }
   }
 
