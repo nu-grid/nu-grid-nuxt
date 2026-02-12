@@ -142,6 +142,9 @@ const rowTrClass = computed(() =>
     class: [propsUi?.value?.tr, resolveValue(tableApi.options.meta?.class?.tr, props.row)],
     focusRow: !!focusFns.isFocusedRow(props.row),
     gridFocused: focusFns.gridHasFocus.value,
+    rowSlot: !!rowSlot,
+    activeRow: isRowActive.value,
+    rowInvalid: rowHasValidationError.value,
   }),
 )
 
@@ -164,10 +167,22 @@ function onRowClick(e: MouseEvent) {
   // First handle selection
   onRowSelect(e, props.row)
 
-  // If using row slot, also handle focus (since there are no cells to trigger onCellClick)
+  // If using row slot, also handle focus and emit row-clicked
+  // (since there are no cells to trigger onCellClick or routeCellClick)
   if (rowSlot) {
     // Trigger focus on this row with column 0 (for row focus mode)
     focusFns.onCellClick(e, props.row, 0)
+
+    // Route through interaction router so @row-clicked events are emitted
+    const cells = getVisibleCells(props.row)
+    if (cells.length > 0) {
+      interactionRouter.routeCellClick({
+        event: e,
+        row: props.row,
+        cell: cells[0]!,
+        cellIndex: 0,
+      })
+    }
   }
 }
 

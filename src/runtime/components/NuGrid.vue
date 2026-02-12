@@ -220,6 +220,7 @@ const rowSelectionModeRef = computed(() =>
 )
 const actionMenuRef = computed(() => props.actions ?? false)
 const dataTypeInferenceRef = computed(() => props.dataTypeInference ?? true)
+const customCellTypesRef = computed(() => props.cellTypes)
 const { columns } = useNuGridColumns(
   propsColumns,
   data,
@@ -227,6 +228,7 @@ const { columns } = useNuGridColumns(
   actionMenuRef,
   columnVisibilityState,
   dataTypeInferenceRef,
+  customCellTypesRef,
 )
 
 const { ui, checkboxTheme } = useNuGridUI(props as any)
@@ -309,9 +311,16 @@ const statePersistence = useNuGridStatePersistence(
   eventEmitter,
 )
 
-const { tableApi, columnsUpdatedSignal } = useNuGridApi(props, data, columns, states, rowSelectionModeRef, eventEmitter)
+const { tableApi, columnsUpdatedSignal, dataVersion } = useNuGridApi(props, data, columns, states, rowSelectionModeRef, eventEmitter)
 
-const tableRows = computed(() => tableApi.getRowModel().rows)
+const tableRows = computed(() => {
+  // dataVersion is incremented by the sync watch in useNuGridApi when data changes.
+  // This forces the computed to re-evaluate after TanStack has been updated via setOptions.
+  // Without this, getRowModel() (a plain JS function) would return stale cached rows.
+  // eslint-disable-next-line no-unused-expressions
+  dataVersion.value
+  return tableApi.getRowModel().rows
+})
 // Row interactions
 const rowInteractions = useNuGridRowInteractions(props)
 

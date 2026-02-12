@@ -63,6 +63,14 @@ export interface NuGridFocusOptions {
    * @defaultValue false
    */
   autoFocus?: boolean
+
+  /**
+   * When enabled, the grid will scroll to keep the focused row visible after
+   * the row set changes (e.g., when a global filter is applied or cleared).
+   * Uses the `alignOnModel` alignment setting.
+   * @defaultValue true
+   */
+  maintainFocusOnFilter?: boolean
 }
 
 /**

@@ -38,6 +38,7 @@ export function useNuGridFocus<T extends TableData>(
   const retainFocus = usePropWithDefault(props, 'focus', 'retain')
   const cmdArrows = usePropWithDefault(props, 'focus', 'cmdArrows')
   const alignOnModel = usePropWithDefault(props, 'focus', 'alignOnModel')
+  const maintainFocusOnFilter = usePropWithDefault(props, 'focus', 'maintainFocusOnFilter')
   const enableEditing = usePropWithDefault(props, 'editing', 'enabled')
   const rowSelectionMode = computed(() => props.rowSelection ?? false)
 
@@ -414,6 +415,13 @@ export function useNuGridFocus<T extends TableData>(
     const target = event.target as Node | null
     // Check if click is outside the grid
     if (target && !rootEl.contains(target)) {
+      // Don't steal focus from teleported/portal content (e.g. date picker popups, modals)
+      // Teleported content is rendered outside the app root (#__nuxt) directly on <body>
+      const appRoot = document.getElementById('__nuxt')
+      if (appRoot && !appRoot.contains(target)) {
+        return
+      }
+
       // Check if target is an interactive element that should receive focus
       const isInteractive =
         target instanceof HTMLElement
@@ -422,7 +430,10 @@ export function useNuGridFocus<T extends TableData>(
           || target.closest('select')
           || target.closest('button')
           || target.closest('a')
-          || target.isContentEditable)
+          || target.isContentEditable
+          || target.closest('[role="dialog"]')
+          || target.closest('[role="listbox"]')
+          || target.closest('[role="menu"]'))
 
       // If clicking on an interactive element, don't refocus the grid
       // (user might want to interact with that element)
@@ -524,6 +535,9 @@ export function useNuGridFocus<T extends TableData>(
   // This eliminates expensive findIndex() calls on every focus operation
   const rowIdToIndexMap = ref<Map<string, number>>(new Map())
 
+  // Track previous rows to resolve focused row ID when the row set changes
+  let previousResolvedRows: Row<T>[] | null = null
+
   // Update the map whenever navigableRows changes
   watch(
     [resolvedRows, allRows],
@@ -559,6 +573,31 @@ export function useNuGridFocus<T extends TableData>(
           cellElementCache.delete(rowId)
         }
       }
+
+      // When the row set changes (e.g., filter applied/cleared), re-resolve and scroll
+      // to the focused row so it stays visible at its new index position
+      if (maintainFocusOnFilter.value && focusedCell.value) {
+        // Find the currently focused row's ID from the old index
+        const oldIndex = focusedCell.value.rowIndex
+        const oldRows = previousResolvedRows
+        const focusedRowId = oldRows?.[oldIndex]?.id ?? focusedRowIdModel?.value
+        if (focusedRowId && map.has(focusedRowId)) {
+          const newIndex = map.get(focusedRowId)!
+          if (newIndex !== oldIndex) {
+            // Row index changed - update internal state and scroll after DOM updates
+            focusedCell.value = {
+              rowIndex: newIndex,
+              columnIndex: focusedCell.value.columnIndex,
+            }
+          }
+          nextTick(() => {
+            focusRowById(focusedRowId, { align: alignOnModel.value ?? 'nearest' })
+          })
+        }
+      }
+
+      // Track previous rows for the next change
+      previousResolvedRows = sourceRows ?? null
     },
     { immediate: true },
   )

@@ -159,6 +159,14 @@ export const nuGridTheme = {
         th: 'bg-primary-500/5! data-[drop-position=left]:shadow-[inset_3px_0_0_0_theme(colors.primary.500/80%)] data-[drop-position=right]:shadow-[inset_-3px_0_0_0_theme(colors.primary.500/80%)] transition-shadow duration-200 ease-linear',
       },
     },
+    // Row slot marker - enables shadow-based focus on tr instead of per-cell td shadows
+    // Adds border-b to tr (matching td base class) since row slot bypasses td wrappers
+    rowSlot: {
+      true: {
+        tr: 'border-b border-default',
+      },
+      false: {},
+    },
     // Multi-row focused state (row focus mode with multi-row layout)
     focusMultiRow: {
       true: {
@@ -261,6 +269,43 @@ export const nuGridTheme = {
       rowInvalid: true,
       class: {
         td: 'bg-error/10 text-error-700 dark:bg-error/20 dark:text-error-50 shadow-none',
+      },
+    },
+    // Row slot: focused row (grid focused) - shadow-based focus on tr instead of ring
+    {
+      rowSlot: true,
+      focusRow: true,
+      gridFocused: true,
+      rowInvalid: false,
+      class: {
+        tr: 'ring-0 border-b-transparent bg-primary/10 shadow-[inset_2px_0_0_0_theme(colors.primary.500/70%),inset_-2px_0_0_0_theme(colors.primary.500/70%),inset_0_2px_0_0_theme(colors.primary.500/70%),inset_0_-2px_0_0_theme(colors.primary.500/70%)]',
+      },
+    },
+    // Row slot: focused row (grid NOT focused) - muted background with shadow
+    {
+      rowSlot: true,
+      focusRow: true,
+      gridFocused: false,
+      rowInvalid: false,
+      class: {
+        tr: 'ring-0 border-b-transparent bg-primary-500/20! dark:bg-primary-400/30! shadow-[inset_2px_0_0_0_theme(colors.primary.500/70%),inset_-2px_0_0_0_theme(colors.primary.500/70%),inset_0_2px_0_0_theme(colors.primary.500/70%),inset_0_-2px_0_0_theme(colors.primary.500/70%)]',
+      },
+    },
+    // Row slot: active row (not focused)
+    {
+      rowSlot: true,
+      focusRow: false,
+      activeRow: true,
+      class: {
+        tr: 'bg-primary/5!',
+      },
+    },
+    // Row slot: invalid row
+    {
+      rowSlot: true,
+      rowInvalid: true,
+      class: {
+        tr: 'bg-error/10 text-error-700 dark:bg-error/20 dark:text-error-50',
       },
     },
   ],

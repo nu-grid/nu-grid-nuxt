@@ -10,6 +10,7 @@ export const nuGridDefaults = {
     pageStep: 10,
     alignOnModel: 'nearest',
     autoFocus: false,
+    maintainFocusOnFilter: true,
   },
   editing: {
     enabled: false,

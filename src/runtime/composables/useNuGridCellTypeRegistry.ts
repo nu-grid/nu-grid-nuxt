@@ -198,19 +198,21 @@ export function useNuGridCellTypeRegistry<T extends TableData = TableData>(
   }
 
   /**
-   * Get default editor for a cell type (uses cached lookup)
+   * Get default editor for a cell type
+   * Checks custom types first, then falls back to global registry
    */
   const getDefaultEditor = (cellDataType: string): NuGridCellType['editor'] => {
-    // Use cached registry method for better performance
-    return registry.getEditor(cellDataType)
+    const cellType = getCellType(cellDataType)
+    return cellType?.editor
   }
 
   /**
-   * Get renderer for a cell type (uses cached lookup)
+   * Get renderer for a cell type
+   * Checks custom types first, then falls back to global registry
    */
   const getRenderer = (cellDataType: string): NuGridCellType['renderer'] => {
-    // Use cached registry method for better performance
-    return registry.getRenderer(cellDataType)
+    const cellType = getCellType(cellDataType)
+    return cellType?.renderer
   }
 
   /**

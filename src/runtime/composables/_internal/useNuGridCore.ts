@@ -25,6 +25,7 @@ import {
 import { createReusableTemplate, reactiveOmit } from '@vueuse/core'
 import { upperFirst } from 'scule'
 import { computed, nextTick, ref, watch } from 'vue'
+import type { NuGridCellType } from '../../types/cells'
 import { nuGridDefaults } from '../../config/_internal'
 import { extractColumnValues, inferCellDataType } from '../../utils/inferCellDataType'
 import { nuGridCellTypeRegistry } from '../useNuGridCellTypeRegistry'
@@ -41,6 +42,7 @@ export function useNuGridColumns<T extends TableData>(
   actionMenuOptions?: Ref<NuGridActionMenuOptions<T> | undefined | false>,
   columnVisibilityState?: Ref<VisibilityState>,
   dataTypeInference?: Ref<boolean>,
+  customCellTypes?: Ref<NuGridCellType<T>[] | undefined>,
 ): UseNuGridColumnsReturn<T> {
   // Use the row selection composable
   const rowSelection = rowSelectionMode
@@ -52,10 +54,22 @@ export function useNuGridColumns<T extends TableData>(
     ? useNuGridActionMenu<T>(actionMenuOptions, columnVisibilityState)
     : null
 
+  // Build a map of custom cell types for O(1) lookup
+  const customTypeMap = computed(() => {
+    if (!customCellTypes?.value) return null
+    return new Map(customCellTypes.value.map(t => [t.name, t]))
+  })
+
+  // Cache plugin lookups per cellDataType to avoid repeated lookups during column processing
+  const pluginCache = new Map<string, ReturnType<typeof nuGridCellTypeRegistry.get> | undefined>()
+
   const columns = computed<NuGridColumn<T>[]>(() => {
     // Access dataTypeInference.value directly to establish reactive dependency
     // (processColumns accesses it, but Vue needs to see it in the computed callback)
     const inferenceEnabled = dataTypeInference?.value !== false
+
+    // Clear plugin cache when columns recompute (custom cell types may have changed)
+    pluginCache.clear()
 
     const cols =
       propsColumns.value
@@ -78,10 +92,6 @@ export function useNuGridColumns<T extends TableData>(
 
     return processedCols
   })
-
-  // Cache plugin lookups per cellDataType to avoid repeated lookups during column processing
-  // This cache persists across column recomputations, improving performance
-  const pluginCache = new Map<string, ReturnType<typeof nuGridCellTypeRegistry.get> | undefined>()
 
   function processColumns(
     columns: NuGridColumn<T>[],
@@ -117,9 +127,10 @@ export function useNuGridColumns<T extends TableData>(
       const cellDataType = (col as any).cellDataType
       if (cellDataType && cellDataType !== false) {
         // Use cache to avoid repeated plugin lookups
+        // Check custom cell types first, then fall back to global registry
         let plugin = pluginCache.get(cellDataType)
         if (plugin === undefined) {
-          plugin = nuGridCellTypeRegistry.get(cellDataType)
+          plugin = customTypeMap.value?.get(cellDataType) ?? nuGridCellTypeRegistry.get(cellDataType)
           pluginCache.set(cellDataType, plugin)
         }
 
@@ -414,7 +425,6 @@ export function useNuGridApi<T extends TableData>(
 
   const tableApi = useVueTable({
     ...filteredProps,
-    // Use getter to ensure TanStack properly tracks computed/ref changes
     get data() {
       return data.value
     },
@@ -565,7 +575,20 @@ export function useNuGridApi<T extends TableData>(
     columnsUpdatedSignal.value++
   })
 
-  return { tableApi, columnsUpdatedSignal }
+  // Watch for data changes and notify TanStack.
+  // TanStack's useVueTable doesn't track data changes through its mergeProxy/getter approach,
+  // so we explicitly call setOptions when data changes.
+  // flush: 'sync' ensures TanStack has fresh data before any computed re-evaluates.
+  const dataVersion = ref(0)
+  watch(data, (newData) => {
+    tableApi.setOptions((prev) => ({
+      ...prev,
+      data: newData,
+    }))
+    dataVersion.value++
+  }, { flush: 'sync' })
+
+  return { tableApi, columnsUpdatedSignal, dataVersion }
 }
 
 /**

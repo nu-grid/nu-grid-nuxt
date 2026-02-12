@@ -3,6 +3,7 @@ import type { Header, Table } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 import type { NuGridProps } from '../../types'
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { usePropWithDefault } from '../../config/_internal'
 
 function isTouchStartEvent(e: unknown): e is TouchEvent {
   return (e as TouchEvent).type === 'touchstart'
@@ -16,6 +17,9 @@ export function useNuGridColumnResize<T extends TableData>(
   tableApi: Table<T>,
   tableRef: Ref<HTMLElement | null>,
 ) {
+  // Resolved autoSize using defaults (so fill mode works even when not explicitly set)
+  const autoSize = usePropWithDefault(props, 'layout', 'autoSize')
+
   // Track which group is currently being resized (for visual feedback)
   const resizingGroupId = ref<string | null>(null)
   const resizingColumnId = ref<string | null>(null)
@@ -93,7 +97,7 @@ export function useNuGridColumnResize<T extends TableData>(
    *                    If false, skip if state was already restored from persistence.
    */
   function syncInitialFlexWidths(forceSync = false): void {
-    if (props.layout?.autoSize !== 'fill') return
+    if (autoSize.value !== 'fill') return
     if (!tableRef.value) return
 
     // Skip entirely if state was already restored via ratios (unless forced)
@@ -261,7 +265,7 @@ export function useNuGridColumnResize<T extends TableData>(
 
   // Re-sync when autoSize mode changes to 'fill'
   watch(
-    () => props.layout?.autoSize,
+    autoSize,
     (newValue, oldValue) => {
       if (newValue === 'fill' && oldValue !== 'fill') {
         // Reset manually resized columns and re-sync
@@ -303,7 +307,7 @@ export function useNuGridColumnResize<T extends TableData>(
 
       // For fill mode, sync actual DOM widths to TanStack BEFORE switching to fixed width.
       // This prevents "jump" when the flex-rendered width differs from TanStack's stored value.
-      if (props.layout?.autoSize === 'fill') {
+      if (autoSize.value === 'fill') {
         // Sync ALL flex columns' widths to freeze the entire row layout.
         // This prevents other flex columns from redistributing when we switch some to fixed.
         const allColumns = tableApi.getVisibleLeafColumns()
