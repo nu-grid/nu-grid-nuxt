@@ -72,7 +72,7 @@ const { tableRef, rootRef, tableApi, ui, hasFooter, propsUi } = coreContext
 const { dragFns, rowDragOptions } = dragContext
 const { handleGroupResizeStart, resizingGroupId, resizingColumnId, manuallyResizedColumns } =
   resizeContext
-const { stickyEnabled } = virtualizationContext
+const { stickyEnabled, showHeaders } = virtualizationContext
 const { groupingFns } = groupingContext
 const { headerGroupsLength } = performanceContext
 const {
@@ -638,7 +638,8 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     <!-- Collapsed headers: only show if group summaries are enabled -->
                     <template
                       v-if="
-                        !isGroupExpanded(item.groupId!)
+                        showHeaders
+                        && !isGroupExpanded(item.groupId!)
                         && summaryContext?.groupSummariesEnabled?.value
                       "
                     >
@@ -669,7 +670,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     </template>
 
                     <!-- Expanded headers: show full column headers -->
-                    <template v-else-if="isGroupExpanded(item.groupId!)">
+                    <template v-else-if="showHeaders && isGroupExpanded(item.groupId!)">
                       <div
                         :class="ui.thead({ class: [propsUi?.thead, 'border-t-0'] })"
                         :data-sticky-header="stickyEnabled ? 'true' : undefined"

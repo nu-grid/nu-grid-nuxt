@@ -375,6 +375,9 @@ watch(
 
 const rows = orderedRows
 
+// Show/hide column headers
+const showHeaders = computed(() => props.layout?.showHeaders ?? true)
+
 // Sticky headers
 const stickyEnabled = computed(() => props.layout?.stickyHeaders ?? false)
 
@@ -401,6 +404,7 @@ const {
   tableApi,
   rootRef,
   stickyEnabled,
+  showHeaders,
   hasFooter,
 })
 
@@ -447,7 +451,7 @@ const rowDragFns = useNuGridRowDragDrop(
 const gridMode = props.layout?.mode ?? 'div'
 groupingFns =
   gridMode === 'group' || gridMode === 'splitgroup'
-    ? useNuGridGrouping(props, tableApi, rootRef, stickyEnabled, gridMode, {
+    ? useNuGridGrouping(props, tableApi, rootRef, stickyEnabled, showHeaders, gridMode, {
         addRowPosition,
         isAddRowRow,
         getAddRowForGroup: getGroupAddRow,
@@ -718,6 +722,7 @@ provide('nugrid-virtualization', {
   getVirtualItemHeight,
   stickyOffsets,
   stickyEnabled,
+  showHeaders,
 })
 
 provide('nugrid-grouping', {

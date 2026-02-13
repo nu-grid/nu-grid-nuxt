@@ -375,6 +375,12 @@ export interface NuGridLayoutOptions {
   mode?: NuGridLayoutMode
 
   /**
+   * Show column headers
+   * @defaultValue true
+   */
+  showHeaders?: boolean
+
+  /**
    * Enable sticky headers
    * @defaultValue false
    */

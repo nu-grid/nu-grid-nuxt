@@ -14,4 +14,5 @@ export interface NuGridVirtualizationContext<T extends TableData = TableData> {
   getVirtualItemHeight: (index: number) => number
   stickyOffsets: ComputedRef<Map<number, number>>
   stickyEnabled: ComputedRef<boolean>
+  showHeaders: ComputedRef<boolean>
 }

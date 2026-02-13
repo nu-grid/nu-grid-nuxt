@@ -46,6 +46,7 @@ export const nuGridDefaults = {
   },
   layout: {
     mode: 'div',
+    showHeaders: true,
     stickyHeaders: false,
     scrollbars: 'scroll',
     autoSize: 'fill',

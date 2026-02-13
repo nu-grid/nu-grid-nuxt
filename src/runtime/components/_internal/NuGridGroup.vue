@@ -74,7 +74,7 @@ const { tableRef, rootRef, tableApi, ui, hasFooter, propsUi } = coreContext
 const { dragFns, rowDragOptions } = dragContext
 const { handleGroupResizeStart, resizingGroupId, resizingColumnId, manuallyResizedColumns } =
   resizeContext
-const { stickyEnabled } = virtualizationContext
+const { stickyEnabled, showHeaders } = virtualizationContext
 const { groupingFns } = groupingContext
 const { headerGroups, headerGroupsLength, footerGroups } = performanceContext
 const {
@@ -443,7 +443,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
       </div>
 
       <div
-        v-if="!virtualizationEnabled"
+        v-if="showHeaders && !virtualizationEnabled"
         ref="columnHeadersRef"
         :class="[
           ui.thead({ class: [propsUi?.thead] }),

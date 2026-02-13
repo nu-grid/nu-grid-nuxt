@@ -95,6 +95,7 @@ const {
   getVirtualItemHeight,
   stickyOffsets,
   stickyEnabled,
+  showHeaders,
 } = virtualizationContext
 const { headerGroups, headerGroupsLength, footerGroups } = performanceContext
 const {
@@ -440,7 +441,7 @@ function getVirtualItemStyle(
         </div>
 
         <div
-          v-if="!virtualizationEnabled && multiRowEnabled && headersByVisualRow"
+          v-if="showHeaders && !virtualizationEnabled && multiRowEnabled && headersByVisualRow"
           :class="[
             ui.thead({ class: [propsUi?.thead] }),
             stickyEnabled ? ui.stickyColumnHeader({ class: [propsUi?.stickyColumnHeader] }) : {},
@@ -618,7 +619,7 @@ function getVirtualItemStyle(
         </div>
 
         <div
-          v-else-if="!virtualizationEnabled"
+          v-else-if="showHeaders && !virtualizationEnabled"
           :class="[
             ui.thead({ class: [propsUi?.thead] }),
             stickyEnabled ? ui.stickyColumnHeader({ class: [propsUi?.stickyColumnHeader] }) : {},

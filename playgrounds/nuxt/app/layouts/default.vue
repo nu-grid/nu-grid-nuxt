@@ -245,6 +245,14 @@ const links = [
         },
       },
       {
+        label: 'Show/Hide Headers',
+        icon: 'i-lucide-panel-top',
+        to: '/show-headers-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
         label: 'Header Sort Button',
         icon: 'i-lucide-arrow-up-down',
         to: '/header-sort-demo',

@@ -15,6 +15,7 @@ export function useNuGridGrouping<T extends TableData>(
   tableApi: Table<T>,
   rootRef: Ref<InstanceType<typeof Primitive> | null | undefined>,
   stickyEnabled?: Ref<boolean>,
+  showHeaders?: Ref<boolean>,
   mode: 'group' | 'splitgroup' = 'splitgroup',
   addRowOptions?: {
     addRowPosition: Ref<'top' | 'bottom' | 'none'>
@@ -219,6 +220,7 @@ export function useNuGridGrouping<T extends TableData>(
     tableApi,
     rootRef,
     stickyEnabled,
+    showHeaders,
     groupRows,
     groupedRows,
     isGroupExpanded,

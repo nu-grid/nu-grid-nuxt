@@ -161,6 +161,7 @@ export interface UseNuGridGroupVirtualizationOptions<T extends TableData> {
   tableApi: Table<T>
   rootRef: Ref<InstanceType<typeof Primitive> | null | undefined>
   stickyEnabled?: Ref<boolean>
+  showHeaders?: Ref<boolean>
   groupRows: ComputedRef<Row<T>[]>
   groupedRows: ComputedRef<Record<string, Row<T>[]>>
   isGroupExpanded: (groupId: string) => boolean
@@ -221,12 +222,14 @@ export function useNuGridGroupVirtualization<T extends TableData>(
     })
 
     if (!expanded) {
-      items.push({
-        type: 'column-headers',
-        height: getColumnHeadersHeight(false),
-        groupId,
-        index: indexRef.value++,
-      })
+      if (options.showHeaders?.value !== false) {
+        items.push({
+          type: 'column-headers',
+          height: getColumnHeadersHeight(false),
+          groupId,
+          index: indexRef.value++,
+        })
+      }
 
       items.push({
         type: 'footer',
@@ -235,12 +238,14 @@ export function useNuGridGroupVirtualization<T extends TableData>(
         index: indexRef.value++,
       })
     } else {
-      items.push({
-        type: 'column-headers',
-        height: getColumnHeadersHeight(true),
-        groupId,
-        index: indexRef.value++,
-      })
+      if (options.showHeaders?.value !== false) {
+        items.push({
+          type: 'column-headers',
+          height: getColumnHeadersHeight(true),
+          groupId,
+          index: indexRef.value++,
+        })
+      }
 
       const addRowPosition = options.addRowOptions?.addRowPosition.value ?? 'none'
       const addRowRow = options.addRowOptions?.getAddRowForGroup?.(groupId) || null
@@ -349,6 +354,7 @@ export interface UseNuGridVirtualizationOptions<T extends TableData> {
   tableApi: Table<T>
   rootRef: Ref<InstanceType<typeof Primitive> | null | undefined>
   stickyEnabled?: Ref<boolean>
+  showHeaders?: Ref<boolean>
   hasFooter?: MaybeRefOrGetter<boolean>
 }
 
@@ -371,12 +377,14 @@ export function useNuGridVirtualization<T extends TableData>(
     const items: GroupVirtualRowItem<T>[] = []
     let index = 0
 
-    // Column headers virtual item (always first)
-    items.push({
-      type: 'column-headers',
-      height: rowHeights.value.columnHeader * Math.max(headerGroupCount.value, 1),
-      index: index++,
-    })
+    // Column headers virtual item (first, unless hidden)
+    if (options.showHeaders?.value !== false) {
+      items.push({
+        type: 'column-headers',
+        height: rowHeights.value.columnHeader * Math.max(headerGroupCount.value, 1),
+        index: index++,
+      })
+    }
 
     rows.value.forEach((row) => {
       items.push({
@@ -403,11 +411,14 @@ export function useNuGridVirtualization<T extends TableData>(
     rootRef: options.rootRef,
     stickyEnabled: options.stickyEnabled,
     virtualRowItems,
-    resolveStickyIndexes: () => {
+    resolveStickyIndexes: ({ items }) => {
       if (!options.stickyEnabled?.value) {
         return []
       }
-      return [0]
+      if (items[0]?.type === 'column-headers') {
+        return [0]
+      }
+      return []
     },
   })
 
@@ -705,12 +716,14 @@ export function useNuGridStandardGroupVirtualization<T extends TableData>(
     const heights = groupingRowHeights.value
     const indexRef = { value: index }
 
-    // Column headers first (only once at the top)
-    items.push({
-      type: 'column-headers',
-      height: getColumnHeadersHeight(),
-      index: indexRef.value++,
-    })
+    // Column headers first (only once at the top, unless hidden)
+    if (options.showHeaders?.value !== false) {
+      items.push({
+        type: 'column-headers',
+        height: getColumnHeadersHeight(),
+        index: indexRef.value++,
+      })
+    }
 
     // Then groups with their subheaders and data (process top-level groups recursively)
     options.topLevelRows.value.forEach((row) => {
