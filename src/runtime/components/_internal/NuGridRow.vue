@@ -497,7 +497,7 @@ function getMultiRowPinningStyle(
               shouldHaveBorder(row, cellIndex, 'left'),
               shouldHaveBorder(row, cellIndex, 'right'),
               !!focusFns.isFocusedCell(row, cellIndex)
-                && !cellEditingFns.isEditingCell(row, cell.column.id),
+                && !cellEditingFns.editingCell.value,
               false,
               isRowActive,
               gridIsFocused,
@@ -561,7 +561,7 @@ function getMultiRowPinningStyle(
               shouldHaveBorder(row, cellIndex, 'left'),
               shouldHaveBorder(row, cellIndex, 'right'),
               !!focusFns.isFocusedCell(row, cellIndex)
-                && !cellEditingFns.isEditingCell(row, cell.column.id),
+                && !cellEditingFns.editingCell.value,
               false,
               isRowActive,
               gridIsFocused,
@@ -616,7 +616,7 @@ function getMultiRowPinningStyle(
                   shouldHaveBorder(row, item.cellIndex!, 'left'),
                   shouldHaveBorder(row, item.cellIndex!, 'right'),
                   !!focusFns.isFocusedCell(row, item.cellIndex!)
-                    && !cellEditingFns.isEditingCell(row, item.cell.column.id),
+                    && !cellEditingFns.editingCell.value,
                   false,
                   isRowActive,
                   gridIsFocused,
@@ -683,7 +683,7 @@ function getMultiRowPinningStyle(
               shouldHaveBorder(row, cellIndex, 'left'),
               shouldHaveBorder(row, cellIndex, 'right'),
               !!focusFns.isFocusedCell(row, cellIndex)
-                && !cellEditingFns.isEditingCell(row, cell.column.id),
+                && !cellEditingFns.editingCell.value,
               false,
               isRowActive,
               gridIsFocused,
@@ -784,7 +784,7 @@ function getMultiRowPinningStyle(
             shouldHaveBorder(row, cellIndex, 'left'),
             shouldHaveBorder(row, cellIndex, 'right'),
             !!focusFns.isFocusedCell(row, cellIndex)
-              && !cellEditingFns.isEditingCell(row, cell.column.id),
+              && !cellEditingFns.editingCell.value,
             isRowFocused,
             isRowActive,
             gridIsFocused,

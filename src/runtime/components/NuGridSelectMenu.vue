@@ -494,6 +494,7 @@ const createItemPosition = computed(() =>
 
 const triggerRef = useTemplateRef('triggerRef')
 const viewportRef = useTemplateRef('viewportRef')
+const comboboxRootRef = useTemplateRef('comboboxRootRef')
 
 // Track open state for Tab handling
 const isOpen = ref(false)
@@ -660,42 +661,26 @@ function onUpdateOpen(value: boolean) {
 /**
  * Highlights the currently selected item in the dropdown.
  * Called when the dropdown opens to ensure the selected item is visible and highlighted.
+ *
+ * Uses ComboboxRoot's reactive highlightSelected() API which sets highlightedElement
+ * through Vue's reactivity system, surviving any re-renders (unlike DOM manipulation
+ * with setAttribute which gets overridden by Vue's reactive data-highlighted binding).
  */
 function highlightSelectedItem(retryCount = 0) {
   const maxRetries = 10
-  const delay = 30
+  const delay = 50
 
   setTimeout(() => {
-    const viewport = viewportRef.value
-    if (!viewport) {
-      // Retry if viewport not available yet (controlled mode may have delay)
-      if (retryCount < maxRetries) {
-        highlightSelectedItem(retryCount + 1)
-      }
+    const root = comboboxRootRef.value as any
+    if (root?.highlightSelected) {
+      root.highlightSelected()
       return
     }
 
-    // Find the selected item (marked with data-state="checked" by Reka UI)
-    const selectedItem = viewport.querySelector('[data-state="checked"]') as HTMLElement
-    if (!selectedItem) {
-      // Retry if item not found yet
-      if (retryCount < maxRetries) {
-        highlightSelectedItem(retryCount + 1)
-      }
-      return
+    // Retry if ComboboxRoot ref or method not available yet
+    if (retryCount < maxRetries) {
+      highlightSelectedItem(retryCount + 1)
     }
-
-    // Scroll the item into view
-    selectedItem.scrollIntoView({ block: 'nearest' })
-
-    // Remove highlight from any currently highlighted item
-    const currentHighlighted = viewport.querySelector('[data-highlighted]')
-    if (currentHighlighted) {
-      currentHighlighted.removeAttribute('data-highlighted')
-    }
-
-    // Add data-highlighted attribute directly - this is what Reka UI uses for highlight styling
-    selectedItem.setAttribute('data-highlighted', '')
   }, delay)
 }
 
@@ -935,6 +920,7 @@ defineExpose({
   </DefineItemTemplate>
 
   <ComboboxRoot
+    ref="comboboxRootRef"
     :id="id"
     v-slot="{ modelValue, open }"
     v-bind="{ ...rootProps, ...$attrs, ...ariaAttrs }"

@@ -468,15 +468,20 @@ export function useNuGridFocus<T extends TableData>(
         const focusedRowId = oldRows?.[oldIndex]?.id ?? focusedRowIdModel?.value
         if (focusedRowId && map.has(focusedRowId)) {
           const newIndex = map.get(focusedRowId)!
+          // Capture columnIndex now so the deferred focusRowById preserves it
+          const currentColumnIndex = focusedCell.value.columnIndex
           if (newIndex !== oldIndex) {
             // Row index changed - update internal state and scroll after DOM updates
             focusedCell.value = {
               rowIndex: newIndex,
-              columnIndex: focusedCell.value.columnIndex,
+              columnIndex: currentColumnIndex,
             }
           }
           nextTick(() => {
-            focusRowById(focusedRowId, { align: alignOnModel.value ?? 'nearest' })
+            focusRowById(focusedRowId, {
+              align: alignOnModel.value ?? 'nearest',
+              columnIndex: currentColumnIndex,
+            })
           })
         }
       }
