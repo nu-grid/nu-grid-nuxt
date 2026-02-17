@@ -104,6 +104,13 @@ export function useNuGridColumns<T extends TableData>(
         col.columns = processColumns(col.columns as NuGridColumn<T>[], inferenceEnabled)
       }
 
+      // Apply lockSize shorthand: sets size, minSize, and maxSize to the same value
+      if (col.lockSize != null) {
+        col.size = col.lockSize
+        col.minSize = col.lockSize
+        col.maxSize = col.lockSize
+      }
+
       // Infer cellDataType from data if not explicitly set
       // Skip inference if:
       // - dataTypeInference is false (globally disabled)

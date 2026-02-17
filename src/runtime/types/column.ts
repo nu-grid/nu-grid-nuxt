@@ -328,6 +328,15 @@ export type NuGridColumn<T extends TableData> = TableColumn<T> & {
   span?: number | '*'
 
   /**
+   * Lock the column to an exact pixel width
+   * Sets `size`, `minSize`, and `maxSize` all to the given value
+   * @example
+   * // Fixed 80px column that cannot be resized wider or narrower
+   * { accessorKey: 'id', lockSize: 80 }
+   */
+  lockSize?: number
+
+  /**
    * Controls whether the column participates in flex distribution in fill mode
    * - true (default): Column flexes to fill available space (uses widthPercentage or equal share)
    * - false: Column uses its fixed `size` and doesn't grow/shrink
