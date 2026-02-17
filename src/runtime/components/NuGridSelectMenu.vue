@@ -322,7 +322,7 @@ const contentProps = toRef(
   () =>
     defu(props.content, {
       side: 'bottom',
-      sideOffset: 8,
+      sideOffset: 4,
       collisionPadding: 8,
       position: 'popper',
     }) as ComboboxContentProps,
