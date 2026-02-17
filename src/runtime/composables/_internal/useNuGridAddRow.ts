@@ -921,7 +921,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
     // Register global pointer handler for transitions and finalization
     unregisterPointer = options.interactionRouter.registerGlobalPointerHandler({
       id: 'nugrid-add-row-transition',
-      priority: 1, // Before focus-retain (priority 5) to intercept pointerdown
+      priority: 1, // Low priority to intercept pointerdown early
       handle: ({ event }) => {
         const target = event.target as HTMLElement | null
         const isAddRowElement = target?.closest?.('[data-add-row="true"]')

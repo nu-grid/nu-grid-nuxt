@@ -160,7 +160,7 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
       :data="data"
       :columns="columns"
       :editing="{ enabled: editingEnabled, startClicks: 'double', startKeys: 'all' }"
-      :focus="{ mode: 'cell', retain: true }"
+      :focus="{ mode: 'cell' }"
       @cell-value-changed="onCellValueChanged"
     />
   </div>

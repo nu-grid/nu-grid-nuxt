@@ -159,7 +159,7 @@ function clearSelection() {
       :data="data"
       :columns="columns"
       :row-selection="selectionOptions"
-      :focus="{ mode: 'cell', retain: true }"
+      :focus="{ mode: 'cell' }"
     />
 
     <div

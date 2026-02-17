@@ -87,7 +87,7 @@ export const nuGridTheme = {
     searchPanel: 'flex items-center gap-2 px-4 py-2 border-b border-default bg-elevated',
     searchInput: 'w-full min-w-[200px] max-w-sm',
     // Search highlight styling for matching text in cells (uses primary color by default)
-    searchHighlight: 'bg-primary-200 dark:bg-primary-500/30 rounded-sm px-0.5 -mx-0.5',
+    searchHighlight: 'text-inherit bg-primary-200 dark:bg-primary-500/30 rounded-sm px-0.5 -mx-0.5',
   },
   variants: {
     ...theme.variants,

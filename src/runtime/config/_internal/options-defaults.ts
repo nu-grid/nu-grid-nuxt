@@ -4,7 +4,6 @@ import type { NuGridProps } from '../../types/props'
 export const nuGridDefaults = {
   focus: {
     mode: 'cell',
-    retain: false,
     cmdArrows: 'paging',
     loopNavigation: false,
     pageStep: 10,

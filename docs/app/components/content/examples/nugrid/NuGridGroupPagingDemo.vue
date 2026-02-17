@@ -112,7 +112,7 @@ const columns: NuGridColumn<Task>[] = [
       :columns="columns"
       :layout="{ mode: layoutMode, stickyHeaders: true }"
       :paging="paginationOptions"
-      :focus="{ retain: true }"
+      :focus="{ mode: 'cell' }"
     />
   </div>
 </template>

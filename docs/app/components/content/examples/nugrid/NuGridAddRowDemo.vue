@@ -133,7 +133,7 @@ const columns: NuGridColumn<Product>[] = [
       :columns="columns"
       :add-new-row="addNewRowOptions"
       :editing="{ enabled: true, startClicks: 'double', startKeys: 'all' }"
-      :focus="{ retain: true }"
+      :focus="{ mode: 'cell' }"
       @row-add-requested="handleRowAdded"
     />
   </div>

@@ -118,10 +118,10 @@ export function usePropWithDefault<
  * @returns Object with computed refs for each key
  *
  * @example
- * const { mode, retain, cmdArrows } = usePropsWithDefaults(
+ * const { mode, cmdArrows } = usePropsWithDefaults(
  *   props,
  *   'focus',
- *   ['mode', 'retain', 'cmdArrows']
+ *   ['mode', 'cmdArrows']
  * )
  */
 export function usePropsWithDefaults<

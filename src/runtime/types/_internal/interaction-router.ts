@@ -188,8 +188,6 @@ export interface NuGridKeyboardHandler<T extends TableData = TableData> {
  * Configuration for keyboard event handling
  */
 export interface NuGridKeyboardConfig<T extends TableData = TableData> {
-  /** Whether to attach listener to document (true) or grid root (false) */
-  retainFocus: boolean
   /** Build context for a keyboard event. Return null to skip routing. */
   buildContext: (event: KeyboardEvent) => NuGridKeyboardContext<T> | null
 }

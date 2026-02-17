@@ -150,7 +150,7 @@ function resetData() {
       :data="data"
       :columns="columns"
       :animation="animationOptions"
-      :focus="{ mode: 'cell', retain: true }"
+      :focus="{ mode: 'cell' }"
     />
   </div>
 </template>

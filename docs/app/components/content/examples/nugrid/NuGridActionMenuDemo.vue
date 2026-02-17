@@ -98,7 +98,7 @@ function getRowActions(row: NuGridRow<User>): NuGridActionMenuItem[] {
       :data="data"
       :columns="columns"
       :actions="{ getActions: getRowActions }"
-      :focus="{ mode: 'cell', retain: true }"
+      :focus="{ mode: 'cell' }"
     />
 
     <p class="text-xs text-muted">

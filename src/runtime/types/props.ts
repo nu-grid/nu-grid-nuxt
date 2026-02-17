@@ -57,7 +57,6 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    * // Preset with overrides
    * <NuGrid
    *   preset="editable"
-   *   :focus="{ retain: false }"
    *   :editing="{ startClicks: 'single' }"
    * />
    */
@@ -71,7 +70,6 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    * // Enable cell focus with paging navigation
    * focus: {
    *   mode: 'cell',
-   *   retain: true,
    *   cmdArrows: 'paging',
    *   loopNavigation: false
    * }

@@ -568,7 +568,6 @@ useKeyboardSetup<T>({
   resolvedRows: computed(() => groupingFns?.navigableRows?.value ?? rows.value),
   rootRef,
   focusModeRef: effectiveFocusMode,
-  retainFocusRef: usePropWithDefault(props, 'focus', 'retain'),
   editingEnabledRef: effectiveEditingEnabled,
   startKeysRef: usePropWithDefault(props, 'editing', 'startKeys'),
   cellTypes: props.cellTypes ? computed(() => props.cellTypes) : undefined,
@@ -758,7 +757,7 @@ const HIGHLIGHT_COLOR_CLASSES: Record<string, string> = {
   orange: 'bg-orange-200 dark:bg-orange-500/30',
   red: 'bg-red-200 dark:bg-red-500/30',
 }
-const BASE_HIGHLIGHT_CLASSES = 'rounded-sm px-0.5 -mx-0.5'
+const BASE_HIGHLIGHT_CLASSES = 'text-inherit rounded-sm px-0.5 -mx-0.5'
 
 // Compute search highlight class based on props
 const searchHighlightClass = computed(() => {
@@ -903,6 +902,7 @@ const searchContext = useNuGridSearch({
   interactionRouter,
   isEditing: computed(() => editingCellRef.value !== null),
   gridRoot: computed(() => wrapperRef.value),
+  focusFns,
   onFocusFirstResult: () => {
     // Focus the first cell when search results return
     // Uses focusFnsRef.value since focusFns is set up after this call

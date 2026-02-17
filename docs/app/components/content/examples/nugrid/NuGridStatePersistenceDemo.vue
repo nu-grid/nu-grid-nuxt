@@ -150,7 +150,7 @@ function onStateChanged(state: any) {
       :data="data"
       :columns="columns"
       :state="persistEnabled ? { key: stateKey } : false"
-      :focus="{ mode: 'cell', retain: true }"
+      :focus="{ mode: 'cell' }"
       resize-columns
       @state-changed="onStateChanged"
     />

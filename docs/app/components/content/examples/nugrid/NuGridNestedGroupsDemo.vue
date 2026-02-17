@@ -142,7 +142,7 @@ const countryCount = computed(() => new Set(data.value.map((d) => d.country)).si
       :data="data"
       :columns="columns"
       :layout="{ mode: gridMode }"
-      :focus="{ retain: true }"
+      :focus="{ mode: 'cell' }"
     />
   </div>
 </template>

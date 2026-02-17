@@ -296,24 +296,38 @@ const editorContent = computed(() => {
 
 // Check if search highlighting should be applied to this cell
 const shouldHighlight = computed(() => {
-  if (!searchContext?.isSearching.value) return false
+  // Highlight when either the search panel has a query or type-ahead is active
+  const hasQuery = searchContext?.isSearching.value || (searchContext?.typeAheadBuffer.value?.length ?? 0) > 0
+  if (!hasQuery) return false
   // Check if this column is searchable
   const columnDef = props.cell.column.columnDef
   return columnDef.enableSearching !== false
 })
 
 // Get the cell value as a string for highlighting
+// Uses the column's cell renderer if it returns a string (preserves formatting like "$999")
 const cellTextValue = computed(() => {
   // For add rows, read directly from row.original
-  let value: any
   if (isAddRow.value) {
     // eslint-disable-next-line ts/no-unused-expressions
     addRowContext?.valueVersion?.value
     const key = cellAccessorKey.value
-    value = (props.row.original as any)?.[key]
-  } else {
-    value = props.cell.getValue()
+    const value = (props.row.original as any)?.[key]
+    if (value === null || value === undefined) return ''
+    return String(value)
   }
+
+  // Try to get formatted text from the cell renderer
+  const cellRenderer = props.cell.column.columnDef.cell
+  if (typeof cellRenderer === 'function') {
+    const result = cellRenderer(props.cell.getContext())
+    if (typeof result === 'string') {
+      return result
+    }
+  }
+
+  // Fall back to raw value
+  const value = props.cell.getValue()
   if (value === null || value === undefined) return ''
   return String(value)
 })

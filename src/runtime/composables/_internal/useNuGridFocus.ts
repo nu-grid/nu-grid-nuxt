@@ -35,7 +35,6 @@ export function useNuGridFocus<T extends TableData>(
 ): NuGridFocus<T> {
   // Extract values from grouped props using helpers (defaults from nuGridDefaults)
   const focusMode = usePropWithDefault(props, 'focus', 'mode')
-  const retainFocus = usePropWithDefault(props, 'focus', 'retain')
   const cmdArrows = usePropWithDefault(props, 'focus', 'cmdArrows')
   const alignOnModel = usePropWithDefault(props, 'focus', 'alignOnModel')
   const maintainFocusOnFilter = usePropWithDefault(props, 'focus', 'maintainFocusOnFilter')
@@ -139,8 +138,6 @@ export function useNuGridFocus<T extends TableData>(
   const rowHeightEstimate = ref(80)
   const containerHeight = ref(0)
   let unregisterInteraction: (() => void) | null = null
-  let unregisterRetainFocus: (() => void) | null = null
-
   // Lightweight DOM caches so repeated focus changes do not pay for fresh querySelector calls
   const rowElementCache = new Map<string, HTMLElement>()
   const cellElementCache = new Map<string, Map<number, HTMLElement>>()
@@ -295,11 +292,6 @@ export function useNuGridFocus<T extends TableData>(
       ariaHiddenObserver = null
     }
 
-    if (unregisterRetainFocus) {
-      unregisterRetainFocus()
-      unregisterRetainFocus = null
-    }
-
     if (unregisterInteraction) {
       unregisterInteraction()
       unregisterInteraction = null
@@ -350,12 +342,6 @@ export function useNuGridFocus<T extends TableData>(
   }
 
   function handleRootFocusOut(event: FocusEvent) {
-    // When retainFocus is enabled, don't clear gridHasFocus on focusout
-    // The grid should maintain focus state for keyboard handling
-    if (retainFocus.value) {
-      return
-    }
-
     // Don't clear focus during a pointer interaction (prevents flash when clicking between cells)
     if (pointerDownInsideGrid) {
       return
@@ -398,77 +384,6 @@ export function useNuGridFocus<T extends TableData>(
     pointerDownInsideGrid = false
   }
 
-  /**
-   * Handle clicks outside the grid when retainFocus is enabled
-   * Refocuses the last focused cell to maintain grid focus
-   */
-  function handleClickOutside(event: MouseEvent | PointerEvent) {
-    if (!retainFocus.value || focusMode.value === 'none') {
-      return
-    }
-
-    const rootEl = getRootElement()
-    if (!rootEl) {
-      return
-    }
-
-    const target = event.target as Node | null
-    // Check if click is outside the grid
-    if (target && !rootEl.contains(target)) {
-      // Don't steal focus from teleported/portal content (e.g. date picker popups, modals)
-      // Teleported content is rendered outside the app root (#__nuxt) directly on <body>
-      const appRoot = document.getElementById('__nuxt')
-      if (appRoot && !appRoot.contains(target)) {
-        return
-      }
-
-      // Check if target is an interactive element that should receive focus
-      const isInteractive =
-        target instanceof HTMLElement
-        && (target.closest('input')
-          || target.closest('textarea')
-          || target.closest('select')
-          || target.closest('button')
-          || target.closest('a')
-          || target.isContentEditable
-          || target.closest('[role="dialog"]')
-          || target.closest('[role="listbox"]')
-          || target.closest('[role="menu"]'))
-
-      // If clicking on an interactive element, don't refocus the grid
-      // (user might want to interact with that element)
-      if (isInteractive) {
-        return
-      }
-
-      // Refocus the last focused cell, or initialize focus on first cell if none exists
-      const rowsList = resolvedRows.value
-      if (rowsList.length === 0) {
-        return
-      }
-
-      if (focusedCell.value) {
-        const row = rowsList[focusedCell.value.rowIndex]
-        if (row) {
-          // Use nextTick to ensure the click event has finished processing
-          nextTick(() => {
-            focusCell(row, focusedCell.value!.rowIndex, focusedCell.value!.columnIndex)
-          })
-        }
-      } else {
-        // No focused cell yet - initialize focus on first cell
-        const firstRow = rowsList[0]
-        if (firstRow) {
-          const firstFocusableColumn = findFirstFocusableColumn(firstRow)
-          nextTick(() => {
-            setFocusedCell({ rowIndex: 0, columnIndex: firstFocusableColumn })
-            focusCell(firstRow, 0, firstFocusableColumn)
-          })
-        }
-      }
-    }
-  }
-
   watch(
     () => rootRef?.value,
     (primitive, _, onCleanup) => {
@@ -497,36 +412,6 @@ export function useNuGridFocus<T extends TableData>(
           window.removeEventListener('pointercancel', handlePointerUpOutside)
         }
       })
-    },
-    { immediate: true },
-  )
-
-  // Watch for retainFocus changes to register/remove global pointer handler
-  watch(
-    () => retainFocus.value,
-    (enabled) => {
-      if (unregisterRetainFocus) {
-        unregisterRetainFocus()
-        unregisterRetainFocus = null
-      }
-
-      if (enabled && interactionRouter) {
-        unregisterRetainFocus = interactionRouter.registerGlobalPointerHandler({
-          id: 'focus-retain',
-          priority: 5,
-          handle: ({ event }) => {
-            handleClickOutside(event)
-            return { handled: false }
-          },
-        })
-      }
-
-      if (enabled && !interactionRouter && typeof document !== 'undefined') {
-        document.addEventListener('click', handleClickOutside, true)
-        unregisterRetainFocus = () => {
-          document.removeEventListener('click', handleClickOutside, true)
-        }
-      }
     },
     { immediate: true },
   )

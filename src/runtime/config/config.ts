@@ -51,9 +51,9 @@ export function createNuGridConfig<T extends TableData = TableData>(
  *
  * @example
  * const base = { focus: { mode: 'cell' } }
- * const override = { focus: { retain: true } }
+ * const override = { focus: { cmdArrows: 'firstlast' } }
  * const merged = mergeNuGridConfig(base, override)
- * // Result: { focus: { mode: 'cell', retain: true } }
+ * // Result: { focus: { mode: 'cell', cmdArrows: 'firstlast' } }
  */
 export function mergeNuGridConfig<T extends TableData = TableData>(
   ...configs: Array<Partial<NuGridProps<T>>>

@@ -72,7 +72,7 @@ function clearLog() {
           :columns="columns"
           :row-selection="{ mode: 'multi' }"
           :editing="{ enabled: true, startClicks: 'double' }"
-          :focus="{ mode: 'cell', retain: true }"
+          :focus="{ mode: 'cell' }"
           @cell-value-changed="onCellValueChanged"
           @row-selection-changed="onSelectionChanged"
           @focused-cell-changed="onFocusedCellChanged"

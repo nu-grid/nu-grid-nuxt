@@ -123,7 +123,7 @@ const multiRowOptions = computed(() =>
       :columns="columns"
       :multi-row="multiRowOptions"
       :editing="{ enabled: true, startClicks: 'double' }"
-      :focus="{ mode: 'cell', retain: true }"
+      :focus="{ mode: 'cell' }"
     />
   </div>
 </template>

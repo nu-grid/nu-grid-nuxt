@@ -3,7 +3,7 @@ import type { Table } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
 import type { NuGridSearchOptions } from '../../types/option-groups'
 import type { NuGridProps } from '../../types/props'
-import type { NuGridInteractionRouter } from '../../types/_internal'
+import type { NuGridFocus, NuGridInteractionRouter } from '../../types/_internal'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { nuGridDefaults } from '../../config/_internal'
@@ -40,6 +40,8 @@ export interface NuGridSearchContext {
   clearIcon: ComputedRef<string>
   /** Highlight color for matching text */
   highlightColor: ComputedRef<string>
+  /** Current type-ahead buffer for type-to-navigate */
+  typeAheadBuffer: Ref<string>
   /** Clear the search query */
   clear: () => void
   /** Set the search query */
@@ -65,6 +67,8 @@ interface UseNuGridSearchOptions<T extends TableData> {
   gridRoot?: ComputedRef<HTMLElement | null>
   /** Callback to focus the first cell/row when results are found */
   onFocusFirstResult?: () => void
+  /** Focus functions for type-ahead navigation (focusRowById, gridHasFocus) */
+  focusFns?: NuGridFocus<T>
 }
 
 /**
@@ -106,13 +110,25 @@ export function resolveSearchOptions(
  * Provides:
  * - Search configuration from props
  * - Debounced search state management
- * - Type-to-search keyboard handling
+ * - Type-ahead keyboard navigation (moves focus to matching row)
  * - Search context for child components
  */
 export function useNuGridSearch<T extends TableData = TableData>(
   options: UseNuGridSearchOptions<T>,
 ): NuGridSearchContext {
-  const { props, tableApi, globalFilterState, interactionRouter, isEditing, gridRoot, onFocusFirstResult } = options
+  const {
+    props, tableApi, globalFilterState, interactionRouter,
+    isEditing, gridRoot, onFocusFirstResult,
+    focusFns,
+  } = options
+
+  // Derive editing-enabled from props (avoids passing extra refs from NuGrid.vue)
+  const editingEnabled = computed(() => {
+    const editing = props.editing
+    if (editing === true) return true
+    if (editing && typeof editing === 'object') return editing.enabled ?? false
+    return false
+  })
 
   // Resolve search options
   const resolvedOptions = computed(() => resolveSearchOptions(props.search))
@@ -201,44 +217,114 @@ export function useNuGridSearch<T extends TableData = TableData>(
     { flush: 'post' }, // Run after DOM updates
   )
 
-  // Register type-to-search keyboard handler
-  // Only captures keystrokes when the grid or search input is focused
-  // When search input has focus, native input behavior handles typing
+  // --- Type-ahead navigation ---
+  // When the grid has focus and editing is not enabled, typing characters
+  // navigates to the first matching row instead of filtering.
+  const typeAheadBuffer = ref('')
+  let typeAheadTimeout: ReturnType<typeof setTimeout> | null = null
+  const TYPE_AHEAD_TIMEOUT = 1000 // 1 second
+
+  function clearTypeAhead() {
+    typeAheadBuffer.value = ''
+    if (typeAheadTimeout) {
+      clearTimeout(typeAheadTimeout)
+      typeAheadTimeout = null
+    }
+  }
+
+  function resetTypeAheadTimer() {
+    if (typeAheadTimeout) {
+      clearTimeout(typeAheadTimeout)
+    }
+    typeAheadTimeout = setTimeout(() => {
+      typeAheadBuffer.value = ''
+      typeAheadTimeout = null
+    }, TYPE_AHEAD_TIMEOUT)
+  }
+
+  function navigateToMatch(query: string) {
+    if (!focusFns) return
+
+    const lowerQuery = query.toLowerCase()
+    // Use flatRows from the current row model (respects grouping/sorting/filtering)
+    // and filter to leaf rows only (skip group header rows)
+    const rowsList = tableApi.getRowModel().flatRows.filter(r => !r.getIsGrouped())
+
+    // Build a map of accessor key → visible column index for cell-level focus
+    const visibleColumns = tableApi.getVisibleLeafColumns()
+    const columnIndexMap = new Map<string, number>()
+    visibleColumns.forEach((col, idx) => { columnIndexMap.set(col.id, idx) })
+
+    // Get searchable column accessor keys from props
+    const searchableColumns = (props.columns ?? []).filter((col: any) => {
+      if (!('accessorKey' in col)) return false
+      return col.enableSearching !== false
+    })
+
+    // Two-pass search: prefer startsWith matches, fall back to contains
+    let containsMatch: { rowId: string, columnKey: string } | null = null
+
+    for (let i = 0; i < rowsList.length; i++) {
+      const row = rowsList[i]
+      if (!row) continue
+
+      for (const col of searchableColumns) {
+        const key = ('accessorKey' in col ? col.accessorKey : undefined) as string | undefined
+        if (!key) continue
+
+        const cellValue = row.getValue(key)
+        if (cellValue == null) continue
+
+        const stringValue = String(cellValue).toLowerCase()
+        if (stringValue.startsWith(lowerQuery)) {
+          // Exact startsWith match - navigate immediately
+          const columnIndex = columnIndexMap.get(key)
+          focusFns.focusRowById(row.id, { align: 'nearest', ...(columnIndex !== undefined && { columnIndex }) })
+          return
+        }
+        if (!containsMatch && stringValue.includes(lowerQuery)) {
+          containsMatch = { rowId: row.id, columnKey: key }
+        }
+      }
+    }
+
+    // Fall back to contains match if no startsWith match was found
+    if (containsMatch) {
+      const columnIndex = columnIndexMap.get(containsMatch.columnKey)
+      focusFns.focusRowById(containsMatch.rowId, { align: 'nearest', ...(columnIndex !== undefined && { columnIndex }) })
+    }
+  }
+
+  // Register type-ahead keyboard handler
   if (interactionRouter) {
-    const unregister = interactionRouter.registerKeyboardHandler({
+    interactionRouter.registerKeyboardHandler({
       id: 'nugrid-type-to-search',
       priority: 1000, // Low priority - runs after other handlers
       when: (context) => {
         // Only handle if:
-        // 1. Search is enabled
-        // 2. Type-to-search is enabled
-        // 3. Not currently editing a cell
-        // 4. Grid has focus (but not the search input - let native input handle that)
-        // 5. Key is a printable character or special search key
-        if (!enabled.value) return false
+        // 1. Type-to-search is enabled
+        // 2. Editing is NOT globally enabled (editing.enabled must be false)
+        // 3. Grid has focus
+        // 4. Key is a printable character, Backspace, or Escape
         if (!typeToSearch.value) return false
-        if (isEditing?.value) return false
+        if (editingEnabled.value) return false
 
-        // Check if grid has focus but NOT the search input
-        // When search input has focus, let native input behavior handle typing
+        // Check grid focus
+        if (!focusFns?.gridHasFocus.value) return false
+
+        // Don't interfere when search input has focus
         const activeElement = document.activeElement
         const searchEl = searchInputRef.value?.$el
-        const searchInputHasFocus = searchEl && searchEl.contains(activeElement)
-        if (searchInputHasFocus) return false // Let native input handle it
-
-        const gridHasFocus = gridRoot?.value?.contains(activeElement)
-        if (!gridHasFocus) return false
+        if (searchEl && searchEl.contains(activeElement)) return false
 
         const event = context.event
         // Skip if modifier keys are pressed (except Shift)
         if (event.ctrlKey || event.metaKey || event.altKey) return false
 
-        // Handle printable characters and special keys
         const key = event.key
         return (
           key.length === 1 // Printable character
           || key === 'Backspace'
-          || key === 'Delete'
           || key === 'Escape'
         )
       },
@@ -247,41 +333,36 @@ export function useNuGridSearch<T extends TableData = TableData>(
         const key = event.key
 
         if (key === 'Escape') {
-          // Clear search on Escape
-          if (isSearching.value) {
-            clear()
+          if (typeAheadBuffer.value) {
+            clearTypeAhead()
             return { handled: true, preventDefault: true }
           }
           return { handled: false }
         }
 
-        if (key === 'Backspace' || key === 'Delete') {
-          // Only handle if search has content
-          if (rawSearchQuery.value.length > 0) {
-            if (key === 'Backspace') {
-              rawSearchQuery.value = rawSearchQuery.value.slice(0, -1)
-            } else {
-              // Delete clears entire search
-              clear()
+        if (key === 'Backspace') {
+          if (typeAheadBuffer.value.length > 0) {
+            typeAheadBuffer.value = typeAheadBuffer.value.slice(0, -1)
+            resetTypeAheadTimer()
+            if (typeAheadBuffer.value.length > 0) {
+              navigateToMatch(typeAheadBuffer.value)
             }
-            // Don't focus search input - keep grid focused for arrow key navigation
             return { handled: true, preventDefault: true }
           }
           return { handled: false }
         }
 
-        // Printable character - append to search (keep grid focused for arrow key navigation)
+        // Printable character - append to buffer and navigate
         if (key.length === 1) {
-          rawSearchQuery.value += key
+          typeAheadBuffer.value += key
+          resetTypeAheadTimer()
+          navigateToMatch(typeAheadBuffer.value)
           return { handled: true, preventDefault: true }
         }
 
         return { handled: false }
       },
     })
-
-    // Cleanup on component unmount would be handled by the caller
-    // The router tracks registrations and the NuGrid cleanup handles this
   }
 
   return {
@@ -296,6 +377,7 @@ export function useNuGridSearch<T extends TableData = TableData>(
     icon,
     clearIcon,
     highlightColor,
+    typeAheadBuffer,
     clear,
     setQuery,
     searchInputRef,

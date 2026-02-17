@@ -22,13 +22,6 @@ export interface NuGridFocusOptions {
   mode?: 'none' | 'cell' | 'row'
 
   /**
-   * When enabled, the grid retains focus and responds to keyboard events even when
-   * other elements on the page are clicked
-   * @defaultValue false
-   */
-  retain?: boolean
-
-  /**
    * Controls Cmd/Ctrl+Arrow key navigation behavior
    * - 'paging': Cmd+Up/Down act like PageUp/PageDown (cursor paging)
    * - 'firstlast': Cmd+Up/Down jump to first/last row in grid
@@ -846,8 +839,11 @@ export interface NuGridSearchOptions {
   suppressPanel?: boolean
 
   /**
-   * Enable type-to-search behavior
-   * When true, typing while the grid is focused (but not editing) will start filtering
+   * Enable type-ahead navigation behavior
+   * When true, typing while the grid is focused (and editing is not enabled)
+   * will navigate to the first matching row instead of filtering.
+   * The type-ahead buffer clears after 1 second of inactivity.
+   * Only active when `editing.enabled` is false.
    * @defaultValue true
    */
   typeToSearch?: boolean

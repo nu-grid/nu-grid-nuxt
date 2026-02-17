@@ -220,7 +220,7 @@ const availableThemes = computed(() => {
       :theme="selectedTheme"
       :data="data"
       :columns="columns"
-      :focus="{ retain: true }"
+      :focus="{ mode: 'cell' }"
       class="max-h-[300px] rounded border border-default"
     />
   </div>

@@ -561,9 +561,8 @@ export function useNuGridInteractionRouter<T extends TableData>(
       return
     }
 
-    // Attach to document or grid root based on retainFocus
-    const target = keyboardConfig.retainFocus ? document : gridRoot
     const listener = handleKeyDown as EventListener
+    const target = gridRoot
 
     target.addEventListener('keydown', listener, true) // capture phase
     removeKeyboardListener = () => {
@@ -588,9 +587,8 @@ export function useNuGridInteractionRouter<T extends TableData>(
       return
     }
 
-    // Attach to document or grid root based on retainFocus
-    const target = keyboardConfig.retainFocus ? document : gridRoot
     const listener = handleKeyUp as EventListener
+    const target = gridRoot
 
     target.addEventListener('keyup', listener, true) // capture phase
     removeKeyupListener = () => {

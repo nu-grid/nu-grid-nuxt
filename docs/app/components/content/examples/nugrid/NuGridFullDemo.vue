@@ -210,7 +210,7 @@ watch(emailFilter, (value) => {
       :row-selection="{ mode: 'multi' }"
       :actions="{ getActions: getRowActions }"
       :editing="{ enabled: editingEnabled, startClicks: 'double' }"
-      :focus="{ mode: focusMode, retain: true }"
+      :focus="{ mode: focusMode }"
       resize-columns
     />
   </div>

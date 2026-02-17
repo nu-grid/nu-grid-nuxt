@@ -21,7 +21,7 @@ const presets: Record<NuGridPreset, NuGridPresetOptions<TableData>> = {
    * sticky headers, and auto-sizing columns
    */
   editable: {
-    focus: { mode: 'cell', retain: true },
+    focus: { mode: 'cell' },
     editing: { enabled: true },
     layout: { stickyHeaders: true, autoSize: 'content' },
   },
@@ -41,7 +41,7 @@ const presets: Record<NuGridPreset, NuGridPresetOptions<TableData>> = {
    * single-click editing and first/last navigation
    */
   forms: {
-    focus: { mode: 'cell', retain: true, cmdArrows: 'firstlast', pageStep: 5 },
+    focus: { mode: 'cell', cmdArrows: 'firstlast', pageStep: 5 },
     editing: { enabled: true, startClicks: 'single' },
     validation: { validateOn: 'blur' },
     layout: { scrollbars: 'native', autoSize: 'fill' },

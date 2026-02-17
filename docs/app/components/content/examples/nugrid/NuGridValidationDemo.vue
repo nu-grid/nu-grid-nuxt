@@ -165,7 +165,7 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
       :columns="columns"
       :validation="validationOptions"
       :editing="{ enabled: true, startClicks: 'double', startKeys: 'all' }"
-      :focus="{ retain: true }"
+      :focus="{ mode: 'cell' }"
       @cell-value-changed="onCellValueChanged"
     />
   </div>

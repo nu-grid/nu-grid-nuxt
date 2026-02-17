@@ -64,7 +64,6 @@ const focusedColumnId = ref<string | null>(null)
 
 const focusOptions = computed(() => ({
   mode: focusMode.value,
-  retain: true,
 }))
 
 function onFocusedCellChanged(event: { rowId: string | null; columnId: string | null }) {

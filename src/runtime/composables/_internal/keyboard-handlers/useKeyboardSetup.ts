@@ -7,7 +7,7 @@ import type {
   NuGridInteractionRouter,
   NuGridKeyboardContext,
 } from '../../../types/_internal'
-import { onMounted, onUnmounted, watch } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import {
   createCellTypeDispatchHandler,
   createEditingTriggersHandler,
@@ -39,7 +39,6 @@ export interface KeyboardSetupOptions<T extends TableData> {
 
   // Props refs
   focusModeRef: ComputedRef<'none' | 'cell' | 'row'>
-  retainFocusRef: ComputedRef<boolean>
   editingEnabledRef: ComputedRef<boolean>
   startKeysRef: ComputedRef<any>
   cellTypes?: ComputedRef<any[] | undefined>
@@ -64,7 +63,6 @@ export function useKeyboardSetup<T extends TableData>(options: KeyboardSetupOpti
     resolvedRows,
     rootRef,
     focusModeRef,
-    retainFocusRef,
     editingEnabledRef,
     startKeysRef,
     cellTypes,
@@ -76,13 +74,6 @@ export function useKeyboardSetup<T extends TableData>(options: KeyboardSetupOpti
   function isInteractiveElement(target: EventTarget | null): boolean {
     if (!target || !(target instanceof HTMLElement)) return false
     return INTERACTIVE_SELECTORS.some((s) => target.matches(s) || target.closest(s))
-  }
-
-  // Helper to check if target is in grid
-  function isEventTargetInGrid(target: EventTarget | null): boolean {
-    if (!target || !(target instanceof HTMLElement)) return false
-    const rootEl = rootRef.value?.$el
-    return rootEl?.contains(target) ?? false
   }
 
   // Shared keyboard context builder
@@ -102,16 +93,7 @@ export function useKeyboardSetup<T extends TableData>(options: KeyboardSetupOpti
       const isInteractive = isInteractiveElement(event.target)
       const isNavigationKey = NAVIGATION_KEYS.has(event.key)
 
-      if (retainFocusRef.value && !isEventTargetInGrid(event.target)) {
-        const target = event.target as HTMLElement | null
-        const isTextInput =
-          target
-          && (target.tagName === 'INPUT'
-            || target.tagName === 'TEXTAREA'
-            || target.isContentEditable)
-        if (isTextInput && isNavigationKey) return null
-        if (isInteractive && !isNavigationKey) return null
-      } else if (isInteractive && !isNavigationKey) {
+      if (isInteractive && !isNavigationKey) {
         return null
       }
     }
@@ -139,16 +121,7 @@ export function useKeyboardSetup<T extends TableData>(options: KeyboardSetupOpti
 
   // Set up keyboard config
   interactionRouter.setKeyboardConfig({
-    retainFocus: retainFocusRef.value,
     buildContext: buildKeyboardContext,
-  })
-
-  // Watch retainFocus changes to update keyboard config
-  watch(retainFocusRef, (newRetainFocus) => {
-    interactionRouter.setKeyboardConfig({
-      retainFocus: newRetainFocus,
-      buildContext: buildKeyboardContext,
-    })
   })
 
   // Track unregister functions for cleanup
