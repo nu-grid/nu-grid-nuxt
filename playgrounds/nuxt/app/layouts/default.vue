@@ -325,6 +325,14 @@ const links = [
         },
       },
       {
+        label: 'Compact Editing',
+        icon: 'i-lucide-pencil',
+        to: '/compact-editing-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
         label: 'Custom Themes',
         icon: 'i-lucide-palette',
         to: '/custom-theme-demo',

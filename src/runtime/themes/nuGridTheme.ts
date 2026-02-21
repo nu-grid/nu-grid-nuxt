@@ -15,7 +15,7 @@ export const nuGridTheme = {
     checkboxIcon: '',
     // Base slots with div mode styles merged in - pb-3 provides space for horizontal scrollbar
     // overflow-visible! overrides Nuxt UI table's overflow-clip, allowing content to extend for horizontal scrolling
-    base: 'flex flex-col pb-3 w-max min-w-0 overflow-visible!',
+    base: 'flex flex-col pb-3 w-max! min-w-0! overflow-visible!',
     // Scrollbar styling - uses tailwind-scrollbar plugin
     scrollbar:
       'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/50 hover:scrollbar-thumb-gray-500/60 dark:scrollbar-thumb-gray-500/50 dark:hover:scrollbar-thumb-gray-400/60 scrollbar-thumb-rounded',
@@ -61,6 +61,9 @@ export const nuGridTheme = {
       'group flex shrink-0 items-stretch overflow-hidden p-0! bg-elevated border-b-2 border-primary/30',
     thGroupInner:
       'flex flex-1 items-center px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted',
+    // Editor container slots - control the wrapper around editors in edit mode
+    editorContainer: '-ml-3 w-full',
+    editorContainerTextarea: 'absolute inset-0 -mx-2.5 -my-2',
     // Editor validation error styling
     editorErrorRing: 'ring-error ring-1',
     validationPopoverContent: 'p-2 text-xs',

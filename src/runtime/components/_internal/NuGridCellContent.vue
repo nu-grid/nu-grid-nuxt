@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Component, ComputedRef } from 'vue'
 import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
-import type { NuGridAddRowContext, NuGridCellEditing } from '../../types/_internal'
+import type { NuGridAddRowContext, NuGridCellEditing, NuGridCoreContext } from '../../types/_internal'
 import { FlexRender } from '@tanstack/vue-table'
 import { computed, inject, ref, resolveComponent, watch } from 'vue'
 import { nuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegistry'
@@ -14,6 +14,9 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+// Inject core context for theme UI slots (editor container classes)
+const coreContext = inject<NuGridCoreContext>('nugrid-core')!
 
 // Inject UI config for column defaults
 const uiConfig = inject<{ wrapText: ComputedRef<boolean> } | null>('nugrid-ui-config', null)
@@ -351,14 +354,14 @@ const cellTextValue = computed(() => {
       v-bind="pluginRendererProps"
     />
     <FlexRender v-else :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-    <div class="absolute inset-0 -mx-2.5 -my-2">
+    <div :class="coreContext.ui.value.editorContainerTextarea?.()">
       <component :is="editorContent" />
     </div>
   </div>
   <div
     v-else-if="isEditing"
     ref="wrapperRef"
-    class="-ml-3 w-full"
+    :class="coreContext.ui.value.editorContainer?.()"
     :style="wrapperStyle"
     data-editing
   >
@@ -380,3 +383,91 @@ const cellTextValue = computed(() => {
     <FlexRender v-else :render="cell.column.columnDef.cell" :props="cell.getContext()" />
   </div>
 </template>
+
+<style>
+/* ==========================================================================
+   Compact theme editor overrides
+   Shrink Nuxt UI inputs, focus rings, and editor chrome to fit compact cells
+   ========================================================================== */
+
+/* --- Input sizing --- */
+.nugrid-compact [data-editing] [data-slot='root'] {
+  --ui-input-height: 1.5rem;
+}
+
+.nugrid-compact [data-editing] input,
+.nugrid-compact [data-editing] select {
+  font-size: 0.8125rem;
+  padding-top: 0.0625rem;
+  padding-bottom: 0.0625rem;
+  padding-left: 0.375rem;
+  padding-right: 0.375rem;
+}
+
+.nugrid-compact [data-editing] textarea {
+  font-size: 0.8125rem;
+  padding-left: 0.375rem;
+  padding-right: 0.375rem;
+}
+
+/* --- Focus ring: shrink ring-2 → ring-1 on UInput / UTextarea --- */
+.nugrid-compact [data-editing] input:focus-visible,
+.nugrid-compact [data-editing] textarea:focus-visible,
+.nugrid-compact [data-editing] select:focus-visible {
+  --tw-ring-offset-width: 0px;
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+}
+
+/* Default (unfocused) outline ring on inputs: shrink from 1px to 0.5px */
+.nugrid-compact [data-editing] [data-slot='root'] input {
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 0.5px var(--tw-ring-color);
+}
+
+/* --- Lookup / select menu trigger --- */
+.nugrid-compact [data-editing] [data-slot='base'][aria-haspopup='listbox'] {
+  font-size: 0.8125rem;
+  min-height: 1.5rem;
+  padding-top: 0.0625rem;
+  padding-bottom: 0.0625rem;
+  padding-left: 0.375rem;
+  padding-right: 0.375rem;
+  /* Shrink the hardcoded ring-2 to ring-1 */
+  --tw-ring-offset-width: 0px;
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 1px var(--tw-ring-color);
+}
+
+/* --- Rating editor --- */
+/* Smaller stars */
+.nugrid-compact [data-editing] .flex.items-center.gap-1 svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Shrink star focus ring from ring-2 to ring-1 */
+.nugrid-compact [data-editing] .flex.items-center.gap-1 button {
+  --tw-ring-offset-width: 0px;
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+}
+
+/* Shrink rating container focus border from border-2 to border */
+.nugrid-compact [data-editing] .flex.items-center.gap-1[tabindex='0'] {
+  border-width: 1px;
+  padding: 0.125rem;
+}
+
+/* --- Hide number input spinners --- */
+.nugrid-compact [data-editing] input[type='number']::-webkit-inner-spin-button,
+.nugrid-compact [data-editing] input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.nugrid-compact [data-editing] input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* --- Currency / percentage symbols --- */
+.nugrid-compact [data-editing] .text-gray-500 {
+  font-size: 0.8125rem;
+}
+</style>
