@@ -1,7 +1,7 @@
 {
   "name": "@nu-grid/nuxt",
   "type": "module",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "packageManager": "pnpm@10.21.0",
   "description": "A powerful data grid component for Nuxt with virtualization, cell editing, and TanStack Table integration",
   "license": "MIT",
