@@ -73,6 +73,10 @@ const showIndicator = computed(() => isAddRow.value && !isThisRowActive.value)
 const indicatorText = computed(() => addRowContext.addNewText.value)
 
 // Calculate left offset for indicator based on uneditable columns
+function onCellClick(e: MouseEvent, cell: any, cellIndex: number) {
+  interactionRouter.routeCellClick({ event: e, row: props.row, cell, cellIndex })
+}
+
 const indicatorLeftOffset = computed(() => {
   if (!showIndicator.value) return 0
 
@@ -179,15 +183,7 @@ const indicatorLeftOffset = computed(() => {
           ? { flexGrow: resolveValue(cell.column.columnDef.meta?.colspan?.td, cell) }
           : {}),
       }"
-      @click="
-        (e: MouseEvent) =>
-          interactionRouter.routeCellClick({
-            event: e,
-            row,
-            cell,
-            cellIndex,
-          })
-      "
+      @click="(e: MouseEvent) => onCellClick(e, cell, cellIndex)"
       @dblclick="cellEditingFns.onCellDoubleClick($event, row, cell)"
     >
       <slot :cell="cell" :row="row" :cell-index="cellIndex">

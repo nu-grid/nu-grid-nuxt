@@ -357,6 +357,12 @@ export function useNuGridCellEditing<T extends TableData>(
           isNavigating.value = false
           return
         }
+        // Skip blur-triggered stop-editing during add-row cell transitions.
+        // The cell click handler's addRowTransitioning path will handle saving and starting new editing.
+        // Without this, blur calls stopEditing(undefined) which is treated as Enter → finalization.
+        if (!direction && addRowContext?.addRowTransitioning?.value) {
+          return
+        }
         // Don't set lock here - stopEditing has early returns (validation failures)
         // that would leave the lock stuck. Lock is set in startEditing instead.
         context.stopEditing(direction)
@@ -612,7 +618,21 @@ export function useNuGridCellEditing<T extends TableData>(
     const isCurrentValueEmpty = newValue === undefined || newValue === null || newValue === ''
     const isVerticalNav = navDirection === 'up' || navDirection === 'down'
 
-    if (isAddRow && isCurrentValueEmpty && isVerticalNav) {
+    // Only reset the add-row if the ENTIRE row is empty (no cells have been filled)
+    // If other cells have values, let the normal finalization path handle it
+    const isEntireAddRowEmpty = isAddRow && isCurrentValueEmpty && isVerticalNav && (() => {
+      const rowData = row.original as Record<string, unknown>
+      const visibleCellsList = row.getVisibleCells() as Cell<T, any>[]
+      for (const c of visibleCellsList) {
+        if (c.id === cell.id) continue // skip the cell we're currently editing
+        const colId = c.column.id
+        const val = rowData[colId]
+        if (val !== undefined && val !== null && val !== '' && val !== 0) return false
+      }
+      return true
+    })()
+
+    if (isAddRow && isEntireAddRowEmpty && isVerticalNav) {
       // Find row index BEFORE resetting (reset changes the row ID)
       const rowsList = navigableRows?.value ?? rows.value
       const currentRowIndex = rowsList.findIndex((r) => r.id === row.id)
@@ -915,6 +935,7 @@ export function useNuGridCellEditing<T extends TableData>(
     }
 
     let shouldFocusNewAddRowAfterFinalize = false
+    let shouldFocusPrevRowAfterFinalize = false
     let groupIdToFocus: string | null = null
 
     if (isAddRow && addRowContext) {
@@ -922,13 +943,16 @@ export function useNuGridCellEditing<T extends TableData>(
       const isLastEditable = currentIndex === lastEditableIndex
 
       // Finalize when:
-      // 1. Explicitly navigating down (ArrowDown)
+      // 1. Explicitly navigating vertically (ArrowDown or ArrowUp)
       // 2. Tab on the last editable column
       // 3. Enter key (always tries to finalize, regardless of column)
+      // Note: navDirection === undefined means Enter key OR blur. During add-row cell
+      // transitions (addRowTransitioning), blur-triggered calls should NOT finalize.
       const shouldFinalizeAfterNav =
         navDirection === 'down'
+        || navDirection === 'up'
         || (navDirection === 'next' && isLastEditable)
-        || navDirection === undefined // Enter key always tries to finalize
+        || (navDirection === undefined && !addRowContext?.addRowTransitioning?.value)
 
       if (shouldFinalizeAfterNav) {
         // Store the parentId (groupId) before finalizing, so we can focus the correct group's addrow
@@ -952,6 +976,9 @@ export function useNuGridCellEditing<T extends TableData>(
           // - Enter key (from any column)
           if ((navDirection === 'next' && isLastEditable) || navDirection === undefined) {
             shouldFocusNewAddRowAfterFinalize = true
+          }
+          if (navDirection === 'up') {
+            shouldFocusPrevRowAfterFinalize = true
           }
         }
       }
@@ -1015,6 +1042,43 @@ export function useNuGridCellEditing<T extends TableData>(
           if (shouldRestoreFocus) {
             restoreFocus(row, cell)
           }
+        })
+        return
+      }
+
+      if (shouldFocusPrevRowAfterFinalize) {
+        // After add-row finalization with ArrowUp, focus the row above the newly created row
+        nextTick(() => {
+          const nextRowsList = navigableRows?.value ?? rows.value
+          // Find the add-row — the newly created data row is just before it
+          const addRowIdx = groupIdToFocus
+            ? nextRowsList.findIndex(
+                (r) => addRowContext?.isAddRowRow(r) && (r as any).parentId === groupIdToFocus,
+              )
+            : nextRowsList.findIndex((r) => addRowContext?.isAddRowRow(r))
+          // The row above the newly created row is 2 before the add-row
+          const targetIdx = addRowIdx >= 2 ? addRowIdx - 2 : -1
+          if (targetIdx >= 0) {
+            const targetRow = nextRowsList[targetIdx]
+            if (targetRow) {
+              const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
+              const targetCellIdx = targetCells.findIndex((c) => c.column.id === cell.column.id)
+              const targetCell = targetCellIdx !== -1 ? (targetCells[targetCellIdx] ?? null) : null
+              if (targetCell && isCellEditable(targetRow, targetCell)) {
+                startEditing(targetRow, targetCell, undefined, {
+                  rowIndex: targetIdx,
+                  cellIndex: targetCellIdx,
+                })
+                isNavigating.value = false
+                return
+              }
+            }
+          }
+          // Fallback: clear editing state
+          editingCell.value = null
+          editingValue.value = null
+          isNavigating.value = false
+          hasAttemptedClickAway.value = false
         })
         return
       }
@@ -1514,7 +1578,9 @@ export function useNuGridCellEditing<T extends TableData>(
       priority: 20,
       handle: ({ event, row, cell }) => {
         // Handle add-row cell transitions atomically to prevent state flicker
-        if ((event as any).__addRowCellTransition) {
+        // Check the addRowTransitioning ref (not the event flag, which is on the pointerdown
+        // event object and doesn't propagate to the click event object)
+        if (addRowContext?.addRowTransitioning?.value) {
           // Suppress focus outline during transition to prevent flickering
           // The focus click handler (priority 10) may have already set focusedCell
           if (focusFns.focusedCell.value) {
@@ -1727,18 +1793,73 @@ export function useNuGridCellEditing<T extends TableData>(
           .getAllCells()
           .find((c) => c.column.id === editingCell.value!.columnId)
         if (currentCell) {
-          // Check if we're editing an add row - if clicking away, reset to empty state
+          // Check if we're editing an add row
           const isAddRow = addRowContext?.isAddRowRow(currentRow)
           if (isAddRow && addRowContext) {
-            // Reset the add row to empty state and clear editing
-            addRowContext.resetAddRow(currentRow)
+            // If transitioning between add-row cells, let the cell click handler handle it.
+            // The click handler uses addRowTransitioning to run the atomic transition path.
+            if (addRowContext.addRowTransitioning?.value) {
+              return
+            }
+
+            // Clicking outside the add row entirely.
+            // Save the current editing value to row.original first.
+            const columnDef = currentCell.column.columnDef
+            const accessorKey =
+              'accessorKey' in columnDef && columnDef.accessorKey
+                ? (columnDef.accessorKey as string)
+                : undefined
+            const fallbackKey = !accessorKey ? currentCell.column.id : undefined
+
+            if (editingValue.value !== undefined && editingValue.value !== null) {
+              const target = currentRow.original as any
+              if (accessorKey) {
+                target[accessorKey] = editingValue.value
+              } else if (fallbackKey) {
+                target[fallbackKey] = editingValue.value
+              }
+              addRowContext.triggerValueUpdate?.()
+
+              // Clear TanStack cache so cell.getValue() returns updated value
+              const valuesCache = (currentRow as any)._valuesCache
+              if (valuesCache) {
+                if (typeof valuesCache.clear === 'function') {
+                  valuesCache.clear()
+                } else if (typeof valuesCache === 'object') {
+                  delete valuesCache[currentCell.column.id]
+                }
+              }
+            }
+
+            // Check if the add row has any meaningful data entered
+            const hasValues = (() => {
+              const rowData = currentRow.original as Record<string, unknown>
+              const visibleCellsList = currentRow.getVisibleCells() as Cell<T, any>[]
+              for (const c of visibleCellsList) {
+                const colId = c.column.id
+                const val = rowData[colId]
+                if (val !== undefined && val !== null && val !== '' && val !== 0) return true
+              }
+              return false
+            })()
+
+            // Clear editing state BEFORE finalization to prevent blur from re-entering
+            // stopEditing (blur fires when editor unmounts, but editingCell is already null
+            // so context.stopEditing() becomes a no-op).
             editingCell.value = null
             editingValue.value = null
             validationError.value = null
             hasBeenPunished.value = false
             hasAttemptedClickAway.value = false
+
+            if (hasValues) {
+              addRowContext.finalizeAddRow(currentRow)
+            } else {
+              addRowContext.resetAddRow(currentRow)
+            }
+
+            // Handle focus cleanup
             if (isClickInsideGrid) {
-              // Keep grid focused and suppress outline during transition
               focusFns.gridHasFocus.value = true
               if (focusFns.focusedCell.value) {
                 focusFns.focusedCell.value = {
@@ -1747,7 +1868,6 @@ export function useNuGridCellEditing<T extends TableData>(
                 }
               }
             } else {
-              // Clear focus state when clicking outside the grid
               focusFns.focusedCell.value = null
             }
             return

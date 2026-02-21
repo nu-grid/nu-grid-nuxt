@@ -33,16 +33,18 @@ export const currencyCellType: NuGridCellType = {
     if (value === null || value === undefined) return ''
     const numValue = Number(value)
     if (Number.isNaN(numValue)) return String(value)
+    if (numValue === 0 && (context.columnDef as any).showZero === false) return ''
 
     // Get currency from column definition or default to USD
     const currency = (context.columnDef as any).currency || 'USD'
     const locale = (context.columnDef as any).locale || 'en-US'
+    const fractionDigits = (context.columnDef as any).fractionDigits ?? 0
 
     return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits,
     }).format(numValue)
   },
   defaultColumnDef: {

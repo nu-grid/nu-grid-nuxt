@@ -32,4 +32,6 @@ export interface NuGridAddRowContext<T extends TableData = TableData> {
   valueVersion?: Ref<number>
   /** Increment the value version to trigger re-renders of add row cells */
   triggerValueUpdate?: () => void
+  /** True while transitioning between add-row cells (pointerdown → click). Prevents blur from triggering finalization. */
+  addRowTransitioning?: Ref<boolean>
 }

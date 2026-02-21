@@ -57,7 +57,7 @@ const rowRules = [
 ]
 
 // Toggle validation on/off for demonstration
-const validationEnabled = ref(true)
+const validationEnabled = ref(false)
 
 // Computed validation schema
 // Cast schema to any to handle optional fields for add-row compatibility
@@ -206,7 +206,7 @@ const columns: NuGridColumn<Product>[] = [
     minSize: 150,
     size: 200,
     // Name is required when adding a new row
-    requiredNew: true,
+    // requiredNew: true,
   },
   {
     accessorKey: 'category',

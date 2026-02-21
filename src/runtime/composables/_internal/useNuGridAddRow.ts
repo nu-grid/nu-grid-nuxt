@@ -1099,5 +1099,6 @@ export function useNuGridAddRow<T extends TableData>(options: {
     finalizingRowId,
     valueVersion,
     triggerValueUpdate,
+    addRowTransitioning,
   }
 }

@@ -256,6 +256,7 @@ export function useNuGridAutosize<T extends TableData>(
 
   // Track if initial autosize has run and grid is ready to show
   let initialAutosizeComplete = false
+  let prevColumnCount = props.columns?.length ?? 0
   // For fill, CSS flex handles initial distribution so ready immediately
   // For content, need to wait for measurement
   const autosizeReady = ref(!autoSize.value || autoSize.value === 'fill')
@@ -306,15 +307,36 @@ export function useNuGridAutosize<T extends TableData>(
     }
   }
 
-  // Auto-size on mount and when data changes if autoSize is set
+  // Auto-size on mount and when data or columns change if autoSize is set
   watch(
-    [() => props.data, autoSize],
+    [() => props.data, autoSize, () => props.columns?.length],
     () => {
       if (autoSize.value) {
+        // Detect column count changes so fill mode can redistribute
+        const currentColumnCount = props.columns?.length ?? 0
+        const columnsChanged = currentColumnCount !== prevColumnCount
+        prevColumnCount = currentColumnCount
+
         // For fill, CSS flex handles distribution - no JS measurement needed
         if (autoSize.value === 'fill') {
           autosizeReady.value = true
           initialAutosizeComplete = true
+
+          // When columns change, clear stale sizing for flex columns so CSS flex
+          // can redistribute all columns evenly within the container
+          if (columnsChanged) {
+            const visibleColumns = tableApi.getVisibleLeafColumns()
+            const toRemove = visibleColumns
+              .filter((col) => (col.columnDef as { grow?: boolean }).grow !== false)
+              .map((col) => col.id)
+            if (toRemove.length > 0) {
+              tableApi.setColumnSizing((old) => {
+                const next = { ...old }
+                for (const id of toRemove) delete next[id]
+                return next
+              })
+            }
+          }
 
           // After first render, sync flex column widths to TanStack
           // so resize works correctly from the first click

@@ -341,6 +341,7 @@ const {
   finalizingRowId: addRowFinalizingRowId,
   valueVersion: addRowValueVersion,
   triggerValueUpdate: addRowTriggerValueUpdate,
+  addRowTransitioning,
 } = useNuGridAddRow({
   props,
   data,
@@ -542,6 +543,9 @@ const cellEditingFns = useNuGridCellEditing(
     isEmptyGroupPlaceholder: (row) => isEmptyGroupPlaceholder(row.original),
     finalizeAddRow,
     resetAddRow,
+    addRowTransitioning,
+    valueVersion: addRowValueVersion,
+    triggerValueUpdate: addRowTriggerValueUpdate,
   },
 )
 cellEditingFnsRef.value = cellEditingFns
@@ -865,6 +869,7 @@ const addRowContext: NuGridAddRowContext<T> = {
   finalizingRowId: addRowFinalizingRowId,
   valueVersion: addRowValueVersion,
   triggerValueUpdate: addRowTriggerValueUpdate,
+  addRowTransitioning,
 }
 
 provide('nugrid-add-row', addRowContext)
