@@ -878,14 +878,7 @@ export function useNuGridCellEditing<T extends TableData>(
         plugin.onValueChanged(oldValue, coercedValue, pluginContext)
       }
 
-      emit({
-        row,
-        column: cell.column,
-        oldValue,
-        newValue: coercedValue,
-      })
-
-      // Update the data directly
+      // Update the data BEFORE emitting so event handlers see the new value
       const rowIndex = data.value.findIndex((r: T, index: number) => {
         return tableApi.options.getRowId?.(r, index) === row.id || r === row.original
       })
@@ -932,6 +925,14 @@ export function useNuGridCellEditing<T extends TableData>(
           data.value = [...data.value]
         }
       }
+
+      // Emit AFTER data is mutated so handlers can read the current state
+      emit({
+        row,
+        column: cell.column,
+        oldValue,
+        newValue: coercedValue,
+      })
     }
 
     let shouldFocusNewAddRowAfterFinalize = false
