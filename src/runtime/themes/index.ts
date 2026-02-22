@@ -1,6 +1,7 @@
 import type { NuGridThemeDefinition } from '../types/theme'
 import { nuGridTheme } from './nuGridTheme'
 import { nuGridThemeCompact } from './nuGridThemeCompact'
+import './nuGridThemeCompact.css'
 
 // Re-export themes for direct import
 export { nuGridTheme } from './nuGridTheme'

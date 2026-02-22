@@ -61,6 +61,9 @@ export const nuGridTheme = {
       'group flex shrink-0 items-stretch overflow-hidden p-0! bg-elevated border-b-2 border-primary/30',
     thGroupInner:
       'flex flex-1 items-center px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted',
+    // Editor container slots - control the wrapper around editors in edit mode
+    editorContainer: '-ml-3 w-full',
+    editorContainerTextarea: 'absolute inset-0 -mx-2.5 -my-2',
     // Editor validation error styling
     editorErrorRing: 'ring-error ring-1',
     validationPopoverContent: 'p-2 text-xs',

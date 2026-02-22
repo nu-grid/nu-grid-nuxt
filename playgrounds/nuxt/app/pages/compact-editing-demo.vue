@@ -136,7 +136,8 @@ const columns: NuGridColumn<Employee>[] = [
     header: 'Notes',
     size: 160,
     minSize: 120,
-    cellDataType: 'text',
+    cellDataType: 'textarea',
+    wrapText: true,
   },
 ]
 
@@ -206,7 +207,8 @@ const exampleCode = `<NuGrid
         Editors are styled to fit the compact cell sizing.
       </p>
       <ul class="list-inside list-disc space-y-1 text-sm text-muted">
-        <li><strong>Text:</strong> Name, Notes</li>
+        <li><strong>Text:</strong> Name</li>
+        <li><strong>Textarea:</strong> Notes (multi-line)</li>
         <li><strong>Lookup:</strong> Department, Role (dropdown)</li>
         <li><strong>Currency:</strong> Salary ($)</li>
         <li><strong>Percentage:</strong> Performance (%)</li>

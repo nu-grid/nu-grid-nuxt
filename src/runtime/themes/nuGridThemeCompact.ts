@@ -24,7 +24,7 @@ export const nuGridThemeCompact = {
     // Tighter spacing: px-2 py-1.5 instead of px-4 py-3.5
     th: 'flex shrink-0 items-stretch p-0! group bg-elevated border-r border-default last:border-r-0 text-left rtl:text-right text-xs font-semibold text-highlighted uppercase tracking-wide',
     // Tighter cell padding: px-2 py-1 instead of p-4
-    td: 'flex shrink-0 items-center overflow-hidden border-r border-default/50 last:border-r-0 px-2 py-1 whitespace-nowrap text-[0.8125rem] h-8 text-highlighted outline-none! focus-visible:outline-none!',
+    td: 'flex shrink-0 items-center overflow-hidden border-r border-default/50 last:border-r-0 px-2 py-1 whitespace-nowrap text-[0.8125rem] text-highlighted outline-none! focus-visible:outline-none!',
     tr: 'flex border-b border-default hover:bg-elevated/50 outline-none! focus-visible:outline-none!',
     tbody: 'divide-y-0!',
     loading: 'flex-1',
@@ -168,8 +168,7 @@ export const nuGridThemeCompact = {
     // Multi-row focused state (row focus mode with multi-row layout)
     focusMultiRow: {
       true: {
-        multiRowContainer:
-          'bg-primary/10 ring-1 ring-inset ring-primary rounded',
+        multiRowContainer: 'bg-primary/10 ring-1 ring-inset ring-primary rounded',
       },
       false: {},
     },

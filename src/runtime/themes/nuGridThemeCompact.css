@@ -1,0 +1,86 @@
+/* ==========================================================================
+   Compact theme editor overrides
+   Shrink Nuxt UI inputs, focus rings, and editor chrome to fit compact cells
+   ========================================================================== */
+
+/* --- Input sizing --- */
+.nugrid-compact [data-editing] [data-slot='root'] {
+  --ui-input-height: 1.5rem;
+}
+
+.nugrid-compact [data-editing] input,
+.nugrid-compact [data-editing] select {
+  font-size: 0.8125rem;
+  padding-top: 0.0625rem;
+  padding-bottom: 0.0625rem;
+  padding-left: 0.375rem;
+  padding-right: 0.375rem;
+}
+
+
+.nugrid-compact [data-editing] textarea {
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  padding: 0.0625rem 0.25rem;
+}
+
+/* --- Focus ring: shrink ring-2 → ring-1 on UInput / UTextarea --- */
+.nugrid-compact [data-editing] input:focus-visible,
+.nugrid-compact [data-editing] textarea:focus-visible,
+.nugrid-compact [data-editing] select:focus-visible {
+  --tw-ring-offset-width: 0px;
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+}
+
+/* Default (unfocused) outline ring on inputs: shrink from 1px to 0.5px */
+.nugrid-compact [data-editing] [data-slot='root'] input {
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 0.5px var(--tw-ring-color);
+}
+
+/* --- Lookup / select menu trigger --- */
+.nugrid-compact [data-editing] [data-slot='base'][aria-haspopup='listbox'] {
+  font-size: 0.8125rem;
+  min-height: 1.5rem;
+  padding-top: 0.0625rem;
+  padding-bottom: 0.0625rem;
+  padding-left: 0.375rem;
+  padding-right: 0.375rem;
+  /* Shrink the hardcoded ring-2 to ring-1 */
+  --tw-ring-offset-width: 0px;
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 1px var(--tw-ring-color);
+}
+
+/* --- Rating editor --- */
+/* Smaller stars */
+.nugrid-compact [data-editing] .flex.items-center.gap-1 svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Shrink star focus ring from ring-2 to ring-1 */
+.nugrid-compact [data-editing] .flex.items-center.gap-1 button {
+  --tw-ring-offset-width: 0px;
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+}
+
+/* Shrink rating container focus border from border-2 to border */
+.nugrid-compact [data-editing] .flex.items-center.gap-1[tabindex='0'] {
+  border-width: 1px;
+  padding: 0.125rem;
+}
+
+/* --- Hide number input spinners --- */
+.nugrid-compact [data-editing] input[type='number']::-webkit-inner-spin-button,
+.nugrid-compact [data-editing] input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.nugrid-compact [data-editing] input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* --- Currency / percentage symbols --- */
+.nugrid-compact [data-editing] .text-gray-500 {
+  font-size: 0.8125rem;
+}
