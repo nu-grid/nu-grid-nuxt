@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { NuGridCellEditorEmits, NuGridCellEditorProps } from '../../types'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import type { ComputedRef } from 'vue'
+import { computed, inject, nextTick, onMounted, ref, watch } from 'vue'
 import { useNuGridCellEditor } from '../../composables'
 
 defineOptions({ inheritAttrs: false })
@@ -13,6 +14,13 @@ const clearButtonRef = ref<HTMLElement | null>(null)
 const hoveredStar = ref<number | null>(null)
 const selectedStar = ref<number | null>(null)
 const focusedIndex = ref<number | null>(null) // 0 = clear button, 1-5 = stars
+
+// Inject enterBehavior from grid context
+const injectedEnterBehavior = inject<ComputedRef<string>>('nugrid-enter-behavior', null)
+
+function getEnterBehavior() {
+  return injectedEnterBehavior?.value ?? props.enterBehavior ?? 'default'
+}
 
 // Use a dummy ref for the composable (we handle most keys manually)
 const dummyRef = ref(null)
@@ -141,14 +149,20 @@ function handleKeydown(e: KeyboardEvent) {
     return
   }
 
-  // Handle Enter - activate current selection and close
+  // Handle Enter - activate current selection and close/navigate
   if (e.key === 'Enter') {
     e.preventDefault()
     if (focusedIndex.value === 0) {
       // Clear button is focused, clear the rating
-      setRating(null, true)
+      rating.value = null
+      selectedStar.value = null
+    }
+    const behavior = getEnterBehavior()
+    if (behavior === 'moveDown') {
+      scheduleNavigation(e.shiftKey ? 'up' : 'down')
+    } else if (behavior === 'moveCell') {
+      scheduleNavigation(e.shiftKey ? 'previous' : 'next')
     } else {
-      // Star is focused, save current selection and close
       // eslint-disable-next-line vue/custom-event-name-casing
       emit('stop-editing')
     }

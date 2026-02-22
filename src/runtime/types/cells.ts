@@ -46,6 +46,12 @@ export interface NuGridCellEditorProps<T extends TableData = TableData> {
    * instead of managing their own document-level listeners
    */
   interactionRouter?: NuGridInteractionRouter<T>
+  /**
+   * What happens when Enter is pressed during editing
+   * Passed from the grid's editing options
+   * @defaultValue 'default'
+   */
+  enterBehavior?: 'default' | 'moveDown' | 'moveCell'
 }
 
 /**

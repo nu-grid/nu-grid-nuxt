@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { NuGridCellEditorEmits, NuGridCellEditorProps, NuGridShowErrors } from '../../types'
 import type { NuGridCoreContext, NuGridValidationContext } from '../../types/_internal'
+import type { ComputedRef } from 'vue'
 import { computed, inject, ref } from 'vue'
 import { useNuGridCellEditor } from '../../composables'
 import { defaultValidationIcon } from '../../composables/_internal/useNuGridCellEditing'
@@ -12,6 +13,13 @@ const emit = defineEmits<NuGridCellEditorEmits>()
 
 const textareaRef = ref<any>(null)
 const isHovered = ref(false)
+
+// Inject enterBehavior from grid context
+const injectedEnterBehavior = inject<ComputedRef<string>>('nugrid-enter-behavior', null)
+
+function getEnterBehavior() {
+  return injectedEnterBehavior?.value ?? props.enterBehavior ?? 'default'
+}
 
 // Inject the core context for UI configuration
 const coreContext = inject<NuGridCoreContext>('nugrid-core')!
@@ -44,7 +52,16 @@ function handleKeydown(e: KeyboardEvent) {
     // Cmd/Ctrl+Enter or Shift+Enter saves and exits
     if (e.metaKey || e.ctrlKey || e.shiftKey) {
       e.preventDefault()
-      emit('stop-editing')
+      const behavior = getEnterBehavior()
+      if (behavior === 'moveDown') {
+        emit('update:isNavigating', true)
+        emit('stop-editing', e.shiftKey ? 'up' : 'down')
+      } else if (behavior === 'moveCell') {
+        emit('update:isNavigating', true)
+        emit('stop-editing', e.shiftKey ? 'previous' : 'next')
+      } else {
+        emit('stop-editing')
+      }
     }
     // Plain Enter allows new line (default behavior)
   } else if (e.key === 'Escape') {

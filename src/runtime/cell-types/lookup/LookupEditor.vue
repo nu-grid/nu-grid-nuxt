@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { NuGridCellEditorEmits, NuGridCellEditorProps, NuGridLookupItem } from '../../types'
 import type { NuGridKeyboardContext } from '../../types/_internal'
-import { computed, isRef, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import type { ComputedRef } from 'vue'
+import { computed, inject, isRef, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import NuGridSelectMenu from '../../components/NuGridSelectMenu.vue'
 import { nuGridDefaults } from '../../config/_internal'
 import { ROUTER_PRIORITIES } from '../../types/_internal'
@@ -10,6 +11,13 @@ defineOptions({ inheritAttrs: false })
 
 const props = defineProps<NuGridCellEditorProps>()
 const emit = defineEmits<NuGridCellEditorEmits>()
+
+// Inject enterBehavior from grid context
+const injectedEnterBehavior = inject<ComputedRef<string>>('nugrid-enter-behavior', null)
+
+function getEnterBehavior() {
+  return injectedEnterBehavior?.value ?? props.enterBehavior ?? 'default'
+}
 
 const containerRef = ref<HTMLElement | null>(null)
 const selectMenuRef = ref<InstanceType<typeof NuGridSelectMenu> | null>(null)
@@ -83,6 +91,7 @@ const valueJustChanged = ref(false) // Prevents exit when value is being changed
 const navigatingViaTab = ref(false) // Indicates Tab navigation in progress
 const escapingMenu = ref(false) // Prevents exit when first Escape closes menu
 const lastKeyPressed = ref<string | null>(null) // Tracks last key pressed to detect Enter-based exits
+const lastKeyShift = ref(false) // Tracks Shift state of last key press
 
 function handleValueChange(value: any) {
   // Set flag BEFORE emitting to ensure handleMenuClose sees it
@@ -99,10 +108,22 @@ function handleValueChange(value: any) {
 function handleMenuClose(open: boolean) {
   // Special handling for Enter key - always exit edit mode after selection
   if (!open && lastKeyPressed.value === 'Enter') {
+    const shiftHeld = lastKeyShift.value
     lastKeyPressed.value = null
+    lastKeyShift.value = false
     setTimeout(() => {
-      // eslint-disable-next-line vue/custom-event-name-casing
-      emit('stop-editing')
+      if (getEnterBehavior() === 'moveDown') {
+        emit('update:isNavigating', true)
+        // eslint-disable-next-line vue/custom-event-name-casing
+        emit('stop-editing', shiftHeld ? 'up' : 'down')
+      } else if (getEnterBehavior() === 'moveCell') {
+        emit('update:isNavigating', true)
+        // eslint-disable-next-line vue/custom-event-name-casing
+        emit('stop-editing', shiftHeld ? 'previous' : 'next')
+      } else {
+        // eslint-disable-next-line vue/custom-event-name-casing
+        emit('stop-editing')
+      }
     }, 100)
     return
   }
@@ -142,6 +163,7 @@ function handleKeydown(ctx: NuGridKeyboardContext<any>) {
 
   // Track last key pressed for behavior coordination
   lastKeyPressed.value = e.key
+  lastKeyShift.value = e.shiftKey
 
   if (e.key === 'Tab') {
     if (isOpen.value) {
@@ -269,8 +291,18 @@ function handleKeydown(ctx: NuGridKeyboardContext<any>) {
       return { handled: false }
     } else {
       // Menu is closed - just exit edit mode
-      // eslint-disable-next-line vue/custom-event-name-casing
-      emit('stop-editing')
+      if (getEnterBehavior() === 'moveDown') {
+        emit('update:isNavigating', true)
+        // eslint-disable-next-line vue/custom-event-name-casing
+        emit('stop-editing', e.shiftKey ? 'up' : 'down')
+      } else if (getEnterBehavior() === 'moveCell') {
+        emit('update:isNavigating', true)
+        // eslint-disable-next-line vue/custom-event-name-casing
+        emit('stop-editing', e.shiftKey ? 'previous' : 'next')
+      } else {
+        // eslint-disable-next-line vue/custom-event-name-casing
+        emit('stop-editing')
+      }
       return { handled: true, preventDefault: true, stopPropagation: true }
     }
   }

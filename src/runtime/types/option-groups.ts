@@ -117,6 +117,15 @@ export interface NuGridEditingOptions<T extends TableData = TableData> {
   canEdit?: (row: Row<T>, columnId: string) => boolean
 
   /**
+   * What happens when Enter is pressed during editing
+   * - 'default': Save and stay on current cell
+   * - 'moveDown': Save and move to the cell below (Shift+Enter moves up)
+   * - 'moveCell': Save and move to next editable cell (Shift+Enter moves to previous)
+   * @defaultValue 'default'
+   */
+  enterBehavior?: 'default' | 'moveDown' | 'moveCell'
+
+  /**
    * Custom default editors for each cell data type
    * Allows overriding the built-in default editors
    */

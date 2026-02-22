@@ -17,6 +17,7 @@ export const nuGridDefaults = {
     startClicks: 'double',
     debounce: 0,
     commitOnBlur: true,
+    enterBehavior: 'default',
   },
   validation: {
     validateOn: 'reward',

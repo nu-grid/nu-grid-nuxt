@@ -1,6 +1,6 @@
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 import type { NuGridCellEditorEmits, NuGridCellEditorProps } from '../types'
-import { nextTick, onMounted, watch } from 'vue'
+import { inject, nextTick, onMounted, ref, watch } from 'vue'
 
 /**
  * Shared composable for building custom NuGrid cell editors
@@ -77,6 +77,14 @@ export function useNuGridCellEditor(
   inputRef: Ref<any>,
   customFocusCallback?: () => void,
 ) {
+  // Inject enterBehavior from grid context (provided by NuGrid component)
+  // Falls back to prop value for custom editors that might not be inside a NuGrid
+  const injectedEnterBehavior = inject<ComputedRef<string>>('nugrid-enter-behavior', null)
+
+  function getEnterBehavior() {
+    return injectedEnterBehavior?.value ?? props.enterBehavior ?? 'default'
+  }
+
   /**
    * Request navigation to another cell
    */
@@ -161,7 +169,14 @@ export function useNuGridCellEditor(
 
     if (e.key === 'Enter') {
       e.preventDefault()
-      emit('stop-editing')
+      const behavior = getEnterBehavior()
+      if (behavior === 'moveDown') {
+        scheduleNavigation(e.shiftKey ? 'up' : 'down')
+      } else if (behavior === 'moveCell') {
+        scheduleNavigation(e.shiftKey ? 'previous' : 'next')
+      } else {
+        emit('stop-editing')
+      }
     } else if (e.key === 'Escape') {
       e.preventDefault()
       emit('cancel-editing')

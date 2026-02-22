@@ -808,6 +808,8 @@ provide('nugrid-validation', {
   icon: computed(() => cellEditingFns.validationIcon.value),
 })
 
+provide('nugrid-enter-behavior', cellEditingFns.enterBehavior)
+
 provide('nugrid-row-interactions', {
   rowInteractions,
   rowSelectionMode: rowSelectionModeRef,

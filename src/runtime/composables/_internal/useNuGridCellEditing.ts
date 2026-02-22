@@ -107,6 +107,7 @@ export function useNuGridCellEditing<T extends TableData>(
   const editingEnabled = usePropWithDefault(props, 'editing', 'enabled')
   const startClicks = usePropWithDefault(props, 'editing', 'startClicks')
   const startKeys = usePropWithDefault(props, 'editing', 'startKeys')
+  const enterBehavior = usePropWithDefault(props, 'editing', 'enterBehavior')
 
   // Resolve validation configuration
   const validationConfig = computed(() => resolveValidationConfig(props.validation))
@@ -327,6 +328,7 @@ export function useNuGridCellEditing<T extends TableData>(
       'validationError': validationError.value,
       'showValidationErrors': shouldShowPopover,
       'interactionRouter': interactionRouter,
+      'enterBehavior': enterBehavior.value,
       ...componentProps,
       ...additionalProps,
       'onUpdate:modelValue': (value: any) => {
@@ -1940,6 +1942,7 @@ export function useNuGridCellEditing<T extends TableData>(
     showValidationErrors,
     validationIcon,
     startClicks,
+    enterBehavior,
     // Row validation
     rowValidationErrors,
     hasRowValidationError,

@@ -77,6 +77,14 @@ const links = [
         },
       },
       {
+        label: 'Enter Behavior',
+        icon: 'i-lucide-corner-down-left',
+        to: '/enter-behavior-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
         label: 'Tooltip',
         icon: 'i-lucide-message-square',
         to: '/tooltip-demo',
