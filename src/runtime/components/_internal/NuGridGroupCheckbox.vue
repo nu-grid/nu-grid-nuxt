@@ -2,12 +2,14 @@
 import type theme from '#build/ui/checkbox'
 import type { AppConfig } from '@nuxt/schema'
 import type { CheckboxEmits, CheckboxProps, CheckboxSlots, ComponentConfig } from '@nuxt/ui'
-import type { NuGridUIConfigContext } from '../../types/_internal'
+
 import { useAppConfig } from '#imports'
 import { tv } from '@nuxt/ui/runtime/utils/tv.js'
 import { reactivePick } from '@vueuse/core'
 import { CheckboxIndicator, CheckboxRoot, Label, Primitive, useForwardProps } from 'reka-ui'
 import { computed, inject, useId } from 'vue'
+
+import type { NuGridUIConfigContext } from '../../types/_internal'
 
 defineOptions({ inheritAttrs: false })
 

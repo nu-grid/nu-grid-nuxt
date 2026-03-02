@@ -1,6 +1,8 @@
-import type { NuGridCellType } from '../src/runtime/types/cells'
 import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
+
+import type { NuGridCellType } from '../src/runtime/types/cells'
+
 import {
   NuGridCellTypeRegistry,
   useNuGridCellTypeRegistry,

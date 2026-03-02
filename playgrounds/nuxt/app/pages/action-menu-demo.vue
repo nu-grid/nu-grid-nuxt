@@ -343,34 +343,34 @@ const exampleCode = `<NuGrid
 
       <div
         v-if="conditionalActions"
-        class="rounded-lg border border-dashed border-warning/50 bg-warning/5 p-2"
+        class="border-warning/50 bg-warning/5 rounded-lg border border-dashed p-2"
       >
-        <div class="flex items-center gap-1.5 text-warning">
+        <div class="text-warning flex items-center gap-1.5">
           <UIcon name="i-lucide-alert-triangle" class="size-3.5" />
           <span class="text-xs font-medium">Conditional Mode</span>
         </div>
-        <p class="mt-1 text-xs text-muted">Discontinued products have disabled actions.</p>
+        <p class="text-muted mt-1 text-xs">Discontinued products have disabled actions.</p>
       </div>
     </template>
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This page demonstrates the built-in
-        <code class="rounded bg-default px-1 py-0.5 text-xs">actionMenu</code>
+        <code class="bg-default rounded px-1 py-0.5 text-xs">actionMenu</code>
         property for NuGrid. This creates a column with an action dropdown menu at the end of each
         row.
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li><strong>getActions:</strong> Function that returns menu items for each row</li>
         <li><strong>isRowEnabled:</strong> Function that determines if actions are enabled</li>
         <li><strong>button:</strong> Customize the action button (icon, color, variant)</li>
         <li><strong>hidden:</strong> Hide the action column while keeping it functional</li>
       </ul>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Keyboard:</strong> Press
-        <kbd class="rounded bg-elevated px-1 py-0.5 text-xs">Space</kbd> to open menu,
-        <kbd class="rounded bg-elevated px-1 py-0.5 text-xs">Escape</kbd> to close.
+        <kbd class="bg-elevated rounded px-1 py-0.5 text-xs">Space</kbd> to open menu,
+        <kbd class="bg-elevated rounded px-1 py-0.5 text-xs">Escape</kbd> to close.
       </div>
     </template>
 

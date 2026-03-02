@@ -28,7 +28,7 @@ const columns: NuGridColumn<Row>[] = [
 
 <template>
   <div class="w-full">
-    <p class="mb-3 text-sm text-muted">
+    <p class="text-muted mb-3 text-sm">
       Rendering 1,000 rows with virtualization. Only visible rows are rendered in the DOM.
     </p>
     <div class="h-80">

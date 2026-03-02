@@ -28,6 +28,6 @@ const handleInput = (value: string) => {
       @blur="handleBlur"
       @keydown="handleKeydown"
     />
-    <span class="text-xs font-semibold text-primary">✨</span>
+    <span class="text-primary text-xs font-semibold">✨</span>
   </div>
 </template>

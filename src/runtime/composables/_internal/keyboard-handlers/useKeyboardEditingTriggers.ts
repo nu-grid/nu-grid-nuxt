@@ -1,5 +1,7 @@
 import type { TableData } from '@nuxt/ui'
+
 import type { NuGridKeyboardHandler } from '../../../types/_internal'
+
 import { ROUTER_PRIORITIES } from '../../../types/_internal'
 
 export type StartKeyOption = 'enter' | 'f2' | 'bs' | 'alpha' | 'numeric'
@@ -72,18 +74,18 @@ export function createEditingTriggersHandler<T extends TableData>(
 
       // Printable character - Start editing with that character
       if (
-        event.key.length === 1
-        && !event.ctrlKey
-        && !event.metaKey
-        && !event.altKey
-        && event.key !== ' ' // Exclude space to avoid conflicts with shortcuts
+        event.key.length === 1 &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey &&
+        event.key !== ' ' // Exclude space to avoid conflicts with shortcuts
       ) {
         const isAlpha = /[a-z]/i.test(event.key)
         const isNumeric = /\d/.test(event.key)
 
         if (
-          (isAlpha && enabledKeys.includes('alpha'))
-          || (isNumeric && enabledKeys.includes('numeric'))
+          (isAlpha && enabledKeys.includes('alpha')) ||
+          (isNumeric && enabledKeys.includes('numeric'))
         ) {
           cellEditingFns.startEditing(row, cell, event.key)
           return { handled: true, preventDefault: true, stopPropagation: true }

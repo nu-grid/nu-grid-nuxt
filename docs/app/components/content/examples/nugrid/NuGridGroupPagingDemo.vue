@@ -83,7 +83,7 @@ const columns: NuGridColumn<Task>[] = [
         </UButton>
       </UFieldGroup>
 
-      <span class="text-sm font-medium ml-4">Page Size:</span>
+      <span class="ml-4 text-sm font-medium">Page Size:</span>
       <UFieldGroup>
         <UButton
           v-for="size in [10, 20, 50]"
@@ -98,7 +98,7 @@ const columns: NuGridColumn<Task>[] = [
       </UFieldGroup>
     </div>
 
-    <div class="rounded-lg border border-default p-3 bg-elevated/30 text-sm">
+    <div class="border-default bg-elevated/30 rounded-lg border p-3 text-sm">
       <div class="flex items-center gap-4">
         <span><strong>Tasks:</strong> {{ data.length }}</span>
         <span><strong>Grouped by:</strong> {{ grouping.join(', ') }}</span>

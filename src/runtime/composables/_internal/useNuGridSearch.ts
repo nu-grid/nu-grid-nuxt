@@ -1,11 +1,14 @@
 import type { TableData } from '@nuxt/ui'
 import type { Table } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
-import type { NuGridSearchOptions } from '../../types/option-groups'
-import type { NuGridProps } from '../../types/props'
-import type { NuGridFocus, NuGridInteractionRouter } from '../../types/_internal'
+
 import { useDebounceFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
+
+import type { NuGridFocus, NuGridInteractionRouter } from '../../types/_internal'
+import type { NuGridSearchOptions } from '../../types/option-groups'
+import type { NuGridProps } from '../../types/props'
+
 import { nuGridDefaults } from '../../config/_internal'
 
 /**
@@ -117,8 +120,13 @@ export function useNuGridSearch<T extends TableData = TableData>(
   options: UseNuGridSearchOptions<T>,
 ): NuGridSearchContext {
   const {
-    props, tableApi, globalFilterState, interactionRouter,
-    isEditing, gridRoot, onFocusFirstResult,
+    props,
+    tableApi,
+    globalFilterState,
+    interactionRouter,
+    isEditing,
+    gridRoot,
+    onFocusFirstResult,
     focusFns,
   } = options
 
@@ -168,11 +176,15 @@ export function useNuGridSearch<T extends TableData = TableData>(
   })
 
   // Sync from external global filter changes
-  watch(globalFilterState, (newValue) => {
-    if (rawSearchQuery.value !== newValue) {
-      rawSearchQuery.value = newValue ?? ''
-    }
-  }, { immediate: true })
+  watch(
+    globalFilterState,
+    (newValue) => {
+      if (rawSearchQuery.value !== newValue) {
+        rawSearchQuery.value = newValue ?? ''
+      }
+    },
+    { immediate: true },
+  )
 
   // Clear search
   const clear = () => {
@@ -248,12 +260,14 @@ export function useNuGridSearch<T extends TableData = TableData>(
     const lowerQuery = query.toLowerCase()
     // Use flatRows from the current row model (respects grouping/sorting/filtering)
     // and filter to leaf rows only (skip group header rows)
-    const rowsList = tableApi.getRowModel().flatRows.filter(r => !r.getIsGrouped())
+    const rowsList = tableApi.getRowModel().flatRows.filter((r) => !r.getIsGrouped())
 
     // Build a map of accessor key → visible column index for cell-level focus
     const visibleColumns = tableApi.getVisibleLeafColumns()
     const columnIndexMap = new Map<string, number>()
-    visibleColumns.forEach((col, idx) => { columnIndexMap.set(col.id, idx) })
+    visibleColumns.forEach((col, idx) => {
+      columnIndexMap.set(col.id, idx)
+    })
 
     // Get searchable column accessor keys from props
     const searchableColumns = (props.columns ?? []).filter((col: any) => {
@@ -262,7 +276,7 @@ export function useNuGridSearch<T extends TableData = TableData>(
     })
 
     // Two-pass search: prefer startsWith matches, fall back to contains
-    let containsMatch: { rowId: string, columnKey: string } | null = null
+    let containsMatch: { rowId: string; columnKey: string } | null = null
 
     for (let i = 0; i < rowsList.length; i++) {
       const row = rowsList[i]
@@ -279,7 +293,10 @@ export function useNuGridSearch<T extends TableData = TableData>(
         if (stringValue.startsWith(lowerQuery)) {
           // Exact startsWith match - navigate immediately
           const columnIndex = columnIndexMap.get(key)
-          focusFns.focusRowById(row.id, { align: 'nearest', ...(columnIndex !== undefined && { columnIndex }) })
+          focusFns.focusRowById(row.id, {
+            align: 'nearest',
+            ...(columnIndex !== undefined && { columnIndex }),
+          })
           return
         }
         if (!containsMatch && stringValue.includes(lowerQuery)) {
@@ -291,7 +308,10 @@ export function useNuGridSearch<T extends TableData = TableData>(
     // Fall back to contains match if no startsWith match was found
     if (containsMatch) {
       const columnIndex = columnIndexMap.get(containsMatch.columnKey)
-      focusFns.focusRowById(containsMatch.rowId, { align: 'nearest', ...(columnIndex !== undefined && { columnIndex }) })
+      focusFns.focusRowById(containsMatch.rowId, {
+        align: 'nearest',
+        ...(columnIndex !== undefined && { columnIndex }),
+      })
     }
   }
 
@@ -323,9 +343,9 @@ export function useNuGridSearch<T extends TableData = TableData>(
 
         const key = event.key
         return (
-          key.length === 1 // Printable character
-          || key === 'Backspace'
-          || key === 'Escape'
+          key.length === 1 || // Printable character
+          key === 'Backspace' ||
+          key === 'Escape'
         )
       },
       handle: (context) => {

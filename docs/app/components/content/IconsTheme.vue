@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import json5 from 'json5'
+
 import icons from '../../../../src/theme/icons'
 
 const { framework } = useFrameworks()

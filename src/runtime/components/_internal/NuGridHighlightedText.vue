@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { ComputedRef } from 'vue'
+
 import { computed, inject } from 'vue'
+
 import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
+
 import { useNuGridSearchHighlight } from '../../composables/_internal/useNuGridSearchHighlight'
 
 interface Props {
@@ -19,13 +22,21 @@ const uiConfig = inject<{ searchHighlight?: ComputedRef<string> } | null>('nugri
 
 // Get highlight class from theme
 const highlightClass = computed(
-  () => uiConfig?.searchHighlight?.value ?? 'text-inherit bg-yellow-200 dark:bg-yellow-500/30 rounded-sm px-0.5 -mx-0.5',
+  () =>
+    uiConfig?.searchHighlight?.value ??
+    'text-inherit bg-yellow-200 dark:bg-yellow-500/30 rounded-sm px-0.5 -mx-0.5',
 )
 
 // Use highlight composable - highlight matches from either the search panel or type-ahead buffer
 const { highlightText, isActive } = useNuGridSearchHighlight({
-  searchQuery: computed(() => searchContext?.searchQuery.value || searchContext?.typeAheadBuffer.value || ''),
-  enabled: computed(() => (searchContext?.enabled.value ?? false) || (searchContext?.typeAheadBuffer.value?.length ?? 0) > 0),
+  searchQuery: computed(
+    () => searchContext?.searchQuery.value || searchContext?.typeAheadBuffer.value || '',
+  ),
+  enabled: computed(
+    () =>
+      (searchContext?.enabled.value ?? false) ||
+      (searchContext?.typeAheadBuffer.value?.length ?? 0) > 0,
+  ),
 })
 
 // Get text segments with highlighting info - short-circuit when search is not active
@@ -37,7 +48,7 @@ const segments = computed(() => {
 })
 
 // Check if any segment is a match (for conditional rendering)
-const hasMatchingSegment = computed(() => segments.value.some(s => s.isMatch))
+const hasMatchingSegment = computed(() => segments.value.some((s) => s.isMatch))
 </script>
 
 <template>

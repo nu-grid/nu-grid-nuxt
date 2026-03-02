@@ -17,6 +17,7 @@ hover:bg-cyan-100 hover:bg-cyan-800 dark:hover:bg-cyan-800 dark:bg-cyan-900 dark
 -->
 <script setup lang="ts">
 import type { NuGridColumn } from '#nu-grid/types'
+
 import { createNuGridTheme, getAllThemes, registerTheme } from '#nu-grid/themes'
 
 interface Person {
@@ -200,18 +201,18 @@ const availableThemes = computed(() => {
       </UFieldGroup>
     </div>
 
-    <div class="grid gap-3 md:grid-cols-3 text-sm">
-      <div class="rounded-lg border border-default p-3">
+    <div class="grid gap-3 text-sm md:grid-cols-3">
+      <div class="border-default rounded-lg border p-3">
         <p class="font-medium">Default Theme</p>
-        <p class="text-muted text-xs mt-1">Uses app primary color with comfortable spacing</p>
+        <p class="text-muted mt-1 text-xs">Uses app primary color with comfortable spacing</p>
       </div>
-      <div class="rounded-lg border border-default p-3">
+      <div class="border-default rounded-lg border p-3">
         <p class="font-medium">Compact Theme</p>
-        <p class="text-muted text-xs mt-1">Blue accent, tighter spacing for dense data</p>
+        <p class="text-muted mt-1 text-xs">Blue accent, tighter spacing for dense data</p>
       </div>
-      <div class="rounded-lg border border-default p-3">
+      <div class="border-default rounded-lg border p-3">
         <p class="font-medium">Custom Themes</p>
-        <p class="text-muted text-xs mt-1">Ocean, Purple, Emerald - extend built-in themes</p>
+        <p class="text-muted mt-1 text-xs">Ocean, Purple, Emerald - extend built-in themes</p>
       </div>
     </div>
 
@@ -221,7 +222,7 @@ const availableThemes = computed(() => {
       :data="data"
       :columns="columns"
       :focus="{ mode: 'cell' }"
-      class="max-h-[300px] rounded border border-default"
+      class="border-default max-h-[300px] rounded border"
     />
   </div>
 </template>

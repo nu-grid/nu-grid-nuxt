@@ -1,4 +1,7 @@
 import type { TableData } from '@nuxt/ui'
+
+import { ref } from 'vue'
+
 import type { NuGridEventEmitter } from '../../types'
 import type {
   NuGridCellClickContext,
@@ -12,7 +15,6 @@ import type {
   NuGridWheelContext,
   NuGridWheelHandler,
 } from '../../types/_internal'
-import { ref } from 'vue'
 
 interface RouterOptions<T extends TableData = TableData> {
   debug?: boolean
@@ -94,10 +96,10 @@ function dispatchHandlers(
     }
 
     const shouldStop = Boolean(
-      result.stop
-      || result.handled
-      || context.event.defaultPrevented
-      || (context.event as any).cancelBubble,
+      result.stop ||
+      result.handled ||
+      context.event.defaultPrevented ||
+      (context.event as any).cancelBubble,
     )
 
     if (shouldStop) {
@@ -525,7 +527,7 @@ export function useNuGridInteractionRouter<T extends TableData>(
       const columnName = columnDef
         ? typeof columnDef.header === 'string'
           ? columnDef.header
-          : column?.id ?? null
+          : (column?.id ?? null)
         : null
       const keydownEvent = {
         event,

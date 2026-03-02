@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import type { Component, ComputedRef } from 'vue'
-import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
-import type { NuGridAddRowContext, NuGridCellEditing, NuGridCoreContext } from '../../types/_internal'
+
 import { FlexRender } from '@tanstack/vue-table'
 import { computed, inject, ref, resolveComponent, watch } from 'vue'
+
+import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
+import type {
+  NuGridAddRowContext,
+  NuGridCellEditing,
+  NuGridCoreContext,
+} from '../../types/_internal'
+
 import { nuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegistry'
 import NuGridHighlightedText from './NuGridHighlightedText.vue'
 
@@ -130,9 +137,9 @@ const isRendererFunction = computed(() => {
   const renderer = pluginRenderer.value
   if (!renderer) return false
   return (
-    typeof renderer === 'function'
-    && !('component' in (renderer as any))
-    && !('__name' in (renderer as any)) // Vue component check
+    typeof renderer === 'function' &&
+    !('component' in (renderer as any)) &&
+    !('__name' in (renderer as any)) // Vue component check
   )
 })
 
@@ -186,9 +193,7 @@ const pluginRendererProps = computed(() => {
   // Access reactive dependencies at the TOP to ensure they're tracked before early returns
   // - valueVersion: triggers re-render when add row values change
   // - isEditing: triggers re-render when editing state changes (value saved on edit stop)
-  // eslint-disable-next-line ts/no-unused-expressions
   addRowContext?.valueVersion?.value
-  // eslint-disable-next-line ts/no-unused-expressions
   isEditing.value
 
   if (!shouldUsePluginRenderer.value || !pluginRenderer.value || isRendererFunction.value) {
@@ -233,7 +238,6 @@ const functionRendererResult = computed(() => {
   // For add rows, read value directly from row.original
   const getValue = () => {
     if (isAddRow.value) {
-      // eslint-disable-next-line ts/no-unused-expressions
       addRowContext?.valueVersion?.value
       const key = cellAccessorKey.value
       return (props.row.original as any)?.[key]
@@ -300,7 +304,8 @@ const editorContent = computed(() => {
 // Check if search highlighting should be applied to this cell
 const shouldHighlight = computed(() => {
   // Highlight when either the search panel has a query or type-ahead is active
-  const hasQuery = searchContext?.isSearching.value || (searchContext?.typeAheadBuffer.value?.length ?? 0) > 0
+  const hasQuery =
+    searchContext?.isSearching.value || (searchContext?.typeAheadBuffer.value?.length ?? 0) > 0
   if (!hasQuery) return false
   // Check if this column is searchable
   const columnDef = props.cell.column.columnDef
@@ -312,7 +317,6 @@ const shouldHighlight = computed(() => {
 const cellTextValue = computed(() => {
   // For add rows, read directly from row.original
   if (isAddRow.value) {
-    // eslint-disable-next-line ts/no-unused-expressions
     addRowContext?.valueVersion?.value
     const key = cellAccessorKey.value
     const value = (props.row.original as any)?.[key]

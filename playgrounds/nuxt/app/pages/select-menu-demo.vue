@@ -42,7 +42,7 @@ const textAfter = ref('')
   <div class="container mx-auto max-w-4xl p-8">
     <h1 class="mb-8 text-2xl font-bold">NuGridSelectMenu Demo</h1>
 
-    <p class="mb-6 text-muted">
+    <p class="text-muted mb-6">
       Testing custom NuGridSelectMenu component (local copy of Nuxt UI's SelectMenu).
     </p>
 
@@ -60,7 +60,7 @@ const textAfter = ref('')
         <h2 class="mb-4 text-lg font-semibold">Basic Select</h2>
         <div class="flex items-center gap-4">
           <div class="w-48">
-            <label class="mb-1 block text-sm text-muted">NuGridSelectMenu:</label>
+            <label class="text-muted mb-1 block text-sm">NuGridSelectMenu:</label>
             <NuGridSelectMenu
               v-model="selectedStatus"
               :items="statusItems"
@@ -71,7 +71,7 @@ const textAfter = ref('')
             />
           </div>
           <div class="w-48">
-            <label class="mb-1 block text-sm text-muted">Standard USelectMenu:</label>
+            <label class="text-muted mb-1 block text-sm">Standard USelectMenu:</label>
             <USelectMenu
               v-model="standardStatus"
               :items="statusItems"
@@ -81,8 +81,12 @@ const textAfter = ref('')
             />
           </div>
           <div class="text-sm">
-            <div>NuGrid value: <code class="rounded bg-default px-1">{{ selectedStatus }}</code></div>
-            <div>Standard value: <code class="rounded bg-default px-1">{{ standardStatus }}</code></div>
+            <div>
+              NuGrid value: <code class="bg-default rounded px-1">{{ selectedStatus }}</code>
+            </div>
+            <div>
+              Standard value: <code class="bg-default rounded px-1">{{ standardStatus }}</code>
+            </div>
           </div>
         </div>
       </div>
@@ -112,7 +116,7 @@ const textAfter = ref('')
             />
           </div>
           <div class="text-sm">
-            Selected: <code class="rounded bg-default px-1">{{ selectedCategory }}</code>
+            Selected: <code class="bg-default rounded px-1">{{ selectedCategory }}</code>
           </div>
         </div>
       </div>
@@ -133,7 +137,7 @@ const textAfter = ref('')
             />
           </div>
           <div class="text-sm">
-            Selected: <code class="rounded bg-default px-1">{{ selectedPriority }}</code>
+            Selected: <code class="bg-default rounded px-1">{{ selectedPriority }}</code>
           </div>
         </div>
       </div>
@@ -163,7 +167,7 @@ const textAfter = ref('')
             />
           </div>
           <div class="text-sm">
-            Selected: <code class="rounded bg-default px-1">{{ selectedMultiple }}</code>
+            Selected: <code class="bg-default rounded px-1">{{ selectedMultiple }}</code>
           </div>
         </div>
       </div>
@@ -185,9 +189,7 @@ const textAfter = ref('')
               open-on-focus
             />
           </div>
-          <div class="text-sm text-muted">
-            Type to search/filter items
-          </div>
+          <div class="text-muted text-sm">Type to search/filter items</div>
         </div>
       </div>
 
@@ -200,7 +202,7 @@ const textAfter = ref('')
       </div>
     </div>
 
-    <div class="mt-8 rounded bg-default/50 p-4 text-sm text-muted">
+    <div class="bg-default/50 text-muted mt-8 rounded p-4 text-sm">
       <h3 class="mb-2 font-semibold">Notes:</h3>
       <ul class="list-inside list-disc space-y-1">
         <li>This page tests the local NuGridSelectMenu component</li>

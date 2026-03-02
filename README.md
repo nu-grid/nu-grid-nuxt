@@ -74,9 +74,9 @@ NuGrid requires its CSS to be imported in your application's main stylesheet. Th
 Add the following to your `main.css` (or equivalent):
 
 ```css
-@import "tailwindcss";
-@import "@nuxt/ui";
-@import "@nu-grid/nuxt/css";
+@import 'tailwindcss';
+@import '@nuxt/ui';
+@import '@nu-grid/nuxt/css';
 ```
 
 ## Quick Start
@@ -95,13 +95,13 @@ interface Person {
 const columns: NuGridColumn<Person>[] = [
   { accessorKey: 'name', header: 'Name' },
   { accessorKey: 'email', header: 'Email' },
-  { accessorKey: 'age', header: 'Age', cellType: 'number' }
+  { accessorKey: 'age', header: 'Age', cellType: 'number' },
 ]
 
 const data = ref<Person[]>([
   { id: 1, name: 'John Doe', email: 'john@example.com', age: 32 },
   { id: 2, name: 'Jane Smith', email: 'jane@example.com', age: 28 },
-  { id: 3, name: 'Bob Wilson', email: 'bob@example.com', age: 45 }
+  { id: 3, name: 'Bob Wilson', email: 'bob@example.com', age: 45 },
 ])
 </script>
 
@@ -121,18 +121,13 @@ const columns: NuGridColumn<Person>[] = [
     accessorKey: 'age',
     header: 'Age',
     cellType: 'number',
-    editable: true
-  }
+    editable: true,
+  },
 ]
 </script>
 
 <template>
-  <NuGrid
-    :columns="columns"
-    :data="data"
-    editable
-    @cell-value-changed="handleChange"
-  />
+  <NuGrid :columns="columns" :data="data" editable @cell-value-changed="handleChange" />
 </template>
 ```
 
@@ -156,11 +151,7 @@ For large datasets, enable virtualization for optimal performance:
 
 ```vue
 <template>
-  <NuGridGroup
-    :columns="columns"
-    :data="data"
-    :group-by="['department', 'status']"
-  />
+  <NuGridGroup :columns="columns" :data="data" :group-by="['department', 'status']" />
 </template>
 ```
 

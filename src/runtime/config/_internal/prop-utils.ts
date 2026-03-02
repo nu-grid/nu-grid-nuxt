@@ -1,4 +1,7 @@
 import type { ComputedRef } from 'vue'
+
+import { computed } from 'vue'
+
 import type {
   NuGridAnimationOptions,
   NuGridEditingOptions,
@@ -11,7 +14,7 @@ import type {
   NuGridValidationOptions,
 } from '../../types'
 import type { NuGridVirtualizerOptions } from '../../types/_internal/virtualization'
-import { computed } from 'vue'
+
 import { nuGridDefaults } from './options-defaults'
 
 /**

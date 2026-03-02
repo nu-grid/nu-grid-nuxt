@@ -1,12 +1,32 @@
 {
   "name": "@nu-grid/nuxt",
-  "type": "module",
   "version": "0.3.1",
-  "packageManager": "pnpm@10.21.0",
   "description": "A powerful data grid component for Nuxt with virtualization, cell editing, and TanStack Table integration",
-  "license": "MIT",
   "homepage": "https://www.nu-grid.dev",
+  "license": "MIT",
   "repository": "https://github.com/nu-grid/nu-grid-nuxt",
+  "style": "./dist/runtime/index.css",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/module.mjs",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/types.d.mts"
+      ],
+      "types": [
+        "./dist/runtime/types/index.d.ts"
+      ],
+      "themes": [
+        "./dist/runtime/themes/index.d.ts"
+      ],
+      "cells": [
+        "./dist/runtime/types/cells.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "types": "./dist/types.d.mts",
@@ -30,27 +50,6 @@
       "import": "./dist/runtime/types/cells.js"
     }
   },
-  "style": "./dist/runtime/index.css",
-  "main": "./dist/module.mjs",
-  "typesVersions": {
-    "*": {
-      ".": [
-        "./dist/types.d.mts"
-      ],
-      "types": [
-        "./dist/runtime/types/index.d.ts"
-      ],
-      "themes": [
-        "./dist/runtime/themes/index.d.ts"
-      ],
-      "cells": [
-        "./dist/runtime/types/cells.d.ts"
-      ]
-    }
-  },
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "pnpm run dev:prepare && pnpm run prepack",
     "prepack": "nuxt-module-build build",
@@ -59,9 +58,10 @@
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playgrounds/nuxt",
     "docs": "nuxt dev docs --uiDev",
     "docs:build": "nuxt build docs",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
-    "format": "prettier --write .",
+    "lint": "oxlint && eslint .",
+    "lint:fix": "oxlint --fix && eslint --fix .",
+    "fmt": "oxfmt --write .",
+    "fmt:check": "oxfmt --check .",
     "docs:sync-defaults": "tsx scripts/sync-default-docs.ts",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -76,27 +76,13 @@
     "netlify-build": "pnpm run dev:prepare && pnpm run prepack && pnpm run docs:build",
     "clean": "rm -rf node_modules dist .nuxt .output coverage playgrounds/nuxt/.nuxt playgrounds/nuxt/.output playgrounds/nuxt/node_modules docs/.nuxt docs/.output docs/node_modules"
   },
-  "peerDependencies": {
-    "@nuxt/ui": "^4.0.0",
-    "@vueuse/nuxt": "^14.0.0",
-    "reka-ui": "^2.0.0"
-  },
-  "peerDependenciesMeta": {
-    "write-excel-file": {
-      "optional": true
-    }
-  },
   "dependencies": {
     "@nuxt/kit": "catalog:",
     "@tanstack/vue-table": "catalog:",
     "defu": "catalog:",
     "tailwind-scrollbar": "catalog:"
   },
-  "optionalDependencies": {
-    "write-excel-file": "^2.3.10"
-  },
   "devDependencies": {
-    "@antfu/eslint-config": "catalog:",
     "@nuxt/devtools": "catalog:",
     "@nuxt/eslint": "catalog:",
     "@nuxt/module-builder": "catalog:",
@@ -109,14 +95,28 @@
     "@vue/test-utils": "catalog:",
     "@vueuse/nuxt": "catalog:",
     "eslint": "catalog:",
-    "eslint-config-prettier": "catalog:",
-    "eslint-plugin-prettier": "catalog:",
+    "eslint-plugin-oxlint": "catalog:",
+    "eslint-plugin-perfectionist": "catalog:",
     "happy-dom": "catalog:",
     "nuxt": "catalog:",
-    "prettier": "catalog:",
-    "prettier-plugin-classnames": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
-  }
+  },
+  "peerDependencies": {
+    "@nuxt/ui": "^4.0.0",
+    "@vueuse/nuxt": "^14.0.0",
+    "reka-ui": "^2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "write-excel-file": {
+      "optional": true
+    }
+  },
+  "optionalDependencies": {
+    "write-excel-file": "^2.3.10"
+  },
+  "packageManager": "pnpm@10.21.0"
 }

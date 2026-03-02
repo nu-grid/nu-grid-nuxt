@@ -1,5 +1,6 @@
 import type { DropdownMenuItem, TableColumn, TableData } from '@nuxt/ui'
 import type { Column, Row } from '@tanstack/vue-table'
+
 import type { NuGridEditorConfig } from './_internal'
 import type { NuGridValidationResult } from './cells'
 import type { NuGridLookupOptions } from './option-groups'

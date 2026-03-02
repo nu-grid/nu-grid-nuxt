@@ -437,11 +437,11 @@ function triggerAutoSize() {
     </template>
 
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This page is used for <strong>Playwright end-to-end testing</strong> of NuGrid features. It
         contains 100 rows of sample data with all major features enabled.
       </p>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Features Tested:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li>Row selection with checkboxes</li>

@@ -1,6 +1,7 @@
 import type { TableData } from '@nuxt/ui'
 import type { Row } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
+
 import type { NuGridEditorConfig } from './_internal'
 import type { NuGridColumnMenuItemsCallback } from './column'
 import type { NuGridScrollbars } from './props'

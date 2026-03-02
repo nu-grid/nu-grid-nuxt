@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NuGridAutoSizeStrategy, NuGridColumn, NuGridResizeMode } from '#nu-grid/types'
+
 import type { User } from '~/types'
 
 const UAvatar = resolveComponent('UAvatar')
@@ -225,10 +226,10 @@ function resetColumnSizes() {
     </template>
 
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This page demonstrates the column auto-sizing feature with grow/widthPercentage controls.
       </p>
-      <ul class="list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted list-inside list-disc space-y-1 text-sm">
         <li><strong>grow: false</strong> - Select, ID, Status columns have fixed widths</li>
         <li>
           <strong>widthPercentage</strong> - Name (40%), Email (40%), Location (20%) share flex
@@ -258,7 +259,7 @@ function resetColumnSizes() {
         :data="data"
         :columns="columns"
       />
-      <div v-else class="flex h-64 items-center justify-center text-muted">Loading...</div>
+      <div v-else class="text-muted flex h-64 items-center justify-center">Loading...</div>
     </div>
 
     <template #code>
@@ -279,9 +280,9 @@ table.value.autoSizeColumns('fill')"
     </template>
 
     <template #extra>
-      <div class="flex items-center justify-between gap-3 border-t border-default pt-4">
-        <div class="text-sm text-muted">Total rows: {{ data?.length ?? 0 }}</div>
-        <div class="text-sm text-muted">Selected: {{ Object.keys(selectedRows).length }}</div>
+      <div class="border-default flex items-center justify-between gap-3 border-t pt-4">
+        <div class="text-muted text-sm">Total rows: {{ data?.length ?? 0 }}</div>
+        <div class="text-muted text-sm">Selected: {{ Object.keys(selectedRows).length }}</div>
       </div>
     </template>
   </DemoLayout>

@@ -36,7 +36,7 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
 
 <template>
   <div class="w-full">
-    <p class="mb-3 text-sm text-muted">
+    <p class="text-muted mb-3 text-sm">
       Double-click a cell to edit. Press Enter to save, Escape to cancel.
     </p>
     <NuGrid

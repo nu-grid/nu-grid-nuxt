@@ -1,8 +1,11 @@
 import type { TableData } from '@nuxt/ui'
 import type { Row } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
-import type { NuGridColumn, NuGridColumnSummary } from '../../types'
+
 import { computed } from 'vue'
+
+import type { NuGridColumn, NuGridColumnSummary } from '../../types'
+
 import { isEmptyGroupPlaceholder } from './useNuGridEmptyGroups'
 
 /**

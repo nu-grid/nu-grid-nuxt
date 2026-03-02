@@ -297,30 +297,30 @@ const exampleCode = `<NuGrid
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This page demonstrates the
-        <code class="rounded bg-default px-1 py-0.5 text-xs">multiRow</code>
+        <code class="bg-default rounded px-1 py-0.5 text-xs">multiRow</code>
         feature for NuGrid. A single data item can span multiple visual rows, with columns assigned
         to specific rows.
       </p>
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted mb-3 rounded p-2 text-sm">
         <strong>Multi-Row Configuration:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li>
             <strong>Grid-level:</strong> Set
-            <code class="rounded bg-default px-1 py-0.5 text-xs"
+            <code class="bg-default rounded px-1 py-0.5 text-xs"
               >multiRow: { enabled: true, rowCount: 2 }</code
             >
           </li>
           <li>
             <strong>Column-level:</strong> Set
-            <code class="rounded bg-default px-1 py-0.5 text-xs">row: 0</code> or
-            <code class="rounded bg-default px-1 py-0.5 text-xs">row: 1</code> on columns
+            <code class="bg-default rounded px-1 py-0.5 text-xs">row: 0</code> or
+            <code class="bg-default rounded px-1 py-0.5 text-xs">row: 1</code> on columns
           </li>
           <li>Columns without a <code>row</code> property default to row 0</li>
         </ul>
       </div>
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted mb-3 rounded p-2 text-sm">
         <strong>Demo Layout:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li><strong>Row 0:</strong> ID, Name, Email, Phone (primary info)</li>
@@ -328,7 +328,7 @@ const exampleCode = `<NuGrid
           <li><strong>Row 2:</strong> Bio (spans all columns)</li>
         </ul>
       </div>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Keyboard Navigation:</strong>
         <ul class="mt-1 list-inside list-disc">
           <li><strong>Arrow keys:</strong> Navigate between cells within visual rows</li>

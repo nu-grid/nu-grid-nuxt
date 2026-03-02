@@ -5,9 +5,8 @@ class ResizeObserverMock {
   observe = vi.fn()
   unobserve = vi.fn()
   disconnect = vi.fn()
-  constructor(_callback: ResizeObserverCallback) {
-    // Store callback if needed for testing
-  }
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor(_callback: ResizeObserverCallback) {}
 }
 globalThis.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver
 
@@ -20,9 +19,8 @@ class IntersectionObserverMock {
   rootMargin = ''
   thresholds = []
   takeRecords = vi.fn().mockReturnValue([])
-  constructor(_callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {
-    // Store callback if needed for testing
-  }
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor(_callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {}
 }
 globalThis.IntersectionObserver = IntersectionObserverMock as unknown as typeof IntersectionObserver
 

@@ -17,9 +17,9 @@ export function normalizeComponentName(componentName: string): string {
 
   // Check if starts with 'U' followed by an uppercase letter (indicating PascalCase)
   if (
-    normalizedName.startsWith('U')
-    && normalizedName.length > 1
-    && normalizedName[1] === normalizedName[1]?.toUpperCase()
+    normalizedName.startsWith('U') &&
+    normalizedName.length > 1 &&
+    normalizedName[1] === normalizedName[1]?.toUpperCase()
   ) {
     normalizedName = normalizedName.slice(1)
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { NuGridFilterContext } from '../../types/cells'
 import { computed } from 'vue'
+
+import type { NuGridFilterContext } from '../../types/cells'
 
 interface Props {
   context: NuGridFilterContext

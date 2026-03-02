@@ -1,7 +1,9 @@
-import type { NuGridShowErrors } from '../src/runtime/types'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
+
+import type { NuGridShowErrors } from '../src/runtime/types'
+
 import TextEditor from '../src/runtime/cell-types/text/TextEditor.vue'
 
 const UPopoverStub = defineComponent({

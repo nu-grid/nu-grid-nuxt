@@ -30,15 +30,15 @@ function normalizeCommitMessage(commit: { sha: string; message: string }) {
 <template>
   <div v-if="!commits?.length">No recent changes</div>
 
-  <div class="flex flex-col gap-1.5 relative">
-    <div class="bg-accented w-px h-full absolute left-[11px] z-[-1]" />
+  <div class="relative flex flex-col gap-1.5">
+    <div class="bg-accented absolute left-[11px] z-[-1] h-full w-px" />
 
     <template v-for="commit of commits" :key="commit.sha">
-      <div class="flex gap-1.5 items-center">
-        <div class="bg-accented ring-2 ring-bg size-1.5 mx-[8.5px] rounded-full" />
+      <div class="flex items-center gap-1.5">
+        <div class="bg-accented ring-bg mx-[8.5px] size-1.5 rounded-full ring-2" />
         <MDC
           :value="normalizeCommitMessage(commit)"
-          class="text-sm [&>*]:py-0 [&>*]:my-0 [&_code]:text-xs"
+          class="text-sm [&_code]:text-xs [&>*]:my-0 [&>*]:py-0"
           tag="div"
         />
       </div>

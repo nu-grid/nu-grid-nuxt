@@ -83,9 +83,9 @@ function getRowActions(row: NuGridRow<User>): NuGridActionMenuItem[] {
 
 <template>
   <div class="space-y-4">
-    <div class="rounded-lg border border-default p-3 bg-elevated/30 text-sm">
-      <p class="font-medium mb-1">Action Menu Items:</p>
-      <ul class="text-xs text-muted space-y-1">
+    <div class="border-default bg-elevated/30 rounded-lg border p-3 text-sm">
+      <p class="mb-1 font-medium">Action Menu Items:</p>
+      <ul class="text-muted space-y-1 text-xs">
         <li><strong>Copy ID:</strong> Copies user ID to clipboard</li>
         <li><strong>View Details:</strong> Shows user info</li>
         <li><strong>Activate/Deactivate:</strong> Toggles user status</li>
@@ -101,7 +101,7 @@ function getRowActions(row: NuGridRow<User>): NuGridActionMenuItem[] {
       :focus="{ mode: 'cell' }"
     />
 
-    <p class="text-xs text-muted">
+    <p class="text-muted text-xs">
       Click the ⋯ button on each row to see the action menu. The action column is pinned to the
       right.
     </p>

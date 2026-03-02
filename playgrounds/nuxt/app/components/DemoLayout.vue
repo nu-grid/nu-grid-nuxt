@@ -92,10 +92,9 @@ const hasSidebar = computed(() => hasStatus.value || hasControls.value)
           :style="{ width: sidebarWidth, maxHeight: gridHeight }"
         >
           <!-- Status Indicators -->
-          <div v-if="hasStatus" class="rounded-lg border border-default bg-elevated/30 p-3">
+          <div v-if="hasStatus" class="border-default bg-elevated/30 rounded-lg border p-3">
             <h3
-              class="mb-2 flex items-center gap-2 text-xs font-semibold tracking-wide text-dimmed
-                uppercase"
+              class="text-dimmed mb-2 flex items-center gap-2 text-xs font-semibold tracking-wide uppercase"
             >
               <UIcon name="i-lucide-activity" class="size-3.5" />
               Current Settings
@@ -106,10 +105,9 @@ const hasSidebar = computed(() => hasStatus.value || hasControls.value)
           </div>
 
           <!-- Toolbar Controls -->
-          <div v-if="hasControls" class="rounded-lg border border-default bg-elevated/30 p-3">
+          <div v-if="hasControls" class="border-default bg-elevated/30 rounded-lg border p-3">
             <h3
-              class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-dimmed
-                uppercase"
+              class="text-dimmed mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide uppercase"
             >
               <UIcon name="i-lucide-sliders-horizontal" class="size-3.5" />
               Controls
@@ -122,7 +120,7 @@ const hasSidebar = computed(() => hasStatus.value || hasControls.value)
 
         <!-- Right Side: Grid (scrollable in both directions) -->
         <div
-          class="min-w-0 flex-1 overflow-auto rounded-lg border border-default"
+          class="border-default min-w-0 flex-1 overflow-auto rounded-lg border"
           :style="{ height: gridHeight }"
         >
           <slot />

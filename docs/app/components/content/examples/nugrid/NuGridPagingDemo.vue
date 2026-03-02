@@ -79,10 +79,10 @@ const columns = computed<NuGridColumn<Task>[]>(() => [
         <USwitch v-model="autoPageSize" />
       </div>
 
-      <div class="text-sm text-muted">Total: {{ data.length }} rows</div>
+      <div class="text-muted text-sm">Total: {{ data.length }} rows</div>
     </div>
 
-    <div class="h-[400px] overflow-hidden rounded-lg border border-default">
+    <div class="border-default h-[400px] overflow-hidden rounded-lg border">
       <NuGrid
         :data="data"
         :columns="columns"

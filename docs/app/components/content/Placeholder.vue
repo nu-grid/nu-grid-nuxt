@@ -1,9 +1,8 @@
 <template>
   <div
-    class="relative overflow-hidden rounded-sm border border-dashed border-accented opacity-75 px-4
-      flex items-center justify-center"
+    class="border-accented relative flex items-center justify-center overflow-hidden rounded-sm border border-dashed px-4 opacity-75"
   >
-    <svg class="absolute inset-0 h-full w-full stroke-inverted/10" fill="none">
+    <svg class="stroke-inverted/10 absolute inset-0 h-full w-full" fill="none">
       <defs>
         <pattern
           id="pattern-5c1e4f0e-62d5-498b-8ff0-cf77bb448c8e"

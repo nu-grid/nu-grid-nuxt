@@ -1,18 +1,7 @@
 import type { TableData, TableProps, TableRow } from '@nuxt/ui'
 import type { Updater, VisibilityState } from '@tanstack/vue-table'
 import type { ComponentPublicInstance, PropType, Ref } from 'vue'
-import type {
-  NuGridActionMenuOptions,
-  NuGridColumn,
-  NuGridEventEmitter,
-  NuGridProps,
-} from '../../types'
-import type {
-  NuGridRowSelectionMode,
-  NuGridStates,
-  PinnableHeader,
-  UseNuGridColumnsReturn,
-} from '../../types/_internal'
+
 import {
   getCoreRowModel,
   getExpandedRowModel,
@@ -25,7 +14,21 @@ import {
 import { createReusableTemplate, reactiveOmit } from '@vueuse/core'
 import { upperFirst } from 'scule'
 import { computed, nextTick, ref, watch } from 'vue'
+
+import type {
+  NuGridActionMenuOptions,
+  NuGridColumn,
+  NuGridEventEmitter,
+  NuGridProps,
+} from '../../types'
+import type {
+  NuGridRowSelectionMode,
+  NuGridStates,
+  PinnableHeader,
+  UseNuGridColumnsReturn,
+} from '../../types/_internal'
 import type { NuGridCellType } from '../../types/cells'
+
 import { nuGridDefaults } from '../../config/_internal'
 import { extractColumnValues, inferCellDataType } from '../../utils/inferCellDataType'
 import { nuGridCellTypeRegistry } from '../useNuGridCellTypeRegistry'
@@ -57,7 +60,7 @@ export function useNuGridColumns<T extends TableData>(
   // Build a map of custom cell types for O(1) lookup
   const customTypeMap = computed(() => {
     if (!customCellTypes?.value) return null
-    return new Map(customCellTypes.value.map(t => [t.name, t]))
+    return new Map(customCellTypes.value.map((t) => [t.name, t]))
   })
 
   // Cache plugin lookups per cellDataType to avoid repeated lookups during column processing
@@ -72,8 +75,8 @@ export function useNuGridColumns<T extends TableData>(
     pluginCache.clear()
 
     const cols =
-      propsColumns.value
-      ?? Object.keys(data.value[0] ?? {}).map((accessorKey: string) => ({
+      propsColumns.value ??
+      Object.keys(data.value[0] ?? {}).map((accessorKey: string) => ({
         accessorKey,
         header: upperFirst(accessorKey),
       }))
@@ -118,10 +121,10 @@ export function useNuGridColumns<T extends TableData>(
       // - column has no accessorKey (display columns, computed columns)
       const accessorKey = (col as any).accessorKey
       if (
-        inferenceEnabled
-        && (col as any).cellDataType === undefined
-        && accessorKey
-        && data.value.length > 0
+        inferenceEnabled &&
+        (col as any).cellDataType === undefined &&
+        accessorKey &&
+        data.value.length > 0
       ) {
         const values = extractColumnValues(data.value, accessorKey)
         const inferredType = inferCellDataType(values, accessorKey)
@@ -137,7 +140,8 @@ export function useNuGridColumns<T extends TableData>(
         // Check custom cell types first, then fall back to global registry
         let plugin = pluginCache.get(cellDataType)
         if (plugin === undefined) {
-          plugin = customTypeMap.value?.get(cellDataType) ?? nuGridCellTypeRegistry.get(cellDataType)
+          plugin =
+            customTypeMap.value?.get(cellDataType) ?? nuGridCellTypeRegistry.get(cellDataType)
           pluginCache.set(cellDataType, plugin)
         }
 
@@ -587,13 +591,17 @@ export function useNuGridApi<T extends TableData>(
   // so we explicitly call setOptions when data changes.
   // flush: 'sync' ensures TanStack has fresh data before any computed re-evaluates.
   const dataVersion = ref(0)
-  watch(data, (newData) => {
-    tableApi.setOptions((prev) => ({
-      ...prev,
-      data: newData,
-    }))
-    dataVersion.value++
-  }, { flush: 'sync' })
+  watch(
+    data,
+    (newData) => {
+      tableApi.setOptions((prev) => ({
+        ...prev,
+        data: newData,
+      }))
+      dataVersion.value++
+    },
+    { flush: 'sync' },
+  )
 
   return { tableApi, columnsUpdatedSignal, dataVersion }
 }

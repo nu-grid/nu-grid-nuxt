@@ -49,7 +49,7 @@ const sorting = ref([{ id: 'name', desc: false }])
 
 <template>
   <div class="w-full">
-    <p class="mb-3 text-sm text-muted">Click on the Name column header to toggle sorting.</p>
+    <p class="text-muted mb-3 text-sm">Click on the Name column header to toggle sorting.</p>
     <NuGrid
       v-model:sorting="sorting"
       :data="data"

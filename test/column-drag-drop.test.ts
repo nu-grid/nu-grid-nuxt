@@ -1,6 +1,8 @@
 import type { Header, Table } from '@tanstack/vue-table'
+
 import { describe, expect, it, vi } from 'vitest'
 import { ref, toValue } from 'vue'
+
 import { useNuGridColumnDragDrop } from '../src/runtime/composables/_internal/useNuGridColumnDragDrop'
 
 /**

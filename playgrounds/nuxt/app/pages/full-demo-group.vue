@@ -5,9 +5,11 @@ import type {
   NuGridGroupingOptions,
   NuGridRow,
 } from '#nu-grid/types'
-import type { User } from '~/types'
+
 import { createColumnHelper } from '#nu-grid'
 import { upperFirst } from 'scule'
+
+import type { User } from '~/types'
 
 const UAvatar = resolveComponent('UAvatar')
 const UButton = resolveComponent('UButton')
@@ -255,14 +257,14 @@ const grouping_options = ref<NuGridGroupingOptions>({
 
     <template #body>
       <div class="flex h-full flex-col">
-        <div class="mb-4 rounded-lg bg-primary/10 p-4">
+        <div class="bg-primary/10 mb-4 rounded-lg p-4">
           <h2 class="mb-2 text-lg font-semibold">Group Subheader Variant</h2>
-          <p class="text-sm text-muted">
-            This grid uses <code class="rounded bg-elevated px-1">grid-mode="group"</code> which
+          <p class="text-muted text-sm">
+            This grid uses <code class="bg-elevated rounded px-1">grid-mode="group"</code> which
             shows column headers once at the top and group subheaders between data rows (like
             PrimeVue DataTable's row group subheader mode).
           </p>
-          <p class="mt-2 text-sm text-muted">
+          <p class="text-muted mt-2 text-sm">
             Compare with
             <NuxtLink to="/full-demo-splitgroup" class="text-primary underline"
               >splitgroup mode</NuxtLink

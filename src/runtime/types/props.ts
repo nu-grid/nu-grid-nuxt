@@ -1,4 +1,5 @@
 import type { TableData, TableProps } from '@nuxt/ui'
+
 import type { RowDragOptions } from '../composables/_internal/useNuGridRowDragDrop'
 import type { NuGridConfig, NuGridPreset, NuGridVirtualizerOptions } from './_internal'
 import type { NuGridCellType } from './cells'

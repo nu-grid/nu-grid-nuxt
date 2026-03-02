@@ -2,6 +2,10 @@ import type { TableData } from '@nuxt/ui'
 import type { Column, Row, Table } from '@tanstack/vue-table'
 import type { Primitive } from 'reka-ui'
 import type { Ref } from 'vue'
+
+import { useElementSize } from '@vueuse/core'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+
 import type { NuGridEventEmitter, NuGridProps, NuGridRowSelectOptions } from '../../types'
 import type {
   NuGridEditingCell,
@@ -10,8 +14,7 @@ import type {
   NuGridInteractionRouter,
   NuGridVirtualizer,
 } from '../../types/_internal'
-import { useElementSize } from '@vueuse/core'
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+
 import { usePropWithDefault } from '../../config/_internal'
 import { useNuGridKeyboardNavigation } from './useNuGridKeyboardNavigation'
 import { useNuGridScroll } from './useNuGridScroll'
@@ -91,8 +94,8 @@ export function useNuGridFocus<T extends TableData>(
     // Emit focusedCellChanged when cell position changes
     // Check handler exists first to avoid computing payload when no listeners attached
     if (
-      eventEmitter?.focusedCellChanged
-      && (oldRowIndex !== newRowIndex || oldColumnIndex !== newColumnIndex)
+      eventEmitter?.focusedCellChanged &&
+      (oldRowIndex !== newRowIndex || oldColumnIndex !== newColumnIndex)
     ) {
       const currentRows = resolvedRows.value
       const columns = tableApi.getAllLeafColumns()
@@ -770,9 +773,9 @@ export function useNuGridFocus<T extends TableData>(
   // Find first focusable column within a specific visual row (using shared nav with focusable predicate)
   function findFirstFocusableColumnInVisualRow(visualRow: number, row: Row<T>): number {
     return (
-      keyboardNav.findFirstInVisualRow(visualRow, row, isColumnFocusable)
-      ?? getColumnsInVisualRow(visualRow)[0]
-      ?? 0
+      keyboardNav.findFirstInVisualRow(visualRow, row, isColumnFocusable) ??
+      getColumnsInVisualRow(visualRow)[0] ??
+      0
     )
   }
 
@@ -780,9 +783,9 @@ export function useNuGridFocus<T extends TableData>(
   function findLastFocusableColumnInVisualRow(visualRow: number, row: Row<T>): number {
     const cols = getColumnsInVisualRow(visualRow)
     return (
-      keyboardNav.findLastInVisualRow(visualRow, row, isColumnFocusable)
-      ?? cols[cols.length - 1]
-      ?? 0
+      keyboardNav.findLastInVisualRow(visualRow, row, isColumnFocusable) ??
+      cols[cols.length - 1] ??
+      0
     )
   }
 
@@ -813,10 +816,10 @@ export function useNuGridFocus<T extends TableData>(
     }
 
     const isInteractive =
-      target.closest('button')
-      || target.closest('a')
-      || target.closest('input')
-      || target.closest('select')
+      target.closest('button') ||
+      target.closest('a') ||
+      target.closest('input') ||
+      target.closest('select')
     if (isInteractive) {
       return
     }
@@ -904,8 +907,8 @@ export function useNuGridFocus<T extends TableData>(
     // Throttle navigation to prevent freeze when holding down keys
     // Skip processing if we're already handling a navigation event
     if (
-      scrollManager.isProcessingScroll
-      && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown'].includes(e.key)
+      scrollManager.isProcessingScroll &&
+      ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown'].includes(e.key)
     ) {
       e.preventDefault()
       return
@@ -1124,10 +1127,10 @@ export function useNuGridFocus<T extends TableData>(
           // Check if the target is an interactive element (checkbox, input, button, etc.)
           const target = e.target as HTMLElement
           const isInteractive =
-            target.closest('input')
-            || target.closest('button')
-            || target.closest('select')
-            || target.closest('textarea')
+            target.closest('input') ||
+            target.closest('button') ||
+            target.closest('select') ||
+            target.closest('textarea')
 
           // If it's an interactive element, let it handle the space key naturally
           if (isInteractive) {
@@ -1148,10 +1151,10 @@ export function useNuGridFocus<T extends TableData>(
           // In row focus mode, we always want to allow space bar to toggle selection
           // In cell focus mode, only prevent if the focus is specifically on the selection column
           const isOnSelectionColumn =
-            focusMode.value === 'cell'
-            && row
-            && columnIndex >= 0
-            && row.getVisibleCells()[columnIndex]?.column.id === '__selection'
+            focusMode.value === 'cell' &&
+            row &&
+            columnIndex >= 0 &&
+            row.getVisibleCells()[columnIndex]?.column.id === '__selection'
 
           // Check if this specific row can be selected (via rowSelectionEnabled function)
           const canRowBeSelected = (() => {
@@ -1177,11 +1180,11 @@ export function useNuGridFocus<T extends TableData>(
           // 3. In row focus mode OR (in cell focus mode AND focus is NOT on the selection column)
           // 4. The specific row can be selected (rowSelectionEnabled returns true)
           if (
-            isRowSelectionEnabled
-            && (!isInEditMode || isEditingDisabled)
-            && !isOnSelectionColumn
-            && row
-            && canRowBeSelected
+            isRowSelectionEnabled &&
+            (!isInEditMode || isEditingDisabled) &&
+            !isOnSelectionColumn &&
+            row &&
+            canRowBeSelected
           ) {
             // Toggle the row selection using TanStack Table's API
             row.toggleSelected(!row.getIsSelected())
@@ -1202,9 +1205,9 @@ export function useNuGridFocus<T extends TableData>(
 
     // Handle jumping to first column (Home or Cmd+Left) - scroll all the way left
     const isJumpToFirstColumn =
-      focusMode.value === 'cell'
-      && (e.key === 'Home' || (e.key === 'ArrowLeft' && (e.metaKey || e.ctrlKey)))
-      && newColumnIndex !== columnIndex // Actually moving to a different column
+      focusMode.value === 'cell' &&
+      (e.key === 'Home' || (e.key === 'ArrowLeft' && (e.metaKey || e.ctrlKey))) &&
+      newColumnIndex !== columnIndex // Actually moving to a different column
 
     if (isJumpToFirstColumn) {
       // Jump to first column - scroll all the way to the left
@@ -1234,9 +1237,9 @@ export function useNuGridFocus<T extends TableData>(
 
     // Handle jumping to last column (End or Cmd+Right) - scroll all the way right
     const isJumpToLastColumn =
-      focusMode.value === 'cell'
-      && (e.key === 'End' || (e.key === 'ArrowRight' && (e.metaKey || e.ctrlKey)))
-      && newColumnIndex !== columnIndex // Actually moving to a different column
+      focusMode.value === 'cell' &&
+      (e.key === 'End' || (e.key === 'ArrowRight' && (e.metaKey || e.ctrlKey))) &&
+      newColumnIndex !== columnIndex // Actually moving to a different column
 
     if (isJumpToLastColumn) {
       // Jump to last column - scroll all the way to the right
@@ -1266,9 +1269,9 @@ export function useNuGridFocus<T extends TableData>(
 
     // Handle jumping to first/last row when cmdArrows is 'firstlast'
     const isJumpToFirstOrLast =
-      (e.key === 'ArrowUp' || e.key === 'ArrowDown')
-      && (e.metaKey || e.ctrlKey)
-      && cmdArrows.value === 'firstlast'
+      (e.key === 'ArrowUp' || e.key === 'ArrowDown') &&
+      (e.metaKey || e.ctrlKey) &&
+      cmdArrows.value === 'firstlast'
 
     if (isJumpToFirstOrLast) {
       // Jump to first or last row - scroll to top or bottom and focus
@@ -1705,9 +1708,9 @@ export function useNuGridFocus<T extends TableData>(
     if (focusMode.value === 'cell') {
       const rowIndex = getRowIndex(row)
       if (
-        rowIndex !== -1
-        && focusedCell.value?.rowIndex === rowIndex
-        && focusedCell.value?.columnIndex === cellIndex
+        rowIndex !== -1 &&
+        focusedCell.value?.rowIndex === rowIndex &&
+        focusedCell.value?.columnIndex === cellIndex
       ) {
         return 0
       }
@@ -1724,9 +1727,9 @@ export function useNuGridFocus<T extends TableData>(
     if (focusMode.value === 'cell') {
       const rowIndex = getRowIndex(row)
       return (
-        rowIndex !== -1
-        && focusedCell.value?.rowIndex === rowIndex
-        && focusedCell.value?.columnIndex === cellIndex
+        rowIndex !== -1 &&
+        focusedCell.value?.rowIndex === rowIndex &&
+        focusedCell.value?.columnIndex === cellIndex
       )
     }
     return false
@@ -1757,9 +1760,9 @@ export function useNuGridFocus<T extends TableData>(
 
     const rowIndex = getRowIndex(row)
     if (
-      rowIndex !== -1
-      && focusedCell.value.rowIndex === rowIndex
-      && focusedCell.value.columnIndex === cellIndex
+      rowIndex !== -1 &&
+      focusedCell.value.rowIndex === rowIndex &&
+      focusedCell.value.columnIndex === cellIndex
     ) {
       return !focusedCell.value.suppressOutline
     }

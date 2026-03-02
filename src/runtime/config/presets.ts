@@ -1,6 +1,8 @@
 import type { TableData } from '@nuxt/ui'
-import type { NuGridPreset, NuGridPresetOptions } from '../types/_internal'
+
 import { defu } from 'defu'
+
+import type { NuGridPreset, NuGridPresetOptions } from '../types/_internal'
 
 /**
  * Preset configurations for common NuGrid use cases.

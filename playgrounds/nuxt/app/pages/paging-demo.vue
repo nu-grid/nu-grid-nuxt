@@ -384,12 +384,12 @@ const exampleCode = `<NuGrid
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-dimmed">
+      <p class="text-dimmed mb-3 text-sm">
         This page demonstrates the paging feature for NuGrid. Paging divides large datasets into
         pages for better performance and usability.
       </p>
 
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-dimmed">
+      <div class="bg-default/50 text-dimmed mb-3 rounded p-2 text-sm">
         <strong>Paging Options:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li><strong>enabled:</strong> Enable or disable paging (default: false)</li>
@@ -403,7 +403,7 @@ const exampleCode = `<NuGrid
         </ul>
       </div>
 
-      <div class="rounded bg-default/50 p-2 text-sm text-dimmed">
+      <div class="bg-default/50 text-dimmed rounded p-2 text-sm">
         <strong>How It Works:</strong>
         <p class="mt-1">
           NuGrid uses TanStack Table's pagination model with NuxtUI's UPagination component for the
@@ -436,7 +436,7 @@ const exampleCode = `<NuGrid
         :items="[{ label: 'Implementation Notes', icon: 'i-lucide-file-text', slot: 'notes' }]"
       >
         <template #notes>
-          <div class="space-y-2 p-4 text-sm text-dimmed">
+          <div class="text-dimmed space-y-2 p-4 text-sm">
             <p><strong>Key Points:</strong></p>
             <ul class="list-inside list-disc space-y-1">
               <li>

@@ -2,10 +2,10 @@ import type { TableData } from '@nuxt/ui'
 import type { Row, Table } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 
+import { markRaw, ref, toRaw, toRef } from 'vue'
+
 import type { NuGridEventEmitter } from '../../types'
 import type { RowDragEvent } from '../../types/drag-drop'
-
-import { markRaw, ref, toRaw, toRef } from 'vue'
 
 // Re-export for backwards compatibility
 export type { RowDragEvent } from '../../types/drag-drop'
@@ -399,9 +399,9 @@ export function useNuGridRowDragDrop<T extends TableData>(
   function handleRowDragLeave(e: DragEvent) {
     const relatedTarget = e.relatedTarget
     if (
-      !relatedTarget
-      || !(relatedTarget instanceof HTMLElement)
-      || !tableRef.value?.contains(relatedTarget)
+      !relatedTarget ||
+      !(relatedTarget instanceof HTMLElement) ||
+      !tableRef.value?.contains(relatedTarget)
     ) {
       isDraggingOutside.value = true
       dropTargetRowId.value = null
@@ -435,10 +435,10 @@ export function useNuGridRowDragDrop<T extends TableData>(
       'data-drop-position': isDropTarget ? dropPosition.value : undefined,
       'class': [
         isDragging && 'opacity-60',
-        isDropBefore
-          && 'border-t-[3px] border-t-blue-500/80 bg-blue-500/[0.08] transition-all duration-200',
-        isDropAfter
-          && 'border-b-[3px] border-b-blue-500/80 bg-blue-500/[0.08] transition-all duration-200',
+        isDropBefore &&
+          'border-t-[3px] border-t-blue-500/80 bg-blue-500/[0.08] transition-all duration-200',
+        isDropAfter &&
+          'border-b-[3px] border-b-blue-500/80 bg-blue-500/[0.08] transition-all duration-200',
       ]
         .filter(Boolean)
         .join(' '),

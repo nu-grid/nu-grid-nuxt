@@ -1,5 +1,6 @@
 import type { TableData } from '@nuxt/ui'
 import type { ComputedRef, Ref } from 'vue'
+
 import type { GroupVirtualRowItem, NuGridVirtualizer } from '../virtualization'
 
 /**

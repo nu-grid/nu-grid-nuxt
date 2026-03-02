@@ -1,4 +1,5 @@
 import type { TableData } from '@nuxt/ui'
+
 import type { NuGridCellEditing } from '../cell-editing'
 import type { NuGridFocus } from '../focus'
 

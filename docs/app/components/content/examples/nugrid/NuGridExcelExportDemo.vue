@@ -150,12 +150,12 @@ async function handleExportVisible() {
         Export Visible Only
       </UButton>
 
-      <span class="text-sm text-muted"> {{ data.length }} employees </span>
+      <span class="text-muted text-sm"> {{ data.length }} employees </span>
     </div>
 
-    <div class="rounded-lg border border-default p-3 bg-elevated/30 text-sm">
-      <p class="font-medium mb-2">Supported Data Types:</p>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-muted">
+    <div class="border-default bg-elevated/30 rounded-lg border p-3 text-sm">
+      <p class="mb-2 font-medium">Supported Data Types:</p>
+      <div class="text-muted grid grid-cols-2 gap-2 text-xs md:grid-cols-4">
         <div><strong>text:</strong> Name, Email</div>
         <div><strong>currency:</strong> Salary</div>
         <div><strong>date:</strong> Hire Date</div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NuGridColumn } from '#nu-grid/types'
+
 import { createNuGridTheme, getAllThemes, registerTheme } from '#nu-grid/themes'
 
 // Sample data
@@ -214,18 +215,18 @@ export default defineAppConfig({
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         NuGrid features an extensible theme system that allows you to create custom themes using
         pure Tailwind CSS classes. This demo shows:
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li><strong>Built-in themes:</strong> Default and Compact themes included</li>
         <li><strong>Custom themes:</strong> Ocean, Purple, and Emerald examples</li>
         <li><strong>Theme extension:</strong> Build on existing themes with baseTheme</li>
         <li><strong>Pure Tailwind:</strong> No CSS variables - just Tailwind classes</li>
         <li><strong>Dark mode:</strong> Full dark mode support via dark: prefix</li>
       </ul>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Three ways to register:</strong>
         <code class="ml-1 text-xs">app.config.ts</code>, <code class="ml-1 text-xs">plugins</code>,
         or
@@ -240,26 +241,26 @@ export default defineAppConfig({
       :data="data"
       :columns="columns"
       :focus="{ retain: true }"
-      class="max-h-[400px] rounded border border-default"
+      class="border-default max-h-[400px] rounded border"
     />
 
     <!-- Theme Cards -->
     <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <div class="rounded-lg border border-default p-4">
+      <div class="border-default rounded-lg border p-4">
         <h3 class="mb-2 font-semibold">Default Theme</h3>
-        <p class="text-sm text-muted">
+        <p class="text-muted text-sm">
           Uses your app's primary color with comfortable spacing. Best for general-purpose grids.
         </p>
       </div>
-      <div class="rounded-lg border border-default p-4">
+      <div class="border-default rounded-lg border p-4">
         <h3 class="mb-2 font-semibold">Compact Theme</h3>
-        <p class="text-sm text-muted">
+        <p class="text-muted text-sm">
           Blue accent with tighter spacing. Ideal for data-dense applications and dashboards.
         </p>
       </div>
-      <div class="rounded-lg border border-default p-4">
+      <div class="border-default rounded-lg border p-4">
         <h3 class="mb-2 font-semibold">Custom Themes</h3>
-        <p class="text-sm text-muted">
+        <p class="text-muted text-sm">
           Create your own themes by extending built-ins or starting from scratch with Tailwind.
         </p>
       </div>
@@ -268,8 +269,8 @@ export default defineAppConfig({
     <!-- Code Example -->
     <template #code>
       <DemoCodeBlock title="Creating a Custom Theme:" :code="exampleCode" />
-      <div class="mt-4 rounded-lg bg-default/50 p-4">
-        <p class="text-sm text-muted">
+      <div class="bg-default/50 mt-4 rounded-lg p-4">
+        <p class="text-muted text-sm">
           📖 See THEME_GUIDE.md for complete documentation on creating custom themes.
         </p>
       </div>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { computed, isRef } from 'vue'
+
 import type { NuGridLookupItem } from '../../types'
 
-import { computed, isRef } from 'vue'
 import { nuGridDefaults } from '../../config/_internal'
 
 defineOptions({ inheritAttrs: false })

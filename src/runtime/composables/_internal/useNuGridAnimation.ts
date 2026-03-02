@@ -1,10 +1,13 @@
 import type { TableData } from '@nuxt/ui'
 import type { Row } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
-import type { NuGridAnimationPreset, NuGridProps } from '../../types'
-import type { NuGridAnimationContext } from '../../types/_internal'
+
 import { usePreferredReducedMotion } from '@vueuse/core'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+
+import type { NuGridAnimationPreset, NuGridProps } from '../../types'
+import type { NuGridAnimationContext } from '../../types/_internal'
+
 import { usePropWithDefault } from '../../config/_internal'
 
 interface NuGridAnimationOptions<T extends TableData> {

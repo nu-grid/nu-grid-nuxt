@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { NuGridPagingContext } from '../../types/_internal'
 import { computed, inject } from 'vue'
+
+import type { NuGridPagingContext } from '../../types/_internal'
 
 const paging = inject<NuGridPagingContext>('nugrid-paging')!
 
@@ -40,10 +41,9 @@ const showPageSizeSelector = computed(() => paging.pageSizeOptions.value.length 
 <template>
   <div
     v-if="paging.enabled.value"
-    class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-t border-default
-      sm:gap-4"
+    class="border-default flex flex-wrap items-center justify-between gap-2 border-t px-4 py-3 sm:gap-4"
   >
-    <div class="hidden text-sm text-muted sm:block">
+    <div class="text-muted hidden text-sm sm:block">
       <template v-if="paging.totalRows.value > 0">
         Showing {{ startRow }} to {{ endRow }} of {{ paging.totalRows.value }} rows
       </template>

@@ -160,60 +160,60 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
     </template>
 
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         NuGrid automatically infers data types from your row data, similar to AG Grid. This means
         you don't need to manually specify
-        <code class="rounded bg-default px-1 py-0.5 text-xs">cellDataType</code>
+        <code class="bg-default rounded px-1 py-0.5 text-xs">cellDataType</code>
         for each column - NuGrid will detect it automatically.
       </p>
 
-      <div class="mb-3 rounded bg-success/10 border border-success/30 p-3 text-sm">
+      <div class="bg-success/10 border-success/30 mb-3 rounded border p-3 text-sm">
         <strong class="text-success">Detected Types:</strong>
-        <ul class="mt-2 list-inside list-disc space-y-1 text-muted">
+        <ul class="text-muted mt-2 list-inside list-disc space-y-1">
           <li>
             <strong>price, totalAmount:</strong> Detected as
-            <code class="bg-default px-1 rounded text-xs">currency</code> (numbers with 2 decimals +
+            <code class="bg-default rounded px-1 text-xs">currency</code> (numbers with 2 decimals +
             column name contains price/amount)
           </li>
           <li>
             <strong>discountRate:</strong> Detected as
-            <code class="bg-default px-1 rounded text-xs">percentage</code> (0-1 range + column name
+            <code class="bg-default rounded px-1 text-xs">percentage</code> (0-1 range + column name
             contains 'rate')
           </li>
           <li>
             <strong>inStock:</strong> Detected as
-            <code class="bg-default px-1 rounded text-xs">boolean</code>
+            <code class="bg-default rounded px-1 text-xs">boolean</code>
           </li>
           <li>
             <strong>orderDate:</strong> Detected as
-            <code class="bg-default px-1 rounded text-xs">date</code> (JavaScript Date object)
+            <code class="bg-default rounded px-1 text-xs">date</code> (JavaScript Date object)
           </li>
           <li>
             <strong>quantity, id:</strong> Detected as
-            <code class="bg-default px-1 rounded text-xs">number</code>
+            <code class="bg-default rounded px-1 text-xs">number</code>
           </li>
           <li>
             <strong>product, notes:</strong> Detected as
-            <code class="bg-default px-1 rounded text-xs">text</code>
+            <code class="bg-default rounded px-1 text-xs">text</code>
           </li>
         </ul>
       </div>
 
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted mb-3 rounded p-2 text-sm">
         <strong>Opt-out options:</strong>
         <ul class="mt-1 list-inside list-disc">
           <li>
-            <code class="bg-default px-1 rounded text-xs">dataTypeInference: false</code> on grid -
+            <code class="bg-default rounded px-1 text-xs">dataTypeInference: false</code> on grid -
             disables all inference
           </li>
           <li>
-            <code class="bg-default px-1 rounded text-xs">cellDataType: false</code> on column -
+            <code class="bg-default rounded px-1 text-xs">cellDataType: false</code> on column -
             disables inference for that column
           </li>
         </ul>
       </div>
 
-      <p class="text-sm text-muted">
+      <p class="text-muted text-sm">
         Toggle the button above to see the difference between automatic inference and disabled
         inference.
       </p>
@@ -261,32 +261,32 @@ const columns = [
           <div class="p-4">
             <div class="grid grid-cols-1 gap-3 text-xs md:grid-cols-2">
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">boolean</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">boolean</div>
                 <p class="text-muted">Values are <code>true</code> or <code>false</code></p>
               </div>
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">date</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">date</div>
                 <p class="text-muted">Values are JavaScript <code>Date</code> objects</p>
               </div>
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">currency</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">currency</div>
                 <p class="text-muted">
                   String: <code>$123.45</code> OR Number with 2 decimals + column name contains
                   price/cost/amount/total/etc.
                 </p>
               </div>
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">percentage</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">percentage</div>
                 <p class="text-muted">
                   String: <code>45%</code> OR Number 0-1 + column name contains percent/rate/ratio
                 </p>
               </div>
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">number</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">number</div>
                 <p class="text-muted">Numeric values (not matching currency/percentage patterns)</p>
               </div>
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">text</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">text</div>
                 <p class="text-muted">Default fallback for string values</p>
               </div>
             </div>

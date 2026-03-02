@@ -51,36 +51,36 @@ const features = [
     </template>
 
     <template #body>
-      <div class="p-6 space-y-8">
-        <div class="text-center space-y-4">
+      <div class="space-y-8 p-6">
+        <div class="space-y-4 text-center">
           <h1 class="text-3xl font-bold">Welcome to NuGrid</h1>
-          <p class="text-muted text-lg max-w-2xl mx-auto">
+          <p class="text-muted mx-auto max-w-2xl text-lg">
             A powerful data grid component for Nuxt with virtualization, cell editing, and TanStack
             Table integration.
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <UCard
             v-for="feature in features"
             :key="feature.title"
             :to="feature.to"
-            class="hover:ring-primary hover:ring-2 transition-all cursor-pointer"
+            class="hover:ring-primary cursor-pointer transition-all hover:ring-2"
           >
             <div class="flex items-start gap-4">
-              <div class="p-2 rounded-lg bg-primary/10">
-                <UIcon :name="feature.icon" class="size-6 text-primary" />
+              <div class="bg-primary/10 rounded-lg p-2">
+                <UIcon :name="feature.icon" class="text-primary size-6" />
               </div>
               <div class="space-y-1">
                 <h3 class="font-semibold">{{ feature.title }}</h3>
-                <p class="text-sm text-muted">{{ feature.description }}</p>
+                <p class="text-muted text-sm">{{ feature.description }}</p>
               </div>
             </div>
           </UCard>
         </div>
 
         <div class="text-center">
-          <p class="text-sm text-muted">
+          <p class="text-muted text-sm">
             Explore the sidebar navigation for all available demos and features.
           </p>
         </div>

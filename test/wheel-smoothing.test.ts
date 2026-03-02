@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
+
 import { useNuGridWheelSmoothing } from '../src/runtime/composables/_internal/useNuGridWheelSmoothing'
 
 describe('useNuGridWheelSmoothing', () => {

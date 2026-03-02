@@ -1,4 +1,5 @@
 import type { H3Event } from 'h3'
+
 // @ts-expect-error - no types available
 import components from '#component-example/nitro'
 import meta from '#nuxt-component-meta'
@@ -6,6 +7,7 @@ import { visit } from '@nuxt/content/runtime'
 import { queryCollection } from '@nuxt/content/server'
 import json5 from 'json5'
 import { camelCase, kebabCase } from 'scule'
+
 import * as theme from '../../.nuxt/ui'
 
 interface ComponentAttributes {

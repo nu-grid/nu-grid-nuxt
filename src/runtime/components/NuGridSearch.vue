@@ -67,9 +67,12 @@ watch(
 )
 
 // Debounced emit for search event
-const debouncedSearch = useDebounceFn((value: string) => {
-  emit('search', value)
-}, computed(() => props.debounce))
+const debouncedSearch = useDebounceFn(
+  (value: string) => {
+    emit('search', value)
+  },
+  computed(() => props.debounce),
+)
 
 // Handle input changes
 function handleInput(value: string | number) {
@@ -123,11 +126,7 @@ defineExpose({ focus })
     >
       <template #leading>
         <slot name="leading">
-          <UIcon
-            v-if="loading"
-            name="i-lucide-loader-2"
-            class="animate-spin text-muted"
-          />
+          <UIcon v-if="loading" name="i-lucide-loader-2" class="text-muted animate-spin" />
           <UIcon v-else :name="icon" class="text-muted" />
         </slot>
       </template>

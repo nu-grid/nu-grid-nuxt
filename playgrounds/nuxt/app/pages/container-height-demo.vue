@@ -37,7 +37,7 @@ const columns: NuGridColumn<Item>[] = [
 
     <template #controls>
       <DemoControlGroup label="About">
-        <p class="text-xs text-muted">
+        <p class="text-muted text-xs">
           This demo shows grids in various container configurations to verify height constraints
           work correctly. The grid should respect container height and show scrollbars when content
           exceeds the container.
@@ -46,11 +46,11 @@ const columns: NuGridColumn<Item>[] = [
     </template>
 
     <template #info>
-      <p class="mb-3 text-sm text-muted">
-        NuGrid uses <code class="rounded bg-default px-1 py-0.5 text-xs">h-full min-h-0</code> on
+      <p class="text-muted mb-3 text-sm">
+        NuGrid uses <code class="bg-default rounded px-1 py-0.5 text-xs">h-full min-h-0</code> on
         the root element to properly constrain to container height in flex contexts.
       </p>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Key CSS:</strong>
         <ul class="mt-1 list-inside list-disc text-xs">
           <li><code>h-full</code> - takes 100% of parent height</li>
@@ -65,10 +65,10 @@ const columns: NuGridColumn<Item>[] = [
       <!-- Fixed height container -->
       <section>
         <h3 class="mb-2 text-sm font-semibold">1. Fixed Height Container (h-[200px])</h3>
-        <p class="mb-2 text-xs text-muted">
+        <p class="text-muted mb-2 text-xs">
           Grid should be constrained to 200px and scroll vertically.
         </p>
-        <div class="h-[200px] rounded-lg border border-default">
+        <div class="border-default h-[200px] rounded-lg border">
           <NuGrid :data="data" :columns="columns" />
         </div>
       </section>
@@ -76,12 +76,12 @@ const columns: NuGridColumn<Item>[] = [
       <!-- Flex container with flex-1 -->
       <section>
         <h3 class="mb-2 text-sm font-semibold">2. Flex Container with Fixed Height Parent</h3>
-        <p class="mb-2 text-xs text-muted">
+        <p class="text-muted mb-2 text-xs">
           Parent has h-[250px], grid uses flex-1 to fill remaining space after header.
         </p>
-        <div class="flex h-[250px] flex-col rounded-lg border border-default">
+        <div class="border-default flex h-[250px] flex-col rounded-lg border">
           <div
-            class="shrink-0 border-b border-default bg-elevated/50 px-3 py-2 text-sm font-medium"
+            class="border-default bg-elevated/50 shrink-0 border-b px-3 py-2 text-sm font-medium"
           >
             Header (shrink-0)
           </div>
@@ -94,11 +94,11 @@ const columns: NuGridColumn<Item>[] = [
       <!-- Grid layout -->
       <section>
         <h3 class="mb-2 text-sm font-semibold">3. CSS Grid with Fixed Row Height</h3>
-        <p class="mb-2 text-xs text-muted">
+        <p class="text-muted mb-2 text-xs">
           Using CSS grid with grid-rows-[auto_1fr] and h-[300px] on container.
         </p>
-        <div class="grid h-[300px] grid-rows-[auto_1fr] rounded-lg border border-default">
-          <div class="border-b border-default bg-elevated/50 px-3 py-2 text-sm font-medium">
+        <div class="border-default grid h-[300px] grid-rows-[auto_1fr] rounded-lg border">
+          <div class="border-default bg-elevated/50 border-b px-3 py-2 text-sm font-medium">
             Grid Header (auto)
           </div>
           <div class="min-h-0">
@@ -110,14 +110,14 @@ const columns: NuGridColumn<Item>[] = [
       <!-- Two grids side by side -->
       <section>
         <h3 class="mb-2 text-sm font-semibold">4. Two Grids Side-by-Side (h-[200px])</h3>
-        <p class="mb-2 text-xs text-muted">
+        <p class="text-muted mb-2 text-xs">
           Two grids in a flex row, each should scroll independently.
         </p>
         <div class="flex h-[200px] gap-4">
-          <div class="min-w-0 flex-1 rounded-lg border border-default">
+          <div class="border-default min-w-0 flex-1 rounded-lg border">
             <NuGrid :data="data.slice(0, 25)" :columns="columns" />
           </div>
-          <div class="min-w-0 flex-1 rounded-lg border border-default">
+          <div class="border-default min-w-0 flex-1 rounded-lg border">
             <NuGrid :data="data.slice(25)" :columns="columns" />
           </div>
         </div>
@@ -126,18 +126,18 @@ const columns: NuGridColumn<Item>[] = [
       <!-- Nested flex containers -->
       <section>
         <h3 class="mb-2 text-sm font-semibold">5. Deeply Nested Flex (h-[280px])</h3>
-        <p class="mb-2 text-xs text-muted">
+        <p class="text-muted mb-2 text-xs">
           Multiple levels of flex nesting - each level needs min-h-0 for proper shrinking.
         </p>
-        <div class="flex h-[280px] flex-col rounded-lg border border-default">
+        <div class="border-default flex h-[280px] flex-col rounded-lg border">
           <div
-            class="shrink-0 border-b border-default bg-elevated/50 px-3 py-2 text-sm font-medium"
+            class="border-default bg-elevated/50 shrink-0 border-b px-3 py-2 text-sm font-medium"
           >
             Level 1 Header
           </div>
           <div class="flex min-h-0 flex-1 flex-col">
             <div
-              class="shrink-0 border-b border-default bg-elevated/30 px-3 py-1.5 text-xs text-muted"
+              class="border-default bg-elevated/30 text-muted shrink-0 border-b px-3 py-1.5 text-xs"
             >
               Level 2 Subheader
             </div>
@@ -151,10 +151,10 @@ const columns: NuGridColumn<Item>[] = [
       <!-- Small fixed height to test minimum sizing -->
       <section>
         <h3 class="mb-2 text-sm font-semibold">6. Small Container (h-[120px])</h3>
-        <p class="mb-2 text-xs text-muted">
+        <p class="text-muted mb-2 text-xs">
           Very small container - grid should still work with scrolling.
         </p>
-        <div class="h-[120px] rounded-lg border border-default">
+        <div class="border-default h-[120px] rounded-lg border">
           <NuGrid :data="data" :columns="columns" />
         </div>
       </section>

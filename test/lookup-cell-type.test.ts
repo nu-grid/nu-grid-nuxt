@@ -1,8 +1,10 @@
-import type { NuGridCellTypeContext } from '../src/runtime/types'
-import type { NuGridKeyboardContext } from '../src/runtime/types/_internal'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
+
+import type { NuGridCellTypeContext } from '../src/runtime/types'
+import type { NuGridKeyboardContext } from '../src/runtime/types/_internal'
+
 import { lookupCellType } from '../src/runtime/cell-types/lookup'
 import LookupEditor from '../src/runtime/cell-types/lookup/LookupEditor.vue'
 import LookupRenderer from '../src/runtime/cell-types/lookup/LookupRenderer.vue'

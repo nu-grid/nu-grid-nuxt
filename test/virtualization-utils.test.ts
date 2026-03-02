@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { resolveVirtualizationOptions } from '../src/runtime/composables/_internal/useNuGridVirtualization'
 
 /**
@@ -204,7 +205,6 @@ describe('resolveVirtualizationOptions', () => {
 
   describe('edge cases', () => {
     it('should handle null virtualization option gracefully', () => {
-      // eslint-disable-next-line ts/ban-ts-comment
       // @ts-expect-error
       const result = resolveVirtualizationOptions(null)
 

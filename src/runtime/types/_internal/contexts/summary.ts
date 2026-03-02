@@ -1,4 +1,5 @@
 import type { ComputedRef } from 'vue'
+
 import type { NuGridColumnSummary } from '../../column'
 import type { NuGridGrandTotalsConfig } from '../../option-groups'
 

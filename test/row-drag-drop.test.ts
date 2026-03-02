@@ -1,8 +1,9 @@
+import { describe, expect, it } from 'vitest'
+
 import type {
   RowDragEvent,
   RowDragOptions,
 } from '../src/runtime/composables/_internal/useNuGridRowDragDrop'
-import { describe, expect, it } from 'vitest'
 
 /**
  * Tests for useNuGridRowDragDrop composable types and interfaces

@@ -10,6 +10,7 @@
 import type { TableData } from '@nuxt/ui'
 import type { Row } from '@tanstack/vue-table'
 import type { ComputedRef } from 'vue'
+
 import type { NuGridActionMenuOptions, NuGridColumn, NuGridRowSelectOptions } from '../index'
 
 /**

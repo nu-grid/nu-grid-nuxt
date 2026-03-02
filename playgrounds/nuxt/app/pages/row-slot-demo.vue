@@ -233,12 +233,12 @@ const exampleCode = `<NuGrid :data="data" :columns="columns">
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
-        The <code class="rounded bg-default px-1 py-0.5 text-xs">#row</code> slot allows you to
+      <p class="text-muted mb-3 text-sm">
+        The <code class="bg-default rounded px-1 py-0.5 text-xs">#row</code> slot allows you to
         completely replace the default cell rendering with your own custom layout.
       </p>
 
-      <div class="mb-3 rounded bg-warning/10 p-2 text-sm text-muted">
+      <div class="bg-warning/10 text-muted mb-3 rounded p-2 text-sm">
         <strong>Important:</strong> When using the row slot:
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li>Cell editing is automatically disabled</li>
@@ -248,14 +248,14 @@ const exampleCode = `<NuGrid :data="data" :columns="columns">
         </ul>
       </div>
 
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Slot Props:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li>
-            <code class="rounded bg-default px-1 py-0.5 text-xs">row</code> - TanStack Row object
+            <code class="bg-default rounded px-1 py-0.5 text-xs">row</code> - TanStack Row object
           </li>
           <li>
-            <code class="rounded bg-default px-1 py-0.5 text-xs">cells</code> - Array of visible
+            <code class="bg-default rounded px-1 py-0.5 text-xs">cells</code> - Array of visible
             cells
           </li>
         </ul>
@@ -277,15 +277,15 @@ const exampleCode = `<NuGrid :data="data" :columns="columns">
             <img
               :src="row.original.avatar"
               :alt="row.original.name"
-              class="size-10 rounded-full ring-2 ring-default"
+              class="ring-default size-10 rounded-full ring-2"
             />
             <div class="min-w-0 flex-1">
               <div class="truncate font-semibold">{{ row.original.name }}</div>
-              <div class="truncate text-sm text-muted">{{ row.original.email }}</div>
+              <div class="text-muted truncate text-sm">{{ row.original.email }}</div>
             </div>
             <div class="hidden text-right sm:block">
               <div class="font-medium">{{ row.original.role }}</div>
-              <div class="text-sm text-muted">{{ row.original.department }}</div>
+              <div class="text-muted text-sm">{{ row.original.department }}</div>
             </div>
             <div class="hidden text-right md:block">
               <div class="font-medium">${{ row.original.salary.toLocaleString() }}</div>

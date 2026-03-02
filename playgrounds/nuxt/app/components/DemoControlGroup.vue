@@ -13,7 +13,7 @@ defineProps<Props>()
 
 <template>
   <div class="space-y-1.5">
-    <label v-if="label" class="block text-xs font-medium text-dimmed">{{ label }}</label>
+    <label v-if="label" class="text-dimmed block text-xs font-medium">{{ label }}</label>
     <slot />
   </div>
 </template>

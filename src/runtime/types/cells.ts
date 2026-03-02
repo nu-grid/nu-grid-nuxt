@@ -10,6 +10,7 @@
 import type { TableData } from '@nuxt/ui'
 import type { Column, Row, Table } from '@tanstack/vue-table'
 import type { Component, Ref } from 'vue'
+
 import type { NuGridEditorConfig, NuGridInteractionRouter } from './_internal'
 import type { NuGridColumn, NuGridColumnMenuItem } from './column'
 import type { NuGridShowErrors } from './validation'

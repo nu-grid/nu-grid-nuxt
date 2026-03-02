@@ -380,9 +380,9 @@ function setState() {
       </DemoControlGroup>
 
       <!-- Current State Display -->
-      <div class="rounded-lg border border-default bg-elevated/30 p-3">
+      <div class="border-default bg-elevated/30 rounded-lg border p-3">
         <div class="mb-2 flex items-center justify-between">
-          <h3 class="text-xs font-semibold tracking-wide text-muted uppercase">Current State</h3>
+          <h3 class="text-muted text-xs font-semibold tracking-wide uppercase">Current State</h3>
           <UButton
             icon="i-lucide-refresh-cw"
             size="xs"
@@ -391,11 +391,11 @@ function setState() {
           />
         </div>
         <div v-if="currentState" class="overflow-x-auto">
-          <pre class="max-h-40 overflow-auto rounded bg-default/50 p-2 text-xs">{{
+          <pre class="bg-default/50 max-h-40 overflow-auto rounded p-2 text-xs">{{
             JSON.stringify(currentState, null, 2)
           }}</pre>
         </div>
-        <div v-else class="text-center text-xs text-muted">
+        <div v-else class="text-muted text-center text-xs">
           <UIcon name="i-lucide-database" class="mx-auto mb-1 size-5" />
           <p>Click "Get Current State"</p>
         </div>
@@ -404,19 +404,19 @@ function setState() {
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         State persistence allows you to save and restore grid state (filters, sorting, pagination,
         column visibility, etc.) to localStorage and provides methods to programmatically get and
         set state.
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li><strong>persistState:</strong> Enable/disable automatic state persistence</li>
         <li><strong>stateStorageId:</strong> Unique identifier for localStorage key</li>
         <li><strong>getState():</strong> Retrieve current grid state programmatically</li>
         <li><strong>setState(state):</strong> Apply a state snapshot to the grid</li>
         <li><strong>@stateChanged:</strong> Event emitted whenever state is updated</li>
       </ul>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Tip:</strong> Try sorting, filtering, or hiding columns, then refresh the page. The
         state will be automatically restored if persistence is enabled.
       </div>

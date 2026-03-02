@@ -1,9 +1,12 @@
 import type { TableColumn } from '@nuxt/ui'
 import type { ColumnSizingInfoState, GroupingState } from '@tanstack/vue-table'
-import type { NuGridProps } from '../src/runtime/types'
-import type { GroupingVirtualRowHeights } from '../src/runtime/types/_internal'
+
 import { describe, expect, it } from 'vitest'
 import { nextTick, ref } from 'vue'
+
+import type { NuGridProps } from '../src/runtime/types'
+import type { GroupingVirtualRowHeights } from '../src/runtime/types/_internal'
+
 import { useNuGridApi, useNuGridColumns } from '../src/runtime/composables/_internal/useNuGridCore'
 import { useNuGridGrouping } from '../src/runtime/composables/_internal/useNuGridGrouping'
 

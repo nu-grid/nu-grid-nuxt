@@ -1,10 +1,13 @@
 import type { TableData } from '@nuxt/ui'
 import type { Table } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
-import type { NuGridEventEmitter, NuGridPagingOptions, NuGridProps } from '../../types'
+
 import { getPaginationRowModel } from '@tanstack/vue-table'
 import { useResizeObserver } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
+
+import type { NuGridEventEmitter, NuGridPagingOptions, NuGridProps } from '../../types'
+
 import { nuGridDefaults } from '../../config/_internal'
 
 /**

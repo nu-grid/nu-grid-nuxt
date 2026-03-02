@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import type { NuGridCellEditorEmits, NuGridCellEditorProps } from '../../types'
 import { computed, ref } from 'vue'
+
+import type { NuGridCellEditorEmits, NuGridCellEditorProps } from '../../types'
+
 import { useNuGridCellEditor } from '../../composables'
 
 defineOptions({ inheritAttrs: false })

@@ -46,6 +46,6 @@ const selectedCount = computed(() => {
         td: 'border-b border-default',
       }"
     />
-    <div class="text-sm text-muted">{{ selectedCount }} row(s) selected</div>
+    <div class="text-muted text-sm">{{ selectedCount }} row(s) selected</div>
   </div>
 </template>

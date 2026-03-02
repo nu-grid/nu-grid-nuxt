@@ -1,7 +1,9 @@
 import type { Column, Table } from '@tanstack/vue-table'
 import type { Cell, Row } from 'write-excel-file'
-import type { NuGridColumn } from '../types'
+
 import writeXlsxFile from 'write-excel-file'
+
+import type { NuGridColumn } from '../types'
 
 export interface ExcelExportOptions {
   /**

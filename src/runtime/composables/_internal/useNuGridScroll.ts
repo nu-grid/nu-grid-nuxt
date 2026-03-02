@@ -2,6 +2,7 @@ import type { TableData } from '@nuxt/ui'
 import type { Table } from '@tanstack/vue-table'
 import type { Primitive } from 'reka-ui'
 import type { ComputedRef, Ref } from 'vue'
+
 import { useElementSize } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
@@ -392,8 +393,8 @@ export class NuGridScrollManager {
         let effectiveCellHeight = cellHeight
 
         if (!verticalOnly) {
-          const multiRowContainer = (cellElement.closest('[data-multi-row="true"]')
-            || cellElement.closest('.nugrid-multi-row-container')) as HTMLElement | null
+          const multiRowContainer = (cellElement.closest('[data-multi-row="true"]') ||
+            cellElement.closest('.nugrid-multi-row-container')) as HTMLElement | null
 
           if (multiRowContainer) {
             const multiRowRect = multiRowContainer.getBoundingClientRect()
@@ -433,8 +434,8 @@ export class NuGridScrollManager {
                 // Collect headers immediately above (no data rows in between)
                 while (sibling) {
                   const isColumnHeader =
-                    sibling.hasAttribute('data-sticky-header')
-                    || sibling.querySelector('[data-sticky-header]')
+                    sibling.hasAttribute('data-sticky-header') ||
+                    sibling.querySelector('[data-sticky-header]')
                   const isGroupHeader = sibling.hasAttribute('data-group-header')
 
                   if (isColumnHeader || isGroupHeader) {

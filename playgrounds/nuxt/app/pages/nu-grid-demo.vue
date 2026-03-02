@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { NuGridActionMenuItem, NuGridColumn, NuGridRow } from '#nu-grid/types'
-import type { User } from '~/types'
+
 import { createColumnHelper } from '#nu-grid'
 import { upperFirst } from 'scule'
+
+import type { User } from '~/types'
 
 const UAvatar = resolveComponent('UAvatar')
 const UButton = resolveComponent('UButton')
@@ -568,8 +570,8 @@ function triggerAutoSize() {
         @row-selection-changed="onRowSelectionChanged"
       >
       </NuGrid>
-      <div class="mt-auto flex items-center justify-between gap-3 border-t border-default pt-4">
-        <div class="text-sm text-muted">
+      <div class="border-default mt-auto flex items-center justify-between gap-3 border-t pt-4">
+        <div class="text-muted text-sm">
           {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }}
           of
           {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s) selected.

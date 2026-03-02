@@ -1,4 +1,5 @@
 import type { TableData, TableRow } from '@nuxt/ui'
+
 import type { NuGridProps } from '../../types'
 
 /**

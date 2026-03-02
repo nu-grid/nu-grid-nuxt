@@ -1,9 +1,11 @@
+import { describe, expect, it } from 'vitest'
+
 import type {
   NuGridValidationResult,
   StandardSchemaV1,
   StandardSchemaV1Issue,
 } from '../src/runtime/utils/standardSchema'
-import { describe, expect, it } from 'vitest'
+
 import {
   formatStandardSchemaIssues,
   getValueAtPath,
@@ -301,7 +303,6 @@ describe('standardSchema utils', () => {
 
     it('handles non-Error exception', () => {
       const schema = makeSchema(() => {
-        // eslint-disable-next-line no-throw-literal
         throw 'string error'
       })
       const result = validateStandardValue(schema, 'test')

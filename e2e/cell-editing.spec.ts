@@ -27,9 +27,9 @@ test.describe('NuGrid Cell Editing', () => {
       const hasInput = await page.evaluate(() => {
         const activeEl = document.activeElement
         return (
-          activeEl?.tagName === 'INPUT'
-          || activeEl?.tagName === 'TEXTAREA'
-          || activeEl?.closest('[data-editing]') !== null
+          activeEl?.tagName === 'INPUT' ||
+          activeEl?.tagName === 'TEXTAREA' ||
+          activeEl?.closest('[data-editing]') !== null
         )
       })
 

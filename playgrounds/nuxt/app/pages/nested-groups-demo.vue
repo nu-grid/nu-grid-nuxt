@@ -260,30 +260,30 @@ const gridMode = computed(() =>
     <template #controls>
       <DemoControlGroup label="Layout Mode">
         <USwitch v-model="splitGroup" label="Split Group Layout" />
-        <p class="mt-1 text-xs text-muted">Repeats headers for each group section</p>
+        <p class="text-muted mt-1 text-xs">Repeats headers for each group section</p>
       </DemoControlGroup>
 
-      <div class="rounded-lg border border-default/50 bg-elevated/30 p-3">
+      <div class="border-default/50 bg-elevated/30 rounded-lg border p-3">
         <h4 class="mb-2 text-xs font-semibold">Grouping Hierarchy:</h4>
-        <ul class="space-y-1 text-xs text-muted">
+        <ul class="text-muted space-y-1 text-xs">
           <li class="flex items-center gap-2">
-            <span class="inline-block h-2 w-2 rounded-full bg-primary" />
+            <span class="bg-primary inline-block h-2 w-2 rounded-full" />
             Region (Level 1)
           </li>
           <li class="flex items-center gap-2">
-            <span class="ml-2 inline-block h-2 w-2 rounded-full bg-primary/70" />
+            <span class="bg-primary/70 ml-2 inline-block h-2 w-2 rounded-full" />
             Country (Level 2)
           </li>
           <li class="flex items-center gap-2">
-            <span class="ml-4 inline-block h-2 w-2 rounded-full bg-primary/40" />
+            <span class="bg-primary/40 ml-4 inline-block h-2 w-2 rounded-full" />
             Status (Level 3)
           </li>
         </ul>
       </div>
 
-      <div class="rounded-lg border border-default/50 bg-elevated/30 p-3">
+      <div class="border-default/50 bg-elevated/30 rounded-lg border p-3">
         <h4 class="mb-2 text-xs font-semibold">Data Structure:</h4>
-        <ul class="space-y-1 text-xs text-muted">
+        <ul class="text-muted space-y-1 text-xs">
           <li><strong>Regions:</strong> North America, Europe, Asia</li>
           <li><strong>Countries:</strong> USA, Canada, UK, Germany, Japan, China</li>
           <li><strong>Status:</strong> active, inactive</li>
@@ -293,16 +293,16 @@ const gridMode = computed(() =>
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This demo shows 3-tier nested grouping: Region → Country → Status. Click group headers to
         expand/collapse. Each level provides visual indentation for hierarchy.
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li><strong>Visual Indentation:</strong> Nested groups are indented for clarity</li>
         <li><strong>Expand/Collapse:</strong> Click any group header to toggle</li>
         <li><strong>Split Mode:</strong> Optional repeating headers per group</li>
       </ul>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Note:</strong> Nested groups only show when their parent is expanded.
       </div>
     </template>

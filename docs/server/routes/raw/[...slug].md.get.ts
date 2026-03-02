@@ -1,4 +1,5 @@
 import type { Collections } from '@nuxt/content'
+
 import { queryCollection } from '@nuxt/content/nitro'
 import { stringify } from 'minimark/stringify'
 import { withLeadingSlash } from 'ufo'

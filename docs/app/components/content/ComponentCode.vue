@@ -111,8 +111,7 @@ const component = defineAsyncComponent(() => {
   return import(`#ui/components/${upperFirst(camelName)}.vue`)
 })
 
-const componentProps = reactive({
-  ...Object.fromEntries(
+const componentProps = reactive(Object.fromEntries(
     Object.entries(props.props || {}).map(([key, value]) => {
       const cast = props.cast?.[key]
 
@@ -122,8 +121,7 @@ const componentProps = reactive({
 
       return [key, cast ? castMap[cast]!.get(value) : value]
     }),
-  ),
-})
+  ))
 const componentEvents = reactive({
   ...Object.fromEntries(
     (props.model || []).map((key) => [`onUpdate:${key}`, (e: any) => setComponentProp(key, e)]),
@@ -255,7 +253,7 @@ ${props.slots?.default}
       code += `const ${key === 'modelValue' ? 'value' : key} = ref${type}(${value})
 `
     }
-    code += `<\/script>
+    code += `</script>
 `
   }
 
@@ -279,10 +277,10 @@ ${props.slots?.default}
 
     const prop = meta?.meta?.props?.find((prop: any) => prop.name === key)
     const propDefault =
-      prop
-      && (prop.default
-        ?? prop.tags?.find((tag) => tag.name === 'defaultValue')?.text
-        ?? componentTheme?.defaultVariants?.[prop.name])
+      prop &&
+      (prop.default ??
+        prop.tags?.find((tag) => tag.name === 'defaultValue')?.text ??
+        componentTheme?.defaultVariants?.[prop.name])
     const name = kebabCase(key)
 
     if (typeof value === 'boolean') {
@@ -290,11 +288,11 @@ ${props.slots?.default}
         continue
       }
       if (
-        !value
-        && (!propDefault
-          || propDefault === 'false'
-          || propDefault === '`false`'
-          || propDefault === false)
+        !value &&
+        (!propDefault ||
+          propDefault === 'false' ||
+          propDefault === '`false`' ||
+          propDefault === false)
       ) {
         continue
       }
@@ -373,14 +371,13 @@ const { data: ast } = await useAsyncData(
     <div class="relative">
       <div
         v-if="options.length"
-        class="flex flex-wrap items-center gap-2.5 border border-muted border-b-0 relative
-          rounded-t-md px-4 py-2.5 overflow-x-auto"
+        class="border-muted relative flex flex-wrap items-center gap-2.5 overflow-x-auto rounded-t-md border border-b-0 px-4 py-2.5"
       >
         <template v-for="option in options" :key="option.name">
           <UFormField
             :label="option.label"
             size="sm"
-            class="inline-flex ring ring-accented rounded-sm"
+            class="ring-accented inline-flex rounded-sm ring"
             :ui="{
               wrapper: 'bg-elevated/50 rounded-l-sm flex border-r border-accented',
               label: 'text-muted px-2 py-1.5',
@@ -394,7 +391,7 @@ const { data: ast } = await useAsyncData(
               value-key="value"
               color="neutral"
               variant="soft"
-              class="rounded-sm rounded-l-none min-w-12"
+              class="min-w-12 rounded-sm rounded-l-none"
               :class="[option.name.toLowerCase().endsWith('color') && 'pl-6']"
               :ui="{ itemLeadingChip: 'w-2' }"
               @update:model-value="setComponentProp(option.name, $event)"
@@ -432,7 +429,7 @@ const { data: ast } = await useAsyncData(
 
       <div
         v-if="component"
-        class="flex justify-center border border-b-0 border-muted relative p-4 z-[1]"
+        class="border-muted relative z-[1] flex justify-center border border-b-0 p-4"
         :class="[
           !options.length && 'rounded-t-md',
           props.class,
@@ -453,7 +450,7 @@ const { data: ast } = await useAsyncData(
       v-if="ast"
       :body="ast.body"
       :data="ast.data"
-      class="[&_pre]:!rounded-t-none [&_div.my-5]:!mt-0"
+      class="[&_div.my-5]:!mt-0 [&_pre]:!rounded-t-none"
     />
   </div>
 </template>

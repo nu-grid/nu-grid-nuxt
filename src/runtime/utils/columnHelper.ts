@@ -1,5 +1,6 @@
 import type { TableData } from '@nuxt/ui'
 import type { ColumnDefTemplate, StringOrTemplateHeader } from '@tanstack/vue-table'
+
 import type { NuGridColumn } from '../types/column'
 
 /**

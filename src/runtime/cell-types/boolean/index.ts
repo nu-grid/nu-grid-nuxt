@@ -1,4 +1,5 @@
 import type { NuGridCellType, NuGridCellTypeContext } from '../../types/cells'
+
 import BooleanEditor from './BooleanEditor.vue'
 import BooleanFilter from './BooleanFilter.vue'
 import BooleanRenderer from './BooleanRenderer.vue'

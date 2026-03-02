@@ -2,6 +2,9 @@
 import type { TableData } from '@nuxt/ui'
 import type { Cell, Row } from '@tanstack/vue-table'
 import type { ComponentPublicInstance } from 'vue'
+
+import { computed, inject } from 'vue'
+
 import type {
   NuGridCoreContext,
   NuGridDragContext,
@@ -13,7 +16,7 @@ import type {
   NuGridRowInteractionsContext,
   NuGridUIConfigContext,
 } from '../../types/_internal'
-import { computed, inject } from 'vue'
+
 import { getFlexCellStyle, resolveStyleObject, resolveValue } from '../../composables/_internal'
 import NuGridCellContent from './NuGridCellContent.vue'
 
@@ -45,12 +48,12 @@ const uiConfigContext = inject<NuGridUIConfigContext<T>>('nugrid-ui-config')
 const resizeContext = inject<NuGridResizeContext<T>>('nugrid-resize')
 
 if (
-  !coreContext
-  || !dragContext
-  || !focusContext
-  || !performanceContext
-  || !rowInteractionsContext
-  || !interactionRouterContext
+  !coreContext ||
+  !dragContext ||
+  !focusContext ||
+  !performanceContext ||
+  !rowInteractionsContext ||
+  !interactionRouterContext
 ) {
   throw new Error('NuGridRow must be used within a NuGrid component.')
 }
@@ -496,8 +499,7 @@ function getMultiRowPinningStyle(
               !!cell.column.getIsPinned(),
               shouldHaveBorder(row, cellIndex, 'left'),
               shouldHaveBorder(row, cellIndex, 'right'),
-              !!focusFns.isFocusedCell(row, cellIndex)
-                && !cellEditingFns.editingCell.value,
+              !!focusFns.isFocusedCell(row, cellIndex) && !cellEditingFns.editingCell.value,
               false,
               isRowActive,
               gridIsFocused,
@@ -560,8 +562,7 @@ function getMultiRowPinningStyle(
               true,
               shouldHaveBorder(row, cellIndex, 'left'),
               shouldHaveBorder(row, cellIndex, 'right'),
-              !!focusFns.isFocusedCell(row, cellIndex)
-                && !cellEditingFns.editingCell.value,
+              !!focusFns.isFocusedCell(row, cellIndex) && !cellEditingFns.editingCell.value,
               false,
               isRowActive,
               gridIsFocused,
@@ -615,8 +616,8 @@ function getMultiRowPinningStyle(
                   false,
                   shouldHaveBorder(row, item.cellIndex!, 'left'),
                   shouldHaveBorder(row, item.cellIndex!, 'right'),
-                  !!focusFns.isFocusedCell(row, item.cellIndex!)
-                    && !cellEditingFns.editingCell.value,
+                  !!focusFns.isFocusedCell(row, item.cellIndex!) &&
+                    !cellEditingFns.editingCell.value,
                   false,
                   isRowActive,
                   gridIsFocused,
@@ -682,8 +683,7 @@ function getMultiRowPinningStyle(
               true,
               shouldHaveBorder(row, cellIndex, 'left'),
               shouldHaveBorder(row, cellIndex, 'right'),
-              !!focusFns.isFocusedCell(row, cellIndex)
-                && !cellEditingFns.editingCell.value,
+              !!focusFns.isFocusedCell(row, cellIndex) && !cellEditingFns.editingCell.value,
               false,
               isRowActive,
               gridIsFocused,
@@ -783,8 +783,7 @@ function getMultiRowPinningStyle(
             !!cell.column.getIsPinned(),
             shouldHaveBorder(row, cellIndex, 'left'),
             shouldHaveBorder(row, cellIndex, 'right'),
-            !!focusFns.isFocusedCell(row, cellIndex)
-              && !cellEditingFns.editingCell.value,
+            !!focusFns.isFocusedCell(row, cellIndex) && !cellEditingFns.editingCell.value,
             isRowFocused,
             isRowActive,
             gridIsFocused,

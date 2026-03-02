@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NuGridColumn } from '#nu-grid/types'
+
 import { z } from 'zod'
 
 // Sample data for the demo
@@ -264,34 +265,34 @@ const columns: NuGridColumn<User>[] = [
           :disabled="!validationEnabled"
           class="w-full"
         />
-        <p class="mt-1 text-xs text-muted">
+        <p class="text-muted mt-1 text-xs">
           Block keeps editor open; Revert restores original; Warn allows navigation
         </p>
       </DemoControlGroup>
 
       <DemoControlGroup label="Try These Examples">
-        <ul class="space-y-2 text-xs text-muted">
+        <ul class="text-muted space-y-2 text-xs">
           <li class="flex items-start gap-2">
-            <UIcon name="i-lucide-x-circle" class="mt-0.5 size-3.5 shrink-0 text-error" />
+            <UIcon name="i-lucide-x-circle" class="text-error mt-0.5 size-3.5 shrink-0" />
             <span>Clear a name field (required)</span>
           </li>
           <li class="flex items-start gap-2">
-            <UIcon name="i-lucide-x-circle" class="mt-0.5 size-3.5 shrink-0 text-error" />
+            <UIcon name="i-lucide-x-circle" class="text-error mt-0.5 size-3.5 shrink-0" />
             <span>Enter "invalid-email" in email</span>
           </li>
           <li class="flex items-start gap-2">
-            <UIcon name="i-lucide-x-circle" class="mt-0.5 size-3.5 shrink-0 text-error" />
+            <UIcon name="i-lucide-x-circle" class="text-error mt-0.5 size-3.5 shrink-0" />
             <span>Enter age below 18 or above 120</span>
           </li>
           <li class="flex items-start gap-2">
-            <UIcon name="i-lucide-alert-triangle" class="mt-0.5 size-3.5 shrink-0 text-warning" />
+            <UIcon name="i-lucide-alert-triangle" class="text-warning mt-0.5 size-3.5 shrink-0" />
             <span><strong>Row rule:</strong> Set Engineering salary &lt; $100k</span>
           </li>
         </ul>
       </DemoControlGroup>
 
       <DemoControlGroup label="Recent Edits">
-        <div v-if="validationLog.length === 0" class="text-xs text-muted">
+        <div v-if="validationLog.length === 0" class="text-muted text-xs">
           Edit a cell to see validation events
         </div>
         <ul v-else class="max-h-32 space-y-2 overflow-auto">
@@ -327,9 +328,9 @@ const columns: NuGridColumn<User>[] = [
     </template>
 
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This page demonstrates the
-        <code class="rounded bg-default px-1 py-0.5 text-xs">validationSchema</code>
+        <code class="bg-default rounded px-1 py-0.5 text-xs">validationSchema</code>
         prop for NuGrid using
         <a href="https://zod.dev" target="_blank" class="text-primary hover:underline">Zod</a>. Zod
         implements the
@@ -338,7 +339,7 @@ const columns: NuGridColumn<User>[] = [
         >
         specification natively.
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li><strong>Zod validation:</strong> Uses Zod's native Standard Schema support</li>
         <li>
           <strong>Error display:</strong> Shows validation errors in a popover with error styling
@@ -346,26 +347,26 @@ const columns: NuGridColumn<User>[] = [
         <li><strong>Stay in edit mode:</strong> Invalid edits keep the cell in edit mode</li>
         <li><strong>Type-safe:</strong> Zod provides full TypeScript inference</li>
       </ul>
-      <div class="mb-3 rounded-lg border border-default/50 bg-elevated/30 p-3">
+      <div class="border-default/50 bg-elevated/30 mb-3 rounded-lg border p-3">
         <p class="mb-2 text-sm font-semibold">Cell Validation Rules:</p>
-        <ul class="space-y-1 text-xs text-muted">
+        <ul class="text-muted space-y-1 text-xs">
           <li>
-            <code class="rounded bg-default px-1 py-0.5">name</code> - Required, 2-50 characters
+            <code class="bg-default rounded px-1 py-0.5">name</code> - Required, 2-50 characters
           </li>
-          <li><code class="rounded bg-default px-1 py-0.5">email</code> - Valid email format</li>
-          <li><code class="rounded bg-default px-1 py-0.5">age</code> - Integer between 18-120</li>
-          <li><code class="rounded bg-default px-1 py-0.5">department</code> - Required</li>
-          <li><code class="rounded bg-default px-1 py-0.5">salary</code> - Non-negative number</li>
+          <li><code class="bg-default rounded px-1 py-0.5">email</code> - Valid email format</li>
+          <li><code class="bg-default rounded px-1 py-0.5">age</code> - Integer between 18-120</li>
+          <li><code class="bg-default rounded px-1 py-0.5">department</code> - Required</li>
+          <li><code class="bg-default rounded px-1 py-0.5">salary</code> - Non-negative number</li>
         </ul>
       </div>
-      <div class="rounded-lg border border-error/30 bg-error/5 p-3">
-        <p class="mb-2 text-sm font-semibold text-error">Row Validation Rules:</p>
-        <ul class="space-y-1 text-xs text-muted">
+      <div class="border-error/30 bg-error/5 rounded-lg border p-3">
+        <p class="text-error mb-2 text-sm font-semibold">Row Validation Rules:</p>
+        <ul class="text-muted space-y-1 text-xs">
           <li class="flex items-start gap-2">
-            <UIcon name="i-lucide-alert-triangle" class="mt-0.5 size-3.5 shrink-0 text-error" />
+            <UIcon name="i-lucide-alert-triangle" class="text-error mt-0.5 size-3.5 shrink-0" />
             <span>
               <strong>Engineering</strong> employees must have salary
-              <code class="rounded bg-default px-1 py-0.5">&gt;= $100,000</code>
+              <code class="bg-default rounded px-1 py-0.5">&gt;= $100,000</code>
             </span>
           </li>
         </ul>

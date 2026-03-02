@@ -1,8 +1,11 @@
 import type { TableData } from '@nuxt/ui'
 import type { Header, Table } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
-import type { NuGridProps } from '../../types'
+
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+
+import type { NuGridProps } from '../../types'
+
 import { usePropWithDefault } from '../../config/_internal'
 
 function isTouchStartEvent(e: unknown): e is TouchEvent {
@@ -264,20 +267,17 @@ export function useNuGridColumnResize<T extends TableData>(
   })
 
   // Re-sync when autoSize mode changes to 'fill'
-  watch(
-    autoSize,
-    (newValue, oldValue) => {
-      if (newValue === 'fill' && oldValue !== 'fill') {
-        // Reset manually resized columns and re-sync
-        manuallyResizedColumns.value = new Set()
+  watch(autoSize, (newValue, oldValue) => {
+    if (newValue === 'fill' && oldValue !== 'fill') {
+      // Reset manually resized columns and re-sync
+      manuallyResizedColumns.value = new Set()
+      nextTick(() => {
         nextTick(() => {
-          nextTick(() => {
-            syncInitialFlexWidths()
-          })
+          syncInitialFlexWidths()
         })
-      }
-    },
-  )
+      })
+    }
+  })
 
   // Clean up ResizeObserver
   onUnmounted(() => {

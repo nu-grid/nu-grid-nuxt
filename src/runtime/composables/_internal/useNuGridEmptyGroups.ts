@@ -1,6 +1,7 @@
 import type { TableData } from '@nuxt/ui'
 import type { GroupingState } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
+
 import { computed } from 'vue'
 
 export const EMPTY_GROUP_PLACEHOLDER_FLAG = '__nugridEmptyGroupPlaceholder'
@@ -15,10 +16,7 @@ export function isEmptyGroupPlaceholder<T>(row: T): boolean {
 /**
  * Create an empty group placeholder row with the given grouping values
  */
-function createPlaceholderRow<T extends TableData>(
-  groupingValues: Partial<T>,
-  index: number,
-): T {
+function createPlaceholderRow<T extends TableData>(groupingValues: Partial<T>, index: number): T {
   const placeholder: any = { ...groupingValues }
   placeholder[EMPTY_GROUP_PLACEHOLDER_FLAG] = true
   placeholder.id = `__empty-group-placeholder-${index}-${Object.values(groupingValues).join('-')}`
@@ -163,7 +161,11 @@ export function useNuGridEmptyGroups<T extends TableData>(
     const emptyGroupValuesConfig = options.emptyGroupValues.value
 
     // If no grouping or no emptyGroupValues config, return original data
-    if (!grouping.length || !emptyGroupValuesConfig || Object.keys(emptyGroupValuesConfig).length === 0) {
+    if (
+      !grouping.length ||
+      !emptyGroupValuesConfig ||
+      Object.keys(emptyGroupValuesConfig).length === 0
+    ) {
       return originalData
     }
 

@@ -81,12 +81,11 @@ const layoutOptions = computed(() => ({
     </template>
 
     <template #info>
-      <p class="mb-3 text-sm text-muted">
-        Use <code class="rounded bg-default px-1 py-0.5 text-xs">layout.showHeaders</code> to
-        hide column headers entirely. This is useful for data-only views or when headers are
-        redundant.
+      <p class="text-muted mb-3 text-sm">
+        Use <code class="bg-default rounded px-1 py-0.5 text-xs">layout.showHeaders</code> to hide
+        column headers entirely. This is useful for data-only views or when headers are redundant.
       </p>
-      <ul class="list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted list-inside list-disc space-y-1 text-sm">
         <li>Set <code class="text-xs">showHeaders: false</code> to hide all column headers</li>
         <li>Defaults to <code class="text-xs">true</code> (headers visible)</li>
         <li>Works with all layout modes (div, group, splitgroup)</li>
@@ -95,20 +94,16 @@ const layoutOptions = computed(() => ({
     </template>
 
     <div class="h-full">
-      <NuGrid
-        :data="data"
-        :columns="columns"
-        :layout="layoutOptions"
-      />
+      <NuGrid :data="data" :columns="columns" :layout="layoutOptions" />
     </div>
 
     <template #code>
       <DemoCodeBlock
-        code="<NuGrid
-  :data=&quot;data&quot;
-  :columns=&quot;columns&quot;
-  :layout=&quot;{ showHeaders: false }&quot;
-/>"
+        code='<NuGrid
+  :data="data"
+  :columns="columns"
+  :layout="{ showHeaders: false }"
+/>'
       />
     </template>
   </DemoLayout>

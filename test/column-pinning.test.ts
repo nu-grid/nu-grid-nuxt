@@ -1,6 +1,8 @@
-import type { PinnableHeader } from '../src/runtime/types/_internal'
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
+
+import type { PinnableHeader } from '../src/runtime/types/_internal'
+
 import { useNuGridColumnPinning } from '../src/runtime/composables/_internal/useNuGridColumnPinning'
 import {
   getHeaderEffectivePinning,

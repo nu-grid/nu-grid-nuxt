@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { computed, inject, ref } from 'vue'
+
 import type { NuGridCellEditorEmits, NuGridCellEditorProps, NuGridShowErrors } from '../../types'
 import type { NuGridCoreContext, NuGridValidationContext } from '../../types/_internal'
-import { computed, inject, ref } from 'vue'
+
 import { useNuGridCellEditor } from '../../composables'
 import { defaultValidationIcon } from '../../composables/_internal/useNuGridCellEditing'
 

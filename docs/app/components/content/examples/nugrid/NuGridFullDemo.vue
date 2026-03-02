@@ -196,7 +196,7 @@ watch(emailFilter, (value) => {
         </UButton>
       </UFieldGroup>
 
-      <span v-if="selectedCount > 0" class="text-sm text-muted">
+      <span v-if="selectedCount > 0" class="text-muted text-sm">
         {{ selectedCount }} row(s) selected
       </span>
     </div>

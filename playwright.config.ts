@@ -1,7 +1,8 @@
 import type { ConfigOptions } from '@nuxt/test-utils/playwright'
+
+import { defineConfig, devices } from '@playwright/test'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import { defineConfig, devices } from '@playwright/test'
 
 /**
  * Playwright configuration for NuGrid E2E tests.

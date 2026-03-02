@@ -451,17 +451,17 @@ const exampleCode = `// Disable menu for a column
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         The column menu provides quick access to column operations directly from the column header.
         Hover over any column header to see the menu button appear.
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li><strong>Sort:</strong> Sort ascending, descending, or clear</li>
         <li><strong>Pin:</strong> Pin column to left or right</li>
         <li><strong>Autosize:</strong> Fit column width to content</li>
         <li><strong>Column Visibility:</strong> Show/hide columns via submenu</li>
       </ul>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Note:</strong> ID column has menu disabled. Name has custom menu items. Position
         replaces all defaults. Department/Salary add to defaults.
       </div>

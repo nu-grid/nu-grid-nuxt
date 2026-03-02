@@ -357,12 +357,12 @@ const exampleCode = `<NuGrid
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This page demonstrates the enhanced
-        <code class="rounded bg-default px-1 py-0.5 text-xs">rowSelectionMode</code>
+        <code class="bg-default rounded px-1 py-0.5 text-xs">rowSelectionMode</code>
         property for NuGrid. This property accepts an options object with the following properties:
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li><strong>mode:</strong> 'single' or 'multi' - controls how many rows can be selected</li>
         <li>
           <strong>hidden:</strong> boolean - hides the selection column while keeping it in the
@@ -374,13 +374,13 @@ const exampleCode = `<NuGrid
           specific row can be selected. Returns false to disable selection for that row.
         </li>
       </ul>
-      <div class="mb-3 rounded bg-warning/10 p-2 text-sm text-muted">
+      <div class="bg-warning/10 text-muted mb-3 rounded p-2 text-sm">
         <strong>Demo:</strong> The "Inactive Disabled" button demonstrates
-        <code class="rounded bg-default px-1 py-0.5 text-xs">rowSelectionEnabled</code>. When
+        <code class="bg-default rounded px-1 py-0.5 text-xs">rowSelectionEnabled</code>. When
         enabled, rows with status "inactive" (Frank Miller) cannot be selected via checkbox click or
         spacebar.
       </div>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Tip:</strong> Use the controls in the sidebar to experiment with different
         combinations of selection options.
       </div>
@@ -401,7 +401,7 @@ const exampleCode = `<NuGrid
     <!-- Selected Rows Display -->
     <div v-if="selectedRows.length > 0" class="mt-6">
       <h3 class="mb-3 text-lg font-semibold">Selected Rows</h3>
-      <div class="overflow-x-auto rounded-lg border border-default">
+      <div class="border-default overflow-x-auto rounded-lg border">
         <table class="w-full text-sm">
           <thead class="bg-elevated/50">
             <tr>
@@ -412,7 +412,7 @@ const exampleCode = `<NuGrid
             </tr>
           </thead>
           <tbody>
-            <tr v-for="employee in selectedRows" :key="employee.id" class="border-t border-default">
+            <tr v-for="employee in selectedRows" :key="employee.id" class="border-default border-t">
               <td class="px-4 py-2">{{ employee.id }}</td>
               <td class="px-4 py-2">{{ employee.name }}</td>
               <td class="px-4 py-2">{{ employee.email }}</td>
@@ -425,7 +425,7 @@ const exampleCode = `<NuGrid
 
     <div
       v-else
-      class="mt-6 rounded-lg border border-dashed border-default p-8 text-center text-muted"
+      class="border-default text-muted mt-6 rounded-lg border border-dashed p-8 text-center"
     >
       <UIcon name="i-lucide-mouse-pointer-click" class="mx-auto mb-2 size-8" />
       <p>No rows selected. Click on the checkboxes to select rows.</p>

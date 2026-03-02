@@ -24,7 +24,7 @@ defineProps<Props>()
       <strong>{{ title }}</strong>
     </p>
     <pre
-      class="overflow-x-auto rounded bg-default/50 p-3 text-xs"
+      class="bg-default/50 overflow-x-auto rounded p-3 text-xs"
     ><code>{{ code }}<slot v-if="!code" /></code></pre>
   </div>
 </template>

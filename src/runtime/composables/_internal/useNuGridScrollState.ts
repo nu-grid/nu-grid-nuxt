@@ -1,4 +1,5 @@
 import type { Ref } from 'vue'
+
 import { computed, onUnmounted, ref, watch } from 'vue'
 
 export interface UseNuGridScrollStateOptions {

@@ -37,8 +37,8 @@ export function getFlexHeaderStyle<T>(
   const fixedSize = columnDef.size ?? header.getSize()
   // Check both runtime Set and persisted columnSizing state (for SSR)
   const hasBeenResized =
-    manuallyResizedColumns.has(header.column.id)
-    || (columnSizing !== undefined && header.column.id in columnSizing)
+    manuallyResizedColumns.has(header.column.id) ||
+    (columnSizing !== undefined && header.column.id in columnSizing)
 
   // Pinned columns always use fixed width
   if (isPinned) {
@@ -100,8 +100,8 @@ export function getFlexCellStyle<T>(
   const fixedSize = columnDef.size ?? column.getSize()
   // Check both runtime Set and persisted columnSizing state (for SSR)
   const hasBeenResized =
-    manuallyResizedColumns.has(column.id)
-    || (columnSizing !== undefined && column.id in columnSizing)
+    manuallyResizedColumns.has(column.id) ||
+    (columnSizing !== undefined && column.id in columnSizing)
 
   // Pinned columns always use fixed width
   if (isPinned) {

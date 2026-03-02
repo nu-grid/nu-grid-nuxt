@@ -143,13 +143,13 @@ const columns: NuGridColumn<StockData>[] = [
       </UFieldGroup>
     </div>
 
-    <div class="grid gap-4 md:grid-cols-2 text-sm">
-      <div class="rounded-lg border border-default p-3">
-        <p class="font-medium mb-1">Default Theme</p>
+    <div class="grid gap-4 text-sm md:grid-cols-2">
+      <div class="border-default rounded-lg border p-3">
+        <p class="mb-1 font-medium">Default Theme</p>
         <p class="text-muted text-xs">Comfortable spacing (16px padding), app primary color</p>
       </div>
-      <div class="rounded-lg border border-default p-3">
-        <p class="font-medium mb-1">Compact Theme</p>
+      <div class="border-default rounded-lg border p-3">
+        <p class="mb-1 font-medium">Compact Theme</p>
         <p class="text-muted text-xs">
           Dense spacing (8px padding), blue accent, uppercase headers
         </p>

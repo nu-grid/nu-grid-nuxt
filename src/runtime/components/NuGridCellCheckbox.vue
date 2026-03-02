@@ -2,11 +2,13 @@
 import type theme from '#build/ui/checkbox'
 import type { ComponentConfig } from '@nuxt/ui'
 import type { AppConfig } from 'nuxt/schema'
-import type { NuGridUIConfigContext } from '../types/_internal'
+
 import { useAppConfig } from '#imports'
 import { tv } from '@nuxt/ui/runtime/utils/tv.js'
 import { CheckboxIndicator, CheckboxRoot } from 'reka-ui'
 import { computed, inject, nextTick, ref, useId } from 'vue'
+
+import type { NuGridUIConfigContext } from '../types/_internal'
 
 defineOptions({ inheritAttrs: false })
 
@@ -102,9 +104,9 @@ defineExpose({
       <div
         :class="[
           'inline-flex rounded-sm',
-          interactive
-            && showFocusRing
-            && 'outline-2 outline-offset-2 outline-primary-500 dark:outline-primary-400',
+          interactive &&
+            showFocusRing &&
+            'outline-primary-500 dark:outline-primary-400 outline-2 outline-offset-2',
           !interactive && 'cursor-default',
         ]"
       >

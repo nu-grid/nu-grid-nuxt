@@ -468,7 +468,7 @@ const groups = computed(() => [
       </template>
 
       <template #default="{ collapsed }">
-        <UDashboardSearchButton :collapsed="collapsed" class="bg-transparent ring-default" />
+        <UDashboardSearchButton :collapsed="collapsed" class="ring-default bg-transparent" />
 
         <UNavigationMenu
           :collapsed="collapsed"

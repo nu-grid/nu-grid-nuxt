@@ -1,7 +1,10 @@
 import type { TableData } from '@nuxt/ui'
 import type { Ref } from 'vue'
-import type { NuGridCellType } from '../types/cells'
+
 import { computed } from 'vue'
+
+import type { NuGridCellType } from '../types/cells'
+
 import { builtInCellTypes } from '../cell-types'
 
 /**

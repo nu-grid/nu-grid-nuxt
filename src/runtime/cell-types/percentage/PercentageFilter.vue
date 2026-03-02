@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { NuGridFilterContext } from '../../types/cells'
 import { computed, ref } from 'vue'
+
+import type { NuGridFilterContext } from '../../types/cells'
 
 interface Props {
   context: NuGridFilterContext
@@ -69,7 +70,7 @@ function toStorageValue(displayValue: string | number | null): number | null {
         class="flex-1"
         @update:model-value="context.setFilterValue(toStorageValue($event))"
       />
-      <span class="text-gray-500 dark:text-gray-400 shrink-0">%</span>
+      <span class="shrink-0 text-gray-500 dark:text-gray-400">%</span>
     </div>
     <div v-if="operator === 'between'" class="flex items-center gap-1">
       <UInput
@@ -84,7 +85,7 @@ function toStorageValue(displayValue: string | number | null): number | null {
           })
         "
       />
-      <span class="text-gray-500 dark:text-gray-400 shrink-0">%</span>
+      <span class="shrink-0 text-gray-500 dark:text-gray-400">%</span>
     </div>
   </div>
 </template>

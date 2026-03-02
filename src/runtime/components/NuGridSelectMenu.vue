@@ -103,8 +103,9 @@ export interface SelectMenuProps<
   VK extends GetItemKeys<T> | undefined = undefined,
   M extends boolean = false,
 >
+  /* @vue-ignore */
   extends
-    /* @vue-ignore */ Pick<
+    Pick<
       ComboboxRootProps<T>,
       | 'open'
       | 'defaultOpen'
@@ -129,8 +130,8 @@ export interface SelectMenuProps<
   selectedIcon?: IconProps['name']
   clear?: boolean | Partial<Omit<ButtonProps, LinkPropsKeys>>
   clearIcon?: IconProps['name']
-  content?: Omit<ComboboxContentProps, 'as' | 'asChild' | 'forceMount'>
-    & Partial<EmitsToProps<ComboboxContentEmits>>
+  content?: Omit<ComboboxContentProps, 'as' | 'asChild' | 'forceMount'> &
+    Partial<EmitsToProps<ComboboxContentEmits>>
   arrow?: boolean | Omit<ComboboxArrowProps, 'as' | 'asChild'>
   portal?: boolean | string | HTMLElement
   virtualize?:
@@ -478,8 +479,8 @@ const createItem = computed(() => {
     : searchTerm.value
 
   if (
-    (typeof props.createItem === 'object' && props.createItem.when === 'always')
-    || props.createItem === 'always'
+    (typeof props.createItem === 'object' && props.createItem.when === 'always') ||
+    props.createItem === 'always'
   ) {
     return !filteredItems.value.find((item) =>
       compare(item, newItem, (props.by ?? props.valueKey) as string | undefined),
@@ -826,9 +827,9 @@ defineExpose({
           <UAvatar
             v-else-if="isSelectItem(item) && item.avatar"
             :size="
-              (item.ui?.itemLeadingAvatarSize
-                || props.ui?.itemLeadingAvatarSize
-                || ui.itemLeadingAvatarSize()) as AvatarProps['size']
+              (item.ui?.itemLeadingAvatarSize ||
+                props.ui?.itemLeadingAvatarSize ||
+                ui.itemLeadingAvatarSize()) as AvatarProps['size']
             "
             v-bind="item.avatar"
             data-slot="itemLeadingAvatar"
@@ -874,8 +875,8 @@ defineExpose({
 
           <span
             v-if="
-              isSelectItem(item)
-              && (get(item, props.descriptionKey as string) || !!slots['item-description'])
+              isSelectItem(item) &&
+              (get(item, props.descriptionKey as string) || !!slots['item-description'])
             "
             data-slot="itemDescription"
             :class="
@@ -920,8 +921,8 @@ defineExpose({
   </DefineItemTemplate>
 
   <ComboboxRoot
-    ref="comboboxRootRef"
     :id="id"
+    ref="comboboxRootRef"
     v-slot="{ modelValue, open }"
     v-bind="{ ...rootProps, ...$attrs, ...ariaAttrs }"
     ignore-filter
@@ -961,8 +962,8 @@ defineExpose({
             <UAvatar
               v-else-if="!!props.avatar"
               :size="
-                (props.ui?.itemLeadingAvatarSize
-                  || ui.itemLeadingAvatarSize()) as AvatarProps['size']
+                (props.ui?.itemLeadingAvatarSize ||
+                  ui.itemLeadingAvatarSize()) as AvatarProps['size']
               "
               v-bind="props.avatar"
               data-slot="itemLeadingAvatar"

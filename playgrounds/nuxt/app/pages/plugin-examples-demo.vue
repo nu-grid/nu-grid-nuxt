@@ -179,24 +179,24 @@ function handleCellChange(payload: { row: any; column: any; oldValue: any; newVa
       </DemoControlGroup>
 
       <DemoControlGroup label="Tips">
-        <div class="rounded bg-default/50 p-2 text-xs text-muted">
+        <div class="bg-default/50 text-muted rounded p-2 text-xs">
           <strong>Rating:</strong> Click stars or press 1-5 keys
         </div>
-        <div class="rounded bg-default/50 p-2 text-xs text-muted">
+        <div class="bg-default/50 text-muted rounded p-2 text-xs">
           <strong>Currency:</strong> Supports USD, EUR, GBP with locale formatting
         </div>
       </DemoControlGroup>
     </template>
 
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This demo showcases the <strong>Rating</strong> and <strong>Currency</strong> column
         plugins. These are example implementations demonstrating the plugin system's capabilities.
       </p>
       <div class="mb-3 space-y-2">
         <div>
           <h4 class="mb-1 font-semibold">Rating Plugin</h4>
-          <ul class="list-inside list-disc space-y-1 text-sm text-muted">
+          <ul class="text-muted list-inside list-disc space-y-1 text-sm">
             <li>Visual star rating editor (1-5 stars)</li>
             <li>Press number keys 1-5 to set rating directly</li>
             <li>Range filter with operators (equals, at least, at most, between)</li>
@@ -206,7 +206,7 @@ function handleCellChange(payload: { row: any; column: any; oldValue: any; newVa
         </div>
         <div>
           <h4 class="mb-1 font-semibold">Currency Plugin</h4>
-          <ul class="list-inside list-disc space-y-1 text-sm text-muted">
+          <ul class="text-muted list-inside list-disc space-y-1 text-sm">
             <li>Currency input with $ prefix</li>
             <li>Automatic formatting using Intl.NumberFormat</li>
             <li>Supports different currencies (USD, EUR, GBP)</li>
@@ -215,7 +215,7 @@ function handleCellChange(payload: { row: any; column: any; oldValue: any; newVa
           </ul>
         </div>
       </div>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Tip:</strong> Double-click cells to start editing. Use Tab/Shift+Tab to navigate
         between cells, Enter to save, or Escape to cancel. For rating cells, press 1-5 keys to set
         rating directly.
@@ -264,19 +264,19 @@ function handleCellChange(payload: { row: any; column: any; oldValue: any; newVa
           </template>
           <ul class="space-y-2 text-sm">
             <li class="flex items-center gap-2">
-              <UIcon name="i-lucide-check" class="size-4 text-success" />
+              <UIcon name="i-lucide-check" class="text-success size-4" />
               Visual star editor (click stars to rate)
             </li>
             <li class="flex items-center gap-2">
-              <UIcon name="i-lucide-check" class="size-4 text-success" />
+              <UIcon name="i-lucide-check" class="text-success size-4" />
               Keyboard shortcuts (1-5 keys)
             </li>
             <li class="flex items-center gap-2">
-              <UIcon name="i-lucide-check" class="size-4 text-success" />
+              <UIcon name="i-lucide-check" class="text-success size-4" />
               Range filter with operators
             </li>
             <li class="flex items-center gap-2">
-              <UIcon name="i-lucide-check" class="size-4 text-success" />
+              <UIcon name="i-lucide-check" class="text-success size-4" />
               Validation (1-5 range)
             </li>
           </ul>
@@ -287,19 +287,19 @@ function handleCellChange(payload: { row: any; column: any; oldValue: any; newVa
           </template>
           <ul class="space-y-2 text-sm">
             <li class="flex items-center gap-2">
-              <UIcon name="i-lucide-check" class="size-4 text-success" />
+              <UIcon name="i-lucide-check" class="text-success size-4" />
               Currency formatting (USD, EUR, GBP)
             </li>
             <li class="flex items-center gap-2">
-              <UIcon name="i-lucide-check" class="size-4 text-success" />
+              <UIcon name="i-lucide-check" class="text-success size-4" />
               Locale-aware formatting
             </li>
             <li class="flex items-center gap-2">
-              <UIcon name="i-lucide-check" class="size-4 text-success" />
+              <UIcon name="i-lucide-check" class="text-success size-4" />
               Range filter with operators
             </li>
             <li class="flex items-center gap-2">
-              <UIcon name="i-lucide-check" class="size-4 text-success" />
+              <UIcon name="i-lucide-check" class="text-success size-4" />
               Numeric validation
             </li>
           </ul>

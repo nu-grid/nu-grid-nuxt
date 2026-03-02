@@ -2,7 +2,6 @@ import type { TableData } from '@nuxt/ui'
 import type { Cell, Column, ColumnFiltersState, Row, SortingState } from '@tanstack/vue-table'
 
 import type { NuGridStateSnapshot } from '../composables/_internal/useNuGridStatePersistence'
-
 import type { RowDragEvent } from './drag-drop'
 
 // ============================================================================

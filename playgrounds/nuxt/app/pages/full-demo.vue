@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { NuGridActionMenuItem, NuGridColumn, NuGridRow } from '#nu-grid/types'
-import type { User } from '~/types'
+
 import { createColumnHelper } from '#nu-grid'
 import { upperFirst } from 'scule'
+
+import type { User } from '~/types'
 
 const UAvatar = resolveComponent('UAvatar')
 const UButton = resolveComponent('UButton')

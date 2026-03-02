@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import type { NuGridCellEditorEmits, NuGridCellEditorProps } from '../../types'
 import type { ComputedRef } from 'vue'
+
 import { computed, inject, nextTick, onMounted, ref, watch } from 'vue'
+
+import type { NuGridCellEditorEmits, NuGridCellEditorProps } from '../../types'
+
 import { useNuGridCellEditor } from '../../composables'
 
 defineOptions({ inheritAttrs: false })
@@ -84,7 +87,6 @@ function setRating(value: number | null, closeEditor = false) {
   selectedStar.value = value
   focusedIndex.value = value ?? 0 // 0 = clear button, 1-5 = stars
   if (closeEditor) {
-    // eslint-disable-next-line vue/custom-event-name-casing
     emit('stop-editing')
   }
 }
@@ -163,7 +165,6 @@ function handleKeydown(e: KeyboardEvent) {
     } else if (behavior === 'moveCell') {
       scheduleNavigation(e.shiftKey ? 'previous' : 'next')
     } else {
-      // eslint-disable-next-line vue/custom-event-name-casing
       emit('stop-editing')
     }
     return
@@ -192,7 +193,7 @@ function handleKeydown(e: KeyboardEvent) {
   // Handle Escape - cancel
   if (e.key === 'Escape') {
     e.preventDefault()
-    // eslint-disable-next-line vue/custom-event-name-casing
+
     emit('cancel-editing')
     return
   }
@@ -212,8 +213,7 @@ function handleKeydown(e: KeyboardEvent) {
 <template>
   <div
     ref="containerRef"
-    class="flex items-center gap-1 rounded border-2 border-transparent p-1 outline-none select-none
-      focus-visible:border-primary-500"
+    class="focus-visible:border-primary-500 flex items-center gap-1 rounded border-2 border-transparent p-1 outline-none select-none"
     tabindex="0"
     @keydown="handleKeydown"
     @blur="handleContainerBlur"
@@ -234,7 +234,7 @@ function handleKeydown(e: KeyboardEvent) {
       class="rounded transition-all hover:scale-110 focus:outline-none"
       :class="[
         star <= (hoveredStar ?? selectedStar ?? rating ?? 0) ? 'text-yellow-400' : 'text-gray-300',
-        focusedIndex === star ? 'ring-2 ring-primary-500 ring-offset-0' : '',
+        focusedIndex === star ? 'ring-primary-500 ring-2 ring-offset-0' : '',
       ]"
       tabindex="0"
       @mousedown.prevent
@@ -262,7 +262,7 @@ function handleKeydown(e: KeyboardEvent) {
       variant="ghost"
       class="ml-2"
       tabindex="0"
-      :class="focusedIndex === 0 ? 'ring-2 ring-primary-500 ring-offset-0' : ''"
+      :class="focusedIndex === 0 ? 'ring-primary-500 ring-2 ring-offset-0' : ''"
       @mousedown.prevent
       @click="setRating(null, true)"
       @focus="focusedIndex = 0"

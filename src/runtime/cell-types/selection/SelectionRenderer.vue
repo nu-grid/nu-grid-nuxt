@@ -2,6 +2,7 @@
 import type { Row } from '@tanstack/vue-table'
 
 import { computed } from 'vue'
+
 import NuGridCellCheckbox from '../../components/NuGridCellCheckbox.vue'
 
 defineOptions({ inheritAttrs: false })

@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import type { NuGridColumn, NuGridPageChangedEvent, NuGridPagingOptions, SortingState } from '#nu-grid/types'
+import type {
+  NuGridColumn,
+  NuGridPageChangedEvent,
+  NuGridPagingOptions,
+  SortingState,
+} from '#nu-grid/types'
+
 import type { User } from '../../server/data/gridTestData'
 
 // Server-side pagination state
@@ -149,7 +155,12 @@ async function handlePageChanged(event: NuGridPageChangedEvent) {
       <DemoStatusItem label="Loading" :value="isLoading ? 'Yes' : 'No'" />
       <DemoStatusItem label="Rows Loaded" :value="data.length" />
       <DemoStatusItem label="Search" :value="globalFilter || 'None'" />
-      <DemoStatusItem label="Sort" :value="sorting.length > 0 ? `${sorting[0].id} ${sorting[0].desc ? 'desc' : 'asc'}` : 'None'" />
+      <DemoStatusItem
+        label="Sort"
+        :value="
+          sorting.length > 0 ? `${sorting[0].id} ${sorting[0].desc ? 'desc' : 'asc'}` : 'None'
+        "
+      />
     </template>
 
     <!-- Controls -->
@@ -204,12 +215,12 @@ async function handlePageChanged(event: NuGridPageChangedEvent) {
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-dimmed">
+      <p class="text-dimmed mb-3 text-sm">
         This demo shows server-side pagination with SSR support. Data is fetched on the server
         during initial render, so the page loads with data already visible.
       </p>
 
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-dimmed">
+      <div class="bg-default/50 text-dimmed mb-3 rounded p-2 text-sm">
         <strong>Key Options:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li><strong>manualPagination:</strong> Set to true for server-side pagination</li>
@@ -218,7 +229,7 @@ async function handlePageChanged(event: NuGridPageChangedEvent) {
         </ul>
       </div>
 
-      <div class="rounded bg-default/50 p-2 text-sm text-dimmed">
+      <div class="bg-default/50 text-dimmed rounded p-2 text-sm">
         <strong>Try It:</strong>
         <p class="mt-1">
           Use the pagination controls to navigate pages. Use the search box to filter on the server.
@@ -250,7 +261,7 @@ async function handlePageChanged(event: NuGridPageChangedEvent) {
         :items="[{ label: 'Implementation Notes', icon: 'i-lucide-file-text', slot: 'notes' }]"
       >
         <template #notes>
-          <div class="space-y-2 p-4 text-sm text-dimmed">
+          <div class="text-dimmed space-y-2 p-4 text-sm">
             <p><strong>Key Points:</strong></p>
             <ul class="list-inside list-disc space-y-1">
               <li>
@@ -266,7 +277,7 @@ async function handlePageChanged(event: NuGridPageChangedEvent) {
             </ul>
 
             <p class="mt-3"><strong>pageChanged Event Payload:</strong></p>
-            <pre class="mt-1 rounded bg-default p-2 text-xs">{{
+            <pre class="bg-default mt-1 rounded p-2 text-xs">{{
               JSON.stringify(
                 {
                   pageIndex: 0,

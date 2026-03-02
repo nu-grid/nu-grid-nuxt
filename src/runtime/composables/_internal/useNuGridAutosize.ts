@@ -2,9 +2,11 @@ import type { TableData } from '@nuxt/ui'
 import type { Table } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 
-import type { NuGridProps } from '../../types'
 import { useDebounceFn } from '@vueuse/core'
 import { nextTick, ref, watch } from 'vue'
+
+import type { NuGridProps } from '../../types'
+
 import { usePropWithDefault } from '../../config/_internal'
 
 /**
@@ -341,7 +343,8 @@ export function useNuGridAutosize<T extends TableData>(
           // After first render, sync flex column widths to TanStack
           // so resize works correctly from the first click
           // Check both props.data AND tableApi rows (which includes empty group placeholders)
-          const hasRows = (props.data && props.data.length > 0) || tableApi.getRowModel().rows.length > 0
+          const hasRows =
+            (props.data && props.data.length > 0) || tableApi.getRowModel().rows.length > 0
           if (hasRows && typeof requestAnimationFrame !== 'undefined') {
             nextTick(() => {
               // Use requestAnimationFrame to ensure DOM is fully painted

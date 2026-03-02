@@ -142,13 +142,13 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
         {{ editingEnabled ? 'Editing Enabled' : 'Editing Disabled' }}
       </UButton>
 
-      <span class="text-sm text-muted">
+      <span class="text-muted text-sm">
         Double-click cells to edit. Boolean cells toggle on click.
       </span>
     </div>
 
-    <div class="rounded-lg border border-default p-3 bg-elevated/30 text-sm">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+    <div class="border-default bg-elevated/30 rounded-lg border p-3 text-sm">
+      <div class="grid grid-cols-2 gap-2 text-xs md:grid-cols-4">
         <div><strong>text:</strong> Product Name</div>
         <div><strong>number:</strong> Price, Qty, Rating</div>
         <div><strong>date:</strong> Release Date</div>

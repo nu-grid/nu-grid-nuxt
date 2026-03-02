@@ -2,6 +2,9 @@
 import type { TableData } from '@nuxt/ui'
 import type { Row } from '@tanstack/vue-table'
 import type { ComponentPublicInstance } from 'vue'
+
+import { computed, inject } from 'vue'
+
 import type {
   NuGridAddRowContext,
   NuGridCoreContext,
@@ -9,7 +12,7 @@ import type {
   NuGridInteractionRouterContext,
   NuGridPerformanceContext,
 } from '../../types/_internal'
-import { computed, inject } from 'vue'
+
 import { resolveStyleObject, resolveValue } from '../../composables/_internal'
 import NuGridCellContent from './NuGridCellContent.vue'
 
@@ -40,11 +43,11 @@ const interactionRouterContext = inject<NuGridInteractionRouterContext<T>>(
 )!
 
 if (
-  !coreContext
-  || !focusContext
-  || !performanceContext
-  || !addRowContext
-  || !interactionRouterContext
+  !coreContext ||
+  !focusContext ||
+  !performanceContext ||
+  !addRowContext ||
+  !interactionRouterContext
 ) {
   throw new Error('NuGridAddRow must be used within a NuGrid component.')
 }
@@ -161,8 +164,8 @@ const indicatorLeftOffset = computed(() => {
           hasLeftBorder: shouldHaveBorder(row, cellIndex, 'left'),
           hasRightBorder: shouldHaveBorder(row, cellIndex, 'right'),
           focusCell:
-            !!focusFns.isFocusedCell(row, cellIndex)
-            && !cellEditingFns.isEditingCell(row, cell.column.id),
+            !!focusFns.isFocusedCell(row, cellIndex) &&
+            !cellEditingFns.isEditingCell(row, cell.column.id),
           focusRow: !!focusFns.isFocusedRow(row),
           activeRow: focusFns.isActiveRow(row) && !focusFns.isFocusedRow(row),
           gridFocused: focusFns.gridHasFocus.value,

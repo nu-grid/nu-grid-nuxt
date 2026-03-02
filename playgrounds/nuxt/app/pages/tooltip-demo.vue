@@ -308,11 +308,11 @@ const columnTooltipCode = `const columns = [
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This page demonstrates the comprehensive tooltip options for NuGrid columns and cells.
       </p>
 
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted mb-3 rounded p-2 text-sm">
         <strong>Grid-Level Tooltip Options:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li>
@@ -322,15 +322,13 @@ const columnTooltipCode = `const columns = [
           <li>
             <strong>showDelay:</strong> Initial delay before showing tooltip (default: 2000ms)
           </li>
-          <li>
-            <strong>switchDelay:</strong> Delay when moving between cells (default: 500ms)
-          </li>
+          <li><strong>switchDelay:</strong> Delay when moving between cells (default: 500ms)</li>
           <li><strong>hideDelay:</strong> Milliseconds before hiding tooltip (default: 100ms)</li>
           <li><strong>mouseFollow:</strong> When true, tooltip follows the mouse cursor</li>
         </ul>
       </div>
 
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted mb-3 rounded p-2 text-sm">
         <strong>Column-Level Tooltip Options:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li>
@@ -345,7 +343,7 @@ const columnTooltipCode = `const columns = [
         </ul>
       </div>
 
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Column Configurations in This Demo:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li>
@@ -353,17 +351,17 @@ const columnTooltipCode = `const columns = [
           </li>
           <li>
             <strong>Short Desc:</strong> Uses
-            <code class="rounded bg-default px-1 py-0.5 text-xs">tooltipField</code>
+            <code class="bg-default rounded px-1 py-0.5 text-xs">tooltipField</code>
             to show fullDescription
           </li>
           <li>
             <strong>Category:</strong> Header has tooltip via
-            <code class="rounded bg-default px-1 py-0.5 text-xs">tooltipHeaderValue</code>
+            <code class="bg-default rounded px-1 py-0.5 text-xs">tooltipHeaderValue</code>
           </li>
           <li><strong>Mfr (Manufacturer):</strong> Abbreviated header with full name in tooltip</li>
           <li>
             <strong>SKU:</strong> Custom
-            <code class="rounded bg-default px-1 py-0.5 text-xs">tooltipValue</code>
+            <code class="bg-default rounded px-1 py-0.5 text-xs">tooltipValue</code>
             showing SKU + price
           </li>
           <li><strong>Price:</strong> Custom tooltip with detailed product info</li>
@@ -408,7 +406,7 @@ const columnTooltipCode = `const columns = [
         :items="[{ label: 'Test Scenarios', icon: 'i-lucide-test-tube', slot: 'test-scenarios' }]"
       >
         <template #test-scenarios>
-          <div class="space-y-2 p-4 text-sm text-muted">
+          <div class="text-muted space-y-2 p-4 text-sm">
             <p><strong>Try these scenarios:</strong></p>
             <ul class="list-inside list-disc space-y-1">
               <li>

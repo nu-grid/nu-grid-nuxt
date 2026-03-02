@@ -34,16 +34,126 @@ const roles = [
 ]
 
 const data = ref<Employee[]>([
-  { id: 1, name: 'Alice Chen', department: 'engineering', role: 'senior', salary: 125000, performance: 0.92, rating: 5, startDate: '2021-03-15', active: true, notes: 'Tech lead candidate' },
-  { id: 2, name: 'Bob Martinez', department: 'design', role: 'mid', salary: 95000, performance: 0.85, rating: 4, startDate: '2022-06-01', active: true, notes: 'UI specialist' },
-  { id: 3, name: 'Carol Kim', department: 'marketing', role: 'lead', salary: 110000, performance: 0.78, rating: 3, startDate: '2020-11-20', active: true, notes: 'Campaign manager' },
-  { id: 4, name: 'David Patel', department: 'engineering', role: 'junior', salary: 75000, performance: 0.88, rating: 4, startDate: '2024-01-10', active: true, notes: 'Fast learner' },
-  { id: 5, name: 'Emma Wilson', department: 'sales', role: 'manager', salary: 130000, performance: 0.95, rating: 5, startDate: '2019-08-05', active: true, notes: 'Top performer' },
-  { id: 6, name: 'Frank Lopez', department: 'hr', role: 'senior', salary: 100000, performance: 0.72, rating: 3, startDate: '2021-02-28', active: false, notes: 'On leave' },
-  { id: 7, name: 'Grace Tanaka', department: 'finance', role: 'mid', salary: 92000, performance: 0.81, rating: 4, startDate: '2023-04-12', active: true, notes: 'Audit specialist' },
-  { id: 8, name: 'Henry Davis', department: 'engineering', role: 'lead', salary: 140000, performance: 0.91, rating: 5, startDate: '2020-06-15', active: true, notes: 'Backend architect' },
-  { id: 9, name: 'Iris Nguyen', department: 'design', role: 'senior', salary: 105000, performance: 0.87, rating: 4, startDate: '2021-09-01', active: true, notes: 'Design system lead' },
-  { id: 10, name: 'Jack O\'Brien', department: 'marketing', role: 'junior', salary: 65000, performance: 0.69, rating: 2, startDate: '2024-07-22', active: true, notes: 'New hire' },
+  {
+    id: 1,
+    name: 'Alice Chen',
+    department: 'engineering',
+    role: 'senior',
+    salary: 125000,
+    performance: 0.92,
+    rating: 5,
+    startDate: '2021-03-15',
+    active: true,
+    notes: 'Tech lead candidate',
+  },
+  {
+    id: 2,
+    name: 'Bob Martinez',
+    department: 'design',
+    role: 'mid',
+    salary: 95000,
+    performance: 0.85,
+    rating: 4,
+    startDate: '2022-06-01',
+    active: true,
+    notes: 'UI specialist',
+  },
+  {
+    id: 3,
+    name: 'Carol Kim',
+    department: 'marketing',
+    role: 'lead',
+    salary: 110000,
+    performance: 0.78,
+    rating: 3,
+    startDate: '2020-11-20',
+    active: true,
+    notes: 'Campaign manager',
+  },
+  {
+    id: 4,
+    name: 'David Patel',
+    department: 'engineering',
+    role: 'junior',
+    salary: 75000,
+    performance: 0.88,
+    rating: 4,
+    startDate: '2024-01-10',
+    active: true,
+    notes: 'Fast learner',
+  },
+  {
+    id: 5,
+    name: 'Emma Wilson',
+    department: 'sales',
+    role: 'manager',
+    salary: 130000,
+    performance: 0.95,
+    rating: 5,
+    startDate: '2019-08-05',
+    active: true,
+    notes: 'Top performer',
+  },
+  {
+    id: 6,
+    name: 'Frank Lopez',
+    department: 'hr',
+    role: 'senior',
+    salary: 100000,
+    performance: 0.72,
+    rating: 3,
+    startDate: '2021-02-28',
+    active: false,
+    notes: 'On leave',
+  },
+  {
+    id: 7,
+    name: 'Grace Tanaka',
+    department: 'finance',
+    role: 'mid',
+    salary: 92000,
+    performance: 0.81,
+    rating: 4,
+    startDate: '2023-04-12',
+    active: true,
+    notes: 'Audit specialist',
+  },
+  {
+    id: 8,
+    name: 'Henry Davis',
+    department: 'engineering',
+    role: 'lead',
+    salary: 140000,
+    performance: 0.91,
+    rating: 5,
+    startDate: '2020-06-15',
+    active: true,
+    notes: 'Backend architect',
+  },
+  {
+    id: 9,
+    name: 'Iris Nguyen',
+    department: 'design',
+    role: 'senior',
+    salary: 105000,
+    performance: 0.87,
+    rating: 4,
+    startDate: '2021-09-01',
+    active: true,
+    notes: 'Design system lead',
+  },
+  {
+    id: 10,
+    name: "Jack O'Brien",
+    department: 'marketing',
+    role: 'junior',
+    salary: 65000,
+    performance: 0.69,
+    rating: 2,
+    startDate: '2024-07-22',
+    active: true,
+    notes: 'New hire',
+  },
 ])
 
 const editingEnabled = ref(true)
@@ -202,11 +312,11 @@ const exampleCode = `<NuGrid
     </template>
 
     <template #info>
-      <p class="mb-3 text-sm text-muted">
-        Demonstrates the compact theme with all editor types. Double-click any cell to edit.
-        Editors are styled to fit the compact cell sizing.
+      <p class="text-muted mb-3 text-sm">
+        Demonstrates the compact theme with all editor types. Double-click any cell to edit. Editors
+        are styled to fit the compact cell sizing.
       </p>
-      <ul class="list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted list-inside list-disc space-y-1 text-sm">
         <li><strong>Text:</strong> Name</li>
         <li><strong>Textarea:</strong> Notes (multi-line)</li>
         <li><strong>Lookup:</strong> Department, Role (dropdown)</li>
@@ -229,7 +339,7 @@ const exampleCode = `<NuGrid
       }"
       :focus="{ mode: focusMode }"
       resize-columns
-      class="max-h-[400px] rounded border border-default"
+      class="border-default max-h-[400px] rounded border"
       @cell-value-changed="onCellValueChanged"
     />
 

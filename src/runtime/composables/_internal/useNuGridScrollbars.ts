@@ -1,7 +1,10 @@
 import type { ClassValue } from 'tailwind-variants'
 import type { Ref } from 'vue'
-import type { NuGridScrollbars } from '../../types'
+
 import { computed, onUnmounted, ref, watch } from 'vue'
+
+import type { NuGridScrollbars } from '../../types'
+
 import { usePropWithDefault } from '../../config/_internal'
 
 export interface UseNuGridScrollbarsOptions {

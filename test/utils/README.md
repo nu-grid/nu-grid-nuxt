@@ -13,7 +13,7 @@ const { router, simulateCellClick, getRegisteredHandlers } = createTestRouter()
 router.registerCellClickHandler({
   id: 'my-feature',
   priority: 10,
-  handle: () => ({ handled: true })
+  handle: () => ({ handled: true }),
 })
 
 // Simulate interaction
@@ -32,6 +32,7 @@ expect(getRegisteredHandlers().cellClick).toHaveLength(1)
 Creates a test router instance with spies and utilities.
 
 **Options:**
+
 - `debug?: boolean` - Enable debug mode for console logging
 
 **Returns:** `RouterTestUtils<T>`
@@ -43,9 +44,11 @@ const { router, dispatchSpy, simulateCellClick, ... } = createTestRouter({ debug
 ### RouterTestUtils Methods
 
 #### `router`
+
 The actual interaction router instance to test against.
 
 #### `dispatchSpy`
+
 Vitest spy that tracks all dispatch calls. Useful for verifying events were routed.
 
 ```typescript
@@ -53,6 +56,7 @@ expect(dispatchSpy).toHaveBeenCalledWith('cellClick', expect.any(Object))
 ```
 
 #### `getRegisteredHandlers()`
+
 Returns all currently registered handlers by type.
 
 ```typescript
@@ -61,6 +65,7 @@ console.log(handlers.cellClick) // [{ id: 'handler-1', priority: 10 }, ...]
 ```
 
 #### `simulateCellClick(row, cell, cellIndex?, event?)`
+
 Simulates a cell click event.
 
 ```typescript
@@ -74,6 +79,7 @@ simulateCellClick(row, cell, 0, customEvent)
 ```
 
 #### `simulatePointerDown(event?)`
+
 Simulates a global pointer down event.
 
 ```typescript
@@ -82,6 +88,7 @@ simulatePointerDown({ clientX: 100, clientY: 200 })
 ```
 
 #### `simulateHover(target, type, event?)`
+
 Simulates a hover event.
 
 ```typescript
@@ -92,6 +99,7 @@ simulateHover(element, 'leave')
 ```
 
 #### `getLastDispatch()`
+
 Returns the last dispatched event.
 
 ```typescript
@@ -101,6 +109,7 @@ console.log(last.context) // Event context
 ```
 
 #### `clearDispatchHistory()`
+
 Clears all dispatch history and spy calls.
 
 ```typescript
@@ -111,16 +120,15 @@ expect(dispatchSpy).not.toHaveBeenCalled()
 ### Helper Functions
 
 #### `createMockRow<T>(data, options?)`
+
 Creates a mock TanStack Table row for testing.
 
 ```typescript
-const row = createMockRow(
-  { id: 1, name: 'John' },
-  { id: 'row-1', index: 0 }
-)
+const row = createMockRow({ id: 1, name: 'John' }, { id: 'row-1', index: 0 })
 ```
 
 #### `createMockCell<T>(row, columnId, value?)`
+
 Creates a mock TanStack Table cell for testing.
 
 ```typescript
@@ -128,6 +136,7 @@ const cell = createMockCell(row, 'name', 'John')
 ```
 
 #### `waitForAnimationFrame()`
+
 Waits for the next animation frame (useful for RAF-throttled events).
 
 ```typescript
@@ -135,6 +144,7 @@ await waitForAnimationFrame()
 ```
 
 #### `waitForAnimationFrames(count)`
+
 Waits for multiple animation frames.
 
 ```typescript
@@ -152,7 +162,7 @@ it('should register handler', () => {
   const unregister = router.registerCellClickHandler({
     id: 'test',
     priority: 10,
-    handle: () => ({})
+    handle: () => ({}),
   })
 
   expect(getRegisteredHandlers().cellClick).toHaveLength(1)
@@ -173,13 +183,19 @@ it('should execute in priority order', () => {
   router.registerCellClickHandler({
     id: 'low',
     priority: 50,
-    handle: () => { order.push('low'); return {} }
+    handle: () => {
+      order.push('low')
+      return {}
+    },
   })
 
   router.registerCellClickHandler({
     id: 'high',
     priority: 10,
-    handle: () => { order.push('high'); return {} }
+    handle: () => {
+      order.push('high')
+      return {}
+    },
   })
 
   simulateCellClick(createMockRow({}), createMockCell(row, 'id'))
@@ -198,13 +214,13 @@ it('should stop on handled: true', () => {
   router.registerCellClickHandler({
     id: 'first',
     priority: 10,
-    handle: () => ({ handled: true })
+    handle: () => ({ handled: true }),
   })
 
   router.registerCellClickHandler({
     id: 'second',
     priority: 20,
-    handle: secondSpy
+    handle: secondSpy,
   })
 
   simulateCellClick(createMockRow({}), createMockCell(row, 'id'))
@@ -224,7 +240,7 @@ it('should skip when predicate fails', () => {
     id: 'conditional',
     priority: 10,
     when: ({ row }) => row.original.enabled === true,
-    handle: handleSpy
+    handle: handleSpy,
   })
 
   const disabledRow = createMockRow({ enabled: false })
@@ -244,7 +260,7 @@ it('should log in debug mode', () => {
   router.registerCellClickHandler({
     id: 'debug',
     priority: 10,
-    handle: () => ({ handled: true })
+    handle: () => ({ handled: true }),
   })
 
   simulateCellClick(createMockRow({}), createMockCell(row, 'id'))

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
+
 import { nuGridDefaults } from '../src/runtime/config/_internal/options-defaults'
 import {
   getDefaults,

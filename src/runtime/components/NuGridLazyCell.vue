@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
+
 /**
  * NuGridLazyCell - A wrapper component for deferring expensive cell content until scroll settles
  *
@@ -23,7 +25,6 @@
  * ```
  */
 import type { NuGridScrollStateContext } from '../types/_internal'
-import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const props = withDefaults(
   defineProps<{

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { NuGridFilterContext } from '../../types/cells'
 import { computed, ref } from 'vue'
+
+import type { NuGridFilterContext } from '../../types/cells'
 
 interface Props {
   context: NuGridFilterContext
@@ -65,7 +66,7 @@ function clearFilter() {
       />
     </div>
     <div v-if="operator === 'between'" class="flex items-center gap-1">
-      <span class="text-sm text-muted">and</span>
+      <span class="text-muted text-sm">and</span>
       <span class="text-muted">$</span>
       <UInput
         v-model="filterValue2"

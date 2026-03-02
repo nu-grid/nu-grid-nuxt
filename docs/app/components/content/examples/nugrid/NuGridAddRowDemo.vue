@@ -116,12 +116,12 @@ const columns: NuGridColumn<Product>[] = [
         </UButton>
       </UFieldGroup>
 
-      <span class="text-sm text-muted"> {{ data.length }} products </span>
+      <span class="text-muted text-sm"> {{ data.length }} products </span>
     </div>
 
-    <div class="rounded-lg border border-default p-3 bg-elevated/30 text-sm">
-      <p class="font-medium mb-1">Column Options:</p>
-      <ul class="text-xs text-muted space-y-1">
+    <div class="border-default bg-elevated/30 rounded-lg border p-3 text-sm">
+      <p class="mb-1 font-medium">Column Options:</p>
+      <ul class="text-muted space-y-1 text-xs">
         <li><strong>ID:</strong> Hidden in add row (showNew: false)</li>
         <li><strong>Name:</strong> Required field (requiredNew: true)</li>
         <li><strong>Price/Stock:</strong> Custom validation (validateNew)</li>

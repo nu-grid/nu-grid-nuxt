@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "arrowParens": "always",
+  "bracketSameLine": false,
+  "endOfLine": "lf",
+  "printWidth": 100,
+  "quoteProps": "consistent",
+  "singleQuote": true,
+  "semi": false,
+  "singleAttributePerLine": false,
+  "trailingComma": "all",
+  "sortTailwindcss": {},
+  "sortPackageJson": true,
+  "ignorePatterns": [
+    "docs/**/*.md",
+    "docs/app/components/content/ComponentCode.vue",
+    "playgrounds/nuxt/app/pages/search-external-demo.vue",
+    "playgrounds/nuxt/app/pages/focused-row-demo.vue",
+    "build",
+    "coverage",
+    "*.html",
+    ".nuxt",
+    ".output",
+    "dist"
+  ]
+}

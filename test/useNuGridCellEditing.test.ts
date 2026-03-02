@@ -1,9 +1,12 @@
 import type { Cell, Column, Row, Table } from '@tanstack/vue-table'
 import type { ComponentPublicInstance, Ref } from 'vue'
-import type { NuGridProps } from '../src/runtime/types'
-import type { NuGridEditingCell, NuGridFocus } from '../src/runtime/types/_internal'
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
+
+import type { NuGridProps } from '../src/runtime/types'
+import type { NuGridEditingCell, NuGridFocus } from '../src/runtime/types/_internal'
+
 import { useNuGridCellEditing } from '../src/runtime/composables/_internal/useNuGridCellEditing'
 import { ROUTER_PRIORITIES } from '../src/runtime/types/_internal'
 import {

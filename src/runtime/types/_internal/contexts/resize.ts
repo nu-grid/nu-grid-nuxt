@@ -1,4 +1,5 @@
 import type { TableData } from '@nuxt/ui'
+
 import type { NuGridColumnResize } from '../../resize'
 
 /**

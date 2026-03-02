@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { computed } from 'vue'
+
 import { NuGridScrollManager } from '../src/runtime/composables/_internal/useNuGridScroll'
 
 /**

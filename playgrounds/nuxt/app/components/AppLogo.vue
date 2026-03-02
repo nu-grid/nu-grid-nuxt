@@ -5,7 +5,7 @@ defineProps<{
 </script>
 
 <template>
-  <NuxtLink to="/" class="flex items-center gap-2 p-2 overflow-visible">
+  <NuxtLink to="/" class="flex items-center gap-2 overflow-visible p-2">
     <!-- Icon only (always shown) -->
     <svg
       xmlns="http://www.w3.org/2000/svg"

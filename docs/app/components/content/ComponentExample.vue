@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ChipProps } from '@nuxt/ui'
+
 import { get, set } from '#ui/utils'
 import { useElementSize } from '@vueuse/core'
 import { hash } from 'ohash'
@@ -164,10 +165,10 @@ const urlSearchParams = computed(() => {
   <div ref="el" class="my-5" :style="{ '--ui-header-height': '4rem' }">
     <template v-if="preview">
       <div
-        class="border border-muted relative z-[1]"
+        class="border-muted relative z-[1] border"
         :class="[
           {
-            'border-b-0 rounded-t-md': props.source,
+            'rounded-t-md border-b-0': props.source,
             'rounded-md': !props.source,
             'overflow-hidden': props.overflowHidden,
           },
@@ -175,7 +176,7 @@ const urlSearchParams = computed(() => {
       >
         <div
           v-if="props.options?.length || !!slots.options"
-          class="flex gap-4 p-4 border-b border-muted"
+          class="border-muted flex gap-4 border-b p-4"
         >
           <slot name="options" />
 
@@ -185,7 +186,7 @@ const urlSearchParams = computed(() => {
             :label="option.label"
             :name="option.name"
             size="sm"
-            class="inline-flex ring ring-accented rounded-sm"
+            class="ring-accented inline-flex rounded-sm ring"
             :ui="{
               wrapper: 'bg-elevated/50 rounded-l-sm flex border-r border-accented',
               label: 'text-muted px-2 py-1.5',
@@ -200,7 +201,7 @@ const urlSearchParams = computed(() => {
               :value-key="option.name.toLowerCase().endsWith('color') ? 'value' : undefined"
               color="neutral"
               variant="soft"
-              class="rounded-sm rounded-l-none min-w-12"
+              class="min-w-12 rounded-sm rounded-l-none"
               :multiple="option.multiple"
               :class="[option.name.toLowerCase().endsWith('color') && 'pl-6']"
               :ui="{ itemLeadingChip: 'w-2' }"
@@ -235,7 +236,7 @@ const urlSearchParams = computed(() => {
           v-bind="typeof iframe === 'object' ? iframe : {}"
           :src="`/examples/${name}?${urlSearchParams}`"
           class="relative w-full"
-          :class="[props.class, !iframeMobile && 'lg:left-1/2 lg:-translate-x-1/2 lg:w-[1024px]']"
+          :class="[props.class, !iframeMobile && 'lg:left-1/2 lg:w-[1024px] lg:-translate-x-1/2']"
         />
         <div v-else class="flex justify-center p-4" :class="props.class">
           <component :is="camelName" v-bind="{ ...componentProps, ...optionsValues }" />
@@ -244,14 +245,14 @@ const urlSearchParams = computed(() => {
     </template>
 
     <template v-if="props.source">
-      <div v-if="!!slots.code" class="[&_pre]:!rounded-t-none [&_div.my-5]:!mt-0">
+      <div v-if="!!slots.code" class="[&_div.my-5]:!mt-0 [&_pre]:!rounded-t-none">
         <slot name="code" />
       </div>
       <MDCRenderer
         v-else-if="ast"
         :body="ast.body"
         :data="ast.data"
-        class="[&_pre]:!rounded-t-none [&_div.my-5]:!mt-0"
+        class="[&_div.my-5]:!mt-0 [&_pre]:!rounded-t-none"
       />
     </template>
   </div>

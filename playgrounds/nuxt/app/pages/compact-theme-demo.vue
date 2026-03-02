@@ -304,12 +304,12 @@ const exampleCode = `<NuGrid
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This page demonstrates the optional
-        <code class="rounded bg-default px-1 py-0.5 text-xs">theme="compact"</code>
+        <code class="bg-default rounded px-1 py-0.5 text-xs">theme="compact"</code>
         prop for NuGrid. The compact theme features:
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li><strong>Compact spacing:</strong> Tighter cell padding to fit more data on screen</li>
         <li><strong>Blue accent color:</strong> Blue (#2196F3) for selection and focus states</li>
         <li>
@@ -320,7 +320,7 @@ const exampleCode = `<NuGrid
           <strong>Full dark mode support:</strong> Proper colors for both light and dark themes
         </li>
       </ul>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Usage:</strong>
         <code class="ml-1 text-xs">&lt;NuGrid theme="compact" ... /&gt;</code>
       </div>
@@ -335,20 +335,20 @@ const exampleCode = `<NuGrid
       :focus="{ mode: focusMode }"
       resize-columns
       row-selection="multi"
-      class="border-compact-border max-h-[400px] rounded border dark:border-compact-border-dark"
+      class="border-compact-border dark:border-compact-border-dark max-h-[400px] rounded border"
     />
 
     <div class="mt-6 grid gap-4 md:grid-cols-2">
-      <div class="rounded-lg border border-default p-4">
+      <div class="border-default rounded-lg border p-4">
         <h3 class="mb-2 font-semibold">Default Theme</h3>
-        <p class="text-sm text-muted">
+        <p class="text-muted text-sm">
           The default NuGrid theme uses your app's primary color with comfortable spacing (16px cell
           padding). Good for general use cases where readability is important.
         </p>
       </div>
-      <div class="rounded-lg border border-default p-4">
+      <div class="border-default rounded-lg border p-4">
         <h3 class="mb-2 font-semibold">Compact Theme</h3>
-        <p class="text-sm text-muted">
+        <p class="text-muted text-sm">
           The compact theme uses a blue accent color with tighter spacing (8px cell padding). Ideal
           for data-dense applications like trading dashboards and analytics tools.
         </p>

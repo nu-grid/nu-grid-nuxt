@@ -1,6 +1,8 @@
 import type { ComputedRef, Ref } from 'vue'
-import type { NuGridCellEditorEmits, NuGridCellEditorProps } from '../types'
+
 import { inject, nextTick, onMounted, ref, watch } from 'vue'
+
+import type { NuGridCellEditorEmits, NuGridCellEditorProps } from '../types'
 
 /**
  * Shared composable for building custom NuGrid cell editors

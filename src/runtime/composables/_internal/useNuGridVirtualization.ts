@@ -3,6 +3,11 @@ import type { Row, Table } from '@tanstack/vue-table'
 import type { VirtualItem, Virtualizer } from '@tanstack/vue-virtual'
 import type { Primitive } from 'reka-ui'
 import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
+
+import { defaultRangeExtractor, useVirtualizer } from '@tanstack/vue-virtual'
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
+import { computed, ref, toValue, watch } from 'vue'
+
 import type { NuGridProps } from '../../types'
 import type {
   GroupingVirtualRowHeights,
@@ -13,9 +18,7 @@ import type {
   OverscanSetting,
   ResolvedNuGridVirtualizeOptions,
 } from '../../types/_internal'
-import { defaultRangeExtractor, useVirtualizer } from '@tanstack/vue-virtual'
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
-import { computed, ref, toValue, watch } from 'vue'
+
 import { nuGridDefaults } from '../../config/_internal'
 
 // Re-export types for convenience
@@ -72,8 +75,8 @@ export function resolveVirtualizationOptions(
     typeof virtualization === 'object' && virtualization !== null ? virtualization : undefined
 
   const enabled =
-    virtualization === true
-    || (typeof virtualization === 'object' && virtualization !== null
+    virtualization === true ||
+    (typeof virtualization === 'object' && virtualization !== null
       ? options?.enabled !== false
       : false)
 
@@ -85,10 +88,10 @@ export function resolveVirtualizationOptions(
   const estimateSize = options?.estimateSize ?? defaultEstimateSize ?? defaults.estimateSize
 
   const overscanSetting =
-    options?.overscanByBreakpoint
-    ?? options?.overscan
-    ?? defaults.overscanByBreakpoint
-    ?? defaults.overscan
+    options?.overscanByBreakpoint ??
+    options?.overscan ??
+    defaults.overscanByBreakpoint ??
+    defaults.overscan
 
   const overscan = resolveOverscanForBreakpoint(
     overscanSetting,
@@ -97,8 +100,8 @@ export function resolveVirtualizationOptions(
   )
 
   const overscanByBreakpoint =
-    options?.overscanByBreakpoint
-    ?? (typeof options?.overscan === 'object' && options.overscan !== null
+    options?.overscanByBreakpoint ??
+    (typeof options?.overscan === 'object' && options.overscan !== null
       ? options.overscan
       : defaults.overscanByBreakpoint)
 

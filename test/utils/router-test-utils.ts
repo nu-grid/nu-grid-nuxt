@@ -1,10 +1,13 @@
 import type { TableData } from '@nuxt/ui'
 import type { Cell, Row } from '@tanstack/vue-table'
+
+import { vi } from 'vitest'
+
 import type {
   NuGridCellClickContext,
   NuGridInteractionRouter,
 } from '../../src/runtime/types/_internal'
-import { vi } from 'vitest'
+
 import { useNuGridInteractionRouter } from '../../src/runtime/composables/_internal/useNuGridInteractionRouter'
 
 /**
@@ -140,8 +143,8 @@ export function createTestRouter<T extends TableData = TableData>(
     event?: Partial<MouseEvent>,
   ) {
     const clickEvent =
-      (event as MouseEvent)
-      || new MouseEvent('click', {
+      (event as MouseEvent) ||
+      new MouseEvent('click', {
         bubbles: true,
         cancelable: true,
       })
@@ -162,8 +165,8 @@ export function createTestRouter<T extends TableData = TableData>(
     event?: Partial<MouseEvent>,
   ) {
     const dblClickEvent =
-      (event as MouseEvent)
-      || new MouseEvent('dblclick', {
+      (event as MouseEvent) ||
+      new MouseEvent('dblclick', {
         bubbles: true,
         cancelable: true,
       })
@@ -184,8 +187,8 @@ export function createTestRouter<T extends TableData = TableData>(
     event?: Partial<MouseEvent>,
   ) {
     const contextMenuEvent =
-      (event as MouseEvent)
-      || new MouseEvent('contextmenu', {
+      (event as MouseEvent) ||
+      new MouseEvent('contextmenu', {
         bubbles: true,
         cancelable: true,
       })

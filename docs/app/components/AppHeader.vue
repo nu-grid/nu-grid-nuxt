@@ -8,18 +8,16 @@ const { header } = useAppConfig()
 
 <template>
   <UHeader :ui="{ center: 'flex-1' }" :to="header?.to || '/'">
-    <nav class="hidden lg:flex items-center gap-4 mr-8">
+    <nav class="mr-8 hidden items-center gap-4 lg:flex">
       <NuxtLink
         to="/getting-started"
-        class="px-3 py-1.5 text-sm font-medium text-muted hover:text-default rounded-md
-          hover:bg-elevated transition-colors"
+        class="text-muted hover:text-default hover:bg-elevated rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
       >
         Docs
       </NuxtLink>
       <NuxtLink
         to="/demos"
-        class="px-3 py-1.5 text-sm font-medium text-muted hover:text-default rounded-md
-          hover:bg-elevated transition-colors"
+        class="text-muted hover:text-default hover:bg-elevated rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
       >
         Demos
       </NuxtLink>
@@ -43,7 +41,7 @@ const { header } = useAppConfig()
 
     <template v-else #left>
       <NuxtLink :to="header?.to || '/'">
-        <AppLogo class="w-auto h-8 shrink-0" />
+        <AppLogo class="h-8 w-auto shrink-0" />
       </NuxtLink>
     </template>
 

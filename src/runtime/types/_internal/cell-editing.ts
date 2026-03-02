@@ -5,6 +5,7 @@
 import type { TableData } from '@nuxt/ui'
 import type { Column, Row, Table } from '@tanstack/vue-table'
 import type { Component, Ref } from 'vue'
+
 import type { NuGridShowErrors } from '../validation'
 
 /**

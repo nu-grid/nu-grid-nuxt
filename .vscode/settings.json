@@ -1,0 +1,17 @@
+{
+  "eslint.useFlatConfig": true,
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "prettier.enable": false,
+  "oxc.path.oxfmt": "./node_modules/.bin/oxfmt",
+  "oxc.fmt.configPath": "./.oxfmtrc.json",
+  "[json]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  }
+}

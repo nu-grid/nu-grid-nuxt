@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NuGridAddRowState, NuGridColumn, NuGridValidationOptions } from '#nu-grid/types'
+
 import { z } from 'zod'
 
 const toast = useToast()
@@ -357,9 +358,9 @@ const exampleCode = `<NuGrid
         </div>
       </DemoControlGroup>
 
-      <div class="rounded-lg border border-default/50 bg-elevated/30 p-3">
+      <div class="border-default/50 bg-elevated/30 rounded-lg border p-3">
         <h4 class="mb-2 text-xs font-semibold">How it works:</h4>
-        <ul class="space-y-1 text-xs text-muted">
+        <ul class="text-muted space-y-1 text-xs">
           <li>• Placeholder row lives inside every group</li>
           <li>• Split layout repeats headers per group</li>
           <li>• Tab/Enter finalizes and spawns next placeholder</li>
@@ -370,18 +371,18 @@ const exampleCode = `<NuGrid
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This demo shows how add-row functionality works with grouped data. Each group maintains its
         own add-row placeholder, allowing you to add items directly into the appropriate group.
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li><strong>Category + Status:</strong> Nested grouping with two levels</li>
         <li><strong>Split Layout:</strong> Repeats column headers for each group section</li>
         <li>
           <strong>Auto-assignment:</strong> New rows inherit the group's category/status values
         </li>
       </ul>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Keyboard:</strong> Arrow Up/Down keys finalize and create a new add row.
       </div>
     </template>

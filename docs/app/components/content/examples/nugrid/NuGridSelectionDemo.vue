@@ -164,19 +164,19 @@ function clearSelection() {
 
     <div
       v-if="selectedRowsArray.length > 0"
-      class="rounded-lg border border-default p-3 bg-elevated/30"
+      class="border-default bg-elevated/30 rounded-lg border p-3"
     >
-      <p class="text-sm font-medium mb-2">Selected Employees:</p>
-      <ul class="text-sm text-muted space-y-1">
+      <p class="mb-2 text-sm font-medium">Selected Employees:</p>
+      <ul class="text-muted space-y-1 text-sm">
         <li v-for="emp in selectedRowsArray" :key="emp.id">
           {{ emp.name }} ({{ emp.department }})
         </li>
       </ul>
     </div>
 
-    <div v-else class="rounded-lg border border-dashed border-default p-6 text-center text-muted">
+    <div v-else class="border-default text-muted rounded-lg border border-dashed p-6 text-center">
       <p class="text-sm">No rows selected. Click checkboxes to select rows.</p>
-      <p class="text-xs mt-1">
+      <p class="mt-1 text-xs">
         Note: Frank Miller (inactive) cannot be selected when "Inactive Disabled" is on.
       </p>
     </div>

@@ -314,13 +314,13 @@ const placeholderOptions = [
     </template>
 
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         <strong>LazyCell</strong> is a wrapper component that defers rendering expensive content
         (like images) until scrolling settles. This improves scroll performance by not loading
         images during fast scrolling.
       </p>
 
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted mb-3 rounded p-2 text-sm">
         <strong>Key Features:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li><strong>waitForSettle:</strong> Waits for scroll to stop before showing content</li>
@@ -336,7 +336,7 @@ const placeholderOptions = [
         </ul>
       </div>
 
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>How It Works:</strong>
         <p class="mt-1">
           LazyCell uses IntersectionObserver to detect when content enters the viewport, and injects
@@ -418,7 +418,7 @@ const placeholderOptions = [
           <div class="p-4">
             <table class="w-full text-sm">
               <thead>
-                <tr class="border-b border-default">
+                <tr class="border-default border-b">
                   <th class="py-2 text-left">Prop</th>
                   <th class="py-2 text-left">Type</th>
                   <th class="py-2 text-left">Default</th>
@@ -426,37 +426,37 @@ const placeholderOptions = [
                 </tr>
               </thead>
               <tbody class="text-muted">
-                <tr class="border-b border-default/50">
+                <tr class="border-default/50 border-b">
                   <td class="py-2 font-mono text-xs">waitForSettle</td>
                   <td class="py-2">boolean</td>
                   <td class="py-2">true</td>
                   <td class="py-2">Wait for scroll to stop before showing content</td>
                 </tr>
-                <tr class="border-b border-default/50">
+                <tr class="border-default/50 border-b">
                   <td class="py-2 font-mono text-xs">preloadDistance</td>
                   <td class="py-2">number</td>
                   <td class="py-2">100</td>
                   <td class="py-2">Pixels before viewport to start loading</td>
                 </tr>
-                <tr class="border-b border-default/50">
+                <tr class="border-default/50 border-b">
                   <td class="py-2 font-mono text-xs">keepMounted</td>
                   <td class="py-2">boolean</td>
                   <td class="py-2">true</td>
                   <td class="py-2">Keep content visible after first load</td>
                 </tr>
-                <tr class="border-b border-default/50">
+                <tr class="border-default/50 border-b">
                   <td class="py-2 font-mono text-xs">height</td>
                   <td class="py-2">number | string</td>
                   <td class="py-2">-</td>
                   <td class="py-2">Height hint to prevent layout shift</td>
                 </tr>
-                <tr class="border-b border-default/50">
+                <tr class="border-default/50 border-b">
                   <td class="py-2 font-mono text-xs">width</td>
                   <td class="py-2">number | string</td>
                   <td class="py-2">-</td>
                   <td class="py-2">Width hint to prevent layout shift</td>
                 </tr>
-                <tr class="border-b border-default/50">
+                <tr class="border-default/50 border-b">
                   <td class="py-2 font-mono text-xs">minPlaceholderTime</td>
                   <td class="py-2">number</td>
                   <td class="py-2">0</td>

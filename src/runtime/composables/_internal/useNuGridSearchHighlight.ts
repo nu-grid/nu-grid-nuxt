@@ -1,4 +1,5 @@
 import type { ComputedRef } from 'vue'
+
 import { computed } from 'vue'
 
 /**
@@ -88,9 +89,7 @@ export function useNuGridSearchHighlight(
     for (const part of parts) {
       if (part === '') continue
 
-      const isMatch = caseSensitive
-        ? part === query
-        : part.toLowerCase() === lowerQuery
+      const isMatch = caseSensitive ? part === query : part.toLowerCase() === lowerQuery
 
       segments.push({ text: part, isMatch })
     }

@@ -17,8 +17,9 @@ import type {
   VisibilityState,
 } from '@tanstack/vue-table'
 import type { Primitive } from 'reka-ui'
-
 import type { Ref } from 'vue'
+
+import { computed, nextTick, onMounted, provide, ref, shallowRef, watch } from 'vue'
 
 import type { NuGridStateSnapshot } from '../composables/_internal/useNuGridStatePersistence'
 import type {
@@ -46,7 +47,7 @@ import type {
   NuGridGroupingFns,
 } from '../types/_internal'
 import type { RowDragEvent } from '../types/drag-drop'
-import { computed, nextTick, onMounted, provide, ref, shallowRef, watch } from 'vue'
+
 import {
   formatAggregateValue,
   getColumnSummary,
@@ -83,10 +84,8 @@ import {
   useKeyboardSetup,
 } from '../composables/_internal/keyboard-handlers'
 import { resolvePagingOptions } from '../composables/_internal/useNuGridPaging'
-
 import { nuGridDefaults, usePropWithDefault } from '../config/_internal'
 import { NUGRID_EVENTS_KEY } from '../types/events'
-
 import NuGridBase from './_internal/NuGridBase.vue'
 import NuGridGroup from './_internal/NuGridGroup.vue'
 import NuGridPaging from './_internal/NuGridPaging.vue'
@@ -191,8 +190,8 @@ const focusedRowIdState = defineModel<string | null>('focusedRowId', { default: 
 const initPaginationState = () => {
   const pagingOptions = resolvePagingOptions(props.paging)
   if (
-    pagingOptions.enabled
-    && (!paginationState.value.pageSize || paginationState.value.pageSize === 0)
+    pagingOptions.enabled &&
+    (!paginationState.value.pageSize || paginationState.value.pageSize === 0)
   ) {
     paginationState.value = {
       pageIndex: paginationState.value.pageIndex ?? 0,
@@ -311,13 +310,20 @@ const statePersistence = useNuGridStatePersistence(
   eventEmitter,
 )
 
-const { tableApi, columnsUpdatedSignal, dataVersion } = useNuGridApi(props, data, columns, states, rowSelectionModeRef, eventEmitter)
+const { tableApi, columnsUpdatedSignal, dataVersion } = useNuGridApi(
+  props,
+  data,
+  columns,
+  states,
+  rowSelectionModeRef,
+  eventEmitter,
+)
 
 const tableRows = computed(() => {
   // dataVersion is incremented by the sync watch in useNuGridApi when data changes.
   // This forces the computed to re-evaluate after TanStack has been updated via setOptions.
   // Without this, getRowModel() (a plain JS function) would return stale cached rows.
-  // eslint-disable-next-line no-unused-expressions
+
   dataVersion.value
   return tableApi.getRowModel().rows
 })
@@ -589,18 +595,15 @@ const autosizeFns = useNuGridAutosize(props, tableApi, tableRef)
 // columnsUpdatedSignal triggers re-evaluation after tableApi.setOptions() completes
 // The reactive getter in useVueTable ensures TanStack sees column changes internally
 const headerGroups = computed(() => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   columnsUpdatedSignal.value
   return tableApi.getHeaderGroups()
 })
 const headerGroupsLength = computed(() => headerGroups.value.length)
 const footerGroups = computed(() => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   columnsUpdatedSignal.value
   return tableApi.getFooterGroups()
 })
 const allLeafColumns = computed(() => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   columnsUpdatedSignal.value
   return tableApi.getAllLeafColumns()
 })
@@ -1097,9 +1100,9 @@ const childGrid = computed(() => {
 </script>
 
 <template>
-  <div ref="wrapperRef" class="nugrid-wrapper flex flex-col h-full w-full">
+  <div ref="wrapperRef" class="nugrid-wrapper flex h-full w-full flex-col">
     <NuGridSearchPanel v-if="searchContext.showPanel.value" class="shrink-0" />
-    <div class="nugrid-grid-container grow shrink min-h-0 min-w-0">
+    <div class="nugrid-grid-container min-h-0 min-w-0 shrink grow">
       <component :is="childGrid">
         <template v-for="(_, name) in $slots" #[name]="slotProps" :key="name">
           <slot :name="name" v-bind="slotProps as any" />

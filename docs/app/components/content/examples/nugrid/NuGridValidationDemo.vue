@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NuGridColumn, NuGridValidationOptions } from '#nu-grid/types'
+
 import { z } from 'zod'
 
 interface User {
@@ -122,7 +123,7 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
         Validation {{ validationEnabled ? 'On' : 'Off' }}
       </UButton>
 
-      <span class="text-sm font-medium ml-2">Validate On:</span>
+      <span class="ml-2 text-sm font-medium">Validate On:</span>
       <USelect
         v-model="validateOn"
         :items="[
@@ -136,7 +137,7 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
         :disabled="!validationEnabled"
       />
 
-      <span class="text-sm font-medium ml-2">On Invalid:</span>
+      <span class="ml-2 text-sm font-medium">On Invalid:</span>
       <USelect
         v-model="onInvalid"
         :items="[
@@ -150,9 +151,9 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
       />
     </div>
 
-    <div class="rounded-lg border border-default p-3 bg-elevated/30 text-sm">
-      <p class="font-medium mb-2">Try these to see validation:</p>
-      <ul class="text-xs text-muted space-y-1">
+    <div class="border-default bg-elevated/30 rounded-lg border p-3 text-sm">
+      <p class="mb-2 font-medium">Try these to see validation:</p>
+      <ul class="text-muted space-y-1 text-xs">
         <li>Clear a name field (min 2 characters)</li>
         <li>Enter "invalid-email" in email field</li>
         <li>Enter age below 18 or above 120</li>

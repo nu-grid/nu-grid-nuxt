@@ -49,7 +49,7 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
 
 <template>
   <div class="w-full">
-    <p class="mb-3 text-sm text-muted">
+    <p class="text-muted mb-3 text-sm">
       Different cell data types provide appropriate editors: text input, number input, date picker,
       and checkbox.
     </p>

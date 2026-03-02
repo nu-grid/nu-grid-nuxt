@@ -176,9 +176,9 @@ const exampleCode = `<NuGrid
 
     <!-- Controls -->
     <template #controls>
-      <div class="rounded-lg border border-default/50 bg-elevated/30 p-3">
+      <div class="border-default/50 bg-elevated/30 rounded-lg border p-3">
         <h4 class="mb-2 text-xs font-semibold">Monday-style Behavior:</h4>
-        <ul class="space-y-1 text-xs text-muted">
+        <ul class="text-muted space-y-1 text-xs">
           <li>• Split-group layout with per-group add rows</li>
           <li>• Only "Item" is editable in add row</li>
           <li>• Other fields are server-defaulted on save</li>
@@ -186,9 +186,9 @@ const exampleCode = `<NuGrid
         </ul>
       </div>
 
-      <div class="rounded-lg border border-default/50 bg-elevated/30 p-3">
+      <div class="border-default/50 bg-elevated/30 rounded-lg border p-3">
         <h4 class="mb-2 text-xs font-semibold">Column Configuration:</h4>
-        <ul class="space-y-1 text-xs text-muted">
+        <ul class="text-muted space-y-1 text-xs">
           <li><strong>Item:</strong> Required, editable in add row</li>
           <li><strong>Category:</strong> Hidden in add row (inherited)</li>
           <li><strong>Owner/Status:</strong> Server defaults</li>
@@ -199,16 +199,16 @@ const exampleCode = `<NuGrid
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This demo recreates the Monday.com-style task board experience with split-group layout and
         inline row addition. Each group maintains its own add-row placeholder.
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li><strong>Split Layout:</strong> Headers repeat for each grouped section</li>
         <li><strong>Minimal Input:</strong> Only essential fields shown in add row</li>
         <li><strong>Auto-defaults:</strong> Owner, status, and other fields auto-assigned</li>
       </ul>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Keyboard:</strong> Enter/Tab to save and spawn next add row.
       </div>
     </template>

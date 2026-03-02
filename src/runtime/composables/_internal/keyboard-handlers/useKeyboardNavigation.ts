@@ -1,5 +1,7 @@
 import type { TableData } from '@nuxt/ui'
+
 import type { NuGridKeyboardHandler } from '../../../types/_internal'
+
 import { ROUTER_PRIORITIES } from '../../../types/_internal'
 
 const NAVIGATION_KEYS = [

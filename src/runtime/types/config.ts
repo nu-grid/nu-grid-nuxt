@@ -1,5 +1,6 @@
 import type { ComponentConfig } from '@nuxt/ui'
 import type { AppConfig } from 'nuxt/schema'
+
 import type { nuGridTheme } from '../themes'
 
 export type NuGridConfig = ComponentConfig<typeof nuGridTheme, AppConfig, 'table'>

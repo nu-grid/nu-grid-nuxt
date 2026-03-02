@@ -64,7 +64,7 @@ function clearLog() {
 
 <template>
   <div class="space-y-4">
-    <div class="grid md:grid-cols-2 gap-4">
+    <div class="grid gap-4 md:grid-cols-2">
       <div>
         <NuGrid
           v-model:selected-rows="selectedRows"
@@ -79,27 +79,27 @@ function clearLog() {
         />
       </div>
 
-      <div class="rounded-lg border border-default p-4 bg-elevated/30">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-semibold text-sm">Event Log</h3>
+      <div class="border-default bg-elevated/30 rounded-lg border p-4">
+        <div class="mb-3 flex items-center justify-between">
+          <h3 class="text-sm font-semibold">Event Log</h3>
           <UButton size="xs" variant="ghost" @click="clearLog">Clear</UButton>
         </div>
 
-        <ul v-if="eventLog.length > 0" class="space-y-2 text-xs font-mono">
-          <li v-for="(event, i) in eventLog" :key="i" class="p-2 bg-default/50 rounded text-muted">
+        <ul v-if="eventLog.length > 0" class="space-y-2 font-mono text-xs">
+          <li v-for="(event, i) in eventLog" :key="i" class="bg-default/50 text-muted rounded p-2">
             {{ event }}
           </li>
         </ul>
 
-        <p v-else class="text-muted text-sm text-center py-4">
+        <p v-else class="text-muted py-4 text-center text-sm">
           Interact with the grid to see events logged here
         </p>
       </div>
     </div>
 
-    <div class="rounded-lg border border-default p-3 bg-elevated/30 text-sm">
-      <p class="font-medium mb-2">Try these interactions:</p>
-      <ul class="text-xs text-muted space-y-1">
+    <div class="border-default bg-elevated/30 rounded-lg border p-3 text-sm">
+      <p class="mb-2 font-medium">Try these interactions:</p>
+      <ul class="text-muted space-y-1 text-xs">
         <li>Click cells to change focus → <code>focused-cell-changed</code></li>
         <li>Double-click to edit, then Tab/Enter → <code>cell-value-changed</code></li>
         <li>Select/deselect rows → <code>row-selection-changed</code></li>

@@ -95,7 +95,7 @@ function onFocusedCellChanged(event: { rowId: string | null; columnId: string | 
       </UFieldGroup>
     </div>
 
-    <div class="rounded-lg border border-default p-3 bg-elevated/30 text-sm">
+    <div class="border-default bg-elevated/30 rounded-lg border p-3 text-sm">
       <div class="flex items-center gap-6">
         <div>
           <span class="text-muted">Focused Row:</span>
@@ -106,7 +106,7 @@ function onFocusedCellChanged(event: { rowId: string | null; columnId: string | 
           <span class="ml-2 font-mono">{{ focusedColumnId ?? 'none' }}</span>
         </div>
       </div>
-      <div class="mt-2 text-xs text-muted">
+      <div class="text-muted mt-2 text-xs">
         Click a cell to focus, then use Arrow keys, Tab, Home, End, Page Up/Down to navigate.
       </div>
     </div>

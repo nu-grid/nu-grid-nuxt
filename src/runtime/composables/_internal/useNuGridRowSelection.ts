@@ -1,13 +1,16 @@
 import type { TableData } from '@nuxt/ui'
 import type { Row, Table, VisibilityState } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
+
+import { computed, h, ref, watch } from 'vue'
+
 import type { NuGridColumn, NuGridRowSelectOptions } from '../../types'
 import type {
   NuGridRowSelectionMode,
   NuGridSelectionColumnDef,
   UseNuGridRowSelectionReturn,
 } from '../../types/_internal'
-import { computed, h, ref, watch } from 'vue'
+
 import NuGridCellCheckbox from '../../components/NuGridCellCheckbox.vue'
 import { getDefaults } from '../../config/_internal'
 import { nuGridCellTypeRegistry } from '../useNuGridCellTypeRegistry'
@@ -70,9 +73,9 @@ function createSelectionColumn<T extends TableData>(
 
       const cached = selectionTotalsCache.get(typedTable)
       if (
-        cached
-        && cached.lastCoreRows === coreRows
-        && cached.lastSelectionState === rowSelection
+        cached &&
+        cached.lastCoreRows === coreRows &&
+        cached.lastSelectionState === rowSelection
       ) {
         totalCount = cached.totalCount
         selectedCount = cached.selectedCount
@@ -311,9 +314,9 @@ export function useNuGridRowSelection<T extends TableData>(
       // If trying to enable selection when it wasn't created at instantiation, throw error
       if (newOptions !== null && !wasCreatedAtInstantiation.value) {
         throw new Error(
-          'Cannot enable row selection after grid instantiation. '
-            + 'Row selection must be configured when the grid is created. '
-            + 'To start with a hidden selection column, use: { mode: "multi", hidden: true }',
+          'Cannot enable row selection after grid instantiation. ' +
+            'Row selection must be configured when the grid is created. ' +
+            'To start with a hidden selection column, use: { mode: "multi", hidden: true }',
         )
       }
     },

@@ -1,6 +1,10 @@
 import type { TableColumn, TableData } from '@nuxt/ui'
 import type { Cell, GroupingState, Row, Table } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
+
+import { createRow } from '@tanstack/table-core'
+import { computed, isRef, nextTick, onUnmounted, ref, shallowRef, watch } from 'vue'
+
 import type { NuGridAddRowFinalizeResult, NuGridAddRowState, NuGridProps } from '../../types'
 import type {
   NuGridCellEditing,
@@ -9,8 +13,7 @@ import type {
   NuGridGroupingFns,
   NuGridInteractionRouter,
 } from '../../types/_internal'
-import { createRow } from '@tanstack/table-core'
-import { computed, isRef, nextTick, onUnmounted, ref, shallowRef, watch } from 'vue'
+
 import { isEmptyGroupPlaceholder } from './useNuGridEmptyGroups'
 
 export const ADD_ROW_FLAG = '__nugridAddNewRow'
@@ -159,8 +162,8 @@ export function useNuGridAddRow<T extends TableData>(options: {
         if (addRowRow.value.original !== addRowDraft.value) {
           // This shouldn't happen, but if it does, recreate the row
           const id =
-            (addRowDraft.value as any).id
-            ?? `add-new-${Date.now()}-${Math.random().toString(36).slice(2)}`
+            (addRowDraft.value as any).id ??
+            `add-new-${Date.now()}-${Math.random().toString(36).slice(2)}`
           const rowIndex = options.rows.value.length
           addRowRow.value = createRow(
             options.table as any,
@@ -322,7 +325,8 @@ export function useNuGridAddRow<T extends TableData>(options: {
 
       // Check if this is a leaf group (has no nested subgroups)
       // Empty groups (with no subRows) are still leaf groups and should get add rows
-      const hasNestedGroups = groupRow.subRows?.some((subRow: Row<T>) => subRow.getIsGrouped?.()) ?? false
+      const hasNestedGroups =
+        groupRow.subRows?.some((subRow: Row<T>) => subRow.getIsGrouped?.()) ?? false
       if (hasNestedGroups) {
         return
       }
@@ -521,9 +525,9 @@ export function useNuGridAddRow<T extends TableData>(options: {
       if (groupingFns?.navigableRows?.value) {
         rowsList = groupingFns.navigableRows.value
       } else if (
-        showAddNewRow.value
-        && addRowPosition.value !== 'none'
-        && !options.groupingState.value.length
+        showAddNewRow.value &&
+        addRowPosition.value !== 'none' &&
+        !options.groupingState.value.length
       ) {
         // Construct rows list with add row (same logic as orderedRows)
         const addRow = addRowRow.value
@@ -704,9 +708,9 @@ export function useNuGridAddRow<T extends TableData>(options: {
         // Skip if pointer handler already handled this
         // Check both the flag and the row ID to be extra safe
         if (
-          (event as any).__addRowFinalizing
-          || isFinalizing.value
-          || finalizingRowId.value === row.id
+          (event as any).__addRowFinalizing ||
+          isFinalizing.value ||
+          finalizingRowId.value === row.id
         ) {
           return false
         }
@@ -717,9 +721,9 @@ export function useNuGridAddRow<T extends TableData>(options: {
         // Check this FIRST before any other logic
         // Check both the flag and the row ID to be extra safe
         if (
-          isFinalizing.value
-          || (event as any).__addRowFinalizing
-          || finalizingRowId.value === row.id
+          isFinalizing.value ||
+          (event as any).__addRowFinalizing ||
+          finalizingRowId.value === row.id
         ) {
           ;(event as any).__addRowFinalizing = true
           return stopEventPropagation()
@@ -734,9 +738,9 @@ export function useNuGridAddRow<T extends TableData>(options: {
         // Run BEFORE focus to prevent it from focusing the next row
         // Double-check isFinalizing and finalizingRowId here too in case it changed
         if (
-          addRowState.value === 'editing'
-          && !isFinalizing.value
-          && finalizingRowId.value !== row.id
+          addRowState.value === 'editing' &&
+          !isFinalizing.value &&
+          finalizingRowId.value !== row.id
         ) {
           const cellEditingFns = options.cellEditingFns?.value
           const editingCell = options.editingCell?.value
@@ -841,16 +845,16 @@ export function useNuGridAddRow<T extends TableData>(options: {
         // Stop any existing editing from a different addrow before starting new editing
         const cellEditingFns = options.cellEditingFns?.value
         const needsToStopEditing =
-          cellEditingFns
-          && editingCell
-          && (() => {
+          cellEditingFns &&
+          editingCell &&
+          (() => {
             const groupingFns = resolveGroupingFns()
             const rowsList = groupingFns?.navigableRows?.value ?? options.rows.value
             const currentlyEditingRow = rowsList.find((r) => r.id === editingCell.rowId)
             return (
-              currentlyEditingRow
-              && isAddRowRow(currentlyEditingRow)
-              && currentlyEditingRow.id !== row.id
+              currentlyEditingRow &&
+              isAddRowRow(currentlyEditingRow) &&
+              currentlyEditingRow.id !== row.id
             )
           })()
 
@@ -951,10 +955,10 @@ export function useNuGridAddRow<T extends TableData>(options: {
 
               // If not found and this is an add row ID, ensure add row exists and use it
               if (
-                !row
-                && rowId.startsWith('add-new-')
-                && showAddNewRow.value
-                && !options.groupingState.value.length
+                !row &&
+                rowId.startsWith('add-new-') &&
+                showAddNewRow.value &&
+                !options.groupingState.value.length
               ) {
                 ensureAddRowRow()
                 if (addRowRow.value && addRowRow.value.id === rowId) {

@@ -1,5 +1,7 @@
-import type { NuGridProps } from '../src/runtime/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { NuGridProps } from '../src/runtime/types'
+
 import { useNuGridUI } from '../src/runtime/composables/_internal/useNuGridUI'
 
 // Type for the mock tv result

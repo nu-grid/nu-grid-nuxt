@@ -12,9 +12,9 @@ const description = computed(() => (props.description || '').slice(0, 200))
 </script>
 
 <template>
-  <div class="w-full h-full flex flex-col justify-center bg-[#020420]">
+  <div class="flex h-full w-full flex-col justify-center bg-[#020420]">
     <svg
-      class="absolute right-0 top-0"
+      class="absolute top-0 right-0"
       width="629"
       height="593"
       viewBox="0 0 629 593"
@@ -45,13 +45,13 @@ const description = computed(() => (props.description || '').slice(0, 200))
     </svg>
 
     <div class="pl-[100px]">
-      <p v-if="headline" class="uppercase text-[24px] text-[#00DC82] mb-4 font-semibold">
+      <p v-if="headline" class="mb-4 text-[24px] font-semibold text-[#00DC82] uppercase">
         {{ headline }}
       </p>
-      <h1 v-if="title" class="m-0 text-[75px] font-semibold mb-4 text-white flex items-center">
+      <h1 v-if="title" class="m-0 mb-4 flex items-center text-[75px] font-semibold text-white">
         <span>{{ title }}</span>
       </h1>
-      <p v-if="description" class="text-[32px] text-[#E4E4E7] leading-tight w-[700px]">
+      <p v-if="description" class="w-[700px] text-[32px] leading-tight text-[#E4E4E7]">
         {{ description }}
       </p>
     </div>

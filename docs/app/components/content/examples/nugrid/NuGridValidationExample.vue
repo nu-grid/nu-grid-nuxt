@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NuGridColumn } from '#nu-grid/types'
+
 import { z } from 'zod'
 
 interface User {
@@ -32,7 +33,7 @@ const columns: NuGridColumn<User>[] = [
 
 <template>
   <div class="w-full">
-    <p class="mb-3 text-sm text-muted">
+    <p class="text-muted mb-3 text-sm">
       Try editing cells with invalid values (e.g., single character name, invalid email, age under
       18).
     </p>

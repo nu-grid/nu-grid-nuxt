@@ -16,13 +16,42 @@ interface Product {
   description: string
 }
 
-const categories = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books', 'Food', 'Toys', 'Garden'] as const
-const brands = ['Apple', 'Nike', 'Samsung', 'Sony', 'Adidas', 'Microsoft', 'LG', 'Amazon', 'Google', 'Dell'] as const
+const categories = [
+  'Electronics',
+  'Clothing',
+  'Home',
+  'Sports',
+  'Books',
+  'Food',
+  'Toys',
+  'Garden',
+] as const
+const brands = [
+  'Apple',
+  'Nike',
+  'Samsung',
+  'Sony',
+  'Adidas',
+  'Microsoft',
+  'LG',
+  'Amazon',
+  'Google',
+  'Dell',
+] as const
 
 // Generate rows of data
 function generateData(count: number): Product[] {
   const products: Product[] = []
-  const adjectives = ['Premium', 'Basic', 'Pro', 'Ultra', 'Compact', 'Deluxe', 'Essential', 'Advanced']
+  const adjectives = [
+    'Premium',
+    'Basic',
+    'Pro',
+    'Ultra',
+    'Compact',
+    'Deluxe',
+    'Essential',
+    'Advanced',
+  ]
   const items = ['Widget', 'Gadget', 'Device', 'Tool', 'Kit', 'Pack', 'Set', 'Bundle']
 
   for (let i = 1; i <= count; i++) {
@@ -327,9 +356,7 @@ const columns = [
           >
             {{ focusOnResults ? 'Enabled' : 'Disabled' }}
           </UButton>
-          <p class="text-xs text-muted mt-1">
-            Auto-focus first match
-          </p>
+          <p class="text-muted mt-1 text-xs">Auto-focus first match</p>
         </DemoControlGroup>
 
         <DemoControlGroup label="Highlight Color">
@@ -390,9 +417,7 @@ const columns = [
             </UButton>
           </div>
           <div class="grid grid-cols-2 gap-1">
-            <UButton color="neutral" size="xs" @click="setSearchQuery('Apple')">
-              "Apple"
-            </UButton>
+            <UButton color="neutral" size="xs" @click="setSearchQuery('Apple')"> "Apple" </UButton>
             <UButton color="neutral" size="xs" @click="setSearchQuery('Premium')">
               "Premium"
             </UButton>
@@ -442,12 +467,12 @@ const columns = [
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-dimmed">
-        This page demonstrates the search-as-you-type feature for NuGrid. Search filters rows
-        in real-time with debounced input and highlights matching text in cells.
+      <p class="text-dimmed mb-3 text-sm">
+        This page demonstrates the search-as-you-type feature for NuGrid. Search filters rows in
+        real-time with debounced input and highlights matching text in cells.
       </p>
 
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-dimmed">
+      <div class="bg-default/50 text-dimmed mb-3 rounded p-2 text-sm">
         <strong>Search Options:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li><strong>enabled:</strong> Enable or disable search (default: false)</li>
@@ -456,16 +481,19 @@ const columns = [
           <li><strong>autofocus:</strong> Auto-focus search input on mount (default: false)</li>
           <li><strong>clearable:</strong> Show clear button (default: true)</li>
           <li><strong>suppressPanel:</strong> Hide built-in panel (default: false)</li>
-          <li><strong>typeToSearch:</strong> Start searching when typing while grid is focused (default: true)</li>
+          <li>
+            <strong>typeToSearch:</strong> Start searching when typing while grid is focused
+            (default: true)
+          </li>
         </ul>
       </div>
 
-      <div class="rounded bg-default/50 p-2 text-sm text-dimmed">
+      <div class="bg-default/50 text-dimmed rounded p-2 text-sm">
         <strong>How It Works:</strong>
         <p class="mt-1">
           NuGrid uses TanStack Table's global filter with debounced input. Matching text is
-          highlighted in cells. Use <code>enableSearching: false</code> on columns to exclude
-          them from search. When type-to-search is enabled, just click the grid and start typing!
+          highlighted in cells. Use <code>enableSearching: false</code> on columns to exclude them
+          from search. When type-to-search is enabled, just click the grid and start typing!
         </p>
       </div>
     </template>
@@ -493,12 +521,10 @@ const columns = [
         :items="[{ label: 'Implementation Notes', icon: 'i-lucide-file-text', slot: 'notes' }]"
       >
         <template #notes>
-          <div class="space-y-2 p-4 text-sm text-dimmed">
+          <div class="text-dimmed space-y-2 p-4 text-sm">
             <p><strong>Key Points:</strong></p>
             <ul class="list-inside list-disc space-y-1">
-              <li>
-                <strong>Disabled by default:</strong> Search is off by default
-              </li>
+              <li><strong>Disabled by default:</strong> Search is off by default</li>
               <li>
                 <strong>Simple enable:</strong> Use <code>:search="true"</code> to enable with
                 defaults
@@ -517,7 +543,8 @@ const columns = [
               </li>
               <li>
                 <strong>Programmatic control:</strong> Use exposed methods like
-                <code>searchSetQuery()</code>, <code>searchClear()</code>, and <code>searchFocus()</code>
+                <code>searchSetQuery()</code>, <code>searchClear()</code>, and
+                <code>searchFocus()</code>
               </li>
               <li>
                 <strong>Standalone component:</strong> Use <code>NuGridSearch</code> with

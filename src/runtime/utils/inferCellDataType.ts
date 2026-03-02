@@ -82,8 +82,8 @@ export function inferCellDataType(values: unknown[], columnName?: string): strin
     } else if (value === 0 || value === 1) {
       booleanCount++
     } else if (
-      typeof value === 'string'
-      && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')
+      typeof value === 'string' &&
+      (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')
     ) {
       booleanCount++
     } else if (value instanceof Date) {

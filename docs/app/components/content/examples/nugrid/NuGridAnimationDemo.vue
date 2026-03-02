@@ -136,12 +136,12 @@ function resetData() {
       <UButton size="sm" variant="outline" @click="resetData">Reset</UButton>
     </div>
 
-    <div class="rounded-lg border border-default p-3 bg-elevated/30 text-sm">
+    <div class="border-default bg-elevated/30 rounded-lg border p-3 text-sm">
       <p>
         <strong>{{ data.length }}</strong> rows | Animation:
         <strong>{{ animationEnabled ? `${animationDuration}ms` : 'Disabled' }}</strong>
       </p>
-      <p class="text-xs text-muted mt-1">
+      <p class="text-muted mt-1 text-xs">
         Click Shuffle or Sort to see rows animate into new positions
       </p>
     </div>

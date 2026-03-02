@@ -1,5 +1,4 @@
 /* eslint-disable perfectionist/sort-named-imports */
-/* eslint-disable unused-imports/no-unused-imports */
 /**
  * Public API Tests
  *
@@ -14,6 +13,8 @@
  * - Composables entry point (src/runtime/composables/index.ts)
  * - Config entry point (src/runtime/config/index.ts)
  */
+
+import { describe, expect, it } from 'vitest'
 
 // Type-level verification (compile-time checks)
 // These imports will cause TypeScript errors if types are removed
@@ -85,8 +86,6 @@ import type {
   NuGridValidationOptions,
   NuGridValidationResult,
 } from '../src/runtime/types'
-
-import { describe, expect, it } from 'vitest'
 
 // =============================================================================
 // MAIN ENTRY POINT

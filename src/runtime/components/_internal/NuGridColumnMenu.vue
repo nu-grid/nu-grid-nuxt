@@ -1,13 +1,15 @@
 <script setup lang="ts" generic="T extends TableData">
 import type { DropdownMenuItem, TableData } from '@nuxt/ui'
 import type { Column, Header } from '@tanstack/vue-table'
+
+import { computed, inject, ref, resolveComponent, watch } from 'vue'
+
 import type { NuGridColumnMenuItem, NuGridFilterContext } from '../../types'
 import type {
   NuGridCoreContext,
   NuGridPerformanceContext,
   NuGridUIConfigContext,
 } from '../../types/_internal'
-import { computed, inject, ref, resolveComponent, watch } from 'vue'
 
 import { nuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegistry'
 import { nuGridDefaults } from '../../config/_internal'
@@ -514,7 +516,7 @@ const filterComponent = computed(() => {
         size="xs"
         :square="true"
         :class="[
-          'flex h-6 w-6 items-center justify-center p-0 text-gray-400/60 hover:text-primary-500',
+          'hover:text-primary-500 flex h-6 w-6 items-center justify-center p-0 text-gray-400/60',
           menuOpen && 'text-primary-500',
         ]"
         @click.stop

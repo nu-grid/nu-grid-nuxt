@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import type { ComputedRef } from 'vue'
+
+import { computed, inject, isRef, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+
 import type { NuGridCellEditorEmits, NuGridCellEditorProps, NuGridLookupItem } from '../../types'
 import type { NuGridKeyboardContext } from '../../types/_internal'
-import type { ComputedRef } from 'vue'
-import { computed, inject, isRef, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+
 import NuGridSelectMenu from '../../components/NuGridSelectMenu.vue'
 import { nuGridDefaults } from '../../config/_internal'
 import { ROUTER_PRIORITIES } from '../../types/_internal'
@@ -114,14 +117,13 @@ function handleMenuClose(open: boolean) {
     setTimeout(() => {
       if (getEnterBehavior() === 'moveDown') {
         emit('update:isNavigating', true)
-        // eslint-disable-next-line vue/custom-event-name-casing
+
         emit('stop-editing', shiftHeld ? 'up' : 'down')
       } else if (getEnterBehavior() === 'moveCell') {
         emit('update:isNavigating', true)
-        // eslint-disable-next-line vue/custom-event-name-casing
+
         emit('stop-editing', shiftHeld ? 'previous' : 'next')
       } else {
-        // eslint-disable-next-line vue/custom-event-name-casing
         emit('stop-editing')
       }
     }, 100)
@@ -130,7 +132,6 @@ function handleMenuClose(open: boolean) {
 
   if (!open && !valueJustChanged.value && !navigatingViaTab.value && !escapingMenu.value) {
     setTimeout(() => {
-      // eslint-disable-next-line vue/custom-event-name-casing
       emit('stop-editing')
     }, 100)
   }
@@ -200,13 +201,13 @@ function handleKeydown(ctx: NuGridKeyboardContext<any>) {
       // Wait for selection to complete, then navigate
       setTimeout(() => {
         emit('update:isNavigating', true)
-        // eslint-disable-next-line vue/custom-event-name-casing
+
         emit('stop-editing', direction)
       }, 50)
     } else {
       // Menu already closed - just navigate
       emit('update:isNavigating', true)
-      // eslint-disable-next-line vue/custom-event-name-casing
+
       emit('stop-editing', e.shiftKey ? 'previous' : 'next')
     }
     return { handled: true, preventDefault: true, stopPropagation: true }
@@ -235,7 +236,7 @@ function handleKeydown(ctx: NuGridKeyboardContext<any>) {
       return { handled: true, preventDefault: true, stopPropagation: true }
     } else {
       // Second escape: menu already closed, cancel editing
-      // eslint-disable-next-line vue/custom-event-name-casing
+
       emit('cancel-editing')
       return { handled: true, preventDefault: true, stopPropagation: true }
     }
@@ -293,14 +294,13 @@ function handleKeydown(ctx: NuGridKeyboardContext<any>) {
       // Menu is closed - just exit edit mode
       if (getEnterBehavior() === 'moveDown') {
         emit('update:isNavigating', true)
-        // eslint-disable-next-line vue/custom-event-name-casing
+
         emit('stop-editing', e.shiftKey ? 'up' : 'down')
       } else if (getEnterBehavior() === 'moveCell') {
         emit('update:isNavigating', true)
-        // eslint-disable-next-line vue/custom-event-name-casing
+
         emit('stop-editing', e.shiftKey ? 'previous' : 'next')
       } else {
-        // eslint-disable-next-line vue/custom-event-name-casing
         emit('stop-editing')
       }
       return { handled: true, preventDefault: true, stopPropagation: true }

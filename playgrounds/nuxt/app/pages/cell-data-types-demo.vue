@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NuGridColumn } from '#nu-grid/types'
+
 import NuGridCellEditorCustomNumber from '~/components/NuGrid/NuGridCellEditorCustomNumber.vue'
 import NuGridCellEditorRange from '~/components/NuGrid/NuGridCellEditorRange.vue'
 
@@ -261,13 +262,13 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
     </template>
 
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This page demonstrates the new
-        <code class="rounded bg-default px-1 py-0.5 text-xs">cellDataType</code> property for NuGrid
+        <code class="bg-default rounded px-1 py-0.5 text-xs">cellDataType</code> property for NuGrid
         columns. Each column has a specific data type that determines which default editor is used
         when editing cells.
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li><strong>text:</strong> Text input field (Product Name)</li>
         <li><strong>number:</strong> Number input with step controls (Price, Quantity, Rating)</li>
         <li><strong>date:</strong> Date picker (Release Date, Last Updated)</li>
@@ -275,17 +276,17 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
           <strong>boolean:</strong> Checkbox input, toggleable with click or space key (In Stock)
         </li>
       </ul>
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted mb-3 rounded p-2 text-sm">
         <strong>Per-Column Custom Editors:</strong> The Discount % column demonstrates that custom
         editors override cellDataType defaults. It has
-        <code class="rounded bg-default px-1 py-0.5 text-xs">cellDataType: 'number'</code> but uses
+        <code class="bg-default rounded px-1 py-0.5 text-xs">cellDataType: 'number'</code> but uses
         a custom slider editor instead of the default number input.
       </div>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Grid-Level Default Editors:</strong> Click "Enable Custom Editors" to see custom
         default editors in action! All number columns (Price, Quantity, Rating) will use a custom
         editor with a blue border and sparkle icon. This demonstrates the
-        <code class="rounded bg-default px-1 py-0.5 text-xs">defaultEditors</code> prop which allows
+        <code class="bg-default rounded px-1 py-0.5 text-xs">defaultEditors</code> prop which allows
         you to override built-in editors for all columns of a specific data type.
       </div>
     </template>
@@ -360,19 +361,19 @@ function onCellValueChanged(event: { row: any; column: any; oldValue: any; newVa
           <div class="p-4">
             <div class="grid grid-cols-1 gap-3 text-xs md:grid-cols-2">
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">cellDataType: 'text'</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">cellDataType: 'text'</div>
                 <p class="text-muted">Default text input editor for string values</p>
               </div>
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">cellDataType: 'number'</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">cellDataType: 'number'</div>
                 <p class="text-muted">Numeric input with increment/decrement controls</p>
               </div>
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">cellDataType: 'date'</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">cellDataType: 'date'</div>
                 <p class="text-muted">Date picker input (stores as YYYY-MM-DD string)</p>
               </div>
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">cellDataType: 'boolean'</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">cellDataType: 'boolean'</div>
                 <p class="text-muted">
                   Checkbox input for true/false values, toggleable with click or space
                 </p>

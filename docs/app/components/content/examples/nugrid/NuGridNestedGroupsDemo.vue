@@ -119,20 +119,20 @@ const countryCount = computed(() => new Set(data.value.map((d) => d.country)).si
         {{ splitGroup ? 'Split Group Mode' : 'Standard Group Mode' }}
       </UButton>
 
-      <div class="flex items-center gap-4 text-sm text-muted">
+      <div class="text-muted flex items-center gap-4 text-sm">
         <span>{{ data.length }} products</span>
         <span>{{ regionCount }} regions</span>
         <span>{{ countryCount }} countries</span>
       </div>
     </div>
 
-    <div class="rounded-lg border border-default p-3 bg-elevated/30 text-sm">
-      <p class="font-medium mb-2">Grouping Hierarchy:</p>
-      <div class="flex items-center gap-2 text-muted">
-        <span class="inline-block w-2 h-2 rounded-full bg-primary" />
+    <div class="border-default bg-elevated/30 rounded-lg border p-3 text-sm">
+      <p class="mb-2 font-medium">Grouping Hierarchy:</p>
+      <div class="text-muted flex items-center gap-2">
+        <span class="bg-primary inline-block h-2 w-2 rounded-full" />
         <span>Region (Level 1)</span>
         <span class="text-default">→</span>
-        <span class="inline-block w-2 h-2 rounded-full bg-primary/60" />
+        <span class="bg-primary/60 inline-block h-2 w-2 rounded-full" />
         <span>Country (Level 2)</span>
       </div>
     </div>

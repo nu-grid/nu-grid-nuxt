@@ -43,8 +43,7 @@ function starClass(star: number) {
       v-for="star in 5"
       :key="star"
       type="button"
-      class="rounded transition-all hover:scale-105 focus-visible:ring-2
-        focus-visible:ring-primary-500 focus-visible:outline-none"
+      class="focus-visible:ring-primary-500 rounded transition-all hover:scale-105 focus-visible:ring-2 focus-visible:outline-none"
       :class="starClass(star)"
       :disabled="!isInteractive"
       :tabindex="isInteractive ? 0 : -1"

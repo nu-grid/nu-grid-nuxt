@@ -1,8 +1,11 @@
 import type { TableColumn } from '@nuxt/ui'
 import type { ColumnSizingInfoState, GroupingState } from '@tanstack/vue-table'
-import type { NuGridStates } from '../src/runtime/types/_internal'
+
 import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
+
+import type { NuGridStates } from '../src/runtime/types/_internal'
+
 import {
   resolveStyleObject,
   resolveValue,

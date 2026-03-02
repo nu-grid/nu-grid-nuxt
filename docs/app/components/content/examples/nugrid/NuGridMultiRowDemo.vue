@@ -103,19 +103,19 @@ const multiRowOptions = computed(() =>
         Multi-Row {{ multiRowEnabled ? 'On' : 'Off' }}
       </UButton>
 
-      <span class="text-sm text-muted">
+      <span class="text-muted text-sm">
         {{ multiRowEnabled ? '3 visual rows per data row' : 'Standard single-row layout' }}
       </span>
     </div>
 
-    <div class="rounded-lg border border-default p-3 bg-elevated/30 text-sm">
-      <p class="font-medium mb-2">Row Layout:</p>
-      <div v-if="multiRowEnabled" class="text-xs text-muted space-y-1">
+    <div class="border-default bg-elevated/30 rounded-lg border p-3 text-sm">
+      <p class="mb-2 font-medium">Row Layout:</p>
+      <div v-if="multiRowEnabled" class="text-muted space-y-1 text-xs">
         <p><strong>Row 0:</strong> ID, Name, Email, Department</p>
         <p><strong>Row 1:</strong> Salary, Hire Date</p>
         <p><strong>Row 2:</strong> Notes (spans full width)</p>
       </div>
-      <p v-else class="text-xs text-muted">All columns on a single row</p>
+      <p v-else class="text-muted text-xs">All columns on a single row</p>
     </div>
 
     <NuGrid

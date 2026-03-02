@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ComponentMeta } from 'vue-component-meta'
+
 import * as theme from '#build/ui'
 import { camelCase, kebabCase, upperFirst } from 'scule'
 
@@ -74,9 +75,9 @@ const metaProps: ComputedRef<ComponentMeta['props']> = computed(() => {
 
       // @ts-expect-error - Type is not correct
       prop.type =
-        !prop.type.startsWith('boolean')
-        && prop.schema?.kind === 'enum'
-        && Object.keys(prop.schema.schema)?.length
+        !prop.type.startsWith('boolean') &&
+        prop.schema?.kind === 'enum' &&
+        Object.keys(prop.schema.schema)?.length
           ? Object.values(prop.schema.schema)
               .map((schema) => (schema?.type ? schema.type : schema))
               .join(' | ')

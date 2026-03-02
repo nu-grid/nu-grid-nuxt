@@ -59,12 +59,12 @@ export type {
   NuGridEventEmitter,
   // State change events
   NuGridFilterChangedEvent,
-  NuGridPageChangedEvent,
   // Focus events
   NuGridFocusedCellChangedEvent,
   NuGridFocusedRowChangedEvent,
   // Keyboard events
   NuGridKeydownEvent,
+  NuGridPageChangedEvent,
   NuGridRowClickEvent,
   NuGridSortChangedEvent,
 } from './events'

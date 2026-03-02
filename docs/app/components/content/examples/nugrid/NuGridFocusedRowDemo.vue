@@ -75,7 +75,7 @@ function clearFocus() {
       <UButton size="sm" variant="outline" @click="focusRandom">Random</UButton>
       <UButton size="sm" variant="outline" color="warning" @click="clearFocus">Clear</UButton>
 
-      <span class="text-sm font-medium ml-2">Scroll:</span>
+      <span class="ml-2 text-sm font-medium">Scroll:</span>
       <UFieldGroup>
         <UButton
           v-for="align in ['nearest', 'top', 'center'] as const"
@@ -90,14 +90,14 @@ function clearFocus() {
       </UFieldGroup>
     </div>
 
-    <div class="rounded-lg border border-default p-3 bg-elevated/30 text-sm">
+    <div class="border-default bg-elevated/30 rounded-lg border p-3 text-sm">
       <p><strong>Focused:</strong> {{ focusedRowDisplay }}</p>
-      <p class="text-xs text-muted mt-1">
+      <p class="text-muted mt-1 text-xs">
         Click buttons to focus rows programmatically with different scroll alignments
       </p>
     </div>
 
-    <div class="h-64 overflow-hidden rounded-lg border border-default">
+    <div class="border-default h-64 overflow-hidden rounded-lg border">
       <NuGrid
         ref="grid"
         v-model:focused-row-id="focusedRowId"

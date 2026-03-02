@@ -1,4 +1,5 @@
 import type { NuGridCellType, NuGridCellTypeContext } from '../../types/cells'
+
 import PercentageEditor from './PercentageEditor.vue'
 import PercentageFilter from './PercentageFilter.vue'
 

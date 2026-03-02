@@ -2,8 +2,11 @@ import type { TableData } from '@nuxt/ui'
 import type { Row, Table } from '@tanstack/vue-table'
 import type { Primitive } from 'reka-ui'
 import type { MaybeRefOrGetter, Ref } from 'vue'
-import type { NuGridProps } from '../../types'
+
 import { computed, toValue, watch } from 'vue'
+
+import type { NuGridProps } from '../../types'
+
 import { isEmptyGroupPlaceholder } from './useNuGridEmptyGroups'
 import {
   useNuGridGroupVirtualization,
@@ -180,8 +183,8 @@ export function useNuGridGrouping<T extends TableData>(
       const currentState = tableApi.getState().expanded
       // If expanded state is empty or undefined, initialize all groups as expanded
       if (
-        !currentState
-        || (typeof currentState === 'object' && Object.keys(currentState).length === 0)
+        !currentState ||
+        (typeof currentState === 'object' && Object.keys(currentState).length === 0)
       ) {
         // Set all groups to expanded
         tableApi.setExpanded(true)

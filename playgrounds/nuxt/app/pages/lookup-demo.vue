@@ -361,7 +361,7 @@ const asyncLookupCode = `{
       </DemoControlGroup>
 
       <DemoControlGroup label="Demo Features">
-        <div class="space-y-1 text-xs text-muted">
+        <div class="text-muted space-y-1 text-xs">
           <div>Static Items</div>
           <div>Reactive Items</div>
           <div>Async Loading</div>
@@ -374,14 +374,14 @@ const asyncLookupCode = `{
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         The lookup cell type provides a dropdown selection interface using Nuxt UI's SelectMenu
         component. It supports static arrays, reactive refs, and async data sources.
       </p>
 
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted mb-3 rounded p-2 text-sm">
         <strong>Basic Configuration:</strong>
-        <pre class="mt-2 overflow-x-auto rounded bg-default p-2 text-xs"><code>{
+        <pre class="bg-default mt-2 overflow-x-auto rounded p-2 text-xs"><code>{
   cellDataType: 'lookup',
   lookup: {
     items: [
@@ -395,7 +395,7 @@ const asyncLookupCode = `{
 }</code></pre>
       </div>
 
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted mb-3 rounded p-2 text-sm">
         <strong>Lookup Options:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li><strong>items:</strong> Array, Ref, or async function that returns items</li>
@@ -409,7 +409,7 @@ const asyncLookupCode = `{
         </ul>
       </div>
 
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Column Configurations in This Demo:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li><strong>Category:</strong> Static items with icons, searchable</li>
@@ -461,7 +461,7 @@ const asyncLookupCode = `{
         :items="[{ label: 'Test Scenarios', icon: 'i-lucide-test-tube', slot: 'test-scenarios' }]"
       >
         <template #test-scenarios>
-          <div class="space-y-2 p-4 text-sm text-muted">
+          <div class="text-muted space-y-2 p-4 text-sm">
             <p><strong>Try these scenarios:</strong></p>
             <ul class="list-inside list-disc space-y-1">
               <li>

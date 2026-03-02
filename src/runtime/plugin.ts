@@ -1,4 +1,5 @@
 import { defineNuxtPlugin, useAppConfig } from '#app'
+
 import { createNuGridTheme, registerTheme } from './themes'
 
 /**

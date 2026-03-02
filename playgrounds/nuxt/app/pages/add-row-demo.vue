@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NuGridAddRowState, NuGridColumn, NuGridValidationOptions } from '#nu-grid/types'
+
 import { z } from 'zod'
 
 const toast = useToast()
@@ -343,7 +344,7 @@ const exampleCode = `<NuGrid
 
       <DemoControlGroup label="Configuration">
         <pre
-          class="max-h-32 overflow-auto rounded-lg border border-default bg-elevated/50 p-2 text-xs"
+          class="border-default bg-elevated/50 max-h-32 overflow-auto rounded-lg border p-2 text-xs"
           >{{ JSON.stringify(addNewRow, null, 2) || 'undefined' }}</pre
         >
       </DemoControlGroup>
@@ -351,13 +352,13 @@ const exampleCode = `<NuGrid
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This page demonstrates the
-        <code class="rounded bg-default px-1 py-0.5 text-xs">addNewRow</code>
+        <code class="bg-default rounded px-1 py-0.5 text-xs">addNewRow</code>
         prop for NuGrid. The add new row feature allows you to display a special row for adding new
         items to the grid.
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li>
           <strong>Boolean:</strong> Set to <code>true</code> to enable add new row at bottom
           (default position)
@@ -371,24 +372,24 @@ const exampleCode = `<NuGrid
           changes in real-time
         </li>
       </ul>
-      <div class="mb-3 rounded-lg border border-default/50 bg-elevated/30 p-3">
+      <div class="border-default/50 bg-elevated/30 mb-3 rounded-lg border p-3">
         <p class="mb-2 text-sm font-semibold">Column Props for Add Row:</p>
-        <ul class="space-y-1 text-xs text-muted">
+        <ul class="text-muted space-y-1 text-xs">
           <li>
-            <code class="rounded bg-default px-1 py-0.5">showNew: false</code> - Hide column in add
+            <code class="bg-default rounded px-1 py-0.5">showNew: false</code> - Hide column in add
             row (ID column)
           </li>
           <li>
-            <code class="rounded bg-default px-1 py-0.5">requiredNew: true</code> - Require field
+            <code class="bg-default rounded px-1 py-0.5">requiredNew: true</code> - Require field
             when adding (Name column)
           </li>
           <li>
-            <code class="rounded bg-default px-1 py-0.5">validateNew</code> - Custom validation
+            <code class="bg-default rounded px-1 py-0.5">validateNew</code> - Custom validation
             function (Price & Stock columns)
           </li>
         </ul>
       </div>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Keyboard:</strong> Arrow Up/Down keys finalize and create a new add row.
       </div>
     </template>

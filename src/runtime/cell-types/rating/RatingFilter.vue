@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { NuGridFilterContext } from '../../types/cells'
 import { computed, ref } from 'vue'
+
+import type { NuGridFilterContext } from '../../types/cells'
 
 interface Props {
   context: NuGridFilterContext
@@ -63,7 +64,7 @@ function clearFilter() {
       />
     </div>
     <div v-if="operator === 'between'" class="flex items-center gap-2">
-      <span class="text-sm text-muted">and</span>
+      <span class="text-muted text-sm">and</span>
       <USelect
         v-model="filterValue2"
         :options="[1, 2, 3, 4, 5].map((n) => ({ value: n, label: `${n} ⭐` }))"

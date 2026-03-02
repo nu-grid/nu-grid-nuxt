@@ -586,27 +586,27 @@ const columns = [
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This page demonstrates the
-        <code class="rounded bg-default px-1 py-0.5 text-xs">wrapText</code>
+        <code class="bg-default rounded px-1 py-0.5 text-xs">wrapText</code>
         option for NuGrid columns.
       </p>
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted mb-3 rounded p-2 text-sm">
         <strong>wrapText Option:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li>
             <strong>Grid-level:</strong> Set via
-            <code class="rounded bg-default px-1 py-0.5 text-xs">columnDefaults.wrapText</code>
+            <code class="bg-default rounded px-1 py-0.5 text-xs">columnDefaults.wrapText</code>
           </li>
           <li>
             <strong>Column-level:</strong> Set
-            <code class="rounded bg-default px-1 py-0.5 text-xs">wrapText: true</code> on individual
+            <code class="bg-default rounded px-1 py-0.5 text-xs">wrapText: true</code> on individual
             columns
           </li>
           <li>Column-level settings take precedence over grid defaults</li>
         </ul>
       </div>
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted mb-3 rounded p-2 text-sm">
         <strong>Demo Setup:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li><strong>Summary:</strong> Always wraps (column override)</li>
@@ -614,7 +614,7 @@ const columns = [
           <li><strong>Other columns:</strong> Follow grid default</li>
         </ul>
       </div>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Textarea Editor Keys:</strong>
         <ul class="mt-1 list-inside list-disc">
           <li>Enter creates a new line</li>
@@ -651,7 +651,7 @@ const columns = [
     <template #extra>
       <UAccordion :items="[{ label: 'Test Scenarios', icon: 'i-lucide-test-tube', slot: 'test' }]">
         <template #test>
-          <div class="space-y-2 p-4 text-sm text-muted">
+          <div class="text-muted space-y-2 p-4 text-sm">
             <p><strong>Try these:</strong></p>
             <ul class="list-inside list-disc space-y-1">
               <li>Toggle "Wrap Text" to change grid default</li>

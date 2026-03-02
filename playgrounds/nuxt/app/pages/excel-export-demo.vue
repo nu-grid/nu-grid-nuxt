@@ -447,12 +447,12 @@ table.excelExport({
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This page demonstrates the Excel export functionality for NuGrid. The export properly
         handles different field types and ensures each data row becomes a single Excel row
         (regardless of multi-row display mode).
       </p>
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted mb-3 rounded p-2 text-sm">
         <strong>Supported Field Types:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li><strong>Text:</strong> Name, Email, Department, Notes</li>
@@ -463,7 +463,7 @@ table.excelExport({
           <li><strong>Long Text:</strong> Notes (textarea with wrap)</li>
         </ul>
       </div>
-      <div class="mb-3 rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted mb-3 rounded p-2 text-sm">
         <strong>Export Features:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li>Exports to .xlsx format (native Excel)</li>
@@ -474,7 +474,7 @@ table.excelExport({
           <li>Proper formatting for dates and currency values</li>
         </ul>
       </div>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Usage:</strong> Click the "Export to Excel" button to download the data. Enable
         multi-row mode to see how the export handles multiple visual rows per data item.
       </div>

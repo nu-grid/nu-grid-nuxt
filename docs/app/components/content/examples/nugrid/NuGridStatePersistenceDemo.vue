@@ -137,9 +137,9 @@ function onStateChanged(state: any) {
       </UButton>
     </div>
 
-    <div class="rounded-lg border border-default p-3 bg-elevated/30 text-sm">
-      <p class="font-medium mb-2">Current State:</p>
-      <pre v-if="currentState" class="text-xs overflow-auto max-h-32 bg-default/50 rounded p-2">{{
+    <div class="border-default bg-elevated/30 rounded-lg border p-3 text-sm">
+      <p class="mb-2 font-medium">Current State:</p>
+      <pre v-if="currentState" class="bg-default/50 max-h-32 overflow-auto rounded p-2 text-xs">{{
         JSON.stringify(currentState, null, 2)
       }}</pre>
       <p v-else class="text-muted text-xs">Click "Get State" to see current state</p>
@@ -155,7 +155,7 @@ function onStateChanged(state: any) {
       @state-changed="onStateChanged"
     />
 
-    <p class="text-xs text-muted">
+    <p class="text-muted text-xs">
       Try sorting or filtering, then refresh the page. State will be restored if persistence is
       enabled.
     </p>

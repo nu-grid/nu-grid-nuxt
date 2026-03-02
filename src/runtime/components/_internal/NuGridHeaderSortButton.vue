@@ -2,9 +2,11 @@
 import type { TableData } from '@nuxt/ui'
 import type { Header } from '@tanstack/vue-table'
 
+import { computed, inject } from 'vue'
+
 import type { NuGridSortIcon } from '../../types'
 import type { NuGridCoreContext, NuGridUIConfigContext } from '../../types/_internal'
-import { computed, inject } from 'vue'
+
 import { nuGridDefaults } from '../../config/_internal'
 
 defineOptions({ inheritAttrs: false })
@@ -39,19 +41,19 @@ const { sortIcons: gridSortIcons } = uiConfigContext
 // Column-level icons take precedence over grid-level
 const effectiveIcons = computed<NuGridSortIcon>(() => ({
   unsorted:
-    props.sortIcons?.unsorted
-    ?? gridSortIcons.value?.unsorted
-    ?? nuGridDefaults.columnDefaults.sortIcons.unsorted,
+    props.sortIcons?.unsorted ??
+    gridSortIcons.value?.unsorted ??
+    nuGridDefaults.columnDefaults.sortIcons.unsorted,
   asc:
     props.sortIcons?.asc ?? gridSortIcons.value?.asc ?? nuGridDefaults.columnDefaults.sortIcons.asc,
   desc:
-    props.sortIcons?.desc
-    ?? gridSortIcons.value?.desc
-    ?? nuGridDefaults.columnDefaults.sortIcons.desc,
+    props.sortIcons?.desc ??
+    gridSortIcons.value?.desc ??
+    nuGridDefaults.columnDefaults.sortIcons.desc,
   unsortedHover:
-    props.sortIcons?.unsortedHover
-    ?? gridSortIcons.value?.unsortedHover
-    ?? nuGridDefaults.columnDefaults.sortIcons.unsortedHover,
+    props.sortIcons?.unsortedHover ??
+    gridSortIcons.value?.unsortedHover ??
+    nuGridDefaults.columnDefaults.sortIcons.unsortedHover,
 }))
 
 const sortState = computed(() => props.header.column.getIsSorted())

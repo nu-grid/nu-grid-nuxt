@@ -1,6 +1,8 @@
 import type { Row, RowSelectionState, Table } from '@tanstack/vue-table'
+
 import { describe, expect, it, vi } from 'vitest'
 import { computed } from 'vue'
+
 import { useNuGridGroupSelection } from '../src/runtime/composables/_internal/useNuGridGroupSelection'
 
 /**

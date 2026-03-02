@@ -173,10 +173,10 @@ export function setValueAtPath<T extends Record<string, any>>(
  */
 export function isStandardSchema(schema: unknown): schema is StandardSchemaV1 {
   return (
-    schema != null
-    && typeof schema === 'object'
-    && '~standard' in schema
-    && typeof (schema as any)['~standard']?.validate === 'function'
+    schema != null &&
+    typeof schema === 'object' &&
+    '~standard' in schema &&
+    typeof (schema as any)['~standard']?.validate === 'function'
   )
 }
 

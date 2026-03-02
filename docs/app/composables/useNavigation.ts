@@ -1,4 +1,5 @@
 import type { ContentNavigationItem } from '@nuxt/content'
+
 import { findPageBreadcrumb, findPageChildren } from '@nuxt/content/utils'
 import { mapContentNavigation } from '@nuxt/ui/utils/content'
 

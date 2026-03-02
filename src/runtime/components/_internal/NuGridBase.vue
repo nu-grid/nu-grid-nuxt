@@ -2,6 +2,13 @@
 import type { TableData, TableSlots } from '@nuxt/ui'
 import type { VirtualItem } from '@tanstack/vue-virtual'
 import type { ComponentPublicInstance } from 'vue'
+
+import { FlexRender } from '@tanstack/vue-table'
+import { createReusableTemplate } from '@vueuse/core'
+import { Primitive } from 'reka-ui'
+import { computed, inject, toValue } from 'vue'
+
+import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
 import type { NuGridProps } from '../../types'
 import type {
   GroupVirtualRowType,
@@ -17,11 +24,7 @@ import type {
   NuGridVirtualItemStyle,
   NuGridVirtualizationContext,
 } from '../../types/_internal'
-import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
-import { FlexRender } from '@tanstack/vue-table'
-import { createReusableTemplate } from '@vueuse/core'
-import { Primitive } from 'reka-ui'
-import { computed, inject, toValue } from 'vue'
+
 import {
   getFlexHeaderStyle,
   getHeaderEffectivePinning,
@@ -54,14 +57,14 @@ const searchContext = inject<NuGridSearchContext | null>('nugrid-search', null)
 const summaryContext = inject<NuGridSummaryContext>('nugrid-summary')
 
 if (
-  !coreContext
-  || !dragContext
-  || !resizeContext
-  || !virtualizationContext
-  || !performanceContext
-  || !uiConfigContext
-  || !addRowContext
-  || !animationContext
+  !coreContext ||
+  !dragContext ||
+  !resizeContext ||
+  !virtualizationContext ||
+  !performanceContext ||
+  !uiConfigContext ||
+  !addRowContext ||
+  !animationContext
 ) {
   throw new Error('NuGridBase must be used within a NuGrid component.')
 }
@@ -511,8 +514,8 @@ function getVirtualItemStyle(
               }"
               @dragover="
                 (e: DragEvent) =>
-                  dragFns.isHeaderDraggable(header)
-                  && dragFns.handleColumnDragOver(e, header.column.id)
+                  dragFns.isHeaderDraggable(header) &&
+                  dragFns.handleColumnDragOver(e, header.column.id)
               "
               @dragenter="dragFns.handleColumnDragEnter"
               @drop="
@@ -533,8 +536,8 @@ function getVirtualItemStyle(
                   "
                   @dragstart="
                     (e: DragEvent) =>
-                      dragFns.isHeaderDraggable(header)
-                      && dragFns.handleColumnDragStart(e, header.column.id)
+                      dragFns.isHeaderDraggable(header) &&
+                      dragFns.handleColumnDragStart(e, header.column.id)
                   "
                 >
                   <slot :name="`${header.id}-header`" v-bind="header.getContext()">
@@ -546,9 +549,9 @@ function getVirtualItemStyle(
                   </slot>
                   <NuGridHeaderSortButton
                     v-if="
-                      (header.column.columnDef.sortIcons?.position
-                        ?? gridSortIcons?.position
-                        ?? 'edge') === 'inline'
+                      (header.column.columnDef.sortIcons?.position ??
+                        gridSortIcons?.position ??
+                        'edge') === 'inline'
                     "
                     :header="header"
                     :sort-icons="header.column.columnDef.sortIcons"
@@ -557,9 +560,9 @@ function getVirtualItemStyle(
                 <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
                   <NuGridHeaderSortButton
                     v-if="
-                      (header.column.columnDef.sortIcons?.position
-                        ?? gridSortIcons?.position
-                        ?? 'edge') === 'edge'
+                      (header.column.columnDef.sortIcons?.position ??
+                        gridSortIcons?.position ??
+                        'edge') === 'edge'
                     "
                     :header="header"
                     :sort-icons="header.column.columnDef.sortIcons"
@@ -684,8 +687,8 @@ function getVirtualItemStyle(
               }"
               @dragover="
                 (e: DragEvent) =>
-                  dragFns.isHeaderDraggable(header)
-                  && dragFns.handleColumnDragOver(e, header.column.id)
+                  dragFns.isHeaderDraggable(header) &&
+                  dragFns.handleColumnDragOver(e, header.column.id)
               "
               @dragenter="dragFns.handleColumnDragEnter"
               @drop="
@@ -742,8 +745,8 @@ function getVirtualItemStyle(
                     "
                     @dragstart="
                       (e: DragEvent) =>
-                        dragFns.isHeaderDraggable(header)
-                        && dragFns.handleColumnDragStart(e, header.column.id)
+                        dragFns.isHeaderDraggable(header) &&
+                        dragFns.handleColumnDragStart(e, header.column.id)
                     "
                   >
                     <slot :name="`${header.id}-header`" v-bind="header.getContext()">
@@ -755,9 +758,9 @@ function getVirtualItemStyle(
                     </slot>
                     <NuGridHeaderSortButton
                       v-if="
-                        (header.column.columnDef.sortIcons?.position
-                          ?? gridSortIcons?.position
-                          ?? 'edge') === 'inline'
+                        (header.column.columnDef.sortIcons?.position ??
+                          gridSortIcons?.position ??
+                          'edge') === 'inline'
                       "
                       :header="header"
                       :sort-icons="header.column.columnDef.sortIcons"
@@ -766,9 +769,9 @@ function getVirtualItemStyle(
                   <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
                     <NuGridHeaderSortButton
                       v-if="
-                        (header.column.columnDef.sortIcons?.position
-                          ?? gridSortIcons?.position
-                          ?? 'edge') === 'edge'
+                        (header.column.columnDef.sortIcons?.position ??
+                          gridSortIcons?.position ??
+                          'edge') === 'edge'
                       "
                       :header="header"
                       :sort-icons="header.column.columnDef.sortIcons"
@@ -796,8 +799,8 @@ function getVirtualItemStyle(
                           ui.colResizer({
                             class: [propsUi?.colResizer],
                             colResizing:
-                              resizingColumnId === header.column.id
-                              || header.column.getIsResizing(),
+                              resizingColumnId === header.column.id ||
+                              header.column.getIsResizing(),
                           })
                         "
                         :data-col-resizing="
@@ -912,14 +915,14 @@ function getVirtualItemStyle(
                         }"
                         @dragover="
                           (e: DragEvent) =>
-                            dragFns.isHeaderDraggable(header)
-                            && dragFns.handleColumnDragOver(e, header.column.id)
+                            dragFns.isHeaderDraggable(header) &&
+                            dragFns.handleColumnDragOver(e, header.column.id)
                         "
                         @dragenter="dragFns.handleColumnDragEnter"
                         @drop="
                           (e: DragEvent) =>
-                            dragFns.isHeaderDraggable(header)
-                            && dragFns.handleColumnDrop(e, header.column.id)
+                            dragFns.isHeaderDraggable(header) &&
+                            dragFns.handleColumnDrop(e, header.column.id)
                         "
                         @dragend="dragFns.handleColumnDragEnd"
                         @dragleave="dragFns.handleColumnDragLeave"
@@ -935,8 +938,8 @@ function getVirtualItemStyle(
                             "
                             @dragstart="
                               (e: DragEvent) =>
-                                dragFns.isHeaderDraggable(header)
-                                && dragFns.handleColumnDragStart(e, header.column.id)
+                                dragFns.isHeaderDraggable(header) &&
+                                dragFns.handleColumnDragStart(e, header.column.id)
                             "
                           >
                             <slot :name="`${header.id}-header`" v-bind="header.getContext()">
@@ -948,9 +951,9 @@ function getVirtualItemStyle(
                             </slot>
                             <NuGridHeaderSortButton
                               v-if="
-                                (header.column.columnDef.sortIcons?.position
-                                  ?? gridSortIcons?.position
-                                  ?? 'edge') === 'inline'
+                                (header.column.columnDef.sortIcons?.position ??
+                                  gridSortIcons?.position ??
+                                  'edge') === 'inline'
                               "
                               :header="header"
                               :sort-icons="header.column.columnDef.sortIcons"
@@ -959,9 +962,9 @@ function getVirtualItemStyle(
                           <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
                             <NuGridHeaderSortButton
                               v-if="
-                                (header.column.columnDef.sortIcons?.position
-                                  ?? gridSortIcons?.position
-                                  ?? 'edge') === 'edge'
+                                (header.column.columnDef.sortIcons?.position ??
+                                  gridSortIcons?.position ??
+                                  'edge') === 'edge'
                               "
                               :header="header"
                               :sort-icons="header.column.columnDef.sortIcons"
@@ -973,13 +976,13 @@ function getVirtualItemStyle(
                                 ui.colResizeHandle({
                                   class: [propsUi?.colResizeHandle],
                                   colResizing:
-                                    resizingColumnId === header.column.id
-                                    || header.column.getIsResizing(),
+                                    resizingColumnId === header.column.id ||
+                                    header.column.getIsResizing(),
                                 })
                               "
                               :data-col-resizing="
-                                resizingColumnId === header.column.id
-                                || header.column.getIsResizing()
+                                resizingColumnId === header.column.id ||
+                                header.column.getIsResizing()
                                   ? 'true'
                                   : undefined
                               "
@@ -991,13 +994,13 @@ function getVirtualItemStyle(
                                   ui.colResizer({
                                     class: [propsUi?.colResizer],
                                     colResizing:
-                                      resizingColumnId === header.column.id
-                                      || header.column.getIsResizing(),
+                                      resizingColumnId === header.column.id ||
+                                      header.column.getIsResizing(),
                                   })
                                 "
                                 :data-col-resizing="
-                                  resizingColumnId === header.column.id
-                                  || header.column.getIsResizing()
+                                  resizingColumnId === header.column.id ||
+                                  header.column.getIsResizing()
                                     ? 'true'
                                     : undefined
                                 "
@@ -1082,14 +1085,14 @@ function getVirtualItemStyle(
                         }"
                         @dragover="
                           (e: DragEvent) =>
-                            dragFns.isHeaderDraggable(header)
-                            && dragFns.handleColumnDragOver(e, header.column.id)
+                            dragFns.isHeaderDraggable(header) &&
+                            dragFns.handleColumnDragOver(e, header.column.id)
                         "
                         @dragenter="dragFns.handleColumnDragEnter"
                         @drop="
                           (e: DragEvent) =>
-                            dragFns.isHeaderDraggable(header)
-                            && dragFns.handleColumnDrop(e, header.column.id)
+                            dragFns.isHeaderDraggable(header) &&
+                            dragFns.handleColumnDrop(e, header.column.id)
                         "
                         @dragend="dragFns.handleColumnDragEnd"
                         @dragleave="dragFns.handleColumnDragLeave"
@@ -1139,8 +1142,8 @@ function getVirtualItemStyle(
                               "
                               @dragstart="
                                 (e: DragEvent) =>
-                                  dragFns.isHeaderDraggable(header)
-                                  && dragFns.handleColumnDragStart(e, header.column.id)
+                                  dragFns.isHeaderDraggable(header) &&
+                                  dragFns.handleColumnDragStart(e, header.column.id)
                               "
                             >
                               <slot :name="`${header.id}-header`" v-bind="header.getContext()">
@@ -1152,9 +1155,9 @@ function getVirtualItemStyle(
                               </slot>
                               <NuGridHeaderSortButton
                                 v-if="
-                                  (header.column.columnDef.sortIcons?.position
-                                    ?? gridSortIcons?.position
-                                    ?? 'edge') === 'inline'
+                                  (header.column.columnDef.sortIcons?.position ??
+                                    gridSortIcons?.position ??
+                                    'edge') === 'inline'
                                 "
                                 :header="header"
                                 :sort-icons="header.column.columnDef.sortIcons"
@@ -1163,9 +1166,9 @@ function getVirtualItemStyle(
                             <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
                               <NuGridHeaderSortButton
                                 v-if="
-                                  (header.column.columnDef.sortIcons?.position
-                                    ?? gridSortIcons?.position
-                                    ?? 'edge') === 'edge'
+                                  (header.column.columnDef.sortIcons?.position ??
+                                    gridSortIcons?.position ??
+                                    'edge') === 'edge'
                                 "
                                 :header="header"
                                 :sort-icons="header.column.columnDef.sortIcons"
@@ -1177,13 +1180,13 @@ function getVirtualItemStyle(
                                   ui.colResizeHandle({
                                     class: [propsUi?.colResizeHandle],
                                     colResizing:
-                                      resizingColumnId === header.column.id
-                                      || header.column.getIsResizing(),
+                                      resizingColumnId === header.column.id ||
+                                      header.column.getIsResizing(),
                                   })
                                 "
                                 :data-col-resizing="
-                                  resizingColumnId === header.column.id
-                                  || header.column.getIsResizing()
+                                  resizingColumnId === header.column.id ||
+                                  header.column.getIsResizing()
                                     ? 'true'
                                     : undefined
                                 "
@@ -1195,13 +1198,13 @@ function getVirtualItemStyle(
                                     ui.colResizer({
                                       class: [propsUi?.colResizer],
                                       colResizing:
-                                        resizingColumnId === header.column.id
-                                        || header.column.getIsResizing(),
+                                        resizingColumnId === header.column.id ||
+                                        header.column.getIsResizing(),
                                     })
                                   "
                                   :data-col-resizing="
-                                    resizingColumnId === header.column.id
-                                    || header.column.getIsResizing()
+                                    resizingColumnId === header.column.id ||
+                                    header.column.getIsResizing()
                                       ? 'true'
                                       : undefined
                                   "
@@ -1313,17 +1316,19 @@ function getVirtualItemStyle(
             <div :class="ui.empty({ class: propsUi?.empty })">
               <slot name="empty">
                 <div class="flex flex-col items-center justify-center gap-3 py-8 text-center">
-                  <div class="rounded-full bg-muted/50 p-3">
+                  <div class="bg-muted/50 rounded-full p-3">
                     <UIcon
-                      :name="searchContext?.isSearching.value ? 'i-lucide-search-x' : 'i-lucide-inbox'"
-                      class="size-6 text-muted"
+                      :name="
+                        searchContext?.isSearching.value ? 'i-lucide-search-x' : 'i-lucide-inbox'
+                      "
+                      class="text-muted size-6"
                     />
                   </div>
                   <div class="flex flex-col gap-1">
-                    <p class="text-sm font-medium text-muted">
+                    <p class="text-muted text-sm font-medium">
                       {{ emptyMessage }}
                     </p>
-                    <p v-if="searchContext?.isSearching.value" class="text-xs text-dimmed">
+                    <p v-if="searchContext?.isSearching.value" class="text-dimmed text-xs">
                       Try adjusting your search terms
                     </p>
                   </div>
@@ -1384,7 +1389,11 @@ function getVirtualItemStyle(
 
         <!-- Grand Totals Row -->
         <div
-          v-if="summaryContext?.grandTotalsConfig?.value?.enabled && rows.length > 0 && !virtualizationEnabled"
+          v-if="
+            summaryContext?.grandTotalsConfig?.value?.enabled &&
+            rows.length > 0 &&
+            !virtualizationEnabled
+          "
           :class="ui.tfoot({ class: [propsUi?.tfoot] })"
         >
           <div :class="ui.separator({ class: [propsUi?.separator] })" />
@@ -1398,10 +1407,7 @@ function getVirtualItemStyle(
           >
             <div
               v-if="rowDragOptions.enabled"
-              :class="[
-                'w-10 max-w-10 min-w-10 shrink-0',
-                ui.td({ class: [propsUi?.td] }),
-              ]"
+              :class="['w-10 max-w-10 min-w-10 shrink-0', ui.td({ class: [propsUi?.td] })]"
             />
             <div
               v-for="(header, index) in headerGroups[headerGroups.length - 1]?.headers || []"

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { applyNuGridPreset, getNuGridPreset } from '../src/runtime/config/presets'
 
 describe('presets', () => {

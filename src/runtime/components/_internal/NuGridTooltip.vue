@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { AppConfig } from '@nuxt/schema'
 import type { ComponentConfig } from '@nuxt/ui'
+
 import theme from '#build/ui/tooltip'
 import { useAppConfig } from '#imports'
 import { tv } from '@nuxt/ui/utils/tv'
 import { computed } from 'vue'
+
 import { useNuGridTooltip } from '../../composables/_internal/useNuGridTooltip'
 
 type Tooltip = ComponentConfig<typeof theme, AppConfig, 'tooltip'>
@@ -41,7 +43,9 @@ const isOpen = computed(() => !!tooltipState.value)
           '--reka-tooltip-content-transform-origin': 'top center',
         }"
       >
-        <span data-slot="text" class="whitespace-pre-wrap break-words" :class="ui.text()">{{ tooltipState.text }}</span>
+        <span data-slot="text" class="break-words whitespace-pre-wrap" :class="ui.text()">{{
+          tooltipState.text
+        }}</span>
       </div>
     </Transition>
   </Teleport>

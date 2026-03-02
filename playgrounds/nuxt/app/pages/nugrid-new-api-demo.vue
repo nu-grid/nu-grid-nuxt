@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NuGridColumn } from '#nu-grid/types'
+
 import { z } from 'zod'
 
 // Sample data
@@ -159,9 +160,9 @@ const exampleCode = `<NuGrid
         </div>
       </DemoControlGroup>
 
-      <div class="rounded-lg border border-default/50 bg-elevated/30 p-3">
+      <div class="border-default/50 bg-elevated/30 rounded-lg border p-3">
         <h4 class="mb-2 text-xs font-semibold">Preset Features:</h4>
-        <div class="space-y-2 text-xs text-muted">
+        <div class="text-muted space-y-2 text-xs">
           <div v-if="currentPreset === 'readOnly'">
             <p>• Row focus mode</p>
             <p>• No editing</p>
@@ -184,7 +185,7 @@ const exampleCode = `<NuGrid
 
       <div
         v-if="selectedIds.length > 0"
-        class="rounded-lg border border-primary/50 bg-primary/5 p-3"
+        class="border-primary/50 bg-primary/5 rounded-lg border p-3"
       >
         <h4 class="mb-2 text-xs font-semibold">Selected Items:</h4>
         <div class="flex flex-wrap gap-1">
@@ -197,14 +198,14 @@ const exampleCode = `<NuGrid
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         Demonstrating the new grouped props and preset system. Presets provide sensible defaults for
         common use cases while allowing full customization.
       </p>
       <div class="mb-3 grid grid-cols-2 gap-2 text-xs">
-        <div class="rounded bg-default/50 p-2">
+        <div class="bg-default/50 rounded p-2">
           <strong>Grouped Props:</strong>
-          <ul class="mt-1 space-y-0.5 text-muted">
+          <ul class="text-muted mt-1 space-y-0.5">
             <li>• focus</li>
             <li>• editing</li>
             <li>• validation</li>
@@ -213,9 +214,9 @@ const exampleCode = `<NuGrid
             <li>• layout</li>
           </ul>
         </div>
-        <div class="rounded bg-default/50 p-2">
+        <div class="bg-default/50 rounded p-2">
           <strong>Available Presets:</strong>
-          <ul class="mt-1 space-y-0.5 text-muted">
+          <ul class="text-muted mt-1 space-y-0.5">
             <li>• readOnly</li>
             <li>• editable</li>
             <li>• forms</li>
@@ -224,7 +225,7 @@ const exampleCode = `<NuGrid
           </ul>
         </div>
       </div>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Note:</strong> Legacy flat props still work with deprecation notices.
       </div>
     </template>

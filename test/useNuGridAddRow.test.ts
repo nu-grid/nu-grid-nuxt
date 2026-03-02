@@ -1,6 +1,8 @@
 import type { Row } from '@tanstack/vue-table'
+
 import { describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
+
 import { ADD_ROW_FLAG, useNuGridAddRow } from '../src/runtime/composables/_internal/useNuGridAddRow'
 
 vi.mock('@tanstack/table-core', () => {

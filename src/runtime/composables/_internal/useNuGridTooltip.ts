@@ -1,6 +1,9 @@
 import type { TableData } from '@nuxt/ui'
 import type { Row, Table } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
+
+import { onUnmounted, ref } from 'vue'
+
 import type { NuGridProps } from '../../types'
 import type {
   NuGridHoverContext,
@@ -8,7 +11,7 @@ import type {
   NuGridPointerHandler,
 } from '../../types/_internal'
 import type { NuGridColumn } from '../../types/column'
-import { onUnmounted, ref } from 'vue'
+
 import { usePropWithDefault } from '../../config/_internal'
 
 // Interface for the router - only the methods we need
@@ -115,8 +118,8 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
     }
 
     // Check if tooltip was recently visible (use shorter switch delay)
-    const wasRecentlyVisible = tooltipState.value !== null
-      || (Date.now() - lastTooltipVisibleTime) < SWITCH_DELAY_WINDOW
+    const wasRecentlyVisible =
+      tooltipState.value !== null || Date.now() - lastTooltipVisibleTime < SWITCH_DELAY_WINDOW
     const delay = wasRecentlyVisible ? opts.switchDelay : opts.showDelay
 
     // Hide any existing tooltip first, then show with delay
@@ -401,8 +404,8 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
       if (text) {
         const truncatableContent = findTruncatableContent(header)
         const shouldShow =
-          forceShow
-          || (truncatableContent && (!opts.truncatedOnly || isTruncated(truncatableContent)))
+          forceShow ||
+          (truncatableContent && (!opts.truncatedOnly || isTruncated(truncatableContent)))
 
         if (shouldShow) {
           scheduleShowTooltip(text)
@@ -424,8 +427,8 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
       if (text) {
         const truncatableContent = findTruncatableContent(cell)
         const shouldShow =
-          forceShow
-          || (truncatableContent && (!opts.truncatedOnly || isTruncated(truncatableContent)))
+          forceShow ||
+          (truncatableContent && (!opts.truncatedOnly || isTruncated(truncatableContent)))
 
         if (shouldShow) {
           scheduleShowTooltip(text)

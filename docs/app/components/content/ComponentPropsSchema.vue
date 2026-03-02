@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { PropertyMeta } from 'vue-component-meta'
+
 import { kebabCase } from 'scule'
 
 const props = defineProps<{

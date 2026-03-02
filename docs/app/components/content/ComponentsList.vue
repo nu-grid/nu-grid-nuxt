@@ -32,12 +32,12 @@ const { data: components } = await useAsyncData(`components-${props.category}`, 
     >
       <template #header>
         <div
-          class="rounded-md rounded-b-none border border-muted overflow-hidden aspect-[16/9] -m-px"
+          class="border-muted -m-px aspect-[16/9] overflow-hidden rounded-md rounded-b-none border"
         >
           <UColorModeImage
             :light="`${component.path.replace('/docs/components/', '/components/light/')}.png`"
             :dark="`${component.path.replace('/docs/components/', '/components/dark/')}.png`"
-            class="group-hover:scale-105 transition-transform size-full"
+            class="size-full transition-transform group-hover:scale-105"
             :loading="index >= 4 ? 'lazy' : 'eager'"
             width="640"
             height="360"

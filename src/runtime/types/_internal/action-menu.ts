@@ -5,6 +5,7 @@
 import type { TableColumn, TableData } from '@nuxt/ui'
 import type { Row } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
+
 import type { NuGridActionMenuItem } from '../action-menu'
 
 /**

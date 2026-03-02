@@ -1,20 +1,25 @@
 <script setup lang="ts">
 import type { ComputedRef } from 'vue'
-import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
+
 import { inject, onMounted, ref, watch } from 'vue'
+
+import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
+
 import NuGridSearch from '../NuGridSearch.vue'
 
 // Inject search context from parent NuGrid
 const searchContext = inject<NuGridSearchContext>('nugrid-search')!
 
 // Inject UI config for theme classes
-const uiConfig = inject<{ searchPanel: ComputedRef<string>; searchInput: ComputedRef<string> } | null>(
-  'nugrid-ui-config',
-  null,
-)
+const uiConfig = inject<{
+  searchPanel: ComputedRef<string>
+  searchInput: ComputedRef<string>
+} | null>('nugrid-ui-config', null)
 
 // Compute search panel classes
-const panelClass = uiConfig?.searchPanel?.value ?? 'flex items-center gap-2 px-4 py-2 border-b border-default bg-elevated'
+const panelClass =
+  uiConfig?.searchPanel?.value ??
+  'flex items-center gap-2 px-4 py-2 border-b border-default bg-elevated'
 const inputClass = uiConfig?.searchInput?.value ?? 'w-full min-w-[200px] max-w-sm'
 
 // Local ref to the search component

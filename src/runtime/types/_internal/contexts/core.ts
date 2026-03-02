@@ -2,6 +2,7 @@ import type { TableData } from '@nuxt/ui'
 import type { Cell, Row, Table } from '@tanstack/vue-table'
 import type { Primitive } from 'reka-ui'
 import type { ComputedRef, Ref } from 'vue'
+
 import type { NuGridUISlots } from '../../../composables/_internal/useNuGridUI'
 import type { NuGridConfig } from '../../config'
 

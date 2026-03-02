@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import type { NuGridCellEditorEmits, NuGridCellEditorProps } from '../../types'
 import { computed, ref } from 'vue'
+
+import type { NuGridCellEditorEmits, NuGridCellEditorProps } from '../../types'
+
 import { useNuGridCellEditor } from '../../composables'
 
 defineOptions({ inheritAttrs: false })
@@ -45,7 +47,7 @@ const handleInput = (value: number | string) => {
 </script>
 
 <template>
-  <div class="flex items-center w-full">
+  <div class="flex w-full items-center">
     <UInput
       ref="inputRef"
       :model-value="displayValue"
@@ -56,6 +58,6 @@ const handleInput = (value: number | string) => {
       @blur="handleBlur"
       @keydown="handleKeydown"
     />
-    <span class="ml-1 text-gray-500 dark:text-gray-400 shrink-0">%</span>
+    <span class="ml-1 shrink-0 text-gray-500 dark:text-gray-400">%</span>
   </div>
 </template>

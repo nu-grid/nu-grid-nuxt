@@ -43,6 +43,6 @@ const handleInput = (value: string) => {
       @update:model-value="handleInput"
       @blur="handleBlur"
     />
-    <span class="min-w-[3ch] text-right text-xs text-muted">{{ modelValue }}</span>
+    <span class="text-muted min-w-[3ch] text-right text-xs">{{ modelValue }}</span>
   </div>
 </template>

@@ -1,5 +1,6 @@
 import type { TableData } from '@nuxt/ui'
 import type { Cell, Row, Table } from '@tanstack/vue-table'
+
 import type { NuGridCellEditing } from './cell-editing'
 import type { NuGridFocus, NuGridFocusedCell } from './focus'
 

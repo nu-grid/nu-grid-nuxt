@@ -1,7 +1,9 @@
 import type { TableData } from '@nuxt/ui'
 import type { Row, Table } from '@tanstack/vue-table'
-import type { NuGridProps } from '../../types'
+
 import { computed } from 'vue'
+
+import type { NuGridProps } from '../../types'
 
 /**
  * Navigation result containing target row and column indices
@@ -433,8 +435,8 @@ export function useNuGridKeyboardNavigation<T extends TableData>(
               ? findPreviousColumn(currentColumnIndex, targetRow, isValidTarget)
               : findNextColumn(currentColumnIndex, targetRow, isValidTarget)
           if (
-            fallbackCol !== currentColumnIndex
-            || (isValidTarget && isValidTarget(fallbackCol, targetRow))
+            fallbackCol !== currentColumnIndex ||
+            (isValidTarget && isValidTarget(fallbackCol, targetRow))
           ) {
             return { rowIndex: targetRowIndex, columnIndex: fallbackCol }
           }

@@ -1,7 +1,9 @@
-import type { NuGridStateSnapshot } from '../src/runtime/composables/_internal/useNuGridStatePersistence'
-import type { NuGridStates } from '../src/runtime/types/_internal'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
+
+import type { NuGridStateSnapshot } from '../src/runtime/composables/_internal/useNuGridStatePersistence'
+import type { NuGridStates } from '../src/runtime/types/_internal'
+
 import { useNuGridStatePersistence } from '../src/runtime/composables/_internal/useNuGridStatePersistence'
 
 // Mock #imports (Nuxt auto-imports)

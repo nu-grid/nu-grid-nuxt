@@ -1,4 +1,5 @@
 import type { HighlighterGeneric } from 'shiki'
+
 import { createHighlighter } from 'shiki'
 import { createJavaScriptRegexEngine } from 'shiki/engine-javascript.mjs'
 

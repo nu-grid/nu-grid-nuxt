@@ -257,7 +257,9 @@ const exampleCode = `// Show empty groups with add rows and summaries
           :variant="addRowState === 'focused' ? 'subtle' : 'soft'"
           size="xs"
         >
-          {{ addRowState === 'editing' ? 'Editing' : addRowState === 'focused' ? 'Focused' : 'Idle' }}
+          {{
+            addRowState === 'editing' ? 'Editing' : addRowState === 'focused' ? 'Focused' : 'Idle'
+          }}
         </UBadge>
       </DemoStatusItem>
       <DemoStatusItem label="Total Items" :value="data.length" />
@@ -269,7 +271,7 @@ const exampleCode = `// Show empty groups with add rows and summaries
     <template #controls>
       <DemoControlGroup label="Empty Groups Feature">
         <USwitch v-model="emptyGroupsEnabled" label="Enable emptyGroupValues" />
-        <p class="mt-1 text-xs text-muted">
+        <p class="text-muted mt-1 text-xs">
           {{ emptyGroupsEnabled ? 'Empty groups persist with add rows' : 'Empty groups disappear' }}
         </p>
       </DemoControlGroup>
@@ -319,12 +321,12 @@ const exampleCode = `// Show empty groups with add rows and summaries
         <USwitch v-model="splitGroup" label="Split Group Layout" />
       </DemoControlGroup>
 
-      <div class="rounded-lg border border-success/30 bg-success/5 p-3">
-        <h4 class="mb-2 flex items-center gap-2 text-xs font-semibold text-success">
+      <div class="border-success/30 bg-success/5 rounded-lg border p-3">
+        <h4 class="text-success mb-2 flex items-center gap-2 text-xs font-semibold">
           <UIcon name="i-lucide-check-circle" />
           Empty Groups Feature
         </h4>
-        <ul class="space-y-1 text-xs text-muted">
+        <ul class="text-muted space-y-1 text-xs">
           <li>• All groups shown even with no data</li>
           <li>• Add items directly via add row</li>
           <li>• Toggle feature to see difference</li>
@@ -335,11 +337,11 @@ const exampleCode = `// Show empty groups with add rows and summaries
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This demo starts with <strong>no data</strong> but all groups are visible thanks to the
-        <code class="rounded bg-default/50 px-1">emptyGroupValues</code> prop.
+        <code class="bg-default/50 rounded px-1">emptyGroupValues</code> prop.
       </p>
-      <div class="mb-3 rounded border border-default/50 bg-default/30 p-2">
+      <div class="border-default/50 bg-default/30 mb-3 rounded border p-2">
         <h4 class="mb-1 text-sm font-medium">Empty Categories:</h4>
         <div v-if="emptyCategories.length" class="flex flex-wrap gap-1">
           <UBadge
@@ -354,12 +356,15 @@ const exampleCode = `// Show empty groups with add rows and summaries
             <span v-else class="ml-1 opacity-60">(hidden)</span>
           </UBadge>
         </div>
-        <span v-else class="text-xs text-muted">All categories have items</span>
+        <span v-else class="text-muted text-xs">All categories have items</span>
       </div>
-      <ul class="list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted list-inside list-disc space-y-1 text-sm">
         <li><strong>Try it:</strong> Add sample data, then clear categories</li>
         <li><strong>Add items:</strong> Double-click the add row in any group</li>
-        <li><strong>Key prop:</strong> <code class="rounded bg-default/50 px-1">:empty-group-values="{ category: [...] }"</code></li>
+        <li>
+          <strong>Key prop:</strong>
+          <code class="bg-default/50 rounded px-1">:empty-group-values="{ category: [...] }"</code>
+        </li>
       </ul>
     </template>
 

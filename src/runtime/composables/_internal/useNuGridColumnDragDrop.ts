@@ -1,8 +1,10 @@
 import type { TableData } from '@nuxt/ui'
 import type { Header, Table } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
-import type { NuGridColumnDragDrop } from '../../types/_internal'
+
 import { markRaw, ref } from 'vue'
+
+import type { NuGridColumnDragDrop } from '../../types/_internal'
 /**
  * Column drag and drop functionality
  */
@@ -124,9 +126,9 @@ export function useNuGridColumnDragDrop<T extends TableData>(
   function handleColumnDragLeave(e: DragEvent) {
     const relatedTarget = e.relatedTarget
     if (
-      !relatedTarget
-      || !(relatedTarget instanceof HTMLElement)
-      || !tableRef.value?.contains(relatedTarget)
+      !relatedTarget ||
+      !(relatedTarget instanceof HTMLElement) ||
+      !tableRef.value?.contains(relatedTarget)
     ) {
       isDraggingOutside.value = true
       dropTargetColumnId.value = null

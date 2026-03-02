@@ -5,6 +5,7 @@
 import type { TableData } from '@nuxt/ui'
 import type { Row } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
+
 import type {
   GroupingVirtualRowHeights,
   GroupVirtualRowItem,

@@ -1,5 +1,6 @@
 import type { TableData } from '@nuxt/ui'
 import type { Row } from '@tanstack/vue-table'
+
 import type { NuGridSelectionColumnDef } from './_internal'
 
 /**

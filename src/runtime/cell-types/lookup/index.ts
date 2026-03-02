@@ -1,7 +1,10 @@
 import type { Ref } from 'vue'
+
+import { isRef } from 'vue'
+
 import type { NuGridCellType, NuGridCellTypeContext } from '../../types/cells'
 import type { NuGridLookupItem, NuGridLookupOptions } from '../../types/option-groups'
-import { isRef } from 'vue'
+
 import { nuGridDefaults } from '../../config/_internal'
 import LookupEditor from './LookupEditor.vue'
 import LookupRenderer from './LookupRenderer.vue'

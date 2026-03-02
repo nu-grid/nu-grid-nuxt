@@ -1,6 +1,9 @@
 import type { TableRow } from '@nuxt/ui'
-import type { NuGridProps } from '../src/runtime/types'
+
 import { describe, expect, it, vi } from 'vitest'
+
+import type { NuGridProps } from '../src/runtime/types'
+
 import { useNuGridRowInteractions } from '../src/runtime/composables/_internal/useNuGridInteractions'
 
 /**

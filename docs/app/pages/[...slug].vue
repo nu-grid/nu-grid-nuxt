@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ContentNavigationItem } from '@nuxt/content'
+
 import { findPageHeadline } from '@nuxt/content/utils'
 
 definePageMeta({
@@ -78,7 +79,7 @@ const links = computed(() => {
       <UContentToc :title="toc?.title" :links="page.body?.toc?.links">
         <template v-if="toc?.bottom" #bottom>
           <div
-            class="hidden lg:block space-y-6"
+            class="hidden space-y-6 lg:block"
             :class="{ 'mt-6!': page.body?.toc?.links?.length }"
           >
             <USeparator v-if="page.body?.toc?.links?.length" type="dashed" />

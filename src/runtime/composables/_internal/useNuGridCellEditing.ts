@@ -2,6 +2,18 @@ import type { TableData } from '@nuxt/ui'
 import type { Cell, Column, Row, Table } from '@tanstack/vue-table'
 import type { Component, ComponentPublicInstance, Ref } from 'vue'
 
+import { FlexRender } from '@tanstack/vue-table'
+import {
+  computed,
+  h,
+  isReadonly,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  resolveComponent,
+} from 'vue'
+
 import type {
   NuGridColumn,
   NuGridEventEmitter,
@@ -20,14 +32,10 @@ import type {
   NuGridRowValidationResult,
 } from '../../types/_internal'
 import type { NuGridValidationResult } from '../../utils/standardSchema'
-import { FlexRender } from '@tanstack/vue-table'
-
-import { computed, h, isReadonly, nextTick, onMounted, onUnmounted, ref, resolveComponent } from 'vue'
 
 import { textCellType } from '../../cell-types'
 import { getDefaults, usePropWithDefault } from '../../config/_internal'
 import { splitPath, validateFieldValue } from '../../utils/standardSchema'
-
 import { useNuGridCellTypeRegistry } from '../useNuGridCellTypeRegistry'
 import { useNuGridKeyboardNavigation } from './useNuGridKeyboardNavigation'
 import { useNuGridScroll } from './useNuGridScroll'
@@ -451,9 +459,9 @@ export function useNuGridCellEditing<T extends TableData>(
     // Don't restart editing if we're already editing this cell (unless initialValue is explicitly provided)
     // This prevents clicks on the editor (e.g., when validation popup is showing) from resetting the value
     if (
-      editingCell.value?.rowId === row.id
-      && editingCell.value?.columnId === cell.column.id
-      && initialValue === undefined
+      editingCell.value?.rowId === row.id &&
+      editingCell.value?.columnId === cell.column.id &&
+      initialValue === undefined
     ) {
       return
     }
@@ -622,17 +630,21 @@ export function useNuGridCellEditing<T extends TableData>(
 
     // Only reset the add-row if the ENTIRE row is empty (no cells have been filled)
     // If other cells have values, let the normal finalization path handle it
-    const isEntireAddRowEmpty = isAddRow && isCurrentValueEmpty && isVerticalNav && (() => {
-      const rowData = row.original as Record<string, unknown>
-      const visibleCellsList = row.getVisibleCells() as Cell<T, any>[]
-      for (const c of visibleCellsList) {
-        if (c.id === cell.id) continue // skip the cell we're currently editing
-        const colId = c.column.id
-        const val = rowData[colId]
-        if (val !== undefined && val !== null && val !== '' && val !== 0) return false
-      }
-      return true
-    })()
+    const isEntireAddRowEmpty =
+      isAddRow &&
+      isCurrentValueEmpty &&
+      isVerticalNav &&
+      (() => {
+        const rowData = row.original as Record<string, unknown>
+        const visibleCellsList = row.getVisibleCells() as Cell<T, any>[]
+        for (const c of visibleCellsList) {
+          if (c.id === cell.id) continue // skip the cell we're currently editing
+          const colId = c.column.id
+          const val = rowData[colId]
+          if (val !== undefined && val !== null && val !== '' && val !== 0) return false
+        }
+        return true
+      })()
 
     if (isAddRow && isEntireAddRowEmpty && isVerticalNav) {
       // Find row index BEFORE resetting (reset changes the row ID)
@@ -807,8 +819,8 @@ export function useNuGridCellEditing<T extends TableData>(
           } else {
             // At edge of row - block navigation to prevent wrapping to adjacent row
             if (
-              config
-              && handleValidationFailure(config as NuGridResolvedValidation<T>, isClickAway)
+              config &&
+              handleValidationFailure(config as NuGridResolvedValidation<T>, isClickAway)
             )
               return
           }
@@ -952,10 +964,10 @@ export function useNuGridCellEditing<T extends TableData>(
       // Note: navDirection === undefined means Enter key OR blur. During add-row cell
       // transitions (addRowTransitioning), blur-triggered calls should NOT finalize.
       const shouldFinalizeAfterNav =
-        navDirection === 'down'
-        || navDirection === 'up'
-        || (navDirection === 'next' && isLastEditable)
-        || (navDirection === undefined && !addRowContext?.addRowTransitioning?.value)
+        navDirection === 'down' ||
+        navDirection === 'up' ||
+        (navDirection === 'next' && isLastEditable) ||
+        (navDirection === undefined && !addRowContext?.addRowTransitioning?.value)
 
       if (shouldFinalizeAfterNav) {
         // Store the parentId (groupId) before finalizing, so we can focus the correct group's addrow
@@ -1720,18 +1732,18 @@ export function useNuGridCellEditing<T extends TableData>(
       // Printable character - Start editing with that character
       // Check if it's a single printable character (not a modifier or special key)
       if (
-        event.key.length === 1
-        && !event.ctrlKey
-        && !event.metaKey
-        && !event.altKey
-        && event.key !== ' ' // Exclude space to avoid conflicts with shortcuts
+        event.key.length === 1 &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey &&
+        event.key !== ' ' // Exclude space to avoid conflicts with shortcuts
       ) {
         const isAlpha = /[a-z]/i.test(event.key)
         const isNumeric = /\d/.test(event.key)
 
         if (
-          (isAlpha && enabledKeys.includes('alpha'))
-          || (isNumeric && enabledKeys.includes('numeric'))
+          (isAlpha && enabledKeys.includes('alpha')) ||
+          (isNumeric && enabledKeys.includes('numeric'))
         ) {
           event.preventDefault()
           event.stopPropagation()

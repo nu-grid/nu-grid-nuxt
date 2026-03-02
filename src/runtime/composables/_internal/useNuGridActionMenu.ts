@@ -1,6 +1,9 @@
 import type { TableData } from '@nuxt/ui'
 import type { Row, VisibilityState } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
+
+import { computed, h, ref, watch } from 'vue'
+
 import type { NuGridActionMenuOptions, NuGridColumn } from '../../types'
 import type {
   NuGridActionMenuButton,
@@ -8,7 +11,7 @@ import type {
   NuGridActionMenuColumnMeta,
   UseNuGridActionMenuReturn,
 } from '../../types/_internal'
-import { computed, h, ref, watch } from 'vue'
+
 import { nuGridCellTypeRegistry } from '../useNuGridCellTypeRegistry'
 
 /**
@@ -202,9 +205,9 @@ export function useNuGridActionMenu<T extends TableData>(
       // If trying to enable action menu when it wasn't created at instantiation, throw error
       if (newOptions !== null && !wasCreatedAtInstantiation.value) {
         throw new Error(
-          'Cannot enable action menu after grid instantiation. '
-            + 'Action menu must be configured when the grid is created. '
-            + 'To start with a hidden action menu column, use: { getActions: fn, hidden: true }',
+          'Cannot enable action menu after grid instantiation. ' +
+            'Action menu must be configured when the grid is created. ' +
+            'To start with a hidden action menu column, use: { getActions: fn, hidden: true }',
         )
       }
     },

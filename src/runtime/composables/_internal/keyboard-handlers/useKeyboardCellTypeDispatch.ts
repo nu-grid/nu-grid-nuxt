@@ -1,6 +1,8 @@
 import type { TableData } from '@nuxt/ui'
 import type { Ref } from 'vue'
+
 import type { NuGridKeyboardHandler } from '../../../types/_internal'
+
 import { ROUTER_PRIORITIES } from '../../../types/_internal'
 import { useNuGridCellTypeRegistry } from '../../useNuGridCellTypeRegistry'
 

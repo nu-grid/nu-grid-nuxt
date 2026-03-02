@@ -238,9 +238,9 @@ const columns = [
       </DemoControlGroup>
 
       <!-- Current Sort State -->
-      <div class="rounded-lg border border-default bg-elevated/30 p-3">
-        <h3 class="mb-2 text-xs font-semibold tracking-wide text-muted uppercase">Sort State</h3>
-        <pre class="max-h-24 overflow-auto rounded bg-default/50 p-2 text-xs">{{
+      <div class="border-default bg-elevated/30 rounded-lg border p-3">
+        <h3 class="text-muted mb-2 text-xs font-semibold tracking-wide uppercase">Sort State</h3>
+        <pre class="bg-default/50 max-h-24 overflow-auto rounded p-2 text-xs">{{
           JSON.stringify(sorting, null, 2)
         }}</pre>
       </div>
@@ -248,14 +248,14 @@ const columns = [
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This page demonstrates automatic sort icon rendering in NuGrid headers.
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li><strong>Automatic Rendering:</strong> Sort icons appear automatically</li>
         <li>
           <strong>Grid-Level Icons:</strong> Default icons via
-          <code class="rounded bg-default px-1 py-0.5 text-xs">sortIcons</code> prop
+          <code class="bg-default rounded px-1 py-0.5 text-xs">sortIcons</code> prop
         </li>
         <li>
           <strong>Column-Level Icons:</strong> Individual columns can override (see Category and
@@ -264,13 +264,13 @@ const columns = [
         <li><strong>Hover Mode:</strong> Unsorted icons can show only on hover</li>
         <li><strong>Multi-Sort:</strong> Hold Shift to sort by multiple columns</li>
       </ul>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Try It:</strong>
         <ul class="mt-1 ml-2 list-inside list-disc">
           <li>Click any column header to sort</li>
           <li>Click again to reverse direction</li>
           <li>
-            Hold <kbd class="rounded bg-default px-1 py-0.5 text-xs">Shift</kbd> for multi-sort
+            Hold <kbd class="bg-default rounded px-1 py-0.5 text-xs">Shift</kbd> for multi-sort
           </li>
         </ul>
       </div>

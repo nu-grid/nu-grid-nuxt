@@ -255,14 +255,14 @@ table.value?.excelExport({
         <div class="space-y-3">
           <USwitch v-model="includeGroupHeaders" label="Include Group Headers" />
           <div>
-            <label class="mb-1 block text-xs text-muted">Header Format</label>
+            <label class="text-muted mb-1 block text-xs">Header Format</label>
             <UInput
               v-model="groupHeaderFormat"
               size="sm"
               placeholder="{groupName}: {groupValue} ({count})"
               :disabled="!includeGroupHeaders"
             />
-            <p class="mt-1 text-xs text-muted">Variables: {groupName}, {groupValue}, {count}</p>
+            <p class="text-muted mt-1 text-xs">Variables: {groupName}, {groupValue}, {count}</p>
           </div>
         </div>
       </DemoControlGroup>
@@ -273,9 +273,9 @@ table.value?.excelExport({
         </UButton>
       </DemoControlGroup>
 
-      <div class="rounded-lg border border-default/50 bg-elevated/30 p-3">
+      <div class="border-default/50 bg-elevated/30 rounded-lg border p-3">
         <h4 class="mb-2 text-xs font-semibold">Data Summary:</h4>
-        <ul class="space-y-1 text-xs text-muted">
+        <ul class="text-muted space-y-1 text-xs">
           <li><strong>Categories:</strong> Electronics, Furniture, Software</li>
           <li><strong>Regions:</strong> North America, Europe, Asia</li>
         </ul>
@@ -284,11 +284,11 @@ table.value?.excelExport({
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This demo exports grouped grid data to Excel. Group headers are included as separate rows
         with formatting. Try different grouping options and export settings.
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li>Exports data with group structure preserved</li>
         <li>Group header rows with customizable format</li>
         <li>Supports nested grouping (category + region)</li>

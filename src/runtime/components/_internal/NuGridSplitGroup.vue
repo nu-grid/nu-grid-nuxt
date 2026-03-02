@@ -4,6 +4,13 @@ import type { TableData, TableSlots } from '@nuxt/ui'
 import type { Header, Row } from '@tanstack/vue-table'
 import type { VirtualItem } from '@tanstack/vue-virtual'
 import type { ComponentPublicInstance } from 'vue'
+
+import { FlexRender } from '@tanstack/vue-table'
+import { createReusableTemplate } from '@vueuse/core'
+import { Primitive } from 'reka-ui'
+import { upperFirst } from 'scule'
+import { computed, h, inject, toValue } from 'vue'
+
 import type { NuGridProps } from '../../types'
 import type {
   NuGridAddRowContext,
@@ -18,11 +25,6 @@ import type {
   NuGridVirtualizationContext,
 } from '../../types/_internal'
 
-import { FlexRender } from '@tanstack/vue-table'
-import { createReusableTemplate } from '@vueuse/core'
-import { Primitive } from 'reka-ui'
-import { upperFirst } from 'scule'
-import { computed, h, inject, toValue } from 'vue'
 import {
   getFlexHeaderStyle,
   getHeaderEffectivePinning,
@@ -55,14 +57,14 @@ const addRowContext = inject<NuGridAddRowContext<T>>('nugrid-add-row')!
 const summaryContext = inject<NuGridSummaryContext>('nugrid-summary')
 
 if (
-  !coreContext
-  || !dragContext
-  || !resizeContext
-  || !virtualizationContext
-  || !groupingContext
-  || !performanceContext
-  || !uiConfigContext
-  || !addRowContext
+  !coreContext ||
+  !dragContext ||
+  !resizeContext ||
+  !virtualizationContext ||
+  !groupingContext ||
+  !performanceContext ||
+  !uiConfigContext ||
+  !addRowContext
 ) {
   throw new Error('NuGridSplitGroup must be used within a NuGrid component.')
 }
@@ -312,8 +314,8 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           "
           @dragstart="
             (e: DragEvent) =>
-              dragFns.isHeaderDraggable(header)
-              && dragFns.handleColumnDragStart(e, header.column.id)
+              dragFns.isHeaderDraggable(header) &&
+              dragFns.handleColumnDragStart(e, header.column.id)
           "
         >
           <slot :name="`${header.id}-header`" v-bind="header.getContext()">
@@ -323,8 +325,8 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           </slot>
           <NuGridHeaderSortButton
             v-if="
-              (header.column.columnDef.sortIcons?.position ?? gridSortIcons?.position ?? 'edge')
-              === 'inline'
+              (header.column.columnDef.sortIcons?.position ?? gridSortIcons?.position ?? 'edge') ===
+              'inline'
             "
             :header="header"
             :sort-icons="header.column.columnDef.sortIcons"
@@ -332,8 +334,8 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
         </div>
         <NuGridHeaderSortButton
           v-if="
-            (header.column.columnDef.sortIcons?.position ?? gridSortIcons?.position ?? 'edge')
-            === 'edge'
+            (header.column.columnDef.sortIcons?.position ?? gridSortIcons?.position ?? 'edge') ===
+            'edge'
           "
           :header="header"
           :sort-icons="header.column.columnDef.sortIcons"
@@ -485,8 +487,8 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                       :item-count="
                         groupedRows[virtualRowItems[virtualRow.index]?.groupId!]?.filter(
                           (row) =>
-                            !addRowContext.isAddRowRow(row)
-                            && !addRowContext.isEmptyGroupPlaceholder(row),
+                            !addRowContext.isAddRowRow(row) &&
+                            !addRowContext.isEmptyGroupPlaceholder(row),
                         ).length || 0
                       "
                       :depth="virtualRowItems[virtualRow.index]?.depth ?? 0"
@@ -499,8 +501,8 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     <!-- Collapsed headers: only show if group summaries are enabled -->
                     <div
                       v-if="
-                        !isGroupExpanded(virtualRowItems[virtualRow.index]?.groupId!)
-                        && summaryContext?.groupSummariesEnabled?.value
+                        !isGroupExpanded(virtualRowItems[virtualRow.index]?.groupId!) &&
+                        summaryContext?.groupSummariesEnabled?.value
                       "
                       :class="ui.thead({ class: [propsUi?.thead, 'border-t-0 border-b-0'] })"
                       :data-sticky-header="stickyEnabled ? 'true' : undefined"
@@ -565,9 +567,9 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                         : NuGridRow
                     "
                     v-else-if="
-                      virtualRowItems[virtualRow.index]?.type === 'data'
-                      && virtualRowItems[virtualRow.index]?.dataRow
-                      && !addRowContext.isEmptyGroupPlaceholder(
+                      virtualRowItems[virtualRow.index]?.type === 'data' &&
+                      virtualRowItems[virtualRow.index]?.dataRow &&
+                      !addRowContext.isEmptyGroupPlaceholder(
                         virtualRowItems[virtualRow.index]?.dataRow!,
                       )
                     "
@@ -576,8 +578,8 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
 
                   <div
                     v-else-if="
-                      virtualRowItems[virtualRow.index]?.type === 'footer'
-                      && summaryContext?.groupSummariesEnabled?.value
+                      virtualRowItems[virtualRow.index]?.type === 'footer' &&
+                      summaryContext?.groupSummariesEnabled?.value
                     "
                     :class="
                       ui.tr({
@@ -586,7 +588,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                           'bg-elevated/20',
                           !isGroupExpanded(virtualRowItems[virtualRow.index]?.groupId!)
                             ? 'border-t-0'
-                            : 'border-t border-default',
+                            : 'border-default border-t',
                         ],
                       })
                     "
@@ -629,8 +631,8 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                       :item-count="
                         groupedRows[item.groupId!]?.filter(
                           (row) =>
-                            !addRowContext.isAddRowRow(row)
-                            && !addRowContext.isEmptyGroupPlaceholder(row),
+                            !addRowContext.isAddRowRow(row) &&
+                            !addRowContext.isEmptyGroupPlaceholder(row),
                         ).length || 0
                       "
                       :depth="item.depth ?? 0"
@@ -638,9 +640,9 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     <!-- Collapsed headers: only show if group summaries are enabled -->
                     <template
                       v-if="
-                        showHeaders
-                        && !isGroupExpanded(item.groupId!)
-                        && summaryContext?.groupSummariesEnabled?.value
+                        showHeaders &&
+                        !isGroupExpanded(item.groupId!) &&
+                        summaryContext?.groupSummariesEnabled?.value
                       "
                     >
                       <div
@@ -706,9 +708,9 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
               <!-- Skip empty group placeholder rows - they only exist to create the group structure -->
               <template
                 v-else-if="
-                  item.type === 'data'
-                  && item.dataRow
-                  && !addRowContext.isEmptyGroupPlaceholder(item.dataRow)
+                  item.type === 'data' &&
+                  item.dataRow &&
+                  !addRowContext.isEmptyGroupPlaceholder(item.dataRow)
                 "
               >
                 <component
@@ -726,7 +728,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                       class: [
                         propsUi?.tr,
                         'bg-elevated/20',
-                        !isGroupExpanded(item.groupId!) ? 'border-t-0' : 'border-t border-default',
+                        !isGroupExpanded(item.groupId!) ? 'border-t-0' : 'border-default border-t',
                       ],
                     })
                   "

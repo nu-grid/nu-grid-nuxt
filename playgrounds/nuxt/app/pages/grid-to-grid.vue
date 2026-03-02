@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { NuGridColumn } from '#nu-grid/types'
-import type { User } from '~/types'
+
 import { toRaw } from 'vue'
+
+import type { User } from '~/types'
 
 const toast = useToast()
 const tableLeft = useTemplateRef('tableLeft')
@@ -193,7 +195,7 @@ const columns: NuGridColumn<User>[] = [
     </template>
 
     <div class="flex flex-col gap-4 p-4">
-      <div class="text-sm text-muted">
+      <div class="text-muted text-sm">
         <p class="mb-2">
           This demo shows drag-and-drop between two separate grid instances. Try dragging rows from
           one grid to the other!
@@ -208,8 +210,8 @@ const columns: NuGridColumn<User>[] = [
 
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <!-- Left Grid -->
-        <div class="flex flex-col rounded-lg border border-default">
-          <div class="border-b border-default bg-elevated p-3">
+        <div class="border-default flex flex-col rounded-lg border">
+          <div class="border-default bg-elevated border-b p-3">
             <h3 class="font-semibold">Left Grid ({{ dataLeft.length }} items)</h3>
           </div>
           <div class="h-100 overflow-auto">
@@ -231,8 +233,8 @@ const columns: NuGridColumn<User>[] = [
         </div>
 
         <!-- Right Grid -->
-        <div class="flex flex-col rounded-lg border border-default">
-          <div class="border-b border-default bg-elevated p-3">
+        <div class="border-default flex flex-col rounded-lg border">
+          <div class="border-default bg-elevated border-b p-3">
             <h3 class="font-semibold">Right Grid ({{ dataRight.length }} items)</h3>
           </div>
           <div class="h-100 overflow-auto">

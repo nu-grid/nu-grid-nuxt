@@ -354,8 +354,9 @@ const exampleCode = `<NuGrid
             Intercept Enter
           </UButton>
         </div>
-        <p v-if="interceptEnter" class="mt-2 text-xs text-muted">
-          Enter key will be intercepted via <code class="rounded bg-default/50 px-1">event.handled = true</code>
+        <p v-if="interceptEnter" class="text-muted mt-2 text-xs">
+          Enter key will be intercepted via
+          <code class="bg-default/50 rounded px-1">event.handled = true</code>
         </p>
       </DemoControlGroup>
 
@@ -430,11 +431,11 @@ const exampleCode = `<NuGrid
 
     <!-- Info Content -->
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This demo shows all the events emitted by NuGrid. Toggle events in the sidebar to see them
         logged in real-time.
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li>
           <strong>Click Events:</strong> cellClicked, cellDoubleClicked, rowClicked,
           rowDoubleClicked
@@ -449,7 +450,7 @@ const exampleCode = `<NuGrid
         </li>
         <li><strong>State Events:</strong> sortChanged, filterChanged</li>
       </ul>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Tip:</strong> Double-click a cell to edit it, then press Escape to cancel or Enter
         to save. Press any unhandled key (like 'x') to see the keydown event logged.
       </div>
@@ -478,29 +479,29 @@ const exampleCode = `<NuGrid
     </div>
 
     <!-- Event Log -->
-    <div class="rounded-lg border border-default">
+    <div class="border-default rounded-lg border">
       <div
-        class="flex items-center justify-between border-b border-default bg-elevated/50 px-4 py-2"
+        class="border-default bg-elevated/50 flex items-center justify-between border-b px-4 py-2"
       >
         <h3 class="font-semibold">Event Log</h3>
-        <span class="text-sm text-muted">{{ eventLog.length }} events</span>
+        <span class="text-muted text-sm">{{ eventLog.length }} events</span>
       </div>
       <div class="max-h-64 overflow-y-auto">
-        <div v-if="eventLog.length === 0" class="p-8 text-center text-muted">
+        <div v-if="eventLog.length === 0" class="text-muted p-8 text-center">
           <UIcon name="i-lucide-radio" class="mx-auto mb-2 size-8" />
           <p>No events logged yet. Interact with the grid to see events.</p>
         </div>
-        <div v-else class="divide-y divide-default">
+        <div v-else class="divide-default divide-y">
           <div
             v-for="entry in eventLog"
             :key="entry.id"
-            class="flex items-start gap-3 px-4 py-2 text-sm hover:bg-elevated/30"
+            class="hover:bg-elevated/30 flex items-start gap-3 px-4 py-2 text-sm"
           >
-            <span class="shrink-0 text-xs text-muted">{{ entry.time }}</span>
+            <span class="text-muted shrink-0 text-xs">{{ entry.time }}</span>
             <span :class="['shrink-0 font-medium', getEventColor(entry.name)]">{{
               entry.name
             }}</span>
-            <pre class="flex-1 overflow-x-auto whitespace-pre-wrap text-xs text-muted">{{
+            <pre class="text-muted flex-1 overflow-x-auto text-xs whitespace-pre-wrap">{{
               entry.payload
             }}</pre>
           </div>

@@ -128,17 +128,17 @@ const roleIcons: Record<string, string> = {
     </template>
 
     <template #info>
-      <p class="mb-3 text-sm text-muted">
+      <p class="text-muted mb-3 text-sm">
         This demo shows how to use <strong>cell template slots</strong> as an alternative to render
         functions. Slots allow you to use Vue template syntax with directives and Nuxt UI
         components.
       </p>
-      <ul class="mb-3 list-inside list-disc space-y-1 text-sm text-muted">
+      <ul class="text-muted mb-3 list-inside list-disc space-y-1 text-sm">
         <li><strong>#name-cell:</strong> Avatar + name with flexbox layout</li>
         <li><strong>#role-cell:</strong> Icon + role text</li>
         <li><strong>#status-cell:</strong> UBadge with dynamic color</li>
       </ul>
-      <div class="rounded bg-default/50 p-2 text-sm text-muted">
+      <div class="bg-default/50 text-muted rounded p-2 text-sm">
         <strong>Editing works seamlessly:</strong> Double-click any editable cell to see the editor.
         The slot content is replaced by the editor during edit mode.
       </div>
@@ -165,7 +165,7 @@ const roleIcons: Record<string, string> = {
       <!-- Role cell with icon -->
       <template #role-cell="{ value }">
         <div class="flex items-center gap-1.5">
-          <UIcon :name="roleIcons[value as string]" class="size-4 text-muted" />
+          <UIcon :name="roleIcons[value as string]" class="text-muted size-4" />
           <span>{{ value }}</span>
         </div>
       </template>
@@ -207,27 +207,27 @@ const roleIcons: Record<string, string> = {
           <div class="p-4">
             <div class="grid grid-cols-1 gap-3 text-xs md:grid-cols-2">
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">value</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">value</div>
                 <p class="text-muted">The cell value (shortcut for cell.getValue())</p>
               </div>
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">row</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">row</div>
                 <p class="text-muted">TanStack Row object with original data</p>
               </div>
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">cell</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">cell</div>
                 <p class="text-muted">TanStack Cell object</p>
               </div>
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">column</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">column</div>
                 <p class="text-muted">TanStack Column definition</p>
               </div>
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">isEditing</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">isEditing</div>
                 <p class="text-muted">Whether the cell is in edit mode</p>
               </div>
               <div>
-                <div class="mb-1 rounded bg-default/50 p-2 font-mono">isInvalid</div>
+                <div class="bg-default/50 mb-1 rounded p-2 font-mono">isInvalid</div>
                 <p class="text-muted">Whether the cell has a validation error</p>
               </div>
             </div>

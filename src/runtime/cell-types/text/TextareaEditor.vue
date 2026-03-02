@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import type { ComputedRef } from 'vue'
+
+import { computed, inject, ref } from 'vue'
+
 import type { NuGridCellEditorEmits, NuGridCellEditorProps, NuGridShowErrors } from '../../types'
 import type { NuGridCoreContext, NuGridValidationContext } from '../../types/_internal'
-import type { ComputedRef } from 'vue'
-import { computed, inject, ref } from 'vue'
+
 import { useNuGridCellEditor } from '../../composables'
 import { defaultValidationIcon } from '../../composables/_internal/useNuGridCellEditing'
 
@@ -42,7 +45,6 @@ function focusTextarea() {
 // Use the shared cell editor composable with custom focus callback
 const { handleBlur } = useNuGridCellEditor(props, emit, textareaRef, focusTextarea)
 
-/* eslint-disable vue/custom-event-name-casing -- Matches NuGridCellEditorEmits interface */
 // Custom keydown handler for textarea (Enter creates new line, Cmd/Ctrl+Enter saves)
 function handleKeydown(e: KeyboardEvent) {
   // For all keys (typing), stop propagation to prevent focus system interference
@@ -78,7 +80,6 @@ function handleKeydown(e: KeyboardEvent) {
   }
   // Note: Arrow keys are not intercepted to allow cursor movement within textarea
 }
-/* eslint-enable vue/custom-event-name-casing */
 
 // Compute if there's a validation error to show
 const hasError = computed(() => !!props.validationError)

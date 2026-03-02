@@ -1,8 +1,7 @@
 {
   "name": "docs",
-  "type": "module",
   "private": true,
-  "packageManager": "pnpm@10.21.0",
+  "type": "module",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -32,5 +31,6 @@
     "eslint": "catalog:",
     "typescript": "catalog:",
     "vue-tsc": "catalog:"
-  }
+  },
+  "packageManager": "pnpm@10.21.0"
 }
