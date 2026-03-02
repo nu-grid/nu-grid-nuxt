@@ -1,6 +1,7 @@
 <script setup lang="ts" generic="T extends TableData">
 import type { TableData } from '@nuxt/ui'
 import type { Header } from '@tanstack/vue-table'
+import type { Ref } from 'vue'
 
 import { computed, inject } from 'vue'
 
@@ -78,17 +79,32 @@ const sortIndex = computed(() => {
 const shouldHideUnsorted = computed(() => {
   return !sortState.value && effectiveIcons.value.unsortedHover
 })
+
+// Sort stability — stale indicator when sort order is frozen after cell edit
+const staleColumns = inject<Ref<Set<string>>>('nugrid-stale-sort-columns')
+const clearStale = inject<(() => void) | undefined>('nugrid-clear-stale-sort')
+const isStale = computed(() => staleColumns?.value?.has(props.header.column.id) ?? false)
+
+function handleSortClick(event: MouseEvent) {
+  if (isStale.value && clearStale) {
+    // When stale, re-sort in the current direction (don't toggle)
+    clearStale()
+  } else {
+    props.header.column.getToggleSortingHandler()?.(event)
+  }
+}
 </script>
 
 <template>
   <div
     v-if="canSort && icon"
+    class="relative"
     :class="
       shouldHideUnsorted
         ? ui.sortHandleHover({ class: [propsUi?.sortHandleHover] })
         : ui.sortHandle({ class: [propsUi?.sortHandle] })
     "
-    @click="props.header.column.getToggleSortingHandler()?.($event)"
+    @click="handleSortClick($event)"
   >
     <UChip
       v-if="sortIndex !== null"
@@ -99,5 +115,9 @@ const shouldHideUnsorted = computed(() => {
       <UIcon :name="icon" class="size-4" />
     </UChip>
     <UIcon v-else :name="icon" class="size-4" />
+    <span
+      v-if="isStale"
+      :class="ui.sortHandleStale({ class: [propsUi?.sortHandleStale] })"
+    />
   </div>
 </template>

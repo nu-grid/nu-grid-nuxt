@@ -19,6 +19,7 @@ export const nuGridDefaults = {
     debounce: 0,
     commitOnBlur: true,
     enterBehavior: 'default',
+    sortOnCellEdit: 'maintain',
   },
   validation: {
     validateOn: 'reward',

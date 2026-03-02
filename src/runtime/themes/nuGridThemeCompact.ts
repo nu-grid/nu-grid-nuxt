@@ -42,6 +42,7 @@ export const nuGridThemeCompact = {
       'flex shrink-0 items-center px-1 cursor-pointer select-none opacity-100 hover:text-primary-500 transition-opacity duration-200',
     sortHandleHover:
       'flex shrink-0 items-center px-1 cursor-pointer select-none text-dimmed opacity-0 group-hover:opacity-100 focus-within:opacity-100 hover:text-primary-500 transition-opacity duration-200',
+    sortHandleStale: 'absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-amber-500',
     rowDragIcon: 'inline-block w-3.5 h-3.5',
     headerContainer: 'relative flex items-stretch w-full h-full bg-elevated',
     headerControls: 'absolute right-0 inset-y-0 flex items-center z-10 bg-inherit',

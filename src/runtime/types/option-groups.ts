@@ -127,6 +127,14 @@ export interface NuGridEditingOptions<T extends TableData = TableData> {
   enterBehavior?: 'default' | 'moveDown' | 'moveCell'
 
   /**
+   * How the grid handles sorting after a cell value changes in a sorted column
+   * - 'maintain': Freeze row order and show stale sort indicator (user re-sorts manually)
+   * - 'resort': Immediately re-sort rows after cell edit
+   * @defaultValue 'maintain'
+   */
+  sortOnCellEdit?: 'maintain' | 'resort'
+
+  /**
    * Custom default editors for each cell data type
    * Allows overriding the built-in default editors
    */

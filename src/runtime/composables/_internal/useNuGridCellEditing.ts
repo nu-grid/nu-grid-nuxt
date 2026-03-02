@@ -81,6 +81,8 @@ export function useNuGridCellEditing<T extends TableData>(
   externalEditingCell?: Ref<NuGridEditingCell | null>,
   addRowContext?: NuGridAddRowContext<T> | null,
   eventEmitter?: NuGridEventEmitter<T>,
+  onBeforeSortedCellEdit?: (columnId: string) => void,
+  onAfterSortedCellEdit?: () => void,
 ): NuGridCellEditing<T> {
   const editingCell = externalEditingCell ?? ref<NuGridEditingCell | null>(null)
   const editingValue = ref<any>(null)
@@ -604,6 +606,7 @@ export function useNuGridCellEditing<T extends TableData>(
     moveDirection?: 'up' | 'down' | 'next' | 'previous',
     options?: { restoreFocus?: boolean; isClickAway?: boolean },
   ) {
+    console.log('[CellEditing] stopEditing ENTERED:', { columnId: cell.column.id, newValue, moveDirection })
     const shouldRestoreFocus = options?.restoreFocus !== false
     const isClickAway = options?.isClickAway === true
     const config = validationConfig.value
@@ -911,6 +914,11 @@ export function useNuGridCellEditing<T extends TableData>(
         }
       }
 
+      // Notify sort stability BEFORE mutation (captures snapshot in maintain mode)
+      if (onBeforeSortedCellEdit) {
+        onBeforeSortedCellEdit(cell.column.id)
+      }
+
       if (rowIndex !== -1) {
         assignValue(data.value[rowIndex] as any)
       } else if (addRowContext?.isAddRowRow(row)) {
@@ -938,6 +946,11 @@ export function useNuGridCellEditing<T extends TableData>(
         if (!isReadonly(data)) {
           data.value = [...data.value]
         }
+      }
+
+      // Notify sort stability AFTER mutation (forces re-sort in resort mode)
+      if (onAfterSortedCellEdit) {
+        onAfterSortedCellEdit()
       }
 
       // Emit AFTER data is mutated so handlers can read the current state

@@ -73,6 +73,7 @@ import {
   useNuGridScrollbars,
   useNuGridScrollState,
   useNuGridSearch,
+  useNuGridSortStability,
   useNuGridStatePersistence,
   useNuGridTooltipHandler,
   useNuGridUI,
@@ -327,6 +328,15 @@ const tableRows = computed(() => {
   dataVersion.value
   return tableApi.getRowModel().rows
 })
+
+// Sort stability — freeze row order after cell edits in sorted columns
+const { displayRows, onBeforeSortedCellEdit, onAfterSortedCellEdit, staleColumns, clearStale } = useNuGridSortStability(
+  sortingState,
+  tableRows,
+  computed(() => (typeof props.editing === 'object' ? props.editing.sortOnCellEdit : undefined) ?? 'maintain'),
+  data,
+)
+
 // Row interactions
 const rowInteractions = useNuGridRowInteractions(props)
 
@@ -352,7 +362,7 @@ const {
   props,
   data,
   table: tableApi,
-  rows: tableRows,
+  rows: displayRows,
   columns,
   groupingState,
   editingCell: editingCellRef,
@@ -553,6 +563,9 @@ const cellEditingFns = useNuGridCellEditing(
     valueVersion: addRowValueVersion,
     triggerValueUpdate: addRowTriggerValueUpdate,
   },
+  eventEmitter,
+  onBeforeSortedCellEdit,
+  onAfterSortedCellEdit,
 )
 cellEditingFnsRef.value = cellEditingFns
 
@@ -812,6 +825,8 @@ provide('nugrid-validation', {
 })
 
 provide('nugrid-enter-behavior', cellEditingFns.enterBehavior)
+provide('nugrid-stale-sort-columns', staleColumns)
+provide('nugrid-clear-stale-sort', clearStale)
 
 provide('nugrid-row-interactions', {
   rowInteractions,
