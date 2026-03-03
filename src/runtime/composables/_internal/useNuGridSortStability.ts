@@ -146,6 +146,10 @@ export function useNuGridSortStability<T extends TableData>(
     if (!savedFocusRowId) return
     const rowId = savedFocusRowId
     savedFocusRowId = null
+    // Only restore DOM focus if the grid currently has it — avoids stealing
+    // focus from other UI elements (e.g. form fields in a main content area
+    // while this grid is in a sidebar).
+    if (!focusFnsRef.value?.gridHasFocus.value) return
     nextTick(() => {
       focusFnsRef.value?.focusRowById(rowId, { align: 'nearest' })
     })
@@ -221,7 +225,13 @@ export function useNuGridSortStability<T extends TableData>(
 
   // When sorting state changes (user clicks sort header), clear the snapshot
   // and preserve focus on the same row at its new position.
-  watch(sortingState, () => {
+  // Compare old/new to skip reference-only changes from resort mode's memo invalidation.
+  watch(sortingState, (newSort, oldSort) => {
+    const changed =
+      newSort.length !== oldSort.length ||
+      newSort.some((s, i) => s.id !== oldSort[i]?.id || s.desc !== oldSort[i]?.desc)
+    if (!changed) return
+
     saveFocus()
     rowOrderSnapshot.value = null
     staleColumns.value = new Set()
