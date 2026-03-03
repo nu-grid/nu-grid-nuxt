@@ -80,6 +80,7 @@ export const nuGridDefaults = {
     resize: false,
     reorder: false,
     wrapText: false,
+    minSize: 60,
   },
   virtualization: {
     enabled: false,

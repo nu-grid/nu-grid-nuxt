@@ -330,15 +330,16 @@ const tableRows = computed(() => {
 })
 
 // Sort stability — freeze row order after data changes in sorted columns
-const { displayRows, onBeforeSortedCellEdit, onAfterSortedCellEdit, staleColumns, clearStale } = useNuGridSortStability(
-  sortingState,
-  tableRows,
-  usePropWithDefault(props, 'sort', 'dataChangeBehavior'),
-  data,
-  rootRef,
-  focusFnsRef,
-  focusedRowIdState,
-)
+const { displayRows, onBeforeSortedCellEdit, onAfterSortedCellEdit, staleColumns, clearStale } =
+  useNuGridSortStability(
+    sortingState,
+    tableRows,
+    usePropWithDefault(props, 'sort', 'dataChangeBehavior'),
+    data,
+    rootRef,
+    focusFnsRef,
+    focusedRowIdState,
+  )
 
 // Row interactions
 const rowInteractions = useNuGridRowInteractions(props)

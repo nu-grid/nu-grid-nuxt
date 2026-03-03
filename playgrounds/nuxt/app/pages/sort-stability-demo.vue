@@ -27,15 +27,64 @@ const priorities = [
 ]
 
 const data = ref<Task[]>([
-  { id: 1, title: 'Setup CI pipeline', status: 'done', priority: 'high', assignee: 'Alice', effort: 8 },
-  { id: 2, title: 'Design landing page', status: 'in-progress', priority: 'medium', assignee: 'Bob', effort: 5 },
+  {
+    id: 1,
+    title: 'Setup CI pipeline',
+    status: 'done',
+    priority: 'high',
+    assignee: 'Alice',
+    effort: 8,
+  },
+  {
+    id: 2,
+    title: 'Design landing page',
+    status: 'in-progress',
+    priority: 'medium',
+    assignee: 'Bob',
+    effort: 5,
+  },
   { id: 3, title: 'Write API docs', status: 'todo', priority: 'low', assignee: 'Carol', effort: 3 },
-  { id: 4, title: 'Fix login bug', status: 'in-progress', priority: 'critical', assignee: 'David', effort: 2 },
-  { id: 5, title: 'Add dark mode', status: 'todo', priority: 'medium', assignee: 'Emma', effort: 5 },
-  { id: 6, title: 'Optimize queries', status: 'review', priority: 'high', assignee: 'Frank', effort: 8 },
+  {
+    id: 4,
+    title: 'Fix login bug',
+    status: 'in-progress',
+    priority: 'critical',
+    assignee: 'David',
+    effort: 2,
+  },
+  {
+    id: 5,
+    title: 'Add dark mode',
+    status: 'todo',
+    priority: 'medium',
+    assignee: 'Emma',
+    effort: 5,
+  },
+  {
+    id: 6,
+    title: 'Optimize queries',
+    status: 'review',
+    priority: 'high',
+    assignee: 'Frank',
+    effort: 8,
+  },
   { id: 7, title: 'Update deps', status: 'todo', priority: 'low', assignee: 'Grace', effort: 1 },
-  { id: 8, title: 'Auth refactor', status: 'review', priority: 'high', assignee: 'Henry', effort: 13 },
-  { id: 9, title: 'Mobile responsive', status: 'in-progress', priority: 'medium', assignee: 'Alice', effort: 8 },
+  {
+    id: 8,
+    title: 'Auth refactor',
+    status: 'review',
+    priority: 'high',
+    assignee: 'Henry',
+    effort: 13,
+  },
+  {
+    id: 9,
+    title: 'Mobile responsive',
+    status: 'in-progress',
+    priority: 'medium',
+    assignee: 'Alice',
+    effort: 8,
+  },
   { id: 10, title: 'E2E tests', status: 'todo', priority: 'high', assignee: 'Bob', effort: 5 },
 ])
 
@@ -181,17 +230,15 @@ function randomizeStatuses() {
 
     <template #info>
       <p class="text-muted mb-3 text-sm">
-        Controls how the grid handles sorting when a cell value changes in a sorted column.
-        Sort by Status (default), then edit a status value to see the behavior.
+        Controls how the grid handles sorting when a cell value changes in a sorted column. Sort by
+        Status (default), then edit a status value to see the behavior.
       </p>
       <ul class="text-muted list-inside list-disc space-y-1 text-sm">
         <li>
-          <strong>Maintain:</strong> Row stays in place, amber dot appears on sort icon.
-          Click the sort header to re-sort.
+          <strong>Maintain:</strong> Row stays in place, amber dot appears on sort icon. Click the
+          sort header to re-sort.
         </li>
-        <li>
-          <strong>Resort:</strong> Rows immediately re-sort after the edit.
-        </li>
+        <li><strong>Resort:</strong> Rows immediately re-sort after the edit.</li>
       </ul>
     </template>
 

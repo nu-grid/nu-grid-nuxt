@@ -174,6 +174,15 @@ export type NuGridColumn<T extends TableData> = TableColumn<T> & {
   enableColumnMenu?: boolean
 
   /**
+   * When true, header controls (sort icon, menu) are hidden by default and shown
+   * in a floating overlay on hover. Useful for narrow columns or when you want a
+   * cleaner header appearance.
+   * When false, controls are always shown inline regardless of column width.
+   * When undefined (default), controls auto-compact when column width < 150px.
+   */
+  compactHeader?: boolean
+
+  /**
    * Controls whether this column can be reordered via drag and drop
    * @defaultValue true
    */

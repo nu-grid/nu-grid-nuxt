@@ -17,8 +17,10 @@ export function useNuGridColumnDragDrop<T extends TableData>(
   const dropTargetColumnId = ref<string | null>(null)
   const dropPosition = ref<'left' | 'right'>('right')
   const isDraggingOutside = ref(false)
+  const wasDragged = ref(false)
 
   function handleColumnDragStart(e: DragEvent, columnId: string) {
+    wasDragged.value = true
     draggedColumnId.value = columnId
     isDraggingOutside.value = false
     if (e.dataTransfer) {
@@ -121,6 +123,10 @@ export function useNuGridColumnDragDrop<T extends TableData>(
     isDraggingOutside.value = false
     document.body.classList.remove('is-dragging-column')
     document.body.classList.remove('is-dragging-column-outside')
+    // Reset after microtask so click handlers can check the flag first
+    setTimeout(() => {
+      wasDragged.value = false
+    }, 0)
   }
 
   function handleColumnDragLeave(e: DragEvent) {
@@ -186,6 +192,7 @@ export function useNuGridColumnDragDrop<T extends TableData>(
     dropTargetColumnId,
     dropPosition,
     isDraggingOutside,
+    wasDragged,
     ...markRaw({
       handleColumnDragStart,
       handleColumnDragOver,

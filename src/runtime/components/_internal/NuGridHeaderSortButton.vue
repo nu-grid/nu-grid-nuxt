@@ -23,6 +23,11 @@ const props = defineProps<{
    * Overrides the grid-level sortIcons
    */
   sortIcons?: NuGridSortIcon
+
+  /**
+   * When true, skip width-based hiding — parent overlay controls visibility
+   */
+  compact?: boolean
 }>()
 
 // Inject split contexts
@@ -77,7 +82,15 @@ const sortIndex = computed(() => {
 })
 
 const shouldHideUnsorted = computed(() => {
+  if (props.compact) return false
   return !sortState.value && effectiveIcons.value.unsortedHover
+})
+
+// Hide sort button entirely on narrow columns when not actively sorted
+// Skipped when compact — parent overlay controls visibility
+const isNarrowColumn = computed(() => {
+  if (props.compact) return false
+  return !sortState.value && props.header.getSize() < 120
 })
 
 // Sort stability — stale indicator when sort order is frozen after cell edit
@@ -97,13 +110,13 @@ function handleSortClick(event: MouseEvent) {
 
 <template>
   <div
-    v-if="canSort && icon"
+    v-if="canSort && icon && !isNarrowColumn"
     :class="
       shouldHideUnsorted
         ? ui.sortHandleHover({ class: [propsUi?.sortHandleHover] })
         : ui.sortHandle({ class: [propsUi?.sortHandle] })
     "
-    @click="handleSortClick($event)"
+    @click.stop="handleSortClick($event)"
   >
     <UChip
       v-if="sortIndex !== null"
@@ -111,8 +124,17 @@ function handleSortClick(event: MouseEvent) {
       size="lg"
       :ui="{ base: 'rounded-md px-1 py-1.5' }"
     >
-      <UIcon :name="icon" class="size-4" :class="isStale ? ui.sortHandleStale({ class: [propsUi?.sortHandleStale] }) : ''" />
+      <UIcon
+        :name="icon"
+        class="size-4"
+        :class="isStale ? ui.sortHandleStale({ class: [propsUi?.sortHandleStale] }) : ''"
+      />
     </UChip>
-    <UIcon v-else :name="icon" class="size-4" :class="isStale ? ui.sortHandleStale({ class: [propsUi?.sortHandleStale] }) : ''" />
+    <UIcon
+      v-else
+      :name="icon"
+      class="size-4"
+      :class="isStale ? ui.sortHandleStale({ class: [propsUi?.sortHandleStale] }) : ''"
+    />
   </div>
 </template>

@@ -65,6 +65,14 @@ declare module '@tanstack/vue-table' {
     enableColumnMenu?: boolean
 
     /**
+     * When true, header controls (sort icon, menu) are hidden by default and shown
+     * in a floating overlay on hover.
+     * When false, controls are always shown inline regardless of column width.
+     * When undefined (default), controls auto-compact when column width < 150px.
+     */
+    compactHeader?: boolean
+
+    /**
      * Controls whether this column can be reordered via drag and drop
      * @defaultValue true
      */

@@ -44,7 +44,9 @@ export function useNuGridSortStability<T extends TableData>(
   // Uses onMounted + delay to wait for all initial watchers and reactivity to settle.
   let isSettled = false
   onMounted(() => {
-    setTimeout(() => { isSettled = true }, 250)
+    setTimeout(() => {
+      isSettled = true
+    }, 250)
   })
 
   // Last settled row order — updated inside displayRows computed when in passthrough
@@ -92,7 +94,10 @@ export function useNuGridSortStability<T extends TableData>(
     if (flipPositions.size === 0) return
     nextTick(() => {
       const root = getRootEl()
-      if (!root) { flipPositions.clear(); return }
+      if (!root) {
+        flipPositions.clear()
+        return
+      }
 
       requestAnimationFrame(() => {
         const rowEls = root.querySelectorAll('[data-row-id]')
@@ -245,8 +250,9 @@ export function useNuGridSortStability<T extends TableData>(
       // This avoids false stale indicators when data changes don't affect sort (e.g. filter changes).
       if (lastSettledOrder.length > 0) {
         const newOrder = tableRows.value.map((r) => r.id)
-        const orderChanged = newOrder.length !== lastSettledOrder.length
-          || newOrder.some((id, i) => id !== lastSettledOrder[i])
+        const orderChanged =
+          newOrder.length !== lastSettledOrder.length ||
+          newOrder.some((id, i) => id !== lastSettledOrder[i])
         if (orderChanged) {
           rowOrderSnapshot.value = [...lastSettledOrder]
           staleColumns.value = new Set(sortingState.value.map((s) => s.id))

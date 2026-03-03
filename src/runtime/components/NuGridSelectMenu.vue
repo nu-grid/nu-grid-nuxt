@@ -343,7 +343,12 @@ const virtualizerProps = toRef(() => {
       props.descriptionKey as string,
       !!slots['item-description'],
     ),
-  }) as { overscan?: number; estimateSize?: number; options?: any[]; textContent?: (option: any) => string }
+  }) as {
+    overscan?: number
+    estimateSize?: number
+    options?: any[]
+    textContent?: (option: any) => string
+  }
 })
 const searchInputProps = toRef(
   () =>

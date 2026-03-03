@@ -1,9 +1,9 @@
 <script setup lang="ts" generic="T extends TableData">
 import type { TableData, TableSlots } from '@nuxt/ui'
 import type { VirtualItem } from '@tanstack/vue-virtual'
-import type { ComponentPublicInstance } from 'vue'
+import type { ComponentPublicInstance, Ref } from 'vue'
 
-import { FlexRender } from '@tanstack/vue-table'
+import { FlexRender, type Header } from '@tanstack/vue-table'
 import { createReusableTemplate } from '@vueuse/core'
 import { Primitive } from 'reka-ui'
 import { computed, inject, toValue } from 'vue'
@@ -109,6 +109,27 @@ const {
   autoSizeMode,
   resizeMode,
 } = uiConfigContext
+
+// Sort stability — stale indicator when sort order is frozen after cell edit
+const staleColumns = inject<Ref<Set<string>>>('nugrid-stale-sort-columns')
+const clearStale = inject<(() => void) | undefined>('nugrid-clear-stale-sort')
+
+function handleHeaderSortClick(event: MouseEvent, header: Header<T, unknown>) {
+  if (toValue(dragFns.wasDragged)) return
+  if (!header.column.getCanSort()) return
+  if (staleColumns?.value?.has(header.column.id) && clearStale) {
+    clearStale()
+  } else {
+    header.column.getToggleSortingHandler()?.(event)
+  }
+}
+
+function isCompactHeader(header: Header<T, unknown>): boolean {
+  const opt = header.column.columnDef.compactHeader
+  if (opt === true) return true
+  if (opt === false) return false
+  return header.getSize() < 150
+}
 
 // Check if we should use CSS flex distribution (no fixed widths)
 const useCssFlexDistribution = computed(() => autoSizeMode?.value === 'fill')
@@ -532,6 +553,7 @@ function getVirtualItemStyle(
                     ui.thInner({
                       class: [propsUi?.thInner],
                       colDraggable: dragFns.isHeaderDraggable(header),
+                      colSortable: header.column.getCanSort(),
                     })
                   "
                   @dragstart="
@@ -539,6 +561,7 @@ function getVirtualItemStyle(
                       dragFns.isHeaderDraggable(header) &&
                       dragFns.handleColumnDragStart(e, header.column.id)
                   "
+                  @click="handleHeaderSortClick($event, header)"
                 >
                   <slot :name="`${header.id}-header`" v-bind="header.getContext()">
                     <FlexRender
@@ -557,7 +580,14 @@ function getVirtualItemStyle(
                     :sort-icons="header.column.columnDef.sortIcons"
                   />
                 </div>
-                <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
+                <div
+                  :class="
+                    ui.headerControls({
+                      class: [propsUi?.headerControls],
+                      compactHeader: isCompactHeader(header),
+                    })
+                  "
+                >
                   <NuGridHeaderSortButton
                     v-if="
                       (header.column.columnDef.sortIcons?.position ??
@@ -566,8 +596,9 @@ function getVirtualItemStyle(
                     "
                     :header="header"
                     :sort-icons="header.column.columnDef.sortIcons"
+                    :compact="isCompactHeader(header)"
                   />
-                  <NuGridColumnMenu :header="header" />
+                  <NuGridColumnMenu :header="header" :compact="isCompactHeader(header)" />
                   <div
                     v-if="header.column.getCanResize()"
                     :class="
@@ -741,6 +772,7 @@ function getVirtualItemStyle(
                       ui.thInner({
                         class: [propsUi?.thInner],
                         colDraggable: dragFns.isHeaderDraggable(header),
+                        colSortable: header.column.getCanSort(),
                       })
                     "
                     @dragstart="
@@ -748,6 +780,7 @@ function getVirtualItemStyle(
                         dragFns.isHeaderDraggable(header) &&
                         dragFns.handleColumnDragStart(e, header.column.id)
                     "
+                    @click="handleHeaderSortClick($event, header)"
                   >
                     <slot :name="`${header.id}-header`" v-bind="header.getContext()">
                       <FlexRender
@@ -766,7 +799,14 @@ function getVirtualItemStyle(
                       :sort-icons="header.column.columnDef.sortIcons"
                     />
                   </div>
-                  <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
+                  <div
+                    :class="
+                      ui.headerControls({
+                        class: [propsUi?.headerControls],
+                        compactHeader: isCompactHeader(header),
+                      })
+                    "
+                  >
                     <NuGridHeaderSortButton
                       v-if="
                         (header.column.columnDef.sortIcons?.position ??
@@ -775,8 +815,9 @@ function getVirtualItemStyle(
                       "
                       :header="header"
                       :sort-icons="header.column.columnDef.sortIcons"
+                      :compact="isCompactHeader(header)"
                     />
-                    <NuGridColumnMenu :header="header" />
+                    <NuGridColumnMenu :header="header" :compact="isCompactHeader(header)" />
                     <div
                       v-if="header.column.getCanResize()"
                       :class="
@@ -934,6 +975,7 @@ function getVirtualItemStyle(
                               ui.thInner({
                                 class: [propsUi?.thInner],
                                 colDraggable: dragFns.isHeaderDraggable(header),
+                                colSortable: header.column.getCanSort(),
                               })
                             "
                             @dragstart="
@@ -941,6 +983,7 @@ function getVirtualItemStyle(
                                 dragFns.isHeaderDraggable(header) &&
                                 dragFns.handleColumnDragStart(e, header.column.id)
                             "
+                            @click="handleHeaderSortClick($event, header)"
                           >
                             <slot :name="`${header.id}-header`" v-bind="header.getContext()">
                               <FlexRender
@@ -959,7 +1002,14 @@ function getVirtualItemStyle(
                               :sort-icons="header.column.columnDef.sortIcons"
                             />
                           </div>
-                          <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
+                          <div
+                            :class="
+                              ui.headerControls({
+                                class: [propsUi?.headerControls],
+                                compactHeader: isCompactHeader(header),
+                              })
+                            "
+                          >
                             <NuGridHeaderSortButton
                               v-if="
                                 (header.column.columnDef.sortIcons?.position ??
@@ -968,8 +1018,9 @@ function getVirtualItemStyle(
                               "
                               :header="header"
                               :sort-icons="header.column.columnDef.sortIcons"
+                              :compact="isCompactHeader(header)"
                             />
-                            <NuGridColumnMenu :header="header" />
+                            <NuGridColumnMenu :header="header" :compact="isCompactHeader(header)" />
                             <div
                               v-if="header.column.getCanResize()"
                               :class="
@@ -1138,6 +1189,7 @@ function getVirtualItemStyle(
                                 ui.thInner({
                                   class: [propsUi?.thInner],
                                   colDraggable: dragFns.isHeaderDraggable(header),
+                                  colSortable: header.column.getCanSort(),
                                 })
                               "
                               @dragstart="
@@ -1145,6 +1197,7 @@ function getVirtualItemStyle(
                                   dragFns.isHeaderDraggable(header) &&
                                   dragFns.handleColumnDragStart(e, header.column.id)
                               "
+                              @click="handleHeaderSortClick($event, header)"
                             >
                               <slot :name="`${header.id}-header`" v-bind="header.getContext()">
                                 <FlexRender
@@ -1163,7 +1216,14 @@ function getVirtualItemStyle(
                                 :sort-icons="header.column.columnDef.sortIcons"
                               />
                             </div>
-                            <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
+                            <div
+                              :class="
+                                ui.headerControls({
+                                  class: [propsUi?.headerControls],
+                                  compactHeader: isCompactHeader(header),
+                                })
+                              "
+                            >
                               <NuGridHeaderSortButton
                                 v-if="
                                   (header.column.columnDef.sortIcons?.position ??
@@ -1172,8 +1232,12 @@ function getVirtualItemStyle(
                                 "
                                 :header="header"
                                 :sort-icons="header.column.columnDef.sortIcons"
+                                :compact="isCompactHeader(header)"
                               />
-                              <NuGridColumnMenu :header="header" />
+                              <NuGridColumnMenu
+                                :header="header"
+                                :compact="isCompactHeader(header)"
+                              />
                               <div
                                 v-if="header.column.getCanResize()"
                                 :class="

@@ -153,7 +153,18 @@ export const nuGridThemeCompact = {
     },
     colDraggable: {
       true: {
-        thInner: 'cursor-move transition-transform duration-300 ease-in-out',
+        thInner: 'transition-transform duration-300 ease-in-out',
+      },
+    },
+    colSortable: {
+      true: {
+        thInner: 'cursor-pointer',
+      },
+    },
+    compactHeader: {
+      true: {
+        headerControls:
+          'opacity-0 group-hover:opacity-100 focus-within:opacity-100 has-[[data-state=open]]:opacity-100 min-w-max z-20 bg-elevated shadow-sm rounded-l-md transition-opacity duration-200',
       },
     },
     colDragging: {

@@ -342,6 +342,14 @@ export interface NuGridColumnDefaultsOptions<T extends TableData = TableData> {
    * @defaultValue { valueKey: 'value', labelKey: 'label', searchable: true, placeholder: 'Select...', clearable: false, autoOpen: true }
    */
   lookup?: Omit<NuGridLookupOptions, 'items'>
+
+  /**
+   * Default minimum column width in pixels
+   * Prevents columns from being resized below this width
+   * Can be overridden at the column level using minSize
+   * @defaultValue 60
+   */
+  minSize?: number
 }
 
 /**

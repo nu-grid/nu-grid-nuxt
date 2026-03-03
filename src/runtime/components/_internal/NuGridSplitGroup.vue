@@ -3,7 +3,7 @@
 import type { TableData, TableSlots } from '@nuxt/ui'
 import type { Header, Row } from '@tanstack/vue-table'
 import type { VirtualItem } from '@tanstack/vue-virtual'
-import type { ComponentPublicInstance } from 'vue'
+import type { ComponentPublicInstance, Ref } from 'vue'
 
 import { FlexRender } from '@tanstack/vue-table'
 import { createReusableTemplate } from '@vueuse/core'
@@ -84,6 +84,27 @@ const {
   scrollbarAttr,
   autoSizeMode,
 } = uiConfigContext
+
+// Sort stability — stale indicator when sort order is frozen after cell edit
+const staleColumns = inject<Ref<Set<string>>>('nugrid-stale-sort-columns')
+const clearStale = inject<(() => void) | undefined>('nugrid-clear-stale-sort')
+
+function handleHeaderSortClick(event: MouseEvent, header: Header<T, unknown>) {
+  if (toValue(dragFns.wasDragged)) return
+  if (!header.column.getCanSort()) return
+  if (staleColumns?.value?.has(header.column.id) && clearStale) {
+    clearStale()
+  } else {
+    header.column.getToggleSortingHandler()?.(event)
+  }
+}
+
+function isCompactHeader(header: Header<T, unknown>): boolean {
+  const opt = header.column.columnDef.compactHeader
+  if (opt === true) return true
+  if (opt === false) return false
+  return header.getSize() < 150
+}
 
 /** Flex style options for header styling */
 const flexStyleOptions = computed(() => ({
@@ -310,6 +331,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
             ui.thInner({
               class: [propsUi?.thInner],
               colDraggable: dragFns.isHeaderDraggable(header),
+              colSortable: header.column.getCanSort(),
             })
           "
           @dragstart="
@@ -317,6 +339,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
               dragFns.isHeaderDraggable(header) &&
               dragFns.handleColumnDragStart(e, header.column.id)
           "
+          @click="handleHeaderSortClick($event, header)"
         >
           <slot :name="`${header.id}-header`" v-bind="header.getContext()">
             <component
@@ -332,18 +355,29 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
             :sort-icons="header.column.columnDef.sortIcons"
           />
         </div>
-        <NuGridHeaderSortButton
-          v-if="
-            (header.column.columnDef.sortIcons?.position ?? gridSortIcons?.position ?? 'edge') ===
-            'edge'
+        <div
+          :class="
+            ui.headerControls({
+              class: [propsUi?.headerControls],
+              compactHeader: isCompactHeader(header),
+            })
           "
-          :header="header"
-          :sort-icons="header.column.columnDef.sortIcons"
-        />
-        <NuGridColumnMenu
-          v-if="header.colSpan === 1 && rowIndex === headerGroupsLength - 1"
-          :header="header"
-        />
+        >
+          <NuGridHeaderSortButton
+            v-if="
+              (header.column.columnDef.sortIcons?.position ?? gridSortIcons?.position ?? 'edge') ===
+              'edge'
+            "
+            :header="header"
+            :sort-icons="header.column.columnDef.sortIcons"
+            :compact="isCompactHeader(header)"
+          />
+          <NuGridColumnMenu
+            v-if="header.colSpan === 1 && rowIndex === headerGroupsLength - 1"
+            :header="header"
+            :compact="isCompactHeader(header)"
+          />
+        </div>
 
         <div
           v-if="header.column.getCanResize() || header.colSpan > 1"

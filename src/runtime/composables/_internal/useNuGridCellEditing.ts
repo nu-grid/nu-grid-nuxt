@@ -606,7 +606,11 @@ export function useNuGridCellEditing<T extends TableData>(
     moveDirection?: 'up' | 'down' | 'next' | 'previous',
     options?: { restoreFocus?: boolean; isClickAway?: boolean },
   ) {
-    console.log('[CellEditing] stopEditing ENTERED:', { columnId: cell.column.id, newValue, moveDirection })
+    console.log('[CellEditing] stopEditing ENTERED:', {
+      columnId: cell.column.id,
+      newValue,
+      moveDirection,
+    })
     const shouldRestoreFocus = options?.restoreFocus !== false
     const isClickAway = options?.isClickAway === true
     const config = validationConfig.value

@@ -21,6 +21,11 @@ const props = defineProps<{
    * The TanStack Table header object
    */
   header: Header<any, unknown>
+
+  /**
+   * When true, skip width-based hiding — parent overlay controls visibility
+   */
+  compact?: boolean
 }>()
 
 // Inject split contexts
@@ -433,8 +438,14 @@ const menuItems = computed<DropdownMenuItem[][]>(() => {
   return sections.length > 0 ? sections : []
 })
 
-// Only show menu button if there are items to show and it's not a special column
-const shouldShowMenu = computed(() => !isSpecialColumn.value && menuItems.value.length > 0)
+// Only show menu button if there are items to show, it's not a special column, and column is wide enough
+// When compact, skip width check — parent overlay controls visibility
+const shouldShowMenu = computed(
+  () =>
+    !isSpecialColumn.value &&
+    menuItems.value.length > 0 &&
+    (props.compact || props.header.getSize() >= 150),
+)
 
 // Filter value ref - created per column
 const filterValueRef = ref<any>(null)
@@ -499,9 +510,12 @@ const filterComponent = computed(() => {
 <template>
   <div
     v-if="shouldShowMenu"
+    :data-state="menuOpen ? 'open' : undefined"
     :class="[
       ui.columnMenu({ class: [propsUi?.columnMenu] }),
-      menuOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-within:opacity-100',
+      compact || menuOpen
+        ? 'opacity-100'
+        : 'opacity-0 group-hover:opacity-100 focus-within:opacity-100',
     ]"
   >
     <UDropdownMenu
