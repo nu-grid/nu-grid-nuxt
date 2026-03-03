@@ -4,7 +4,7 @@
 
 import type { TableData } from '@nuxt/ui'
 import type { Column, Row, Table } from '@tanstack/vue-table'
-import type { Component, Ref } from 'vue'
+import type { Component, ComputedRef, Ref } from 'vue'
 
 import type { NuGridShowErrors } from '../validation'
 
@@ -50,6 +50,7 @@ export interface NuGridCellEditing<T extends TableData = TableData> {
   showValidationErrors: Ref<NuGridShowErrors>
   validationIcon: Ref<string>
   startClicks: Ref<'none' | 'single' | 'double'>
+  enterBehavior: ComputedRef<string>
   // Row validation state
   rowValidationErrors: Ref<Map<string, NuGridRowValidationError>>
   hasRowValidationError: (rowId: string) => boolean

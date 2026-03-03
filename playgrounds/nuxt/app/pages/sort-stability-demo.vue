@@ -202,8 +202,8 @@ function randomizeStatuses() {
       :editing="{
         enabled: true,
         startClicks: 'double',
-        sortOnCellEdit: sortOnCellEdit,
       }"
+      :sort="{ dataChangeBehavior: sortOnCellEdit }"
       :focus="{ mode: 'cell' }"
       class="border-default max-h-[500px] rounded border"
       @cell-value-changed="onCellValueChanged"

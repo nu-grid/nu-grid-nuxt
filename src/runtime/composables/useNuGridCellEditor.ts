@@ -81,7 +81,7 @@ export function useNuGridCellEditor(
 ) {
   // Inject enterBehavior from grid context (provided by NuGrid component)
   // Falls back to prop value for custom editors that might not be inside a NuGrid
-  const injectedEnterBehavior = inject<ComputedRef<string>>('nugrid-enter-behavior', null)
+  const injectedEnterBehavior = inject<ComputedRef<string> | null>('nugrid-enter-behavior', null)
 
   function getEnterBehavior() {
     return injectedEnterBehavior?.value ?? props.enterBehavior ?? 'default'

@@ -19,7 +19,6 @@ export const nuGridDefaults = {
     debounce: 0,
     commitOnBlur: true,
     enterBehavior: 'default',
-    sortOnCellEdit: 'maintain',
   },
   validation: {
     validateOn: 'reward',
@@ -135,6 +134,9 @@ export const nuGridDefaults = {
     typeToSearch: true,
     focusOnResults: false,
     highlightColor: 'primary',
+  },
+  sort: {
+    dataChangeBehavior: 'maintain',
   },
   cellTypes: [],
   addNewRow: false,

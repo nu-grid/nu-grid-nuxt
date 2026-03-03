@@ -98,7 +98,6 @@ function handleSortClick(event: MouseEvent) {
 <template>
   <div
     v-if="canSort && icon"
-    class="relative"
     :class="
       shouldHideUnsorted
         ? ui.sortHandleHover({ class: [propsUi?.sortHandleHover] })
@@ -112,12 +111,8 @@ function handleSortClick(event: MouseEvent) {
       size="lg"
       :ui="{ base: 'rounded-md px-1 py-1.5' }"
     >
-      <UIcon :name="icon" class="size-4" />
+      <UIcon :name="icon" class="size-4" :class="isStale ? ui.sortHandleStale({ class: [propsUi?.sortHandleStale] }) : ''" />
     </UChip>
-    <UIcon v-else :name="icon" class="size-4" />
-    <span
-      v-if="isStale"
-      :class="ui.sortHandleStale({ class: [propsUi?.sortHandleStale] })"
-    />
+    <UIcon v-else :name="icon" class="size-4" :class="isStale ? ui.sortHandleStale({ class: [propsUi?.sortHandleStale] }) : ''" />
   </div>
 </template>

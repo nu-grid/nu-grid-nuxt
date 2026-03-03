@@ -19,7 +19,7 @@ const selectedStar = ref<number | null>(null)
 const focusedIndex = ref<number | null>(null) // 0 = clear button, 1-5 = stars
 
 // Inject enterBehavior from grid context
-const injectedEnterBehavior = inject<ComputedRef<string>>('nugrid-enter-behavior', null)
+const injectedEnterBehavior = inject<ComputedRef<string> | null>('nugrid-enter-behavior', null)
 
 function getEnterBehavior() {
   return injectedEnterBehavior?.value ?? props.enterBehavior ?? 'default'

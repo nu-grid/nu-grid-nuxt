@@ -10,6 +10,7 @@ import type {
   NuGridMultiRowOptions,
   NuGridPagingOptions,
   NuGridSelectionOptions,
+  NuGridSortOptions,
   NuGridTooltipOptions,
   NuGridValidationOptions,
 } from '../../types'
@@ -42,7 +43,9 @@ type OptionsTypeMap = {
                     ? NuGridAnimationOptions
                     : K extends 'paging'
                       ? NuGridPagingOptions
-                      : never
+                      : K extends 'sort'
+                        ? NuGridSortOptions
+                        : never
 }
 
 // Only include keys that have a config type mapping (excludes 'theme', etc.)

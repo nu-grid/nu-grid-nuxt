@@ -16,14 +16,14 @@ const props = defineProps<NuGridCellEditorProps>()
 const emit = defineEmits<NuGridCellEditorEmits>()
 
 // Inject enterBehavior from grid context
-const injectedEnterBehavior = inject<ComputedRef<string>>('nugrid-enter-behavior', null)
+const injectedEnterBehavior = inject<ComputedRef<string> | null>('nugrid-enter-behavior', null)
 
 function getEnterBehavior() {
   return injectedEnterBehavior?.value ?? props.enterBehavior ?? 'default'
 }
 
 const containerRef = ref<HTMLElement | null>(null)
-const selectMenuRef = ref<InstanceType<typeof NuGridSelectMenu> | null>(null)
+const selectMenuRef = ref<InstanceType<any> | null>(null)
 let unregisterKeyboardHandler: (() => void) | null = null
 
 // Access lookup config from column definition

@@ -141,7 +141,7 @@ export function useNuGridColumns<T extends TableData>(
         let plugin = pluginCache.get(cellDataType)
         if (plugin === undefined) {
           plugin =
-            customTypeMap.value?.get(cellDataType) ?? nuGridCellTypeRegistry.get(cellDataType)
+            (customTypeMap.value?.get(cellDataType) as ReturnType<typeof nuGridCellTypeRegistry.get>) ?? nuGridCellTypeRegistry.get(cellDataType)
           pluginCache.set(cellDataType, plugin)
         }
 

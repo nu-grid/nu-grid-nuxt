@@ -329,12 +329,15 @@ const tableRows = computed(() => {
   return tableApi.getRowModel().rows
 })
 
-// Sort stability — freeze row order after cell edits in sorted columns
+// Sort stability — freeze row order after data changes in sorted columns
 const { displayRows, onBeforeSortedCellEdit, onAfterSortedCellEdit, staleColumns, clearStale } = useNuGridSortStability(
   sortingState,
   tableRows,
-  computed(() => (typeof props.editing === 'object' ? props.editing.sortOnCellEdit : undefined) ?? 'maintain'),
+  usePropWithDefault(props, 'sort', 'dataChangeBehavior'),
   data,
+  rootRef,
+  focusFnsRef,
+  focusedRowIdState,
 )
 
 // Row interactions

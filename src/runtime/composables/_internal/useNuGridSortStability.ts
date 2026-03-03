@@ -1,11 +1,16 @@
+import type { TableData } from '@nuxt/ui'
 import type { Row, SortingState } from '@tanstack/vue-table'
-import type { Ref } from 'vue'
+import type { Ref, ShallowRef } from 'vue'
 
-import { computed, nextTick, ref, watch } from 'vue'
+import { usePreferredReducedMotion } from '@vueuse/core'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+
+import type { NuGridFocus } from '../../types/_internal'
 
 /**
  * Sort stability composable — manages row order after cell edits or external
- * data mutations in sorted columns.
+ * data mutations in sorted columns. Includes FLIP animation for smooth
+ * row transitions when re-sorting.
  *
  * When mode is 'maintain': captures a snapshot of row IDs before a change,
  * then reorders TanStack's re-sorted rows to match the snapshot. Tracks which
@@ -14,11 +19,14 @@ import { computed, nextTick, ref, watch } from 'vue'
  * When mode is 'resort': forces TanStack to re-sort after changes by writing a
  * new reference to sortingState, which invalidates the sorted row model memo.
  */
-export function useNuGridSortStability<T>(
+export function useNuGridSortStability<T extends TableData>(
   sortingState: Ref<SortingState>,
   tableRows: Ref<Row<T>[]>,
   mode: Ref<'maintain' | 'resort'>,
   data: Ref<T[]>,
+  rootRef: Ref<{ $el?: HTMLElement } | null | undefined>,
+  focusFnsRef: ShallowRef<NuGridFocus<T> | null>,
+  focusedRowId: Ref<string | null>,
 ) {
   // Ordered row IDs captured just before a change mutates data
   const rowOrderSnapshot = ref<string[] | null>(null) as Ref<string[] | null>
@@ -32,16 +40,115 @@ export function useNuGridSortStability<T>(
   // Flag: when true, the next data change was caused by cell editing (not external)
   let cellEditCausedChange = false
 
-  // Last settled row order — captured whenever displayRows is in passthrough mode.
-  // Used to restore the pre-change order when an external mutation is detected.
+  // Skip data changes during initial setup (async data load, settings hydration, etc.)
+  // Uses onMounted + delay to wait for all initial watchers and reactivity to settle.
+  let isSettled = false
+  onMounted(() => {
+    setTimeout(() => { isSettled = true }, 250)
+  })
+
+  // Last settled row order — updated inside displayRows computed when in passthrough
+  // mode. Because computeds are lazy (only evaluate during render), watch(data)
+  // (pre-flush, fires before render) always reads the PREVIOUS render's order.
   let lastSettledOrder: string[] = tableRows.value.map((r) => r.id)
 
-  // Keep lastSettledOrder in sync whenever we're in passthrough mode
-  watch(tableRows, (rows) => {
-    if (!rowOrderSnapshot.value) {
-      lastSettledOrder = rows.map((r) => r.id)
+  // ---------------------------------------------------------------------------
+  // FLIP animation — rows smoothly slide to new positions on re-sort
+  // ---------------------------------------------------------------------------
+  const prefersReducedMotion = usePreferredReducedMotion()
+  const flipPositions = new Map<string, number>()
+  let flipCleanupTimer: ReturnType<typeof setTimeout> | null = null
+
+  function getRootEl(): HTMLElement | null {
+    return (rootRef.value as any)?.$el ?? null
+  }
+
+  /**
+   * Capture current Y positions of all visible row elements.
+   * Must be called BEFORE the DOM re-renders with new row order.
+   */
+  function captureRowPositions() {
+    flipPositions.clear()
+    if (flipCleanupTimer) {
+      clearTimeout(flipCleanupTimer)
+      flipCleanupTimer = null
     }
-  })
+    const root = getRootEl()
+    if (!root || prefersReducedMotion.value === 'reduce') return
+    // Skip FLIP for virtualized grids (rows use absolute positioning + transforms)
+    const firstRow = root.querySelector('[data-row-id]') as HTMLElement | null
+    if (firstRow?.dataset.index !== undefined) return
+    for (const el of root.querySelectorAll('[data-row-id]')) {
+      const rowId = (el as HTMLElement).dataset.rowId
+      if (rowId) flipPositions.set(rowId, el.getBoundingClientRect().top)
+    }
+  }
+
+  /**
+   * After Vue re-renders, calculate position deltas and animate rows
+   * from their old positions to their new positions (FLIP technique).
+   */
+  function playFlipAnimation() {
+    if (flipPositions.size === 0) return
+    nextTick(() => {
+      const root = getRootEl()
+      if (!root) { flipPositions.clear(); return }
+
+      requestAnimationFrame(() => {
+        const rowEls = root.querySelectorAll('[data-row-id]')
+        // Invert: offset each row to its old visual position
+        for (const el of rowEls) {
+          const htmlEl = el as HTMLElement
+          const oldTop = flipPositions.get(htmlEl.dataset.rowId ?? '')
+          if (oldTop === undefined) continue
+          const deltaY = oldTop - htmlEl.getBoundingClientRect().top
+          if (Math.abs(deltaY) < 1) continue
+          htmlEl.style.transform = `translateY(${deltaY}px)`
+          htmlEl.style.transition = 'none'
+        }
+        // Play: animate to final positions
+        requestAnimationFrame(() => {
+          for (const el of rowEls) {
+            const htmlEl = el as HTMLElement
+            htmlEl.style.transition = 'transform 300ms cubic-bezier(0.25, 0.1, 0.25, 1)'
+            htmlEl.style.transform = ''
+          }
+        })
+        // Cleanup inline styles after animation completes
+        flipCleanupTimer = setTimeout(() => {
+          for (const el of rowEls) {
+            const htmlEl = el as HTMLElement
+            htmlEl.style.transition = ''
+            htmlEl.style.transform = ''
+          }
+          flipPositions.clear()
+          flipCleanupTimer = null
+        }, 350)
+      })
+    })
+  }
+
+  // ---------------------------------------------------------------------------
+  // Focus preservation — restore focused row after reorder
+  // ---------------------------------------------------------------------------
+  let savedFocusRowId: string | null = null
+
+  function saveFocus() {
+    savedFocusRowId = focusedRowId.value
+  }
+
+  function restoreFocus() {
+    if (!savedFocusRowId) return
+    const rowId = savedFocusRowId
+    savedFocusRowId = null
+    nextTick(() => {
+      focusFnsRef.value?.focusRowById(rowId, { align: 'nearest' })
+    })
+  }
+
+  // ---------------------------------------------------------------------------
+  // Sort stability core logic
+  // ---------------------------------------------------------------------------
 
   /**
    * Called BEFORE cell value mutation.
@@ -68,8 +175,10 @@ export function useNuGridSortStability<T>(
       next.add(columnId)
       staleColumns.value = next
     } else {
-      // Resort mode: flag for post-mutation re-sort
+      // Resort mode: flag for post-mutation re-sort + capture positions for animation
       pendingResortColumnId = columnId
+      saveFocus()
+      captureRowPositions()
     }
   }
 
@@ -83,28 +192,41 @@ export function useNuGridSortStability<T>(
       // a new array reference to sortingState (same values, new identity)
       nextTick(() => {
         sortingState.value = [...sortingState.value]
+        playFlipAnimation()
+        restoreFocus()
       })
     }
     pendingResortColumnId = null
   }
 
   /**
-   * Clear stale state and snapshot (e.g. when user re-sorts)
+   * Clear stale state and snapshot (e.g. when user clicks the amber dot)
+   * Includes FLIP animation so rows slide to their re-sorted positions.
    */
   function clearStale() {
+    if (rowOrderSnapshot.value) {
+      saveFocus()
+      captureRowPositions()
+    }
     rowOrderSnapshot.value = null
     staleColumns.value = new Set()
+    playFlipAnimation()
+    restoreFocus()
   }
 
   // When sorting state changes (user clicks sort header), clear the snapshot
+  // and preserve focus on the same row at its new position.
   watch(sortingState, () => {
-    clearStale()
+    saveFocus()
+    rowOrderSnapshot.value = null
+    staleColumns.value = new Set()
+    restoreFocus()
   })
 
   /**
    * Detect external data mutations (not caused by cell editing).
    * In maintain mode: freeze the current visual row order.
-   * In resort mode: force TanStack to re-sort.
+   * In resort mode: force TanStack to re-sort with FLIP animation.
    */
   watch(data, () => {
     if (cellEditCausedChange) {
@@ -112,21 +234,33 @@ export function useNuGridSortStability<T>(
       return
     }
 
+    // Skip initial data load (e.g. async fetch during mount)
+    if (!isSettled) return
+
     // No active sort — nothing to stabilize
     if (sortingState.value.length === 0) return
 
     if (mode.value === 'maintain' && !rowOrderSnapshot.value) {
-      // Freeze the pre-change row order
+      // Only freeze if TanStack's new sort order actually differs from the displayed order.
+      // This avoids false stale indicators when data changes don't affect sort (e.g. filter changes).
       if (lastSettledOrder.length > 0) {
-        rowOrderSnapshot.value = [...lastSettledOrder]
-        // Mark all sorted columns as stale (we don't know which columns were affected)
-        staleColumns.value = new Set(sortingState.value.map((s) => s.id))
+        const newOrder = tableRows.value.map((r) => r.id)
+        const orderChanged = newOrder.length !== lastSettledOrder.length
+          || newOrder.some((id, i) => id !== lastSettledOrder[i])
+        if (orderChanged) {
+          rowOrderSnapshot.value = [...lastSettledOrder]
+          staleColumns.value = new Set(sortingState.value.map((s) => s.id))
+        }
       }
     }
 
     if (mode.value === 'resort') {
+      saveFocus()
+      captureRowPositions()
       nextTick(() => {
         sortingState.value = [...sortingState.value]
+        playFlipAnimation()
+        restoreFocus()
       })
     }
   })
@@ -139,7 +273,13 @@ export function useNuGridSortStability<T>(
   const displayRows = computed<Row<T>[]>(() => {
     const snapshot = rowOrderSnapshot.value
     if (!snapshot) {
-      return tableRows.value
+      const rows = tableRows.value
+      // Track settled order for external mutation detection.
+      // Safe as a side effect because computeds are lazy — this only runs
+      // during render, after all pre-flush watchers (including watch(data))
+      // have already read the previous value.
+      lastSettledOrder = rows.map((r) => r.id)
+      return rows
     }
 
     const rowMap = new Map<string, Row<T>>()
