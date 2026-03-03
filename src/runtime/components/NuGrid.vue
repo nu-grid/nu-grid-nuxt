@@ -533,7 +533,7 @@ const focusFns = useNuGridFocus(
   tableRef,
   rootRef,
   groupingFns?.activeStickyHeight ?? baseStickyHeight,
-  groupingFns?.virtualizer ?? virtualizer ?? false,
+  groupingFns?.virtualizer?.value ? groupingFns.virtualizer : virtualizer?.value ? virtualizer : false,
   editingCellRef,
   interactionRouter,
   eventEmitter,

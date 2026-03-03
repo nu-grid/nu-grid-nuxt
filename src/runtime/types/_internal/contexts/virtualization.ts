@@ -8,7 +8,7 @@ import type { GroupVirtualRowItem, NuGridVirtualizer } from '../virtualization'
  * Virtual scrolling and sticky positioning
  */
 export interface NuGridVirtualizationContext<T extends TableData = TableData> {
-  virtualizer: Ref<NuGridVirtualizer> | null
+  virtualizer: Ref<NuGridVirtualizer | null>
   virtualizationEnabled: ComputedRef<boolean>
   virtualRowItems: ComputedRef<GroupVirtualRowItem<T>[]>
   measuredVirtualSizes: ComputedRef<Map<number, number> | null>

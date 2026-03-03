@@ -99,11 +99,19 @@ export function useNuGridStatePersistence<T extends TableData = TableData>(
 
   let storedState: ReturnType<typeof useStorage<NuGridStateSnapshot | null>> | null = null
   if (import.meta.client && storageKey) {
-    storedState = useStorage<NuGridStateSnapshot | null>(storageKey, null, localStorage, {
-      serializer: StorageSerializers.object,
-    })
-    if (storedState && initialPersistedState && storedState.value === null) {
-      storedState.value = initialPersistedState
+    try {
+      storedState = useStorage<NuGridStateSnapshot | null>(storageKey, null, localStorage, {
+        serializer: StorageSerializers.object,
+      })
+      if (storedState && initialPersistedState && storedState.value === null) {
+        storedState.value = initialPersistedState
+      }
+    } catch (error) {
+      // localStorage can throw in private/blocked contexts; disable persistence but keep grid functional
+      storedState = null
+      if (import.meta.dev) {
+        console.warn('[NuGrid State] localStorage unavailable, persistence disabled:', error)
+      }
     }
   }
 

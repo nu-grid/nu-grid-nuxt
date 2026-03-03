@@ -699,8 +699,14 @@ export function useNuGridScroll<T extends TableData>(
   const { height: observedHeight } = useElementSize(rootElement, undefined, { box: 'border-box' })
 
   watch(observedHeight, () => {
-    // Invalidate scroll container cache on resize - overflow state may have changed
+    // Invalidate scroll container cache and dimension cache on resize
     updateScrollContainerCache()
+    scrollManager.invalidateDimensionCache()
+  })
+
+  watch([pinnedLeftWidth, pinnedRightWidth, () => visibleColumns.value.length], () => {
+    // Column set/width changes can stale cached dimensions
+    scrollManager.invalidateDimensionCache()
   })
 
   return {

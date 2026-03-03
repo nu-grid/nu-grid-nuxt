@@ -32,8 +32,8 @@ export interface NuGridGroupingFns<T extends TableData = TableData> {
   isGroupExpanded: (groupId: string) => boolean
   /** Virtual row items for virtualization */
   virtualRowItems: ComputedRef<GroupVirtualRowItem<T>[]>
-  /** Virtualizer instance */
-  virtualizer: Ref<NuGridVirtualizer> | null
+  /** Virtualizer instance (null when virtualization disabled) */
+  virtualizer: Ref<NuGridVirtualizer | null>
   /** Whether virtualization is enabled */
   virtualizationEnabled: ComputedRef<boolean>
   /** Flattened list of navigable rows for keyboard navigation */

@@ -30,7 +30,7 @@ export function useNuGridFocus<T extends TableData>(
   tableRef: Ref<HTMLDivElement | null>,
   rootRef: Ref<InstanceType<typeof Primitive> | null | undefined> | null,
   virtualizedStickyHeight?: Ref<number>,
-  virtualizer?: Ref<NuGridVirtualizer> | false,
+  virtualizer?: Ref<NuGridVirtualizer | null> | false,
   editingCell?: Ref<NuGridEditingCell | null>,
   interactionRouter?: NuGridInteractionRouter<T>,
   eventEmitter?: NuGridEventEmitter<T>,

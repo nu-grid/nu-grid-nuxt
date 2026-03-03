@@ -6,7 +6,7 @@ import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 import { defaultRangeExtractor, useVirtualizer } from '@tanstack/vue-virtual'
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
-import { computed, ref, toValue, watch } from 'vue'
+import { computed, ref, shallowRef, toValue, watch } from 'vue'
 
 import type { NuGridProps } from '../../types'
 import type {
@@ -141,7 +141,7 @@ interface StickyContext<T extends TableData = TableData> {
 }
 
 interface SharedVirtualizerResult<T extends TableData = TableData> {
-  virtualizer: Ref<NuGridVirtualizer> | null
+  virtualizer: Ref<NuGridVirtualizer | null>
   virtualizationEnabled: ComputedRef<boolean>
   activeStickyIndexes: Ref<number[]>
   activeStickyHeight: ComputedRef<number>
@@ -443,72 +443,71 @@ function useSharedVirtualizer<T extends TableData>(
   })
   const virtualizationEnabled = computed(() => options.virtualization.value.enabled)
   const activeStickyIndexes = ref<number[]>([])
-
-  // For non-virtualized case, provide simplified helpers
-  if (!virtualizationEnabled.value) {
-    const measuredVirtualSizes = computed(() => null)
-    const getVirtualItemHeight = (index: number) =>
-      options.virtualRowItems.value[index]?.height ?? 0
-    const stickyOffsets = computed(() => new Map<number, number>())
-    const activeStickyHeight = computed(() => {
-      let total = 0
-      for (const index of activeStickyIndexes.value) {
-        total += getVirtualItemHeight(index)
-      }
-      return total
-    })
-
-    return {
-      virtualizer: null,
-      virtualizationEnabled,
-      activeStickyIndexes,
-      activeStickyHeight,
-      virtualRowItems: options.virtualRowItems,
-      measuredVirtualSizes,
-      getVirtualItemHeight,
-      stickyOffsets,
-    }
-  }
-
-  const baseVirtualizer = useVirtualizer({
-    ...virtualizerProps.value,
-    get count() {
-      return options.virtualRowItems.value.length
-    },
-    getScrollElement: () => options.rootRef.value?.$el,
-    estimateSize: (index: number) => {
-      const item = options.virtualRowItems.value[index]
-      return item?.height ?? virtualizerProps.value.estimateSize
-    },
-    rangeExtractor: (range) => {
-      if (!options.stickyEnabled?.value || !options.resolveStickyIndexes) {
-        activeStickyIndexes.value = []
-        return defaultRangeExtractor(range)
-      }
-      const sticky = options.resolveStickyIndexes({ range, items: options.virtualRowItems.value })
-      activeStickyIndexes.value = sticky
-      if (!sticky.length) {
-        return defaultRangeExtractor(range)
-      }
-      const merged = new Set([...sticky, ...defaultRangeExtractor(range)])
-      return [...merged]
-    },
-  }) as Ref<Virtualizer<Element, Element>>
-
-  const virtualizer = baseVirtualizer as unknown as Ref<NuGridVirtualizer>
+  const virtualizer = shallowRef<NuGridVirtualizer | null>(null)
   const dynamicRowHeightsEnabled = computed(() => options.virtualization.value.dynamicRowHeights)
-  virtualizer.value.props = options.virtualization
-  virtualizer.value.dynamicRowHeightsEnabled = dynamicRowHeightsEnabled
 
-  if (options.stickyEnabled) {
-    watch(options.stickyEnabled, () => {
-      virtualizer.value?.measure()
-    })
+  const ensureVirtualizer = () => {
+    if (virtualizer.value) return
+
+    const baseVirtualizer = useVirtualizer({
+      ...virtualizerProps.value,
+      get count() {
+        return options.virtualRowItems.value.length
+      },
+      getScrollElement: () => options.rootRef.value?.$el,
+      estimateSize: (index: number) => {
+        const item = options.virtualRowItems.value[index]
+        return item?.height ?? virtualizerProps.value.estimateSize
+      },
+      rangeExtractor: (range) => {
+        if (!options.stickyEnabled?.value || !options.resolveStickyIndexes) {
+          activeStickyIndexes.value = []
+          return defaultRangeExtractor(range)
+        }
+        const sticky = options.resolveStickyIndexes({ range, items: options.virtualRowItems.value })
+        activeStickyIndexes.value = sticky
+        if (!sticky.length) {
+          return defaultRangeExtractor(range)
+        }
+        const merged = new Set([...sticky, ...defaultRangeExtractor(range)])
+        return [...merged]
+      },
+    }) as Ref<Virtualizer<Element, Element>>
+
+    const nugVirtualizer = baseVirtualizer as unknown as NuGridVirtualizer
+    nugVirtualizer.props = options.virtualization
+    nugVirtualizer.dynamicRowHeightsEnabled = dynamicRowHeightsEnabled
+
+    if (options.stickyEnabled) {
+      watch(options.stickyEnabled, () => {
+        nugVirtualizer?.measure?.()
+      })
+    }
+
+    virtualizer.value = nugVirtualizer
   }
+
+  watch(
+    virtualizationEnabled,
+    (enabled) => {
+      if (enabled) {
+        ensureVirtualizer()
+        virtualizer.value?.measure?.()
+      } else {
+        activeStickyIndexes.value = []
+        virtualizer.value = null
+      }
+    },
+    { immediate: true },
+  )
 
   // Measured virtual sizes for dynamic heights
   const measuredVirtualSizes = computed<Map<number, number> | null>(() => {
     if (!dynamicRowHeightsEnabled.value) {
+      return null
+    }
+
+    if (!virtualizer.value) {
       return null
     }
 
@@ -522,7 +521,7 @@ function useSharedVirtualizer<T extends TableData>(
   // Helper function to get virtual item height (measured or fallback)
   const getVirtualItemHeight = (index: number) => {
     const fallbackHeight = options.virtualRowItems.value[index]?.height ?? 0
-    if (!dynamicRowHeightsEnabled.value) {
+    if (!dynamicRowHeightsEnabled.value || !virtualizer.value) {
       return fallbackHeight
     }
     return measuredVirtualSizes.value?.get(index) ?? fallbackHeight

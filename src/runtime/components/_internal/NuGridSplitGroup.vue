@@ -164,10 +164,8 @@ const {
 } = groupingFns
 
 const dynamicRowHeightsEnabled = computed(() => {
-  if (!virtualizer || !virtualizer.value.dynamicRowHeightsEnabled) {
-    return false
-  }
-  return !!virtualizer.value.dynamicRowHeightsEnabled.value
+  const dyn = virtualizer?.value?.dynamicRowHeightsEnabled
+  return !!dyn?.value
 })
 
 // Group-aware row selection
@@ -246,8 +244,9 @@ function virtStyle(virtualRow: VirtualItem): NuGridVirtualItemStyle {
 
 // Memoized ref callback for measuring elements with dynamic row heights
 function measureElementRef(el: Element | ComponentPublicInstance | null) {
-  if (el && virtualizer && virtualizer.value.dynamicRowHeightsEnabled.value) {
-    virtualizer.value.measureElement(el as Element)
+  const dynEnabled = virtualizer?.value?.dynamicRowHeightsEnabled?.value
+  if (el && dynEnabled) {
+    virtualizer.value!.measureElement(el as Element)
   }
 }
 </script>

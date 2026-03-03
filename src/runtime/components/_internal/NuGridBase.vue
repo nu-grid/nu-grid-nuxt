@@ -374,8 +374,9 @@ const [DefineTableTemplate, ReuseNuGridTemplate] = createReusableTemplate({ inhe
 
 // Memoized ref callback for measuring elements with dynamic row heights
 function measureElementRef(el: Element | ComponentPublicInstance | null) {
-  if (el && virtualizer && virtualizer.value.dynamicRowHeightsEnabled.value) {
-    virtualizer.value.measureElement(el as Element)
+  const dynEnabled = virtualizer?.value?.dynamicRowHeightsEnabled?.value
+  if (el && dynEnabled) {
+    virtualizer.value!.measureElement(el as Element)
   }
 }
 
@@ -394,11 +395,11 @@ function getVirtualItemStyle(
   type: GroupVirtualRowType,
   virtualRow: VirtualItem,
 ): NuGridVirtualItemStyle | Record<string, never> {
-  if (!virtualizer) {
+  if (!virtualizer?.value) {
     return {}
   }
 
-  const useDynamicHeight = virtualizer.value.dynamicRowHeightsEnabled?.value ?? false
+  const useDynamicHeight = virtualizer.value?.dynamicRowHeightsEnabled?.value ?? false
   const stickyTop = stickyOffsets.value.get(virtualRow.index)
   const resolvedHeight = getVirtualItemHeight(virtualRow.index)
   // For CSS flex distribution (fill with shift mode, or expand mode before any resize):
