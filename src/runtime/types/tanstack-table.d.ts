@@ -52,6 +52,13 @@ declare module '@tanstack/vue-table' {
     sortIcons?: NuGridSortIcon
 
     /**
+     * Override which value is used for sorting.
+     * When a string, reads that key from the row data instead of the column's accessor.
+     * When a function, calls it with the row to get the sort value.
+     */
+    sortAccessor?: string | ((row: TData) => unknown)
+
+    /**
      * Override the default cell rendering behavior
      * When true, indicates that the cell uses a custom renderer and should bypass default rendering logic
      * @defaultValue false

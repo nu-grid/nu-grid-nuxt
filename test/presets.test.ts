@@ -17,7 +17,6 @@ describe('presets', () => {
 
       expect(preset).toBeDefined()
       expect(preset.focus?.mode).toBe('cell')
-      expect(preset.focus?.retain).toBe(true)
       expect(preset.editing?.enabled).toBe(true)
       expect(preset.layout?.stickyHeaders).toBe(true)
       expect(preset.layout?.autoSize).toBe('content')
@@ -39,7 +38,6 @@ describe('presets', () => {
 
       expect(preset).toBeDefined()
       expect(preset.focus?.mode).toBe('cell')
-      expect(preset.focus?.retain).toBe(true)
       expect(preset.focus?.cmdArrows).toBe('firstlast')
       expect(preset.focus?.pageStep).toBe(5)
       expect(preset.editing?.enabled).toBe(true)

@@ -40,6 +40,11 @@ export const nuGridTheme = {
     rowDragIcon: 'inline-block w-4 h-4',
     headerContainer: 'relative flex items-stretch w-full h-full',
     headerControls: 'absolute right-0 inset-y-0 flex items-center z-10 bg-inherit',
+    // Compact header overlay — applied to inner wrapper, not headerControls itself.
+    // Changing headerControls class after mount causes a browser reflow gap bug,
+    // so compact styling uses a nested element with static classes.
+    headerControlsCompact:
+      'flex items-center opacity-0 group-hover:opacity-100 focus-within:opacity-100 has-[[data-state=open]]:opacity-100 min-w-max z-20 transition-opacity duration-200',
     columnMenu: 'flex items-center px-1 transition-opacity duration-200',
     footerContent: 'w-full truncate',
     groupHeader:
@@ -158,12 +163,8 @@ export const nuGridTheme = {
         thInner: 'cursor-pointer',
       },
     },
-    compactHeader: {
-      true: {
-        headerControls:
-          'opacity-0 group-hover:opacity-100 focus-within:opacity-100 has-[[data-state=open]]:opacity-100 min-w-max z-20 bg-elevated shadow-sm rounded-l-md transition-opacity duration-200',
-      },
-    },
+    // compactHeader variant removed — now uses data-[compact] attribute in base slot
+    // to avoid TV class regeneration after mount (causes browser reflow gap bug)
     colDragging: {
       true: {
         th: 'bg-primary-500/10 opacity-50 transition-[opacity,background-color] duration-200 ease-linear',

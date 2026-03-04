@@ -104,7 +104,7 @@ export function useNuGridGrouping<T extends TableData>(
   })
 
   // Organize rows by groups using Tanstack's row structure
-  // The subRows are already sorted since we use getSortedRowModel() above
+  // The subRows are sorted by useNuGridSorting (which sorts sub-rows recursively)
   const reorderGroup = (groupId: string, rowsForGroup: Row<T>[]) => {
     if (!addRowOptions || addRowOptions.addRowPosition.value === 'none') {
       return rowsForGroup

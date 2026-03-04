@@ -29,11 +29,17 @@ vi.mock('../src/runtime/composables/useNuGridCellTypeRegistry', () => ({
   })),
 }))
 
-vi.mock('../src/runtime/composables/useNuGridScroll', () => ({
+vi.mock('../src/runtime/composables/_internal/useNuGridScroll', () => ({
   useNuGridScroll: vi.fn(() => ({
     scrollManager: {
       scrollToCell: vi.fn(() => Promise.resolve()),
     },
+  })),
+}))
+
+vi.mock('../src/runtime/composables/_internal/useNuGridKeyboardNavigation', () => ({
+  useNuGridKeyboardNavigation: vi.fn(() => ({
+    handleKeyDown: vi.fn(),
   })),
 }))
 

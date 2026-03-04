@@ -393,7 +393,7 @@ describe('useNuGridApi', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     expect(tableApi.getRowModel().rows.length).toBe(2)
   })
@@ -409,7 +409,7 @@ describe('useNuGridApi', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     tableApi.setSorting([{ id: 'name', desc: false }])
 
@@ -427,7 +427,7 @@ describe('useNuGridApi', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     tableApi.setRowSelection({ '0': true })
 
@@ -445,7 +445,7 @@ describe('useNuGridApi', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     tableApi.setGlobalFilter('search term')
 
@@ -463,7 +463,7 @@ describe('useNuGridApi', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     tableApi.setColumnVisibility({ status: false })
 
@@ -481,7 +481,7 @@ describe('useNuGridApi', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     tableApi.setPagination({ pageIndex: 1, pageSize: 20 })
 
@@ -499,7 +499,7 @@ describe('useNuGridApi', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     tableApi.setColumnPinning({ left: ['id'], right: [] })
 
@@ -517,10 +517,10 @@ describe('useNuGridApi', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
-    expect(tableApi.options.getFilteredRowModel).toBeDefined()
-    expect(typeof tableApi.options.getFilteredRowModel).toBe('function')
+    // NuGrid owns filtering via useNuGridFiltering — manualFiltering: true
+    expect(tableApi.options.manualFiltering).toBe(true)
   })
 
   it('should have proper sorting model', () => {
@@ -534,9 +534,9 @@ describe('useNuGridApi', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
-    expect(tableApi.options.getSortedRowModel).toBeDefined()
-    expect(typeof tableApi.options.getSortedRowModel).toBe('function')
+    // NuGrid owns sorting via useNuGridSorting (manualSorting: true)
+    expect(tableApi.options.manualSorting).toBe(true)
   })
 })

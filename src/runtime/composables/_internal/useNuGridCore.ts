@@ -5,10 +5,8 @@ import type { ComponentPublicInstance, PropType, Ref } from 'vue'
 import {
   getCoreRowModel,
   getExpandedRowModel,
-  getFilteredRowModel,
   getGroupedRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
 import { createReusableTemplate, reactiveOmit } from '@vueuse/core'
@@ -410,37 +408,6 @@ export function useNuGridApi<T extends TableData>(
     'ui',
   )
 
-  // Custom global filter function that respects column.enableSearching property
-  const globalFilterFn = (row: any, columnId: string, filterValue: string) => {
-    if (!filterValue || filterValue.length === 0) return true
-
-    const searchLower = filterValue.toLowerCase()
-
-    // Get all columns and filter to only those with enableSearching !== false
-    const searchableColumns = columns.value.filter((col) => {
-      // Skip columns without accessor keys (display columns, etc.)
-      if (!('accessorKey' in col) && !('id' in col)) return false
-      // Check enableSearching property (defaults to true)
-      return col.enableSearching !== false
-    })
-
-    // Search across all searchable columns
-    for (const col of searchableColumns) {
-      const key = ('accessorKey' in col ? col.accessorKey : col.id) as string
-      if (!key) continue
-
-      const cellValue = row.getValue(key)
-      if (cellValue == null) continue
-
-      const stringValue = String(cellValue).toLowerCase()
-      if (stringValue.includes(searchLower)) {
-        return true
-      }
-    }
-
-    return false
-  }
-
   const tableApi = useVueTable({
     ...filteredProps,
     get data() {
@@ -464,12 +431,10 @@ export function useNuGridApi<T extends TableData>(
     },
     getCoreRowModel: getCoreRowModel(),
     ...(props.globalFilterOptions || {}),
-    // Use custom global filter that respects enableSearching column property
-    globalFilterFn,
+    manualFiltering: true, // NuGrid owns filtering via useNuGridFiltering
     onGlobalFilterChange: (updaterOrValue) =>
       valueUpdater(updaterOrValue, states.globalFilterState),
     ...(props.columnFiltersOptions || {}),
-    getFilteredRowModel: getFilteredRowModel(),
     onColumnFiltersChange: (updaterOrValue) => {
       valueUpdater(updaterOrValue, states.columnFiltersState)
       if (eventEmitter?.filterChanged) {
@@ -501,7 +466,7 @@ export function useNuGridApi<T extends TableData>(
     ...(props.rowPinningOptions || {}),
     onRowPinningChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.rowPinningState),
     ...(props.sortingOptions || {}),
-    getSortedRowModel: getSortedRowModel(),
+    manualSorting: true, // NuGrid owns sorting via useNuGridSorting
     onSortingChange: (updaterOrValue) => {
       valueUpdater(updaterOrValue, states.sortingState)
       if (eventEmitter?.sortChanged) {
@@ -597,7 +562,6 @@ export function useNuGridApi<T extends TableData>(
   // TanStack's useVueTable doesn't track data changes through its mergeProxy/getter approach,
   // so we explicitly call setOptions when data changes.
   // flush: 'sync' ensures TanStack has fresh data before any computed re-evaluates.
-  const dataVersion = ref(0)
   watch(
     data,
     (newData) => {
@@ -605,12 +569,11 @@ export function useNuGridApi<T extends TableData>(
         ...prev,
         data: newData,
       }))
-      dataVersion.value++
     },
     { flush: 'sync' },
   )
 
-  return { tableApi, columnsUpdatedSignal, dataVersion }
+  return { tableApi, columnsUpdatedSignal }
 }
 
 /**

@@ -592,11 +592,12 @@ describe('lookupEditor', () => {
 
       const result = vm.handleKeydown(ctx)
 
-      expect(vm.isOpen).toBe(false)
-      expect(vm.escapingMenu).toBe(true)
+      // Menu close is handled by dispatching Escape to the uncontrolled SelectMenu,
+      // so isOpen stays true in the test (SelectMenu is stubbed). What matters is:
+      expect(vm.escapingMenu).toBe(true) // Flag set to prevent exit on menu close
       expect(result.preventDefault).toBe(true)
       expect(result.stopPropagation).toBe(true)
-      expect(wrapper.emitted('cancel-editing')).toBeFalsy()
+      expect(wrapper.emitted('cancel-editing')).toBeFalsy() // Stays in edit mode
     })
 
     it('should cancel editing on second Escape', () => {

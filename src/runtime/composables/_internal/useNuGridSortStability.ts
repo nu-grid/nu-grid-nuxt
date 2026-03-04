@@ -27,6 +27,8 @@ export function useNuGridSortStability<T extends TableData>(
   rootRef: Ref<{ $el?: HTMLElement } | null | undefined>,
   focusFnsRef: ShallowRef<NuGridFocus<T> | null>,
   focusedRowId: Ref<string | null>,
+  sortDebounce: Ref<number>,
+  notifyEditedRow: (rowId: string) => void,
 ) {
   // Ordered row IDs captured just before a change mutates data
   const rowOrderSnapshot = ref<string[] | null>(null) as Ref<string[] | null>
@@ -36,6 +38,9 @@ export function useNuGridSortStability<T extends TableData>(
 
   // Track whether a resort is pending (for resort mode)
   let pendingResortColumnId: string | null = null
+
+  // Debounce timer for resort mode — batches rapid edits into a single re-sort
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
   // Flag: when true, the next data change was caused by cell editing (not external)
   let cellEditCausedChange = false
@@ -186,11 +191,15 @@ export function useNuGridSortStability<T extends TableData>(
    * Called BEFORE cell value mutation.
    * - maintain mode: captures row order snapshot and marks column as stale
    * - resort mode: records that a sorted column was edited (resort happens after mutation)
+   * - signals the sorting composable for incremental re-sort
    */
-  function onBeforeSortedCellEdit(columnId: string) {
+  function onBeforeSortedCellEdit(columnId: string, rowId: string) {
     // Mark that cell editing is responsible for the upcoming data change,
     // so the data watcher doesn't treat it as an external mutation.
     cellEditCausedChange = true
+
+    // Signal the sorting composable so it can attempt incremental re-sort
+    notifyEditedRow(rowId)
 
     // Only act on sorted columns
     const isSorted = sortingState.value.some((s) => s.id === columnId)
@@ -207,23 +216,42 @@ export function useNuGridSortStability<T extends TableData>(
       next.add(columnId)
       staleColumns.value = next
     } else {
-      // Resort mode: flag for post-mutation re-sort + capture positions for animation
-      pendingResortColumnId = columnId
-      saveFocus()
-      captureRowPositions()
+      // Resort mode with debounce: freeze order during rapid edits, release when paused
+      const delay = sortDebounce.value
+      if (delay > 0) {
+        // First edit in a debounce window — capture snapshot to freeze visual order
+        if (!debounceTimer) {
+          rowOrderSnapshot.value = tableRows.value.map((r) => r.id)
+          saveFocus()
+          captureRowPositions()
+        }
+        // Reset the debounce timer
+        if (debounceTimer) clearTimeout(debounceTimer)
+        debounceTimer = setTimeout(() => {
+          debounceTimer = null
+          // Release: clear snapshot so the sort computed's natural order shows through
+          rowOrderSnapshot.value = null
+          playFlipAnimation()
+          restoreFocus()
+        }, delay)
+        pendingResortColumnId = null // suppress immediate animation in onAfterSortedCellEdit
+      } else {
+        // No debounce: immediate resort with animation
+        pendingResortColumnId = columnId
+        saveFocus()
+        captureRowPositions()
+      }
     }
   }
 
   /**
    * Called AFTER cell value mutation and data reactivity trigger.
-   * In resort mode, forces TanStack to re-sort by writing a new sorting state reference.
+   * In resort mode, the sort computed re-evaluates automatically when data
+   * changes — just play the animation and restore focus.
    */
   function onAfterSortedCellEdit() {
     if (pendingResortColumnId && mode.value === 'resort') {
-      // Force TanStack's getSortedRowModel memo to invalidate by writing
-      // a new array reference to sortingState (same values, new identity)
       nextTick(() => {
-        sortingState.value = [...sortingState.value]
         playFlipAnimation()
         restoreFocus()
       })
@@ -248,13 +276,7 @@ export function useNuGridSortStability<T extends TableData>(
 
   // When sorting state changes (user clicks sort header), clear the snapshot
   // and preserve focus on the same row at its new position.
-  // Compare old/new to skip reference-only changes from resort mode's memo invalidation.
-  watch(sortingState, (newSort, oldSort) => {
-    const changed =
-      newSort.length !== oldSort.length ||
-      newSort.some((s, i) => s.id !== oldSort[i]?.id || s.desc !== oldSort[i]?.desc)
-    if (!changed) return
-
+  watch(sortingState, () => {
     saveFocus()
     rowOrderSnapshot.value = null
     staleColumns.value = new Set()
@@ -294,10 +316,11 @@ export function useNuGridSortStability<T extends TableData>(
     }
 
     if (mode.value === 'resort') {
+      // Sort computed re-evaluates automatically when data changes.
+      // Just capture positions for FLIP animation and restore focus.
       saveFocus()
       captureRowPositions()
       nextTick(() => {
-        sortingState.value = [...sortingState.value]
         playFlipAnimation()
         restoreFocus()
       })

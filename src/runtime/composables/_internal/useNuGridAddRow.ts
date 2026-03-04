@@ -311,7 +311,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
 
     resetAddRowRow()
 
-    const groupRows = options.table.getSortedRowModel().rows
+    const groupRows = options.table.getPrePaginationRowModel().rows
     const allGroupRows: Row<T>[] = []
 
     collectGroupRows(groupRows as Row<T>[], allGroupRows)

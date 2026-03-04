@@ -42,7 +42,7 @@ interface RowLike<T = any> {
 
 interface TableLike {
   getRowModel: () => { rowsById: Record<string, RowLike> }
-  getSortedRowModel: () => { rows: RowLike[] }
+  getPrePaginationRowModel: () => { rows: RowLike[] }
   getState: () => { grouping: string[] }
 }
 
@@ -63,7 +63,7 @@ function makeRowsById(rows: RowLike[]): Record<string, RowLike> {
 function makeTable(rows: RowLike[], grouping: string[]): TableLike {
   return {
     getRowModel: () => ({ rowsById: makeRowsById(rows) }),
-    getSortedRowModel: () => ({ rows }),
+    getPrePaginationRowModel: () => ({ rows }),
     getState: () => ({ grouping }),
   }
 }

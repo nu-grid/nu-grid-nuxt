@@ -46,6 +46,8 @@ export const nuGridThemeCompact = {
     rowDragIcon: 'inline-block w-3.5 h-3.5',
     headerContainer: 'relative flex items-stretch w-full h-full bg-elevated',
     headerControls: 'absolute right-0 inset-y-0 flex items-center z-10 bg-inherit',
+    headerControlsCompact:
+      'flex items-center opacity-0 group-hover:opacity-100 focus-within:opacity-100 has-[[data-state=open]]:opacity-100 min-w-max z-20 transition-opacity duration-200',
     columnMenu: 'flex items-center px-1 transition-opacity duration-200',
     footerContent: 'w-full truncate',
     // Group header styling
@@ -161,12 +163,7 @@ export const nuGridThemeCompact = {
         thInner: 'cursor-pointer',
       },
     },
-    compactHeader: {
-      true: {
-        headerControls:
-          'opacity-0 group-hover:opacity-100 focus-within:opacity-100 has-[[data-state=open]]:opacity-100 min-w-max z-20 bg-elevated shadow-sm rounded-l-md transition-opacity duration-200',
-      },
-    },
+    // compactHeader variant removed — now uses data-[compact] attribute in base slot
     colDragging: {
       true: {
         th: 'bg-primary-500/15 opacity-50 transition-[opacity,background-color] duration-200 ease-linear',

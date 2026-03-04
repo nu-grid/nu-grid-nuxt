@@ -6,7 +6,7 @@ import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 import { defaultRangeExtractor, useVirtualizer } from '@tanstack/vue-virtual'
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
-import { computed, ref, shallowRef, toValue, watch } from 'vue'
+import { computed, ref, shallowRef, toValue, triggerRef, watch } from 'vue'
 
 import type { NuGridProps } from '../../types'
 import type {
@@ -449,7 +449,7 @@ function useSharedVirtualizer<T extends TableData>(
   const ensureVirtualizer = () => {
     if (virtualizer.value) return
 
-    const baseVirtualizer = useVirtualizer({
+    const baseRef = useVirtualizer({
       ...virtualizerProps.value,
       get count() {
         return options.virtualRowItems.value.length
@@ -474,17 +474,22 @@ function useSharedVirtualizer<T extends TableData>(
       },
     }) as Ref<Virtualizer<Element, Element>>
 
-    const nugVirtualizer = baseVirtualizer as unknown as NuGridVirtualizer
-    nugVirtualizer.props = options.virtualization
-    nugVirtualizer.dynamicRowHeightsEnabled = dynamicRowHeightsEnabled
+    // Unwrap the Ref<Virtualizer> from useVirtualizer and add NuGrid properties
+    // directly onto the Virtualizer instance. This avoids a double-ref problem where
+    // the template would get the Ref wrapper instead of the Virtualizer.
+    const instance = baseRef.value as unknown as NuGridVirtualizer
+    instance.props = options.virtualization
+    instance.dynamicRowHeightsEnabled = dynamicRowHeightsEnabled
+    virtualizer.value = instance
+
+    // Forward reactivity: when @tanstack triggers its internal ref, update ours
+    watch(baseRef, () => triggerRef(virtualizer))
 
     if (options.stickyEnabled) {
       watch(options.stickyEnabled, () => {
-        nugVirtualizer?.measure?.()
+        virtualizer.value?.measure?.()
       })
     }
-
-    virtualizer.value = nugVirtualizer
   }
 
   watch(

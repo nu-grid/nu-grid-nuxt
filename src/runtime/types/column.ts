@@ -161,6 +161,22 @@ export type NuGridColumn<T extends TableData> = TableColumn<T> & {
   sortIcons?: NuGridSortIcon
 
   /**
+   * Override which value is used for sorting.
+   * When a string, reads that key from the row data instead of the column's accessor.
+   * When a function, calls it with the row to get the sort value.
+   * Useful when a column displays one field (e.g. statusText) but should
+   * sort by another (e.g. statusSort).
+   * @example
+   * // Sort by numeric sort order instead of display text
+   * { accessorKey: 'statusText', header: 'Status', sortAccessor: 'statusSort' }
+   *
+   * @example
+   * // Sort by a nested or computed value
+   * { accessorKey: 'name', sortAccessor: (row) => row.lastName + row.firstName }
+   */
+  sortAccessor?: string | ((row: T) => unknown)
+
+  /**
    * Override the default cell rendering behavior
    * When true, indicates that the cell uses a custom renderer and should bypass default rendering logic
    * @defaultValue false

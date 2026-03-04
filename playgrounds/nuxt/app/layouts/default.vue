@@ -269,6 +269,14 @@ const links = [
         },
       },
       {
+        label: 'Sorting Engine',
+        icon: 'i-lucide-arrow-up-narrow-wide',
+        to: '/sorting-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
         label: 'Nested Groups (3-Tier)',
         icon: 'i-lucide-layers',
         to: '/nested-groups-demo',

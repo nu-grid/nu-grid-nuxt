@@ -2,11 +2,12 @@ import type { TableColumn } from '@nuxt/ui'
 import type { ColumnSizingInfoState, GroupingState } from '@tanstack/vue-table'
 
 import { describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import type { NuGridStates } from '../src/runtime/types/_internal'
 
 import { useNuGridApi, useNuGridColumns } from '../src/runtime/composables/_internal/useNuGridCore'
+import { useNuGridSorting } from '../src/runtime/composables/_internal/useNuGridSorting'
 
 /**
  * Tests for grouping functionality
@@ -73,7 +74,7 @@ describe('table Grouping', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     // Verify that the table has grouping capability
     expect(tableApi.options.getGroupedRowModel).toBeDefined()
@@ -114,7 +115,7 @@ describe('table Grouping', () => {
       },
     } as any
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     // Verify that the custom function is used
     expect(tableApi.options.getGroupedRowModel).toBe(customGroupedRowModel)
@@ -131,7 +132,7 @@ describe('table Grouping', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     // Initially no grouping
     expect(tableApi.getState().grouping).toEqual([])
@@ -154,7 +155,7 @@ describe('table Grouping', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     // Verify multiple grouping columns are set
     expect(tableApi.getState().grouping).toEqual(['status', 'value'])
@@ -174,7 +175,7 @@ describe('table Grouping', () => {
       },
     } as any
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     // Verify groupedColumnMode option is set
     expect(tableApi.options.groupedColumnMode).toBe('remove')
@@ -209,7 +210,7 @@ describe('table Grouping', () => {
       columns: columnsWithAggregation,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     // Verify that columns with aggregation are properly configured
     const valueColumn = tableApi.getColumn('value')
@@ -242,7 +243,7 @@ describe('table Grouping', () => {
       },
     } as any
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     // Call getGroupedRowModel to trigger the custom function
     const result = tableApi.getGroupedRowModel()
@@ -273,16 +274,19 @@ describe('table Grouping', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
 
     // Verify sorting state is set
     expect(tableApi.getState().sorting).toEqual([{ id: 'name', desc: false }])
 
-    // Get the sorted row model (which includes grouped and sorted data)
-    const sortedRows = tableApi.getSortedRowModel().rows
+    // Get unsorted rows from TanStack (manualSorting: true skips internal sort)
+    const unsortedRows = computed(() => tableApi.getRowModel().rows)
+
+    // Sort using NuGrid's sort engine
+    const { sortedRows } = useNuGridSorting(unsortedRows, states.sortingState, tableApi)
 
     // Filter to get only group rows
-    const groupedRows = sortedRows.filter((row: any) => row.getIsGrouped())
+    const groupedRows = sortedRows.value.filter((row: any) => row.getIsGrouped())
     expect(groupedRows.length).toBe(2) // 'active' and 'inactive' groups
 
     // Check that subRows within each group are sorted by name
@@ -358,7 +362,7 @@ describe('table Grouping', () => {
         columns: columnsWithGrouping,
       }
 
-      const tableApi = useNuGridApi(props, data, columns, states)
+      const { tableApi } = useNuGridApi(props, data, columns, states)
 
       // Get all rows from the grouped model
       const groupedRows = tableApi.getGroupedRowModel().rows
@@ -456,7 +460,7 @@ describe('table Grouping', () => {
         columns: cols,
       }
 
-      const tableApi = useNuGridApi(props, data, columns, states)
+      const { tableApi } = useNuGridApi(props, data, columns, states)
       const groupedRows = tableApi.getGroupedRowModel().rows
 
       // Verify structure:

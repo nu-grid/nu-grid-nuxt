@@ -955,6 +955,15 @@ export interface NuGridSortOptions {
    * @defaultValue 'maintain'
    */
   dataChangeBehavior?: 'maintain' | 'resort'
+
+  /**
+   * Debounce delay in milliseconds for re-sorting after cell edits (resort mode only).
+   * During the debounce window, row order is maintained. When the timer fires,
+   * rows animate to their new sorted positions. Useful for editable grids where
+   * users rapidly tab through cells in sorted columns.
+   * @defaultValue 0 (no debounce)
+   */
+  sortDebounce?: number
 }
 
 /**

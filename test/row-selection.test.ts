@@ -308,7 +308,7 @@ describe('row Selection Mode - Single Selection Behavior', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states, rowSelectionMode)
+    const { tableApi } = useNuGridApi(props, data, columns, states, rowSelectionMode)
 
     // In single mode, enableMultiRowSelection should be false
     expect(tableApi.options.enableMultiRowSelection).toBe(false)
@@ -326,7 +326,7 @@ describe('row Selection Mode - Single Selection Behavior', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states, rowSelectionMode)
+    const { tableApi } = useNuGridApi(props, data, columns, states, rowSelectionMode)
 
     // In multi mode, enableMultiRowSelection should be true
     expect(tableApi.options.enableMultiRowSelection).toBe(true)
@@ -344,7 +344,7 @@ describe('row Selection Mode - Single Selection Behavior', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states, rowSelectionMode)
+    const { tableApi } = useNuGridApi(props, data, columns, states, rowSelectionMode)
 
     // When undefined, should default to multi-selection enabled
     expect(tableApi.options.enableMultiRowSelection).toBe(true)
@@ -364,7 +364,7 @@ describe('row Selection Mode - Selection State', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states, rowSelectionMode)
+    const { tableApi } = useNuGridApi(props, data, columns, states, rowSelectionMode)
 
     // Select multiple rows (use '1' and '2' since row IDs come from data.id field)
     tableApi.setRowSelection({ '1': true, '2': true })
@@ -385,7 +385,7 @@ describe('row Selection Mode - Selection State', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states, rowSelectionMode)
+    const { tableApi } = useNuGridApi(props, data, columns, states, rowSelectionMode)
 
     // Select rows (use '1' and '2' since row IDs come from data.id field)
     tableApi.setRowSelection({ '1': true, '2': true })
@@ -408,7 +408,7 @@ describe('row Selection Mode - Selection State', () => {
       columns: testColumns,
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states, rowSelectionMode)
+    const { tableApi } = useNuGridApi(props, data, columns, states, rowSelectionMode)
 
     // Select first row (use '1' since row IDs come from data.id field)
     tableApi.setRowSelection({ '1': true })

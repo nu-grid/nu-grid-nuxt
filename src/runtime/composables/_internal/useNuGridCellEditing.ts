@@ -81,7 +81,7 @@ export function useNuGridCellEditing<T extends TableData>(
   externalEditingCell?: Ref<NuGridEditingCell | null>,
   addRowContext?: NuGridAddRowContext<T> | null,
   eventEmitter?: NuGridEventEmitter<T>,
-  onBeforeSortedCellEdit?: (columnId: string) => void,
+  onBeforeSortedCellEdit?: (columnId: string, rowId: string) => void,
   onAfterSortedCellEdit?: () => void,
 ): NuGridCellEditing<T> {
   const editingCell = externalEditingCell ?? ref<NuGridEditingCell | null>(null)
@@ -920,7 +920,7 @@ export function useNuGridCellEditing<T extends TableData>(
 
       // Notify sort stability BEFORE mutation (captures snapshot in maintain mode)
       if (onBeforeSortedCellEdit) {
-        onBeforeSortedCellEdit(cell.column.id)
+        onBeforeSortedCellEdit(cell.column.id, row.id)
       }
 
       if (rowIndex !== -1) {

@@ -231,7 +231,7 @@ export async function exportToExcel<T>(
   }
 
   // Get rows in current sorted/filtered order
-  const rows = tableApi.getSortedRowModel().rows.map((r) => r.original)
+  const rows = tableApi.getPrePaginationRowModel().rows.map((r) => r.original)
 
   // Build data array for write-excel-file
   const data: Row[] = []
@@ -431,7 +431,7 @@ export async function exportGroupedToExcel<T>(
   data.push(...groupedData)
 
   // Calculate column widths (sample from all original data for consistency)
-  const allRows = tableApi.getSortedRowModel().rows.map((r) => r.original)
+  const allRows = tableApi.getPrePaginationRowModel().rows.map((r) => r.original)
   const columnWidthsArray = exportColumns.map((col) => {
     if (columnWidths[col.id]) {
       return { width: columnWidths[col.id] }

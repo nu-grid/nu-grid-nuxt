@@ -77,7 +77,7 @@ describe('virtualization Row Heights Configuration', () => {
       layout: { mode: 'group' },
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
     const grouping = useNuGridGrouping(props, tableApi, rootRef)
@@ -113,7 +113,7 @@ describe('virtualization Row Heights Configuration', () => {
       layout: { mode: 'group' },
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
     const grouping = useNuGridGrouping(props, tableApi, rootRef)
@@ -148,7 +148,7 @@ describe('virtualization Row Heights Configuration', () => {
       layout: { mode: 'group' },
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
     const grouping = useNuGridGrouping(props, tableApi, rootRef)
@@ -184,7 +184,7 @@ describe('virtualization Row Heights Configuration', () => {
       layout: { mode: 'group' },
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
     const grouping = useNuGridGrouping(props, tableApi, rootRef)
@@ -220,7 +220,7 @@ describe('virtualization Row Heights Configuration', () => {
       layout: { mode: 'group' },
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
     const grouping = useNuGridGrouping(props, tableApi, rootRef)
@@ -249,7 +249,7 @@ describe('virtualization Row Heights Configuration', () => {
       layout: { mode: 'group' },
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
     const grouping = useNuGridGrouping(props, tableApi, rootRef)
@@ -315,7 +315,7 @@ describe('dynamic Row Heights Configuration', () => {
       layout: { mode: 'group' },
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
     const grouping = useNuGridGrouping(props, tableApi, rootRef)
@@ -341,7 +341,7 @@ describe('dynamic Row Heights Configuration', () => {
       layout: { mode: 'group' },
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
     const grouping = useNuGridGrouping(props, tableApi, rootRef)
@@ -368,7 +368,7 @@ describe('dynamic Row Heights Configuration', () => {
       layout: { mode: 'group' },
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
     const grouping = useNuGridGrouping(props, tableApi, rootRef)
@@ -395,7 +395,7 @@ describe('dynamic Row Heights Configuration', () => {
       layout: { mode: 'group' },
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
     const grouping = useNuGridGrouping(props, tableApi, rootRef)
@@ -423,7 +423,7 @@ describe('dynamic Row Heights Configuration', () => {
       layout: { mode: 'group' },
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
     const grouping = useNuGridGrouping(props, tableApi, rootRef)
@@ -451,7 +451,7 @@ describe('dynamic Row Heights Configuration', () => {
       layout: { mode: 'group' },
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
     const grouping = useNuGridGrouping(props, tableApi, rootRef)
@@ -487,7 +487,7 @@ describe('dynamic Row Heights Configuration', () => {
       layout: { mode: 'group' },
     }
 
-    const tableApi = useNuGridApi(props, data, columns, states)
+    const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
     const grouping = useNuGridGrouping(props, tableApi, rootRef)

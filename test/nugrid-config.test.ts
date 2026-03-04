@@ -73,10 +73,6 @@ describe('nuGridDefaults', () => {
       expect(nuGridDefaults.focus.mode).toBe('cell')
     })
 
-    it('should default retain to false', () => {
-      expect(nuGridDefaults.focus.retain).toBe(false)
-    })
-
     it('should default cmdArrows to paging', () => {
       expect(nuGridDefaults.focus.cmdArrows).toBe('paging')
     })
@@ -165,9 +161,6 @@ describe('nuGridDefaults', () => {
       expect(nuGridDefaults.layout.autoSize).toBe('fill')
     })
 
-    it('should default resizeMode to shift', () => {
-      expect(nuGridDefaults.layout.resizeMode).toBe('shift')
-    })
   })
 
   describe('other defaults', () => {
@@ -278,7 +271,6 @@ describe('config factory', () => {
       })
 
       expect(result.focus?.mode).toBe('cell')
-      expect(result.focus?.retain).toBe(false) // From defaults
       expect(result.editing?.enabled).toBe(false) // From defaults
     })
 
@@ -290,7 +282,6 @@ describe('config factory', () => {
 
       // From preset
       expect(result.focus?.mode).toBe('cell')
-      expect(result.focus?.retain).toBe(true)
       expect(result.editing?.enabled).toBe(true)
       // From config override
       expect(result.focus?.pageStep).toBe(20)
@@ -319,7 +310,6 @@ describe('presets', () => {
     it('should return editable preset', () => {
       const preset = getNuGridPreset('editable')
       expect(preset.focus?.mode).toBe('cell')
-      expect(preset.focus?.retain).toBe(true)
       expect(preset.editing?.enabled).toBe(true)
       expect(preset.layout?.stickyHeaders).toBe(true)
       expect(preset.layout?.autoSize).toBe('content')
@@ -337,7 +327,6 @@ describe('presets', () => {
     it('should return forms preset', () => {
       const preset = getNuGridPreset('forms')
       expect(preset.focus?.mode).toBe('cell')
-      expect(preset.focus?.retain).toBe(true)
       expect(preset.focus?.cmdArrows).toBe('firstlast')
       expect(preset.focus?.pageStep).toBe(5)
       expect(preset.editing?.enabled).toBe(true)
@@ -371,7 +360,6 @@ describe('presets', () => {
       })
 
       expect(result.focus?.mode).toBe('cell') // From preset
-      expect(result.focus?.retain).toBe(true) // From preset
       expect(result.focus?.pageStep).toBe(15) // From override
     })
 
@@ -397,7 +385,6 @@ describe('prop-utils', () => {
     it('should return focus defaults', () => {
       const focusDefaults = getDefaults('focus')
       expect(focusDefaults.mode).toBe('cell')
-      expect(focusDefaults.retain).toBe(false)
       expect(focusDefaults.cmdArrows).toBe('paging')
       expect(focusDefaults.loopNavigation).toBe(false)
       expect(focusDefaults.pageStep).toBe(10)
@@ -484,14 +471,12 @@ describe('prop-utils', () => {
   describe('usePropsWithDefaults', () => {
     it('should return multiple computed refs', () => {
       const props = { focus: { mode: 'cell' } }
-      const { mode, retain, pageStep } = usePropsWithDefaults(props, 'focus', [
+      const { mode, pageStep } = usePropsWithDefaults(props, 'focus', [
         'mode',
-        'retain',
         'pageStep',
       ])
 
       expect(mode.value).toBe('cell')
-      expect(retain.value).toBe(false) // Default
       expect(pageStep.value).toBe(10) // Default
     })
 
@@ -561,25 +546,24 @@ describe('prop-utils', () => {
 
     it('should work with layout group', () => {
       const props = { layout: { stickyHeaders: true, autoSize: 'fill' } }
-      const { mode, stickyHeaders, scrollbars, autoSize, resizeMode } = usePropsWithDefaults(
+      const { mode, stickyHeaders, scrollbars, autoSize } = usePropsWithDefaults(
         props,
         'layout',
-        ['mode', 'stickyHeaders', 'scrollbars', 'autoSize', 'resizeMode'],
+        ['mode', 'stickyHeaders', 'scrollbars', 'autoSize'],
       )
 
       expect(mode.value).toBe('div') // Default
       expect(stickyHeaders.value).toBe(true)
       expect(scrollbars.value).toBe('scroll') // Default
       expect(autoSize.value).toBe('fill')
-      expect(resizeMode.value).toBe('shift') // Default
     })
 
     it('should handle empty props object', () => {
       const props = {}
-      const { mode, retain } = usePropsWithDefaults(props, 'focus', ['mode', 'retain'])
+      const { mode, pageStep } = usePropsWithDefaults(props, 'focus', ['mode', 'pageStep'])
 
       expect(mode.value).toBe('cell') // Default
-      expect(retain.value).toBe(false) // Default
+      expect(pageStep.value).toBe(10) // Default
     })
   })
 })
@@ -596,7 +580,6 @@ describe('integration', () => {
 
     // Verify merged config
     expect(config.focus?.mode).toBe('cell')
-    expect(config.focus?.retain).toBe(true)
     expect(config.focus?.pageStep).toBe(15)
     expect(config.editing?.enabled).toBe(true)
     expect(
@@ -605,11 +588,9 @@ describe('integration', () => {
 
     // Use prop utilities with the config
     const mode = usePropWithDefault(config, 'focus', 'mode')
-    const retain = usePropWithDefault(config, 'focus', 'retain')
     const pageStep = usePropWithDefault(config, 'focus', 'pageStep')
 
     expect(mode.value).toBe('cell')
-    expect(retain.value).toBe(true)
     expect(pageStep.value).toBe(15)
   })
 

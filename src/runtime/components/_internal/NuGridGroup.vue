@@ -395,28 +395,40 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
             :sort-icons="header.column.columnDef.sortIcons"
           />
         </div>
-        <div
-          :class="
-            ui.headerControls({
-              class: [propsUi?.headerControls],
-              compactHeader: isCompactHeader(header),
-            })
-          "
-        >
-          <NuGridHeaderSortButton
-            v-if="
-              (header.column.columnDef.sortIcons?.position ?? gridSortIcons?.position ?? 'edge') ===
-              'edge'
-            "
-            :header="header"
-            :sort-icons="header.column.columnDef.sortIcons"
-            :compact="isCompactHeader(header)"
-          />
-          <NuGridColumnMenu
-            v-if="header.colSpan === 1 && rowIndex === headerGroupsLength - 1"
-            :header="header"
-            :compact="isCompactHeader(header)"
-          />
+        <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
+          <div
+            v-if="isCompactHeader(header)"
+            :class="ui.headerControlsCompact({ class: [propsUi?.headerControlsCompact] })"
+          >
+            <NuGridHeaderSortButton
+              v-if="
+                (header.column.columnDef.sortIcons?.position ?? gridSortIcons?.position ?? 'edge') ===
+                'edge'
+              "
+              :header="header"
+              :sort-icons="header.column.columnDef.sortIcons"
+              :compact="true"
+            />
+            <NuGridColumnMenu
+              v-if="header.colSpan === 1 && rowIndex === headerGroupsLength - 1"
+              :header="header"
+              :compact="true"
+            />
+          </div>
+          <template v-else>
+            <NuGridHeaderSortButton
+              v-if="
+                (header.column.columnDef.sortIcons?.position ?? gridSortIcons?.position ?? 'edge') ===
+                'edge'
+              "
+              :header="header"
+              :sort-icons="header.column.columnDef.sortIcons"
+            />
+            <NuGridColumnMenu
+              v-if="header.colSpan === 1 && rowIndex === headerGroupsLength - 1"
+              :header="header"
+            />
+          </template>
         </div>
 
         <div

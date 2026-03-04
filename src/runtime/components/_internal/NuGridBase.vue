@@ -6,7 +6,7 @@ import type { ComponentPublicInstance, Ref } from 'vue'
 import { FlexRender, type Header } from '@tanstack/vue-table'
 import { createReusableTemplate } from '@vueuse/core'
 import { Primitive } from 'reka-ui'
-import { computed, inject, toValue } from 'vue'
+import { computed, inject, onMounted, ref, toValue } from 'vue'
 
 import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
 import type { NuGridProps } from '../../types'
@@ -124,10 +124,17 @@ function handleHeaderSortClick(event: MouseEvent, header: Header<T, unknown>) {
   }
 }
 
+// Defer auto-detection of compact headers until after mount to avoid
+// SSR/hydration mismatch (header.getSize() depends on container width
+// which isn't available during SSR).
+const isMounted = ref(false)
+onMounted(() => { isMounted.value = true })
+
 function isCompactHeader(header: Header<T, unknown>): boolean {
   const opt = header.column.columnDef.compactHeader
   if (opt === true) return true
   if (opt === false) return false
+  if (!isMounted.value) return false
   return header.getSize() < 150
 }
 
@@ -581,25 +588,35 @@ function getVirtualItemStyle(
                     :sort-icons="header.column.columnDef.sortIcons"
                   />
                 </div>
-                <div
-                  :class="
-                    ui.headerControls({
-                      class: [propsUi?.headerControls],
-                      compactHeader: isCompactHeader(header),
-                    })
-                  "
-                >
-                  <NuGridHeaderSortButton
-                    v-if="
-                      (header.column.columnDef.sortIcons?.position ??
-                        gridSortIcons?.position ??
-                        'edge') === 'edge'
-                    "
-                    :header="header"
-                    :sort-icons="header.column.columnDef.sortIcons"
-                    :compact="isCompactHeader(header)"
-                  />
-                  <NuGridColumnMenu :header="header" :compact="isCompactHeader(header)" />
+                <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
+                  <div
+                    v-if="isCompactHeader(header)"
+                    :class="ui.headerControlsCompact({ class: [propsUi?.headerControlsCompact] })"
+                  >
+                    <NuGridHeaderSortButton
+                      v-if="
+                        (header.column.columnDef.sortIcons?.position ??
+                          gridSortIcons?.position ??
+                          'edge') === 'edge'
+                      "
+                      :header="header"
+                      :sort-icons="header.column.columnDef.sortIcons"
+                      :compact="true"
+                    />
+                    <NuGridColumnMenu :header="header" :compact="true" />
+                  </div>
+                  <template v-else>
+                    <NuGridHeaderSortButton
+                      v-if="
+                        (header.column.columnDef.sortIcons?.position ??
+                          gridSortIcons?.position ??
+                          'edge') === 'edge'
+                      "
+                      :header="header"
+                      :sort-icons="header.column.columnDef.sortIcons"
+                    />
+                    <NuGridColumnMenu :header="header" />
+                  </template>
                   <div
                     v-if="header.column.getCanResize()"
                     :class="
@@ -800,25 +817,39 @@ function getVirtualItemStyle(
                       :sort-icons="header.column.columnDef.sortIcons"
                     />
                   </div>
-                  <div
-                    :class="
-                      ui.headerControls({
-                        class: [propsUi?.headerControls],
-                        compactHeader: isCompactHeader(header),
-                      })
-                    "
-                  >
-                    <NuGridHeaderSortButton
-                      v-if="
-                        (header.column.columnDef.sortIcons?.position ??
-                          gridSortIcons?.position ??
-                          'edge') === 'edge'
+                  <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
+                    <div
+                      v-if="isCompactHeader(header)"
+                      :class="
+                        ui.headerControlsCompact({
+                          class: [propsUi?.headerControlsCompact],
+                        })
                       "
-                      :header="header"
-                      :sort-icons="header.column.columnDef.sortIcons"
-                      :compact="isCompactHeader(header)"
-                    />
-                    <NuGridColumnMenu :header="header" :compact="isCompactHeader(header)" />
+                    >
+                      <NuGridHeaderSortButton
+                        v-if="
+                          (header.column.columnDef.sortIcons?.position ??
+                            gridSortIcons?.position ??
+                            'edge') === 'edge'
+                        "
+                        :header="header"
+                        :sort-icons="header.column.columnDef.sortIcons"
+                        :compact="true"
+                      />
+                      <NuGridColumnMenu :header="header" :compact="true" />
+                    </div>
+                    <template v-else>
+                      <NuGridHeaderSortButton
+                        v-if="
+                          (header.column.columnDef.sortIcons?.position ??
+                            gridSortIcons?.position ??
+                            'edge') === 'edge'
+                        "
+                        :header="header"
+                        :sort-icons="header.column.columnDef.sortIcons"
+                      />
+                      <NuGridColumnMenu :header="header" />
+                    </template>
                     <div
                       v-if="header.column.getCanResize()"
                       :class="
@@ -1003,25 +1034,35 @@ function getVirtualItemStyle(
                               :sort-icons="header.column.columnDef.sortIcons"
                             />
                           </div>
-                          <div
-                            :class="
-                              ui.headerControls({
-                                class: [propsUi?.headerControls],
-                                compactHeader: isCompactHeader(header),
-                              })
-                            "
-                          >
-                            <NuGridHeaderSortButton
-                              v-if="
-                                (header.column.columnDef.sortIcons?.position ??
-                                  gridSortIcons?.position ??
-                                  'edge') === 'edge'
-                              "
-                              :header="header"
-                              :sort-icons="header.column.columnDef.sortIcons"
-                              :compact="isCompactHeader(header)"
-                            />
-                            <NuGridColumnMenu :header="header" :compact="isCompactHeader(header)" />
+                          <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
+                            <div
+                              v-if="isCompactHeader(header)"
+                              :class="ui.headerControlsCompact({ class: [propsUi?.headerControlsCompact] })"
+                            >
+                              <NuGridHeaderSortButton
+                                v-if="
+                                  (header.column.columnDef.sortIcons?.position ??
+                                    gridSortIcons?.position ??
+                                    'edge') === 'edge'
+                                "
+                                :header="header"
+                                :sort-icons="header.column.columnDef.sortIcons"
+                                :compact="true"
+                              />
+                              <NuGridColumnMenu :header="header" :compact="true" />
+                            </div>
+                            <template v-else>
+                              <NuGridHeaderSortButton
+                                v-if="
+                                  (header.column.columnDef.sortIcons?.position ??
+                                    gridSortIcons?.position ??
+                                    'edge') === 'edge'
+                                "
+                                :header="header"
+                                :sort-icons="header.column.columnDef.sortIcons"
+                              />
+                              <NuGridColumnMenu :header="header" />
+                            </template>
                             <div
                               v-if="header.column.getCanResize()"
                               :class="
@@ -1217,28 +1258,35 @@ function getVirtualItemStyle(
                                 :sort-icons="header.column.columnDef.sortIcons"
                               />
                             </div>
-                            <div
-                              :class="
-                                ui.headerControls({
-                                  class: [propsUi?.headerControls],
-                                  compactHeader: isCompactHeader(header),
-                                })
-                              "
-                            >
-                              <NuGridHeaderSortButton
-                                v-if="
-                                  (header.column.columnDef.sortIcons?.position ??
-                                    gridSortIcons?.position ??
-                                    'edge') === 'edge'
-                                "
-                                :header="header"
-                                :sort-icons="header.column.columnDef.sortIcons"
-                                :compact="isCompactHeader(header)"
-                              />
-                              <NuGridColumnMenu
-                                :header="header"
-                                :compact="isCompactHeader(header)"
-                              />
+                            <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
+                              <div
+                                v-if="isCompactHeader(header)"
+                                :class="ui.headerControlsCompact({ class: [propsUi?.headerControlsCompact] })"
+                              >
+                                <NuGridHeaderSortButton
+                                  v-if="
+                                    (header.column.columnDef.sortIcons?.position ??
+                                      gridSortIcons?.position ??
+                                      'edge') === 'edge'
+                                  "
+                                  :header="header"
+                                  :sort-icons="header.column.columnDef.sortIcons"
+                                  :compact="true"
+                                />
+                                <NuGridColumnMenu :header="header" :compact="true" />
+                              </div>
+                              <template v-else>
+                                <NuGridHeaderSortButton
+                                  v-if="
+                                    (header.column.columnDef.sortIcons?.position ??
+                                      gridSortIcons?.position ??
+                                      'edge') === 'edge'
+                                  "
+                                  :header="header"
+                                  :sort-icons="header.column.columnDef.sortIcons"
+                                />
+                                <NuGridColumnMenu :header="header" />
+                              </template>
                               <div
                                 v-if="header.column.getCanResize()"
                                 :class="

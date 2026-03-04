@@ -138,6 +138,7 @@ export const nuGridDefaults = {
   },
   sort: {
     dataChangeBehavior: 'maintain',
+    sortDebounce: 0,
   },
   cellTypes: [],
   addNewRow: false,

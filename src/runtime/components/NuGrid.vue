@@ -62,6 +62,7 @@ import {
   useNuGridColumns,
   useNuGridDataWatch,
   useNuGridEmptyGroups,
+  useNuGridFiltering,
   useNuGridFocus,
   useNuGridFocusInit,
   useNuGridFooter,
@@ -73,6 +74,7 @@ import {
   useNuGridScrollbars,
   useNuGridScrollState,
   useNuGridSearch,
+  useNuGridSorting,
   useNuGridSortStability,
   useNuGridStatePersistence,
   useNuGridTooltipHandler,
@@ -303,6 +305,9 @@ const groupingFnsRef = shallowRef<NuGridGroupingFns<T> | null>(null)
 const interactionRouter = useNuGridInteractionRouter<T>({ eventEmitter })
 let groupingFns: NuGridGroupingFns<T> | null = null
 
+// Pre-filter data before passing to TanStack (NuGrid owns filtering)
+const { filteredData, notifyEditedCell } = useNuGridFiltering(data, columns, globalFilterState, columnFiltersState)
+
 const statePersistence = useNuGridStatePersistence(
   states,
   !!(typeof props.state === 'object' && props.state),
@@ -311,34 +316,37 @@ const statePersistence = useNuGridStatePersistence(
   eventEmitter,
 )
 
-const { tableApi, columnsUpdatedSignal, dataVersion } = useNuGridApi(
+const { tableApi, columnsUpdatedSignal } = useNuGridApi(
   props,
-  data,
+  filteredData,
   columns,
   states,
   rowSelectionModeRef,
   eventEmitter,
 )
 
-const tableRows = computed(() => {
-  // dataVersion is incremented by the sync watch in useNuGridApi when data changes.
-  // This forces the computed to re-evaluate after TanStack has been updated via setOptions.
-  // Without this, getRowModel() (a plain JS function) would return stale cached rows.
-
-  dataVersion.value
+const unsortedRows = computed(() => {
+  // Reactive dependency on filteredData ensures this re-evaluates when data or filters change.
+  // The sync watcher in useNuGridApi calls setOptions() so TanStack has fresh data by this point.
+  filteredData.value
   return tableApi.getRowModel().rows
 })
+
+// NuGrid-owned sorting — replaces TanStack's getSortedRowModel
+const { sortedRows, notifyEditedRow, movedRowIds } = useNuGridSorting(unsortedRows, sortingState, tableApi, rowPinningState)
 
 // Sort stability — freeze row order after data changes in sorted columns
 const { displayRows, onBeforeSortedCellEdit, onAfterSortedCellEdit, staleColumns, clearStale } =
   useNuGridSortStability(
     sortingState,
-    tableRows,
+    sortedRows,
     usePropWithDefault(props, 'sort', 'dataChangeBehavior'),
     data,
     rootRef,
     focusFnsRef,
     focusedRowIdState,
+    usePropWithDefault(props, 'sort', 'sortDebounce'),
+    notifyEditedRow,
   )
 
 // Row interactions
@@ -568,7 +576,10 @@ const cellEditingFns = useNuGridCellEditing(
     triggerValueUpdate: addRowTriggerValueUpdate,
   },
   eventEmitter,
-  onBeforeSortedCellEdit,
+  (columnId: string, rowId: string) => {
+    notifyEditedCell(columnId)
+    onBeforeSortedCellEdit(columnId, rowId)
+  },
   onAfterSortedCellEdit,
 )
 cellEditingFnsRef.value = cellEditingFns
