@@ -956,3 +956,14 @@ export interface NuGridSortOptions {
    */
   dataChangeBehavior?: 'maintain' | 'resort'
 }
+
+/**
+ * Options for spreadsheet-style navigation between multiple grids.
+ * When a user navigates past the last/first cell, focus moves to the linked grid.
+ */
+export interface NuGridSpreadsheetNavOptions {
+  /** Grid ref to navigate to when moving past the last cell */
+  nextGrid?: Ref<any>
+  /** Grid ref to navigate to when moving before the first cell */
+  previousGrid?: Ref<any>
+}

@@ -1827,10 +1827,11 @@ export function useNuGridFocus<T extends TableData>(
     const columnIndex = options?.columnIndex ?? findFirstFocusableColumn(targetRow)
     const align = options?.align ?? alignOnModel.value ?? 'nearest'
 
-    // Update focus state
-    isUpdatingFromModel = true
+    // Update focus state — let setFocusedCell sync to focusedRowIdModel so
+    // sort stability (and other consumers) can always read the focused row ID.
+    // The isUpdatingToModel guard in setFocusedCell already prevents circular
+    // updates with the model watcher.
     setFocusedCell({ rowIndex, columnIndex })
-    isUpdatingFromModel = false
 
     // Focus and scroll to the cell/row
     // Pass alignment callback so it runs after scroll completes (not via nextTick which fires too early)
@@ -1916,6 +1917,39 @@ export function useNuGridFocus<T extends TableData>(
     )
   }
 
+  /**
+   * Scroll a row into view without stealing DOM focus.
+   * Uses the grid's scroll infrastructure (sticky header handling, scroll containers).
+   */
+  function scrollRowIntoView(rowId: string) {
+    const element =
+      focusMode.value === 'cell'
+        ? getCellElement(rowId, findFirstFocusableColumn(rows.value.find((r) => r.id === rowId)!))
+        : getRowElement(rowId)
+    if (!element) return
+
+    const effectiveScrollContainer = verticalScrollContainer.value
+    const tableElement = tableRef.value
+    if (!effectiveScrollContainer || !tableElement) return
+
+    const rowIndex = rowIdToIndexMap.value.get(rowId) ?? -1
+    if (rowIndex < 0) return
+
+    scrollManager.scrollToCell({
+      cellElement: element,
+      scrollContainer: effectiveScrollContainer,
+      horizontalScrollContainer: horizontalScrollContainer.value ?? undefined,
+      tableElement,
+      rowIndex,
+      columnIndex: 0,
+      virtualizedStickyHeight: resolveStickyHeight(tableElement),
+      behavior: 'instant',
+      verticalPadding: 15,
+      skipHorizontalScroll: true,
+      verticalOnly: true,
+    })
+  }
+
   return {
     focusedCell,
     gridHasFocus,
@@ -1938,6 +1972,7 @@ export function useNuGridFocus<T extends TableData>(
     scrollToCellAndFocus,
     setFocusedCell,
     focusRowById,
+    scrollRowIntoView,
   }
 }
 

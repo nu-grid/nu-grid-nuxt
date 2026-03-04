@@ -139,19 +139,42 @@ export function useNuGridSortStability<T extends TableData>(
   let savedFocusRowId: string | null = null
 
   function saveFocus() {
+    // Prefer focusedRowId model, but fall back to looking up from focusedCell.
+    // focusedRowIdModel may be null when focusRowById() was used (it skips model sync
+    // to avoid circular updates), so we resolve the ID from the cell's row index.
+    //
+    // Use lastSettledOrder (previous render's row IDs) for the fallback — NOT tableRows,
+    // because the sync data watcher in useNuGridCore has already updated TanStack with
+    // the new data by the time this pre-flush watcher runs, so tableRows already reflects
+    // the new sort order, not the previous visual order.
     savedFocusRowId = focusedRowId.value
+    if (!savedFocusRowId && focusFnsRef.value?.focusedCell.value) {
+      const rowIndex = focusFnsRef.value.focusedCell.value.rowIndex
+      savedFocusRowId = lastSettledOrder[rowIndex] ?? null
+    }
   }
 
   function restoreFocus() {
     if (!savedFocusRowId) return
     const rowId = savedFocusRowId
     savedFocusRowId = null
-    // Only restore DOM focus if the grid currently has it — avoids stealing
-    // focus from other UI elements (e.g. form fields in a main content area
-    // while this grid is in a sidebar).
-    if (!focusFnsRef.value?.gridHasFocus.value) return
     nextTick(() => {
-      focusFnsRef.value?.focusRowById(rowId, { align: 'nearest' })
+      if (focusFnsRef.value?.gridHasFocus.value) {
+        // Grid has focus — full restore with scroll and DOM focus
+        focusFnsRef.value?.focusRowById(rowId, { align: 'nearest' })
+      } else {
+        // Grid doesn't have focus — update internal state only so the
+        // highlight tracks the row's new position without stealing focus
+        const rowIndex = tableRows.value.findIndex((r) => r.id === rowId)
+        if (rowIndex >= 0) {
+          const currentCol = focusFnsRef.value?.focusedCell.value?.columnIndex ?? 0
+          focusFnsRef.value?.setFocusedCell({ rowIndex, columnIndex: currentCol })
+          // Scroll row into view without stealing DOM focus
+          nextTick(() => {
+            focusFnsRef.value?.scrollRowIntoView(rowId)
+          })
+        }
+      }
     })
   }
 

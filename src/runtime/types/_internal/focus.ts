@@ -72,4 +72,6 @@ export interface NuGridFocus<T extends TableData = TableData> {
       align?: 'nearest' | 'top' | 'center'
     },
   ) => boolean
+  /** Scroll a row into view without stealing DOM focus */
+  scrollRowIntoView: (rowId: string) => void
 }
