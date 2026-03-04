@@ -3,7 +3,9 @@ import type { TableData, TableSlots } from '@nuxt/ui'
 import type { VirtualItem } from '@tanstack/vue-virtual'
 import type { ComponentPublicInstance, Ref } from 'vue'
 
-import { FlexRender, type Header } from '@tanstack/vue-table'
+import type { Header } from '@tanstack/vue-table'
+
+import { FlexRender } from '../../utils/flexRender'
 import { createReusableTemplate } from '@vueuse/core'
 import { Primitive } from 'reka-ui'
 import { computed, inject, onMounted, ref, toValue } from 'vue'

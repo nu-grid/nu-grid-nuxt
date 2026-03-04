@@ -1,5 +1,5 @@
 import type { TableData } from '@nuxt/ui'
-import type { Header, Table } from '@tanstack/vue-table'
+import type { ColumnPinningState, Header, Table } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 
 import { markRaw, ref } from 'vue'
@@ -12,6 +12,8 @@ export function useNuGridColumnDragDrop<T extends TableData>(
   tableApi: Table<T>,
   columnOrderState: Ref<string[]>,
   tableRef: Ref<HTMLDivElement | null>,
+  gridReorderEnabled = false,
+  columnPinningState?: Ref<ColumnPinningState>,
 ) {
   const draggedColumnId = ref<string | null>(null)
   const dropTargetColumnId = ref<string | null>(null)
@@ -70,7 +72,7 @@ export function useNuGridColumnDragDrop<T extends TableData>(
     }
 
     // Check if the dragged column is pinned and unpin it
-    const currentPinning = tableApi.getState().columnPinning
+    const currentPinning = columnPinningState?.value ?? tableApi.getState().columnPinning
     const draggedColId = draggedColumnId.value
     const isPinnedLeft = currentPinning.left?.includes(draggedColId)
     const isPinnedRight = currentPinning.right?.includes(draggedColId)
@@ -81,7 +83,9 @@ export function useNuGridColumnDragDrop<T extends TableData>(
         left: currentPinning.left?.filter((id) => id !== draggedColId) || [],
         right: currentPinning.right?.filter((id) => id !== draggedColId) || [],
       }
-      tableApi.setColumnPinning(newPinning)
+      if (columnPinningState) {
+        columnPinningState.value = newPinning
+      }
     }
 
     const allColumns = tableApi.getAllLeafColumns()
@@ -153,9 +157,9 @@ export function useNuGridColumnDragDrop<T extends TableData>(
 
   function isHeaderDraggable(header: Header<T, any>): boolean {
     const columnId = header.column.id
-    // Check if the column allows reordering
-    const enableReordering = (header.column.columnDef as any).enableReordering
-    if (enableReordering === false) {
+    // Column-level enableReordering overrides grid-level reorder default
+    const enableReordering = (header.column.columnDef as any).enableReordering ?? gridReorderEnabled
+    if (!enableReordering) {
       return false
     }
     return !header.isPlaceholder && header.colSpan === 1 && !!columnId

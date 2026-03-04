@@ -4,9 +4,7 @@ import type { ComponentPublicInstance, PropType, Ref } from 'vue'
 
 import {
   getCoreRowModel,
-  getExpandedRowModel,
   getGroupedRowModel,
-  getPaginationRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
 import { createReusableTemplate, reactiveOmit } from '@vueuse/core'
@@ -446,14 +444,10 @@ export function useNuGridApi<T extends TableData>(
     onColumnVisibilityChange: (updaterOrValue) =>
       valueUpdater(updaterOrValue, states.columnVisibilityState),
     ...(props.columnPinningOptions || {}),
-    onColumnPinningChange: (updaterOrValue) =>
-      valueUpdater(updaterOrValue, states.columnPinningState),
+    // NuGrid owns column pinning — state is managed directly via refs.
+    // NuGrid owns column sizing — state is managed directly via refs.
+    // TanStack reads columnSizing/columnSizingInfo passively from the state getter.
     ...(props.columnSizingOptions || {}),
-    onColumnSizingChange: (updaterOrValue) =>
-      valueUpdater(updaterOrValue, states.columnSizingState),
-    onColumnSizingInfoChange: (updaterOrValue) =>
-      valueUpdater(updaterOrValue, states.columnSizingInfoState),
-    columnResizeMode: props.columnSizingOptions?.columnResizeMode ?? 'onChange',
     ...(props.rowSelectionOptions || {}),
     get enableMultiRowSelection() {
       return rowSelection?.enableMultiRowSelection.value ?? true
@@ -478,27 +472,9 @@ export function useNuGridApi<T extends TableData>(
     ...(props.groupingOptions || {}),
     onGroupingChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.groupingState),
     ...(props.expandedOptions || {}),
-    getExpandedRowModel: getExpandedRowModel(),
-    onExpandedChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.expandedState),
+    // NuGrid owns expansion — row model handled by expandRows() in NuGrid.vue.
     ...(props.paginationOptions || {}),
-    // Conditionally include pagination row model when paging is enabled
-    ...(() => {
-      const pagingProp = (props as NuGridProps<T>).paging
-      const isPaginationEnabled =
-        pagingProp === true || (typeof pagingProp === 'object' && pagingProp?.enabled !== false)
-      // Always include getPaginationRowModel when paging is enabled (even for manual pagination)
-      return isPaginationEnabled ? { getPaginationRowModel: getPaginationRowModel() } : {}
-    })(),
-    // Enable manual pagination mode in TanStack Table when configured
-    ...(() => {
-      const pagingProp = (props as NuGridProps<T>).paging
-      const isManualPagination =
-        typeof pagingProp === 'object' && pagingProp?.manualPagination === true
-      // When manualPagination is true, TanStack won't auto-slice data
-      // Our paging composable handles pageCount/totalPages calculation using rowCount prop
-      return isManualPagination ? { manualPagination: true } : {}
-    })(),
-    onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.paginationState),
+    // NuGrid owns pagination — row model handled by paginateRows() in NuGrid.vue.
     ...(props.facetedOptions || {}),
     state: {
       get globalFilter() {

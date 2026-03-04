@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Component, ComputedRef } from 'vue'
 
-import { FlexRender } from '@tanstack/vue-table'
+import { FlexRender } from '../../utils/flexRender'
 import { computed, inject, ref, resolveComponent, watch } from 'vue'
 
 import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'

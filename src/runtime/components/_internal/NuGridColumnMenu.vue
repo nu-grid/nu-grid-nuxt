@@ -8,6 +8,7 @@ import type { NuGridColumnMenuItem, NuGridFilterContext } from '../../types'
 import type {
   NuGridCoreContext,
   NuGridPerformanceContext,
+  NuGridResizeContext,
   NuGridUIConfigContext,
 } from '../../types/_internal'
 
@@ -32,6 +33,7 @@ const props = defineProps<{
 const coreContext = inject<NuGridCoreContext<T>>('nugrid-core')!
 const performanceContext = inject<NuGridPerformanceContext<T>>('nugrid-performance')!
 const uiConfigContext = inject<NuGridUIConfigContext<T>>('nugrid-ui-config')!
+const resizeContext = inject<NuGridResizeContext<T>>('nugrid-resize')!
 
 if (!coreContext || !performanceContext || !uiConfigContext) {
   throw new Error('NuGridColumnMenu must be used within a NuGrid component.')
@@ -43,10 +45,11 @@ const { getColumnMenuItems, showColumnVisibility, columnMenuButton } = uiConfigC
 
 // Use global registry directly for better performance (no reactive overhead)
 
-// Column pinning helper functions (inline to avoid public composable dependency)
+// Column pinning helper functions — uses injected columnPinningState directly
+const { columnPinningState } = coreContext
+
 const pinColumn = (columnId: string, side: 'left' | 'right') => {
-  if (!tableApi) return
-  const currentPinning = tableApi.getState().columnPinning
+  const currentPinning = columnPinningState.value
   const newPinning = { ...currentPinning }
 
   // Remove from opposite side if present
@@ -63,23 +66,21 @@ const pinColumn = (columnId: string, side: 'left' | 'right') => {
     newPinning[side] = [...newPinning[side], columnId]
   }
 
-  tableApi.setColumnPinning(newPinning)
+  columnPinningState.value = newPinning
 }
 
 const unpinColumn = (columnId: string) => {
-  if (!tableApi) return
-  const currentPinning = tableApi.getState().columnPinning
+  const currentPinning = columnPinningState.value
   const newPinning = {
     left: currentPinning.left?.filter((id) => id !== columnId) || [],
     right: currentPinning.right?.filter((id) => id !== columnId) || [],
   }
 
-  tableApi.setColumnPinning(newPinning)
+  columnPinningState.value = newPinning
 }
 
 const getIsPinned = (columnId: string): 'left' | 'right' | false => {
-  if (!tableApi) return false
-  const pinning = tableApi.getState().columnPinning
+  const pinning = columnPinningState.value
   if (pinning.left?.includes(columnId)) return 'left'
   if (pinning.right?.includes(columnId)) return 'right'
   return false
@@ -271,10 +272,10 @@ function buildDefaultMenuItems() {
             const measuredWidth = Math.max(measureDiv.offsetWidth + 64, 100)
             document.body.removeChild(measureDiv)
 
-            tableApi.setColumnSizing((old: any) => ({
-              ...old,
+            resizeContext.columnSizingState.value = {
+              ...resizeContext.columnSizingState.value,
               [columnId]: measuredWidth,
-            }))
+            }
           }
         }
       },
@@ -291,10 +292,10 @@ function buildDefaultMenuItems() {
       onSelect: (_event?, _col?) => {
         const columnId = column.value.id
         const defaultSize = column.value.columnDef.size ?? 150
-        tableApi?.setColumnSizing((old: any) => ({
-          ...old,
+        resizeContext.columnSizingState.value = {
+          ...resizeContext.columnSizingState.value,
           [columnId]: defaultSize,
-        }))
+        }
       },
     })
     needsSeparator = true

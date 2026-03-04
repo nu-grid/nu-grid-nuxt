@@ -1,5 +1,5 @@
 import type { TableData } from '@nuxt/ui'
-import type { Header, Table } from '@tanstack/vue-table'
+import type { ColumnSizingInfoState, ColumnSizingState, Header, Table } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
@@ -7,6 +7,7 @@ import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { NuGridProps } from '../../types'
 
 import { usePropWithDefault } from '../../config/_internal'
+import { calculateProportionalSizes } from '../../utils/columnSizingFns'
 
 function isTouchStartEvent(e: unknown): e is TouchEvent {
   return (e as TouchEvent).type === 'touchstart'
@@ -19,6 +20,8 @@ export function useNuGridColumnResize<T extends TableData>(
   props: NuGridProps<T>,
   tableApi: Table<T>,
   tableRef: Ref<HTMLElement | null>,
+  columnSizingState: Ref<ColumnSizingState>,
+  columnSizingInfoState: Ref<ColumnSizingInfoState>,
 ) {
   // Resolved autoSize using defaults (so fill mode works even when not explicitly set)
   const autoSize = usePropWithDefault(props, 'layout', 'autoSize')
@@ -81,10 +84,7 @@ export function useNuGridColumnResize<T extends TableData>(
     }
 
     if (Object.keys(newSizing).length > 0) {
-      tableApi.setColumnSizing((old) => ({
-        ...old,
-        ...newSizing,
-      }))
+      columnSizingState.value = { ...columnSizingState.value, ...newSizing }
     }
   }
 
@@ -110,14 +110,14 @@ export function useNuGridColumnResize<T extends TableData>(
     }
 
     // On initial load (not forced), check if we have restored sizing from state persistence
-    // If columns already have sizing, mark them as manually resized but don't overwrite
+    // Mark restored columns as manually resized, then fall through to measure remaining flex columns
     if (!forceSync) {
-      const currentSizing = tableApi.getState().columnSizing
+      const currentSizing = columnSizingState.value
       const restoredColumnIds = Object.keys(currentSizing)
       if (restoredColumnIds.length > 0) {
-        // State was restored - mark restored columns as manually resized
         manuallyResizedColumns.value = new Set(restoredColumnIds)
-        return
+        // Don't return — fall through to measure remaining flex columns
+        // so we avoid a mixed flex/fixed layout
       }
     }
 
@@ -125,18 +125,18 @@ export function useNuGridColumnResize<T extends TableData>(
     const flexColumns = allColumns
       .filter((col) => {
         const colDef = col.columnDef as { grow?: boolean }
-        return colDef.grow !== false
+        // Only sync columns that are flex (grow !== false) AND not already manually resized
+        return colDef.grow !== false && !manuallyResizedColumns.value.has(col.id)
       })
       .map((col) => col.id)
 
     if (flexColumns.length === 0) return
 
-    // Sync DOM widths to TanStack state
+    // Sync DOM widths to columnSizing state
     syncColumnWidthsFromDOM(flexColumns)
 
-    // Mark all flex columns as "manually resized" so they use fixed widths
-    // This ensures headers and cells use the same measured widths
-    manuallyResizedColumns.value = new Set(flexColumns)
+    // Merge with existing manually resized columns (preserves restored columns)
+    manuallyResizedColumns.value = new Set([...manuallyResizedColumns.value, ...flexColumns])
   }
 
   /**
@@ -156,7 +156,7 @@ export function useNuGridColumnResize<T extends TableData>(
     const containerWidth = getContainerWidth()
     if (containerWidth === 0) return {}
 
-    const currentSizing = tableApi.getState().columnSizing
+    const currentSizing = columnSizingState.value
     const ratios: Record<string, number> = {}
 
     for (const [columnId, pixelWidth] of Object.entries(currentSizing)) {
@@ -187,10 +187,7 @@ export function useNuGridColumnResize<T extends TableData>(
       stateWasRestored = true
 
       // Apply pixel sizing
-      tableApi.setColumnSizing((old) => ({
-        ...old,
-        ...pixelSizing,
-      }))
+      columnSizingState.value = { ...columnSizingState.value, ...pixelSizing }
 
       // Mark these columns as manually resized so they use fixed widths
       manuallyResizedColumns.value = new Set([...manuallyResizedColumns.value, ...columnIds])
@@ -236,7 +233,7 @@ export function useNuGridColumnResize<T extends TableData>(
         // Reset manually resized columns to allow flex recalculation
         manuallyResizedColumns.value = new Set()
         // Also clear columnSizing state so flex can recalculate (SSR check uses this)
-        tableApi.setColumnSizing({})
+        columnSizingState.value = {}
         // Wait for flex to recalculate, then sync widths
         nextTick(() => {
           syncInitialFlexWidths(true) // Force sync on container resize
@@ -290,11 +287,14 @@ export function useNuGridColumnResize<T extends TableData>(
     }
   })
 
+  const columnResizeMode = props.columnSizingOptions?.columnResizeMode ?? 'onChange'
+  const columnResizeDirection = props.columnSizingOptions?.columnResizeDirection
+
   function getResizeHandler(header: any) {
     if (props.layout?.resizeMode === 'shift') {
-      return createShiftResizeHandler(header, tableApi, manuallyResizedColumns)
+      return createShiftResizeHandler(header, tableApi, columnSizingState, columnSizingInfoState, columnResizeMode, columnResizeDirection)
     }
-    return header.getResizeHandler()
+    return createStandardResizeHandler(header, tableApi, columnSizingState, columnSizingInfoState, columnResizeMode, columnResizeDirection)
   }
 
   function handleResizeStart(event: MouseEvent | TouchEvent, header: Header<T, any>) {
@@ -376,7 +376,7 @@ export function useNuGridColumnResize<T extends TableData>(
       resizeStartSizes.set(leafHeader.column.id, leafHeader.column.getSize())
     }
 
-    const resizeHandler = createGroupResizeHandler(header, tableApi, manuallyResizedColumns)
+    const resizeHandler = createGroupResizeHandler(header, tableApi, columnSizingState, columnSizingInfoState, columnResizeMode, columnResizeDirection)
     resizeHandler(event)
   }
 
@@ -435,7 +435,10 @@ export function useNuGridColumnResize<T extends TableData>(
 export function createShiftResizeHandler<TData>(
   header: Header<TData, any>,
   table: Table<TData>,
-  _manuallyResizedColumns?: { value: Set<string> },
+  columnSizingState: Ref<ColumnSizingState>,
+  columnSizingInfoState: Ref<ColumnSizingInfoState>,
+  resizeMode: 'onChange' | 'onEnd' = 'onChange',
+  resizeDirection?: 'ltr' | 'rtl',
 ): (event: MouseEvent | TouchEvent) => void {
   return (e: MouseEvent | TouchEvent) => {
     const column = table.getColumn(header.column.id)
@@ -475,7 +478,7 @@ export function createShiftResizeHandler<TData>(
         return
       }
 
-      const deltaDirection = table.options.columnResizeDirection === 'rtl' ? -1 : 1
+      const deltaDirection = resizeDirection === 'rtl' ? -1 : 1
       const deltaOffset = (clientXPos - clientX) * deltaDirection
 
       const currentSize = column.getSize()
@@ -545,7 +548,6 @@ export function createShiftResizeHandler<TData>(
 
       // Apply shift resizing: adjust only the immediately following column
       if (followingColumns.length > 0 && actualDelta !== 0) {
-        const resizeMode = table.options.columnResizeMode ?? 'onChange'
         const newColumnSizing: Record<string, number> = {}
         newColumnSizing[column.id] = constrainedNewSize
 
@@ -562,21 +564,18 @@ export function createShiftResizeHandler<TData>(
           newColumnSizing[nextColumn.id] = nextColumnNewSize
         }
 
-        table.setColumnSizingInfo((old) => ({
-          ...old,
+        columnSizingInfoState.value = {
+          ...columnSizingInfoState.value,
           startOffset: clientX,
           startSize,
           deltaOffset: constrainedNewSize - startSize, // Store cumulative delta from start
           deltaPercentage: (constrainedNewSize - startSize) / startSize,
           isResizingColumn: column.id,
           columnSizingStart,
-        }))
+        }
 
         if (resizeMode !== 'onEnd' || eventType === 'end') {
-          table.setColumnSizing((old) => ({
-            ...old,
-            ...newColumnSizing,
-          }))
+          columnSizingState.value = { ...columnSizingState.value, ...newColumnSizing }
         }
       }
     }
@@ -586,15 +585,15 @@ export function createShiftResizeHandler<TData>(
     const onEnd = (clientXPos?: number) => {
       updateOffset('end', clientXPos)
 
-      table.setColumnSizingInfo((old) => ({
-        ...old,
+      columnSizingInfoState.value = {
+        ...columnSizingInfoState.value,
         isResizingColumn: false,
         startOffset: null,
         startSize: null,
         deltaOffset: null,
         deltaPercentage: null,
         columnSizingStart: [],
-      }))
+      }
     }
 
     const contextDocument = typeof document !== 'undefined' ? document : undefined
@@ -638,15 +637,15 @@ export function createShiftResizeHandler<TData>(
       contextDocument?.addEventListener('mouseup', mouseEvents.upHandler, passiveIfSupported)
     }
 
-    table.setColumnSizingInfo((old) => ({
-      ...old,
+    columnSizingInfoState.value = {
+      ...columnSizingInfoState.value,
       startOffset: clientX,
       startSize,
       deltaOffset: 0,
       deltaPercentage: 0,
       isResizingColumn: column.id,
       columnSizingStart,
-    }))
+    }
   }
 }
 
@@ -656,7 +655,10 @@ export function createShiftResizeHandler<TData>(
 export function createGroupResizeHandler<TData>(
   header: Header<TData, any>,
   table: Table<TData>,
-  _manuallyResizedColumns?: { value: Set<string> },
+  columnSizingState: Ref<ColumnSizingState>,
+  columnSizingInfoState: Ref<ColumnSizingInfoState>,
+  resizeMode: 'onChange' | 'onEnd' = 'onChange',
+  resizeDirection?: 'ltr' | 'rtl',
 ): (event: MouseEvent | TouchEvent) => void {
   return (e: MouseEvent | TouchEvent) => {
     ;(e as any).persist?.()
@@ -726,7 +728,7 @@ export function createGroupResizeHandler<TData>(
         return
       }
 
-      const deltaDirection = table.options.columnResizeDirection === 'rtl' ? -1 : 1
+      const deltaDirection = resizeDirection === 'rtl' ? -1 : 1
       const deltaOffset = (clientXPos - clientX) * deltaDirection
 
       // Calculate desired new group size
@@ -837,24 +839,19 @@ export function createGroupResizeHandler<TData>(
         newColumnSizing[col.id] = Math.round(constrainedSizes[i]!)
       }
 
-      const resizeMode = table.options.columnResizeMode ?? 'onChange'
-
       // Update column sizing info (using the first column's id as the "resizing" column for UI purposes)
-      table.setColumnSizingInfo((old) => ({
-        ...old,
+      columnSizingInfoState.value = {
+        ...columnSizingInfoState.value,
         startOffset: clientX,
         startSize: startGroupSize,
         deltaOffset: actualDelta,
         deltaPercentage: actualDelta / startGroupSize,
         isResizingColumn: header.id, // Use header.id for group identification
         columnSizingStart,
-      }))
+      }
 
       if (resizeMode !== 'onEnd' || eventType === 'end') {
-        table.setColumnSizing((old) => ({
-          ...old,
-          ...newColumnSizing,
-        }))
+        columnSizingState.value = { ...columnSizingState.value, ...newColumnSizing }
       }
     }
 
@@ -888,15 +885,15 @@ export function createGroupResizeHandler<TData>(
       // Apply final position immediately
       updateOffset('end', clientXPos ?? pendingClientX ?? undefined)
 
-      table.setColumnSizingInfo((old) => ({
-        ...old,
+      columnSizingInfoState.value = {
+        ...columnSizingInfoState.value,
         isResizingColumn: false,
         startOffset: null,
         startSize: null,
         deltaOffset: null,
         deltaPercentage: null,
         columnSizingStart: [],
-      }))
+      }
     }
 
     const contextDocument = typeof document !== 'undefined' ? document : undefined
@@ -941,14 +938,155 @@ export function createGroupResizeHandler<TData>(
     }
 
     // Initial sizing info setup
-    table.setColumnSizingInfo((old) => ({
-      ...old,
+    columnSizingInfoState.value = {
+      ...columnSizingInfoState.value,
       startOffset: clientX,
       startSize: startGroupSize,
       deltaOffset: 0,
       deltaPercentage: 0,
       isResizingColumn: header.id,
       columnSizingStart,
-    }))
+    }
+  }
+}
+
+/**
+ * Standard resize handler — replaces TanStack's header.getResizeHandler().
+ * Uses proportional resizing: all leaf columns under a header scale by the same percentage.
+ */
+export function createStandardResizeHandler<TData>(
+  header: Header<TData, any>,
+  table: Table<TData>,
+  columnSizingState: Ref<ColumnSizingState>,
+  columnSizingInfoState: Ref<ColumnSizingInfoState>,
+  resizeMode: 'onChange' | 'onEnd' = 'onChange',
+  resizeDirection?: 'ltr' | 'rtl',
+): (event: MouseEvent | TouchEvent) => void {
+  return (e: MouseEvent | TouchEvent) => {
+    const column = table.getColumn(header.column.id)
+    const canResize = column?.getCanResize()
+
+    if (!column || !canResize) {
+      return
+    }
+
+    ;(e as any).persist?.()
+
+    if (isTouchStartEvent(e)) {
+      if (e.touches && e.touches.length > 1) {
+        return
+      }
+    }
+
+    const startSize = header.getSize()
+
+    const columnSizingStart: [string, number][] = header
+      ? header.getLeafHeaders().map(d => [d.column.id, d.column.getSize()])
+      : [[column.id, column.getSize()]]
+
+    const clientX = isTouchStartEvent(e)
+      ? Math.round(e.touches[0]!.clientX)
+      : (e as MouseEvent).clientX
+
+    let newColumnSizing: Record<string, number> = {}
+
+    const updateOffset = (
+      eventType: 'move' | 'end',
+      clientXPos?: number,
+    ) => {
+      if (typeof clientXPos !== 'number') {
+        return
+      }
+
+      const deltaDirection = resizeDirection === 'rtl' ? -1 : 1
+      const startOffset = columnSizingInfoState.value.startOffset ?? clientX
+      const deltaOffset = (clientXPos - startOffset) * deltaDirection
+      const deltaPercentage = Math.max(
+        deltaOffset / (columnSizingInfoState.value.startSize ?? startSize),
+        -0.999999,
+      )
+
+      newColumnSizing = calculateProportionalSizes(
+        columnSizingInfoState.value.columnSizingStart ?? columnSizingStart,
+        deltaPercentage,
+      )
+
+      columnSizingInfoState.value = {
+        ...columnSizingInfoState.value,
+        deltaOffset,
+        deltaPercentage,
+      }
+
+      if (resizeMode === 'onChange' || eventType === 'end') {
+        columnSizingState.value = { ...columnSizingState.value, ...newColumnSizing }
+      }
+    }
+
+    const onMove = (clientXPos?: number) => updateOffset('move', clientXPos)
+
+    const onEnd = (clientXPos?: number) => {
+      updateOffset('end', clientXPos)
+
+      columnSizingInfoState.value = {
+        ...columnSizingInfoState.value,
+        isResizingColumn: false,
+        startOffset: null,
+        startSize: null,
+        deltaOffset: null,
+        deltaPercentage: null,
+        columnSizingStart: [],
+      }
+    }
+
+    const contextDocument = typeof document !== 'undefined' ? document : undefined
+
+    const mouseEvents = {
+      moveHandler: (e: MouseEvent) => onMove(e.clientX),
+      upHandler: (e: MouseEvent) => {
+        contextDocument?.removeEventListener('mousemove', mouseEvents.moveHandler)
+        contextDocument?.removeEventListener('mouseup', mouseEvents.upHandler)
+        onEnd(e.clientX)
+      },
+    }
+
+    const touchEvents = {
+      moveHandler: (e: TouchEvent) => {
+        if (e.cancelable) {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+        onMove(e.touches[0]!.clientX)
+        return false
+      },
+      upHandler: (e: TouchEvent) => {
+        contextDocument?.removeEventListener('touchmove', touchEvents.moveHandler)
+        contextDocument?.removeEventListener('touchend', touchEvents.upHandler)
+        if (e.cancelable) {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+        onEnd(e.touches[0]?.clientX)
+      },
+    }
+
+    const passiveIfSupported = { passive: false }
+
+    if (isTouchStartEvent(e)) {
+      contextDocument?.addEventListener('touchmove', touchEvents.moveHandler, passiveIfSupported)
+      contextDocument?.addEventListener('touchend', touchEvents.upHandler, passiveIfSupported)
+    } else {
+      contextDocument?.addEventListener('mousemove', mouseEvents.moveHandler, passiveIfSupported)
+      contextDocument?.addEventListener('mouseup', mouseEvents.upHandler, passiveIfSupported)
+    }
+
+    columnSizingInfoState.value = {
+      ...columnSizingInfoState.value,
+      startOffset: clientX,
+      startSize,
+      deltaOffset: 0,
+      deltaPercentage: 0,
+      columnSizingStart,
+      isResizingColumn: column.id,
+    }
   }
 }

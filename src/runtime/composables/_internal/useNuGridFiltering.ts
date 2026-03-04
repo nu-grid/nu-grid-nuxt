@@ -169,7 +169,7 @@ export function useNuGridFiltering<T extends TableData>(
     if (keys.length === 0) return null
 
     const items = data.value
-    const index: string[] = new Array(items.length)
+    const index: string[] = Array.from<string>({ length: items.length })
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i] as any

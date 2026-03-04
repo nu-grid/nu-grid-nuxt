@@ -2,7 +2,7 @@ import type { TableData } from '@nuxt/ui'
 import type { Cell, Column, Row, Table } from '@tanstack/vue-table'
 import type { Component, ComponentPublicInstance, Ref } from 'vue'
 
-import { FlexRender } from '@tanstack/vue-table'
+import { FlexRender } from '../../utils/flexRender'
 import {
   computed,
   h,

@@ -1,7 +1,7 @@
-import type { Row, RowSelectionState, Table } from '@tanstack/vue-table'
+import type { Row, RowSelectionState } from '@tanstack/vue-table'
 
 import { describe, expect, it, vi } from 'vitest'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import { useNuGridGroupSelection } from '../src/runtime/composables/_internal/useNuGridGroupSelection'
 
@@ -29,17 +29,8 @@ function createMockRow(id: number, isSelected: boolean = false): Row<TestData> {
   } as unknown as Row<TestData>
 }
 
-function createMockTableApi(currentSelection: RowSelectionState = {}): Table<TestData> {
-  let selection = { ...currentSelection }
-
-  return {
-    getState: vi.fn().mockImplementation(() => ({
-      rowSelection: selection,
-    })),
-    setRowSelection: vi.fn().mockImplementation((newSelection: RowSelectionState) => {
-      selection = newSelection
-    }),
-  } as unknown as Table<TestData>
+function createRowSelectionState(currentSelection: RowSelectionState = {}) {
+  return ref<RowSelectionState>({ ...currentSelection })
 }
 
 describe('useNuGridGroupSelection', () => {
@@ -53,8 +44,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [row1, row2, row3],
       }))
 
-      const tableApi = createMockTableApi()
-      const { areAllGroupRowsSelected } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { areAllGroupRowsSelected } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(areAllGroupRowsSelected('group1')).toBe(true)
     })
@@ -68,8 +59,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [row1, row2, row3],
       }))
 
-      const tableApi = createMockTableApi()
-      const { areAllGroupRowsSelected } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { areAllGroupRowsSelected } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(areAllGroupRowsSelected('group1')).toBe(false)
     })
@@ -82,8 +73,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [row1, row2],
       }))
 
-      const tableApi = createMockTableApi()
-      const { areAllGroupRowsSelected } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { areAllGroupRowsSelected } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(areAllGroupRowsSelected('group1')).toBe(false)
     })
@@ -93,8 +84,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [],
       }))
 
-      const tableApi = createMockTableApi()
-      const { areAllGroupRowsSelected } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { areAllGroupRowsSelected } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(areAllGroupRowsSelected('group1')).toBe(false)
     })
@@ -104,8 +95,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [createMockRow(1, true)],
       }))
 
-      const tableApi = createMockTableApi()
-      const { areAllGroupRowsSelected } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { areAllGroupRowsSelected } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(areAllGroupRowsSelected('nonexistent')).toBe(false)
     })
@@ -121,8 +112,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [row1, row2, row3],
       }))
 
-      const tableApi = createMockTableApi()
-      const { areSomeGroupRowsSelected } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { areSomeGroupRowsSelected } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(areSomeGroupRowsSelected('group1')).toBe(true)
     })
@@ -135,8 +126,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [row1, row2],
       }))
 
-      const tableApi = createMockTableApi()
-      const { areSomeGroupRowsSelected } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { areSomeGroupRowsSelected } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(areSomeGroupRowsSelected('group1')).toBe(false)
     })
@@ -149,8 +140,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [row1, row2],
       }))
 
-      const tableApi = createMockTableApi()
-      const { areSomeGroupRowsSelected } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { areSomeGroupRowsSelected } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(areSomeGroupRowsSelected('group1')).toBe(false)
     })
@@ -160,8 +151,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [],
       }))
 
-      const tableApi = createMockTableApi()
-      const { areSomeGroupRowsSelected } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { areSomeGroupRowsSelected } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(areSomeGroupRowsSelected('group1')).toBe(false)
     })
@@ -171,8 +162,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [createMockRow(1, true)],
       }))
 
-      const tableApi = createMockTableApi()
-      const { areSomeGroupRowsSelected } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { areSomeGroupRowsSelected } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(areSomeGroupRowsSelected('nonexistent')).toBe(false)
     })
@@ -186,8 +177,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [row1, row2, row3],
       }))
 
-      const tableApi = createMockTableApi()
-      const { areSomeGroupRowsSelected } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { areSomeGroupRowsSelected } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(areSomeGroupRowsSelected('group1')).toBe(true)
     })
@@ -203,16 +194,14 @@ describe('useNuGridGroupSelection', () => {
         group1: [row1, row2, row3],
       }))
 
-      const tableApi = createMockTableApi()
-      const { toggleAllGroupRows } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { toggleAllGroupRows } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       toggleAllGroupRows('group1', true)
 
-      expect(tableApi.setRowSelection).toHaveBeenCalled()
-      const newSelection = (tableApi.setRowSelection as any).mock.calls[0][0]
-      expect(newSelection['1']).toBe(true)
-      expect(newSelection['2']).toBe(true)
-      expect(newSelection['3']).toBe(true)
+      expect(rowSelectionState.value['1']).toBe(true)
+      expect(rowSelectionState.value['2']).toBe(true)
+      expect(rowSelectionState.value['3']).toBe(true)
     })
 
     it('should deselect all rows in the group when selected is false', () => {
@@ -224,16 +213,14 @@ describe('useNuGridGroupSelection', () => {
         group1: [row1, row2, row3],
       }))
 
-      const tableApi = createMockTableApi({ '1': true, '2': true, '3': true })
-      const { toggleAllGroupRows } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState({ '1': true, '2': true, '3': true })
+      const { toggleAllGroupRows } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       toggleAllGroupRows('group1', false)
 
-      expect(tableApi.setRowSelection).toHaveBeenCalled()
-      const newSelection = (tableApi.setRowSelection as any).mock.calls[0][0]
-      expect(newSelection['1']).toBeUndefined()
-      expect(newSelection['2']).toBeUndefined()
-      expect(newSelection['3']).toBeUndefined()
+      expect(rowSelectionState.value['1']).toBeUndefined()
+      expect(rowSelectionState.value['2']).toBeUndefined()
+      expect(rowSelectionState.value['3']).toBeUndefined()
     })
 
     it('should preserve selection of rows in other groups', () => {
@@ -245,16 +232,14 @@ describe('useNuGridGroupSelection', () => {
       }))
 
       // Simulate another row (ID 99) being selected
-      const tableApi = createMockTableApi({ '99': true })
-      const { toggleAllGroupRows } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState({ '99': true })
+      const { toggleAllGroupRows } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       toggleAllGroupRows('group1', true)
 
-      expect(tableApi.setRowSelection).toHaveBeenCalled()
-      const newSelection = (tableApi.setRowSelection as any).mock.calls[0][0]
-      expect(newSelection['99']).toBe(true) // Preserved
-      expect(newSelection['1']).toBe(true) // Added
-      expect(newSelection['2']).toBe(true) // Added
+      expect(rowSelectionState.value['99']).toBe(true) // Preserved
+      expect(rowSelectionState.value['1']).toBe(true) // Added
+      expect(rowSelectionState.value['2']).toBe(true) // Added
     })
 
     it('should handle non-existent group gracefully', () => {
@@ -262,14 +247,14 @@ describe('useNuGridGroupSelection', () => {
         group1: [createMockRow(1, false)],
       }))
 
-      const tableApi = createMockTableApi()
-      const { toggleAllGroupRows } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { toggleAllGroupRows } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       // Should not throw
       toggleAllGroupRows('nonexistent', true)
 
-      // Should still call setRowSelection (with empty changes)
-      expect(tableApi.setRowSelection).toHaveBeenCalled()
+      // ref should still be updated (with empty changes)
+      expect(rowSelectionState.value).toBeDefined()
     })
   })
 
@@ -282,8 +267,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [row1, row2],
       }))
 
-      const tableApi = createMockTableApi()
-      const { getGroupCheckboxState } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { getGroupCheckboxState } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(getGroupCheckboxState('group1')).toBe(true)
     })
@@ -296,8 +281,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [row1, row2],
       }))
 
-      const tableApi = createMockTableApi()
-      const { getGroupCheckboxState } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { getGroupCheckboxState } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(getGroupCheckboxState('group1')).toBe(false)
     })
@@ -311,8 +296,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [row1, row2, row3],
       }))
 
-      const tableApi = createMockTableApi()
-      const { getGroupCheckboxState } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { getGroupCheckboxState } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(getGroupCheckboxState('group1')).toBe('indeterminate')
     })
@@ -322,8 +307,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [],
       }))
 
-      const tableApi = createMockTableApi()
-      const { getGroupCheckboxState } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { getGroupCheckboxState } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(getGroupCheckboxState('group1')).toBe(false)
     })
@@ -333,8 +318,8 @@ describe('useNuGridGroupSelection', () => {
         group1: [createMockRow(1, true)],
       }))
 
-      const tableApi = createMockTableApi()
-      const { getGroupCheckboxState } = useNuGridGroupSelection(tableApi, groupedRows)
+      const rowSelectionState = createRowSelectionState()
+      const { getGroupCheckboxState } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(getGroupCheckboxState('nonexistent')).toBe(false)
     })
@@ -343,9 +328,9 @@ describe('useNuGridGroupSelection', () => {
   describe('integration', () => {
     it('should return all four functions', () => {
       const groupedRows = computed(() => ({}))
-      const tableApi = createMockTableApi()
+      const rowSelectionState = createRowSelectionState()
 
-      const selection = useNuGridGroupSelection(tableApi, groupedRows)
+      const selection = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
       expect(typeof selection.areAllGroupRowsSelected).toBe('function')
       expect(typeof selection.areSomeGroupRowsSelected).toBe('function')
@@ -364,9 +349,9 @@ describe('useNuGridGroupSelection', () => {
         group2: [group2Row1, group2Row2],
       }))
 
-      const tableApi = createMockTableApi()
+      const rowSelectionState = createRowSelectionState()
       const { areAllGroupRowsSelected, areSomeGroupRowsSelected } = useNuGridGroupSelection(
-        tableApi,
+        rowSelectionState,
         groupedRows,
       )
 

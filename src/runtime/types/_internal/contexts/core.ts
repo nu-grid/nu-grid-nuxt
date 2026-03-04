@@ -1,5 +1,5 @@
 import type { TableData } from '@nuxt/ui'
-import type { Cell, Row, Table } from '@tanstack/vue-table'
+import type { Cell, ColumnPinningState, ExpandedState, PaginationState, Row, RowSelectionState, Table } from '@tanstack/vue-table'
 import type { Primitive } from 'reka-ui'
 import type { ComputedRef, Ref } from 'vue'
 
@@ -20,4 +20,9 @@ export interface NuGridCoreContext<T extends TableData = TableData> {
   rows: ComputedRef<Row<T>[]>
   /** Custom row slot for replacing default cell rendering */
   rowSlot?: (props: { row: Row<T>; cells: Cell<T, unknown>[] }) => any
+  /** NuGrid-owned state refs — direct updates bypass TanStack */
+  columnPinningState: Ref<ColumnPinningState>
+  expandedState: Ref<ExpandedState>
+  rowSelectionState: Ref<RowSelectionState>
+  paginationState: Ref<PaginationState>
 }

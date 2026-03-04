@@ -401,7 +401,7 @@ function sortRowsSingleColumn<T extends TableData>(
   const { comparator, desc, invertSorting, sortUndefined } = entry
 
   // Decorate: extract single value per row (no keys[] array)
-  const decorated: Array<{ row: Row<T>; value: unknown }> = new Array(n)
+  const decorated: Array<{ row: Row<T>; value: unknown }> = Array.from({ length: n })
   for (let i = 0; i < n; i++) {
     const row = rows[i]!
     decorated[i] = { row, value: entry.getValue(row) }
@@ -438,7 +438,7 @@ function sortRowsSingleColumn<T extends TableData>(
   })
 
   // Undecorate + recursively sort sub-rows
-  const result = new Array<Row<T>>(n)
+  const result = Array.from<Row<T>>({ length: n })
   for (let i = 0; i < n; i++) {
     const row = decorated[i]!.row
     if (row.subRows?.length) {
@@ -471,10 +471,10 @@ function sortRowsMultiColumn<T extends TableData>(
   const k = config.length
 
   // Decorate: extract sort keys once per row (O(n × k))
-  const decorated: DecoratedRow<T>[] = new Array(rows.length)
+  const decorated: DecoratedRow<T>[] = Array.from({ length: rows.length })
   for (let r = 0; r < rows.length; r++) {
     const row = rows[r]!
-    const keys = new Array(k)
+    const keys = Array.from({ length: k })
     for (let c = 0; c < k; c++) {
       keys[c] = config[c]!.getValue(row)
     }
@@ -526,7 +526,7 @@ function sortRowsMultiColumn<T extends TableData>(
   })
 
   // Undecorate + recursively sort sub-rows
-  const result = new Array<Row<T>>(decorated.length)
+  const result = Array.from<Row<T>>({ length: decorated.length })
   for (let i = 0; i < decorated.length; i++) {
     const row = decorated[i]!.row
     if (row.subRows?.length) {

@@ -450,13 +450,13 @@ export function useNuGridFocus<T extends TableData>(
         map.set(row.id, arrayIndex)
       })
 
-      for (const rowId of [...rowElementCache.keys()]) {
+      for (const rowId of rowElementCache.keys()) {
         if (!map.has(rowId)) {
           rowElementCache.delete(rowId)
         }
       }
 
-      for (const rowId of [...cellElementCache.keys()]) {
+      for (const rowId of cellElementCache.keys()) {
         if (!map.has(rowId)) {
           cellElementCache.delete(rowId)
         }

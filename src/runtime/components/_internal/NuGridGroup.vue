@@ -5,7 +5,7 @@ import type { Header, Row } from '@tanstack/vue-table'
 import type { VirtualItem } from '@tanstack/vue-virtual'
 import type { ComponentPublicInstance, Ref } from 'vue'
 
-import { FlexRender } from '@tanstack/vue-table'
+import { FlexRender } from '../../utils/flexRender'
 import { createReusableTemplate, useElementSize } from '@vueuse/core'
 import { Primitive } from 'reka-ui'
 import { upperFirst } from 'scule'
@@ -72,7 +72,7 @@ if (
 }
 
 // Destructure from contexts
-const { tableRef, rootRef, tableApi, ui, hasFooter, propsUi } = coreContext
+const { tableRef, rootRef, tableApi, ui, hasFooter, propsUi, rowSelectionState } = coreContext
 const { dragFns, rowDragOptions } = dragContext
 const { handleGroupResizeStart, resizingGroupId, resizingColumnId, manuallyResizedColumns } =
   resizeContext
@@ -159,7 +159,7 @@ const {
 } = groupingFns
 
 // Group-aware row selection
-const { toggleAllGroupRows, getGroupCheckboxState } = useNuGridGroupSelection(tableApi, groupedRows)
+const { toggleAllGroupRows, getGroupCheckboxState } = useNuGridGroupSelection(rowSelectionState, groupedRows)
 
 // Check if row selection mode is enabled
 const rowSelectionEnabled = computed(() => {

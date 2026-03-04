@@ -1,14 +1,14 @@
 import type { TableData } from '@nuxt/ui'
-import type { Table } from '@tanstack/vue-table'
+import type { PaginationState, Table } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
 
-import { getPaginationRowModel } from '@tanstack/vue-table'
 import { useResizeObserver } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 
 import type { NuGridEventEmitter, NuGridPagingOptions, NuGridProps } from '../../types'
 
 import { nuGridDefaults } from '../../config/_internal'
+import { updatePageIndex, updatePageSize } from '../../utils/stateManagementFns'
 
 /**
  * Paging context provided to child components
@@ -53,10 +53,14 @@ export interface NuGridPagingContext {
 interface UseNuGridPagingOptions<T extends TableData> {
   /** NuGrid props */
   props: NuGridProps<T>
-  /** TanStack table instance */
+  /** TanStack table instance (used for reading sort/filter state in events) */
   tableApi: Table<T>
+  /** NuGrid-owned pagination state ref */
+  paginationState: Ref<PaginationState>
   /** Root container element for auto page size calculation */
   rootRef: Ref<HTMLElement | null>
+  /** Total row count before pagination (for client-side mode) */
+  totalRowCount?: ComputedRef<number>
   /** Row height for auto page size calculation */
   estimatedRowHeight?: number
   /** Header height for auto page size calculation */
@@ -98,18 +102,6 @@ export function resolvePagingOptions(
 }
 
 /**
- * Get the pagination row model for TanStack table
- * Returns undefined if paging is not enabled
- */
-export function getPagingRowModelIfEnabled(prop: boolean | NuGridPagingOptions | undefined) {
-  const options = resolvePagingOptions(prop)
-  if (options.enabled) {
-    return getPaginationRowModel()
-  }
-  return undefined
-}
-
-/**
  * Composable for NuGrid paging
  *
  * Provides:
@@ -121,7 +113,7 @@ export function getPagingRowModelIfEnabled(prop: boolean | NuGridPagingOptions |
 export function useNuGridPaging<T extends TableData = TableData>(
   options: UseNuGridPagingOptions<T>,
 ): NuGridPagingContext {
-  const { props, tableApi, rootRef, eventEmitter } = options
+  const { props, tableApi, paginationState, rootRef, totalRowCount, eventEmitter } = options
 
   // Resolve paging options
   const resolvedOptions = computed(() => resolvePagingOptions(props.paging))
@@ -178,9 +170,9 @@ export function useNuGridPaging<T extends TableData = TableData>(
 
     calculatedAutoPageSize.value = calculatedSize
 
-    // Update table's page size if auto page size is active
-    if (autoPageSizeEnabled.value && tableApi) {
-      tableApi.setPageSize(calculatedSize)
+    // Update page size if auto page size is active
+    if (autoPageSizeEnabled.value) {
+      paginationState.value = updatePageSize(paginationState.value, calculatedSize)
     }
   }
 
@@ -195,8 +187,8 @@ export function useNuGridPaging<T extends TableData = TableData>(
   watch(
     [enabled, () => resolvedOptions.value.pageSize, autoPageSizeEnabled],
     ([isEnabled, configuredPageSize]) => {
-      if (isEnabled && !autoPageSizeEnabled.value && tableApi) {
-        tableApi.setPageSize(configuredPageSize ?? nuGridDefaults.paging.pageSize)
+      if (isEnabled && !autoPageSizeEnabled.value) {
+        paginationState.value = updatePageSize(paginationState.value, configuredPageSize ?? nuGridDefaults.paging.pageSize)
       }
     },
     { immediate: true },
@@ -214,11 +206,11 @@ export function useNuGridPaging<T extends TableData = TableData>(
     if (autoPageSizeEnabled.value && calculatedAutoPageSize.value !== null) {
       return calculatedAutoPageSize.value
     }
-    return tableApi?.getState().pagination.pageSize ?? resolvedOptions.value.pageSize ?? 20
+    return paginationState.value.pageSize ?? resolvedOptions.value.pageSize ?? 20
   })
 
   const pageIndex = computed(() => {
-    return tableApi?.getState().pagination.pageIndex ?? 0
+    return paginationState.value.pageIndex ?? 0
   })
 
   const totalRows = computed(() => {
@@ -226,33 +218,22 @@ export function useNuGridPaging<T extends TableData = TableData>(
     if (manualPaginationEnabled.value) {
       return resolvedOptions.value.rowCount ?? 0
     }
-    return tableApi?.getFilteredRowModel().rows.length ?? 0
+    // NuGrid owns pagination — use the provided row count from the pipeline
+    return totalRowCount?.value ?? 0
   })
 
   const totalPages = computed(() => {
-    // In manual pagination mode, calculate from rowCount
-    if (manualPaginationEnabled.value) {
-      const rows = resolvedOptions.value.rowCount ?? 0
-      const size = pageSize.value
-      return size > 0 ? Math.ceil(rows / size) : 0
-    }
-    return tableApi?.getPageCount() ?? 0
+    const total = totalRows.value
+    const size = pageSize.value
+    return size > 0 ? Math.ceil(total / size) : 0
   })
 
   const canNextPage = computed(() => {
-    // In manual pagination mode, calculate based on rowCount
-    if (manualPaginationEnabled.value) {
-      return pageIndex.value < totalPages.value - 1
-    }
-    return tableApi?.getCanNextPage() ?? false
+    return pageIndex.value < totalPages.value - 1
   })
 
   const canPreviousPage = computed(() => {
-    // In manual pagination mode, just check if not on first page
-    if (manualPaginationEnabled.value) {
-      return pageIndex.value > 0
-    }
-    return tableApi?.getCanPreviousPage() ?? false
+    return pageIndex.value > 0
   })
 
   // Helper to emit page changed event
@@ -260,8 +241,8 @@ export function useNuGridPaging<T extends TableData = TableData>(
     if (eventEmitter?.pageChanged) {
       const state = tableApi?.getState()
       eventEmitter.pageChanged({
-        pageIndex: state?.pagination.pageIndex ?? 0,
-        pageSize: state?.pagination.pageSize ?? 20,
+        pageIndex: paginationState.value.pageIndex ?? 0,
+        pageSize: paginationState.value.pageSize ?? 20,
         sorting: state?.sorting ?? [],
         columnFilters: state?.columnFilters ?? [],
         globalFilter: state?.globalFilter as string | undefined,
@@ -269,39 +250,43 @@ export function useNuGridPaging<T extends TableData = TableData>(
     }
   }
 
-  // Navigation methods - use nextTick to ensure state is updated before emitting
+  // Navigation methods - direct ref updates, nextTick for event emission
   const setPageIndex = async (index: number) => {
-    tableApi?.setPageIndex(index)
+    const clamped = updatePageIndex(paginationState.value.pageIndex, index, totalPages.value || undefined)
+    paginationState.value = { ...paginationState.value, pageIndex: clamped }
     await nextTick()
     emitPageChanged()
   }
 
   const setPageSize = async (size: number) => {
-    tableApi?.setPageSize(size)
+    paginationState.value = updatePageSize(paginationState.value, size)
     await nextTick()
     emitPageChanged()
   }
 
   const firstPage = async () => {
-    tableApi?.firstPage()
+    paginationState.value = { ...paginationState.value, pageIndex: 0 }
     await nextTick()
     emitPageChanged()
   }
 
   const lastPage = async () => {
-    tableApi?.lastPage()
+    const lastIdx = Math.max(0, totalPages.value - 1)
+    paginationState.value = { ...paginationState.value, pageIndex: lastIdx }
     await nextTick()
     emitPageChanged()
   }
 
   const nextPage = async () => {
-    tableApi?.nextPage()
+    const next = updatePageIndex(paginationState.value.pageIndex, paginationState.value.pageIndex + 1, totalPages.value || undefined)
+    paginationState.value = { ...paginationState.value, pageIndex: next }
     await nextTick()
     emitPageChanged()
   }
 
   const previousPage = async () => {
-    tableApi?.previousPage()
+    const prev = Math.max(0, paginationState.value.pageIndex - 1)
+    paginationState.value = { ...paginationState.value, pageIndex: prev }
     await nextTick()
     emitPageChanged()
   }
@@ -314,7 +299,7 @@ export function useNuGridPaging<T extends TableData = TableData>(
       if (JSON.stringify(newSorting) === JSON.stringify(oldSorting)) return
       // Only auto-reset for manual pagination (server-side)
       if (manualPaginationEnabled.value && enabled.value) {
-        tableApi?.setPageIndex(0)
+        paginationState.value = { ...paginationState.value, pageIndex: 0 }
         await nextTick()
         emitPageChanged()
       }
@@ -330,7 +315,7 @@ export function useNuGridPaging<T extends TableData = TableData>(
       if (JSON.stringify(newFilters) === JSON.stringify(oldFilters)) return
       // Only auto-reset for manual pagination (server-side)
       if (manualPaginationEnabled.value && enabled.value) {
-        tableApi?.setPageIndex(0)
+        paginationState.value = { ...paginationState.value, pageIndex: 0 }
         await nextTick()
         emitPageChanged()
       }
@@ -346,7 +331,7 @@ export function useNuGridPaging<T extends TableData = TableData>(
       if (newFilter === oldFilter) return
       // Only auto-reset for manual pagination (server-side)
       if (manualPaginationEnabled.value && enabled.value) {
-        tableApi?.setPageIndex(0)
+        paginationState.value = { ...paginationState.value, pageIndex: 0 }
         await nextTick()
         emitPageChanged()
       }

@@ -88,6 +88,7 @@ import {
 } from '../composables/_internal/keyboard-handlers'
 import { resolvePagingOptions } from '../composables/_internal/useNuGridPaging'
 import { nuGridDefaults, usePropWithDefault } from '../config/_internal'
+import { expandRows, paginateRows } from '../utils/rowModelFns'
 import { NUGRID_EVENTS_KEY } from '../types/events'
 import NuGridBase from './_internal/NuGridBase.vue'
 import NuGridGroup from './_internal/NuGridGroup.vue'
@@ -325,11 +326,13 @@ const { tableApi, columnsUpdatedSignal } = useNuGridApi(
   eventEmitter,
 )
 
+// NuGrid owns expansion — expand grouped rows based on expandedState
 const unsortedRows = computed(() => {
   // Reactive dependency on filteredData ensures this re-evaluates when data or filters change.
   // The sync watcher in useNuGridApi calls setOptions() so TanStack has fresh data by this point.
   filteredData.value
-  return tableApi.getRowModel().rows
+  // TanStack returns grouped rows with subRows; NuGrid flattens based on expanded state
+  return expandRows(tableApi.getRowModel().rows, expandedState.value)
 })
 
 // NuGrid-owned sorting — replaces TanStack's getSortedRowModel
@@ -402,7 +405,15 @@ watch(
   { deep: true, immediate: true },
 )
 
-const rows = orderedRows
+// NuGrid owns pagination — slice after sorting for client-side mode
+const pagingResolved = computed(() => resolvePagingOptions(props.paging))
+const rows = computed(() => {
+  const opts = pagingResolved.value
+  if (!opts.enabled || opts.manualPagination) {
+    return orderedRows.value
+  }
+  return paginateRows(orderedRows.value, paginationState.value.pageIndex, paginationState.value.pageSize)
+})
 
 // Show/hide column headers
 const showHeaders = computed(() => props.layout?.showHeaders ?? true)
@@ -447,7 +458,15 @@ const {
   getContainerWidth,
   getSizingAsRatios,
   applySizingFromRatios,
-} = useNuGridColumnResize(props, tableApi, tableRef)
+} = useNuGridColumnResize(props, tableApi, tableRef, columnSizingState, columnSizingInfoState)
+
+// When columnSizing is externally reset to {}, clear manuallyResizedColumns
+// so columns fall back to their column definition sizes / flex distribution
+watch(columnSizingState, (newSizing) => {
+  if (newSizing && Object.keys(newSizing).length === 0 && manuallyResizedColumns.value.size > 0) {
+    manuallyResizedColumns.value = new Set()
+  }
+})
 
 // Connect resize helpers to state persistence for ratio-based sizing
 statePersistence.setResizeHelpers({
@@ -457,7 +476,7 @@ statePersistence.setResizeHelpers({
 })
 
 // Column drag and drop
-const dragFns = useNuGridColumnDragDrop(tableApi, states.columnOrderState, tableRef)
+const dragFns = useNuGridColumnDragDrop(tableApi, states.columnOrderState, tableRef, props.columnDefaults?.reorder ?? false, columnPinningState)
 
 // Row drag and drop
 const rowDragOptions = computed(() => props.rowDragOptions || { enabled: false })
@@ -480,7 +499,7 @@ const rowDragFns = useNuGridRowDragDrop(
 const gridMode = props.layout?.mode ?? 'div'
 groupingFns =
   gridMode === 'group' || gridMode === 'splitgroup'
-    ? useNuGridGrouping(props, tableApi, rootRef, stickyEnabled, showHeaders, gridMode, {
+    ? useNuGridGrouping(props, tableApi, rootRef, expandedState, stickyEnabled, showHeaders, gridMode, {
         addRowPosition,
         isAddRowRow,
         getAddRowForGroup: getGroupAddRow,
@@ -614,7 +633,7 @@ useKeyboardSetup<T>({
 })
 
 // Autosize
-const autosizeFns = useNuGridAutosize(props, tableApi, tableRef)
+const autosizeFns = useNuGridAutosize(props, tableApi, tableRef, columnSizingState)
 
 // Performance optimization: Cache frequently accessed TanStack Table API results
 // These computed properties prevent redundant API calls in templates
@@ -727,6 +746,11 @@ provide('nugrid-core', {
   hasFooter,
   rows,
   rowSlot: (slots as any).row,
+  // NuGrid-owned state refs — direct updates bypass TanStack
+  columnPinningState,
+  expandedState,
+  rowSelectionState,
+  paginationState,
 })
 
 provide('nugrid-drag', {
@@ -746,6 +770,7 @@ provide('nugrid-resize', {
   resizingGroupId,
   resizingColumnId,
   manuallyResizedColumns,
+  columnSizingState,
 })
 
 provide('nugrid-virtualization', {
@@ -922,7 +947,9 @@ provide('nugrid-animation', animationContext)
 const pagingContext = useNuGridPaging({
   props,
   tableApi,
+  paginationState,
   rootRef: rootElement,
+  totalRowCount: computed(() => orderedRows.value.length),
   eventEmitter,
 })
 provide('nugrid-paging', pagingContext)
@@ -1036,9 +1063,9 @@ function getSelectedRows<TRow = T>(): TRow[] {
   return tableApi.getSelectedRowModel().rows.map((row) => row.original as unknown as TRow)
 }
 
-// Column pinning helper methods
+// Column pinning helper methods — NuGrid owns pinning state directly
 const pinColumn = (columnId: string, side: 'left' | 'right') => {
-  const currentPinning = tableApi.getState().columnPinning
+  const currentPinning = columnPinningState.value
   const newPinning = { ...currentPinning }
 
   // Remove from opposite side if present
@@ -1055,28 +1082,28 @@ const pinColumn = (columnId: string, side: 'left' | 'right') => {
     newPinning[side] = [...newPinning[side], columnId]
   }
 
-  tableApi.setColumnPinning(newPinning)
+  columnPinningState.value = newPinning
 }
 
 const unpinColumn = (columnId: string) => {
-  const currentPinning = tableApi.getState().columnPinning
+  const currentPinning = columnPinningState.value
   const newPinning = {
     left: currentPinning.left?.filter((id) => id !== columnId) || [],
     right: currentPinning.right?.filter((id) => id !== columnId) || [],
   }
 
-  tableApi.setColumnPinning(newPinning)
+  columnPinningState.value = newPinning
 }
 
 const isPinned = (columnId: string): 'left' | 'right' | false => {
-  const pinning = tableApi.getState().columnPinning
+  const pinning = columnPinningState.value
   if (pinning.left?.includes(columnId)) return 'left'
   if (pinning.right?.includes(columnId)) return 'right'
   return false
 }
 
 const getPinnedColumns = () => {
-  const pinning = tableApi.getState().columnPinning
+  const pinning = columnPinningState.value
   return {
     left: pinning.left || [],
     right: pinning.right || [],
