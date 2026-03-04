@@ -2,6 +2,7 @@
  * NuGrid Table Engine — barrel export.
  */
 
+export { builtinAggregationFns } from './aggregation-fns'
 export { createEngineColumn } from './column'
 export { createEngineCell } from './cell'
 export { createEngineRow } from './row'
@@ -12,6 +13,8 @@ export { createNuGridTable } from './table'
 export type { CreateNuGridTableOptions } from './table'
 export type { CreateEngineRowOptions } from './row'
 export type {
+  AggregationFn,
+  BuiltinAggregationFn,
   ColumnPinningPosition,
   EngineCell,
   EngineColumn,

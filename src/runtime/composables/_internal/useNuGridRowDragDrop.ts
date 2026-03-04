@@ -2,7 +2,7 @@ import type { TableData } from '../../types/table-data'
 import type { Row, Table } from '../../engine'
 import type { Ref } from 'vue'
 
-import { markRaw, ref, toRaw, toRef } from 'vue'
+import { markRaw, onBeforeUnmount, ref, toRaw, toRef } from 'vue'
 
 import type { NuGridEventEmitter } from '../../types'
 import type { RowDragEvent } from '../../types/drag-drop'
@@ -458,6 +458,11 @@ export function useNuGridRowDragDrop<T extends TableData>(
       onDragstart: (e: DragEvent) => draggable && handleRowDragStart(e, row),
     }
   }
+
+  onBeforeUnmount(() => {
+    document.body.classList.remove('is-dragging-row')
+    document.body.classList.remove('is-dragging-row-outside')
+  })
 
   // Use markRaw for the static handler functions to prevent unnecessary reactivity overhead
   return toRef<NuGridRowDragDrop<T>>({

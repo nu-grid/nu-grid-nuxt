@@ -290,7 +290,7 @@ export function useNuGridFiltering<T extends TableData>(
       } else {
         // Generic single-filter path — still avoids inner loop
         for (const item of items) {
-          if (cf.filterFn(createRowShim(item) as any, cf.id, cf.resolvedValue, noopAddMeta)) {
+          if (cf.filterFn(createRowShim(item) as any, cf.id, cf.resolvedValue)) {
             result.push(item)
           }
         }
@@ -317,7 +317,7 @@ export function useNuGridFiltering<T extends TableData>(
         const rowShim = createRowShim(item) as any
         let passedAll = true
         for (const cf of colFilters) {
-          if (!cf.filterFn(rowShim, cf.id, cf.resolvedValue, noopAddMeta)) {
+          if (!cf.filterFn(rowShim, cf.id, cf.resolvedValue)) {
             passedAll = false
             break
           }
@@ -352,7 +352,6 @@ export function useNuGridFiltering<T extends TableData>(
 // Helpers
 // ---------------------------------------------------------------------------
 
-function noopAddMeta(_meta: any) {}
 
 /**
  * Create a minimal row shim that provides `getValue()` for FilterFn

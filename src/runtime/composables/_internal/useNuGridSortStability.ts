@@ -3,7 +3,7 @@ import type { Row, SortingState } from '../../engine'
 import type { Ref, ShallowRef } from 'vue'
 
 import { usePreferredReducedMotion } from '@vueuse/core'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import type { NuGridFocus } from '../../types/_internal'
 
@@ -48,10 +48,18 @@ export function useNuGridSortStability<T extends TableData>(
   // Skip data changes during initial setup (async data load, settings hydration, etc.)
   // Uses onMounted + delay to wait for all initial watchers and reactivity to settle.
   let isSettled = false
+  let settledTimer: ReturnType<typeof setTimeout> | null = null
   onMounted(() => {
-    setTimeout(() => {
+    settledTimer = setTimeout(() => {
       isSettled = true
+      settledTimer = null
     }, 250)
+  })
+
+  onBeforeUnmount(() => {
+    if (settledTimer) { clearTimeout(settledTimer); settledTimer = null }
+    if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null }
+    if (flipCleanupTimer) { clearTimeout(flipCleanupTimer); flipCleanupTimer = null }
   })
 
   // Last settled row order — updated inside displayRows computed when in passthrough

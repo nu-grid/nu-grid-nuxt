@@ -105,11 +105,8 @@ export function getFlexCellStyle<T>(
 
   // Pinned columns always use fixed width
   if (isPinned) {
-    return {
-      width: `${column.getSize()}px`,
-      minWidth: `${column.getSize()}px`,
-      maxWidth: `${column.getSize()}px`,
-    }
+    const size = `${column.getSize()}px`
+    return { width: size, minWidth: size, maxWidth: size }
   }
 
   // fill mode: use flex with min/max constraints

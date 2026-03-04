@@ -5,8 +5,10 @@
  * Creates synthetic group rows with groupingColumnId, groupingValue, subRows, leafRows.
  */
 
+import { builtinAggregationFns } from './aggregation-fns'
 import { createEngineRow } from './row'
 import type {
+  AggregationFn,
   EngineColumn,
   EngineRow,
   EngineRowModel,
@@ -87,6 +89,7 @@ export function buildGroupedRowModel<T>(
     return coreModel
   }
 
+  const existingGroupingSet = new Set(existingGrouping)
   const groupedFlatRows: EngineRow<T>[] = []
   const groupedRowsById: Record<string, EngineRow<T>> = {}
 
@@ -151,6 +154,26 @@ export function buildGroupedRowModel<T>(
         })
 
         row.subRows = subRows
+
+        // Populate _groupingValuesCache with aggregated values
+        for (const col of columns) {
+          if (existingGroupingSet.has(col.id)) continue
+
+          const aggFn = col.columnDef.aggregationFn
+          if (aggFn == null) continue
+
+          let resolvedFn: AggregationFn | undefined
+          if (typeof aggFn === 'function') {
+            resolvedFn = aggFn
+          }
+          else if (typeof aggFn === 'string') {
+            resolvedFn = builtinAggregationFns[aggFn]
+          }
+
+          if (resolvedFn) {
+            row._groupingValuesCache[col.id] = resolvedFn(col.id, leafRows, subRows)
+          }
+        }
 
         // Override getValue for group rows:
         // - For grouping columns: return the first row's value

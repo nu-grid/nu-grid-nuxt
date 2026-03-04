@@ -469,8 +469,15 @@ function useSharedVirtualizer<T extends TableData>(
         if (!sticky.length) {
           return defaultRangeExtractor(range)
         }
-        const merged = new Set([...sticky, ...defaultRangeExtractor(range)])
-        return [...merged]
+        // Merge sticky indexes into the default range without Set allocation.
+        // Sticky indexes are few (typically 1-3), so linear scan is fast.
+        const defaultRange = defaultRangeExtractor(range)
+        for (const idx of sticky) {
+          if (!defaultRange.includes(idx)) {
+            defaultRange.push(idx)
+          }
+        }
+        return defaultRange
       },
     }) as Ref<Virtualizer<Element, Element>>
 

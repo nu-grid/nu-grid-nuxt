@@ -314,7 +314,30 @@ export interface EngineTable<T = any> {
 
 /** Filter function interface */
 export interface FilterFn<T> {
-  (row: EngineRow<T>, columnId: string, filterValue: any, addMeta: (meta: any) => void): boolean
+  (row: EngineRow<T>, columnId: string, filterValue: any): boolean
   resolveFilterValue?: (val: any) => any
   autoRemove?: (val: any) => boolean
 }
+
+// ---------------------------------------------------------------------------
+// Aggregation
+// ---------------------------------------------------------------------------
+
+/** Custom aggregation function for grouped rows */
+export type AggregationFn<T = any> = (
+  columnId: string,
+  leafRows: EngineRow<T>[],
+  childRows: EngineRow<T>[],
+) => any
+
+/** Built-in aggregation function names */
+export type BuiltinAggregationFn =
+  | 'sum'
+  | 'min'
+  | 'max'
+  | 'count'
+  | 'extent'
+  | 'mean'
+  | 'median'
+  | 'unique'
+  | 'uniqueCount'

@@ -122,21 +122,9 @@ export function splitPath(path: string): (string | number)[] {
 }
 
 /**
- * Get a value at a path from an object
- */
-export function getValueAtPath(obj: any, path: (string | number)[]): any {
-  let current = obj
-  for (const segment of path) {
-    if (current == null) return undefined
-    current = current[segment]
-  }
-  return current
-}
-
-/**
  * Set a value at a path in an object, returning a new object
  */
-export function setValueAtPath<T extends Record<string, any>>(
+function setValueAtPath<T extends Record<string, any>>(
   obj: T,
   path: (string | number)[],
   value: any,
@@ -166,18 +154,6 @@ export function setValueAtPath<T extends Record<string, any>>(
   const lastSegment = path[lastIndex] as string | number
   current[lastSegment] = value
   return result as T
-}
-
-/**
- * Check if a schema is a Standard Schema v1
- */
-export function isStandardSchema(schema: unknown): schema is StandardSchemaV1 {
-  return (
-    schema != null &&
-    typeof schema === 'object' &&
-    '~standard' in schema &&
-    typeof (schema as any)['~standard']?.validate === 'function'
-  )
 }
 
 /**
@@ -295,21 +271,3 @@ export function validateFieldValue<T>(
   return validateStandardValue(schema, value)
 }
 
-/**
- * Format validation issues into a user-friendly message
- */
-export function formatStandardSchemaIssues(issues: StandardSchemaV1Issue[]): string {
-  if (!issues || issues.length === 0) return 'Validation failed'
-
-  return issues
-    .map((issue) => {
-      if (issue.path && issue.path.length > 0) {
-        const pathStr = issue.path
-          .map((p) => (typeof p === 'object' && 'key' in p ? p.key : p))
-          .join('.')
-        return `${pathStr}: ${issue.message}`
-      }
-      return issue.message
-    })
-    .join('; ')
-}

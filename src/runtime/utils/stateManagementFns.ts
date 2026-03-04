@@ -1,36 +1,6 @@
 /**
- * Pure functions for state management — replaces TanStack's set*() methods.
- *
- * Each function mirrors TanStack's internal logic so NuGrid can manage
- * state directly via refs instead of going through tableApi.set*().
+ * Pure functions for state management.
  */
-
-/**
- * Toggle a row's selection state.
- * Replaces `row.toggleSelected()` — mirrors TanStack's mutateRowIsSelected logic.
- *
- * In multi-select mode, adds/removes the row from the selection.
- * In single-select mode, clears all other selections when selecting.
- */
-export function toggleRowSelected(
-  oldSelection: Record<string, boolean>,
-  rowId: string,
-  value: boolean,
-  multiSelect: boolean,
-): Record<string, boolean> {
-  const next = { ...oldSelection }
-
-  if (value) {
-    if (!multiSelect) {
-      Object.keys(next).forEach(key => delete next[key])
-    }
-    next[rowId] = true
-  } else {
-    delete next[rowId]
-  }
-
-  return next
-}
 
 /**
  * Update pagination page size.

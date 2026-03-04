@@ -76,6 +76,7 @@ export function useNuGridAnimation<T extends TableData = TableData>(
       clearTimeout(mountTimer)
       mountTimer = undefined
     }
+    cancelAnimation()
   })
 
   // Check if animations are explicitly disabled via `animation: false` or user preference

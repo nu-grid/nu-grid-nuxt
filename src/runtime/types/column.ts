@@ -1,5 +1,5 @@
 import type { DropdownMenuItem } from '@nuxt/ui'
-import type { Column, EngineCell, EngineColumn, EngineHeader, EngineRow, EngineTable, Row } from '../engine'
+import type { AggregationFn, BuiltinAggregationFn, Column, EngineCell, EngineColumn, EngineHeader, EngineRow, EngineTable, Row } from '../engine'
 
 import type { NuGridEditorConfig } from './_internal'
 import type { NuGridValidationResult } from './cells'
@@ -568,4 +568,29 @@ export interface NuGridColumn<T extends TableData = TableData> {
    * }
    */
   summary?: NuGridColumnSummary
+
+  /**
+   * Aggregation function for grouped rows.
+   * When rows are grouped, computes an aggregated value for this column
+   * on each group row. The result is accessible via cell.getValue() on the group row.
+   *
+   * Built-in: 'sum', 'min', 'max', 'count', 'extent', 'mean', 'median', 'unique', 'uniqueCount'
+   * @example
+   * { accessorKey: 'amount', aggregationFn: 'sum' }
+   * @example
+   * { accessorKey: 'status', aggregationFn: (columnId, leafRows) => leafRows.length }
+   */
+  aggregationFn?: BuiltinAggregationFn | AggregationFn<T>
+
+  /**
+   * Custom cell renderer used when this cell is aggregated
+   * (on a group row, for a non-grouping column with aggregationFn).
+   * If not provided, the regular `cell` renderer is used.
+   * @example
+   * {
+   *   aggregationFn: 'count',
+   *   aggregatedCell: ({ getValue }) => `Count: ${getValue()}`
+   * }
+   */
+  aggregatedCell?: ((props: Record<string, any>) => any) | string
 }

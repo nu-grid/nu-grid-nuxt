@@ -290,6 +290,8 @@ export function useNuGridFocus<T extends TableData>(
   })
 
   onUnmounted(() => {
+    stopProcessingLock()
+
     if (ariaHiddenObserver) {
       ariaHiddenObserver.disconnect()
       ariaHiddenObserver = null

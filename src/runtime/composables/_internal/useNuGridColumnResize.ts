@@ -401,16 +401,16 @@ export function useNuGridColumnResize<T extends TableData>(
   }
 
   // Add global event listeners for mouseup and touchend to remove cursor lock
-  if (typeof document !== 'undefined') {
+  onMounted(() => {
     document.addEventListener('mouseup', handleResizeEnd)
     document.addEventListener('touchend', handleResizeEnd)
-  }
+  })
 
   onUnmounted(() => {
-    if (typeof document !== 'undefined') {
-      document.removeEventListener('mouseup', handleResizeEnd)
-      document.removeEventListener('touchend', handleResizeEnd)
-    }
+    document.body.classList.remove('is-resizing-column')
+    resizeStartSizes.clear()
+    document.removeEventListener('mouseup', handleResizeEnd)
+    document.removeEventListener('touchend', handleResizeEnd)
   })
 
   return {

@@ -62,22 +62,54 @@ export function createNuGridTable<T>(options: CreateNuGridTableOptions<T>): Engi
     columnsById[col.id] = col
   }
 
-  // Wire up state accessors for column lists (these are needed by column.getStart/getAfter/getIndex)
-  const getVisibleLeafColumns = () => allLeafColumns.filter(c => c.getIsVisible())
-  const getLeftVisibleLeafColumns = () => {
-    const { left } = state.columnPinning()
-    if (!left?.length) return []
-    return getVisibleLeafColumns().filter(c => left.includes(c.id))
+  // ---------------------------------------------------------------------------
+  // Identity-cached column lists — avoids re-filtering when state hasn't changed.
+  // Each cache stores the state snapshot it was computed from and the result.
+  // ---------------------------------------------------------------------------
+
+  let _visCache: { vis: Record<string, boolean>; result: EngineColumn<T>[] } | null = null
+  const getVisibleLeafColumns = (): EngineColumn<T>[] => {
+    const vis = state.columnVisibility()
+    if (_visCache && _visCache.vis === vis) return _visCache.result
+    const result = allLeafColumns.filter(c => c.getIsVisible())
+    _visCache = { vis, result }
+    return result
   }
-  const getRightVisibleLeafColumns = () => {
-    const { right } = state.columnPinning()
-    if (!right?.length) return []
-    return getVisibleLeafColumns().filter(c => right.includes(c.id))
+
+  let _leftCache: { pin: any; vis: any; result: EngineColumn<T>[] } | null = null
+  const getLeftVisibleLeafColumns = (): EngineColumn<T>[] => {
+    const pin = state.columnPinning()
+    const vis = state.columnVisibility()
+    if (_leftCache && _leftCache.pin === pin && _leftCache.vis === vis) return _leftCache.result
+    const { left } = pin
+    if (!left?.length) { _leftCache = { pin, vis, result: [] }; return _leftCache.result }
+    const result = getVisibleLeafColumns().filter(c => left.includes(c.id))
+    _leftCache = { pin, vis, result }
+    return result
   }
-  const getCenterVisibleLeafColumns = () => {
-    const { left, right } = state.columnPinning()
+
+  let _rightCache: { pin: any; vis: any; result: EngineColumn<T>[] } | null = null
+  const getRightVisibleLeafColumns = (): EngineColumn<T>[] => {
+    const pin = state.columnPinning()
+    const vis = state.columnVisibility()
+    if (_rightCache && _rightCache.pin === pin && _rightCache.vis === vis) return _rightCache.result
+    const { right } = pin
+    if (!right?.length) { _rightCache = { pin, vis, result: [] }; return _rightCache.result }
+    const result = getVisibleLeafColumns().filter(c => right.includes(c.id))
+    _rightCache = { pin, vis, result }
+    return result
+  }
+
+  let _centerCache: { pin: any; vis: any; result: EngineColumn<T>[] } | null = null
+  const getCenterVisibleLeafColumns = (): EngineColumn<T>[] => {
+    const pin = state.columnPinning()
+    const vis = state.columnVisibility()
+    if (_centerCache && _centerCache.pin === pin && _centerCache.vis === vis) return _centerCache.result
+    const { left, right } = pin
     const pinned = new Set([...(left ?? []), ...(right ?? [])])
-    return getVisibleLeafColumns().filter(c => !pinned.has(c.id))
+    const result = getVisibleLeafColumns().filter(c => !pinned.has(c.id))
+    _centerCache = { pin, vis, result }
+    return result
   }
 
   // Patch the state accessors with the column list functions
@@ -87,16 +119,32 @@ export function createNuGridTable<T>(options: CreateNuGridTableOptions<T>): Engi
   ;(state as any).getRightVisibleLeafColumns = getRightVisibleLeafColumns
   ;(state as any).getCenterVisibleLeafColumns = getCenterVisibleLeafColumns
 
+  // ---------------------------------------------------------------------------
+  // Identity-cached row model and header groups
+  // ---------------------------------------------------------------------------
+
+  let _headerCache: { vis: EngineColumn<T>[]; result: EngineHeaderGroup<T>[] } | null = null
+  let _footerCache: { source: EngineHeaderGroup<T>[]; result: EngineHeaderGroup<T>[] } | null = null
+  let _rowModelCache: { data: T[]; grouping: any; expanded: any; selection: any; result: EngineRowModel<T> } | null = null
+  let _coreModelCache: { data: T[]; result: EngineRowModel<T> } | null = null
+
   // -- Build table object --
   const table: EngineTable<T> = {
     // Header groups
     getHeaderGroups(): EngineHeaderGroup<T>[] {
       const visible = getVisibleLeafColumns()
-      return buildEngineHeaderGroups(allColumns, visible, table)
+      if (_headerCache && _headerCache.vis === visible) return _headerCache.result
+      const result = buildEngineHeaderGroups(allColumns, visible, table)
+      _headerCache = { vis: visible, result }
+      return result
     },
 
     getFooterGroups(): EngineHeaderGroup<T>[] {
-      return [...table.getHeaderGroups()].reverse()
+      const source = table.getHeaderGroups()
+      if (_footerCache && _footerCache.source === source) return _footerCache.result
+      const result = [...source].reverse()
+      _footerCache = { source, result }
+      return result
     },
 
     // Columns
@@ -114,20 +162,30 @@ export function createNuGridTable<T>(options: CreateNuGridTableOptions<T>): Engi
     // Row models
     getRowModel(): EngineRowModel<T> {
       const data = typeof options.data === 'function' ? (options.data as () => T[])() : options.data
-      const coreModel = buildCoreRowModel(data, allLeafColumns, table, state)
       const grouping = state.grouping()
-
-      if (grouping.length) {
-        return buildGroupedRowModel(coreModel, grouping, allLeafColumns, table, state)
+      const expanded = state.expanded()
+      const selection = state.rowSelection()
+      if (_rowModelCache
+        && _rowModelCache.data === data
+        && _rowModelCache.grouping === grouping
+        && _rowModelCache.expanded === expanded
+        && _rowModelCache.selection === selection) {
+        return _rowModelCache.result
       }
-
-      return coreModel
+      const coreModel = buildCoreRowModel(data, allLeafColumns, table, state)
+      const result = grouping.length
+        ? buildGroupedRowModel(coreModel, grouping, allLeafColumns, table, state)
+        : coreModel
+      _rowModelCache = { data, grouping, expanded, selection, result }
+      return result
     },
 
     getCoreRowModel(): EngineRowModel<T> {
-      // Returns rows without grouping applied (NuGrid owns filtering externally)
       const data = typeof options.data === 'function' ? (options.data as () => T[])() : options.data
-      return buildCoreRowModel(data, allLeafColumns, table, state)
+      if (_coreModelCache && _coreModelCache.data === data) return _coreModelCache.result
+      const result = buildCoreRowModel(data, allLeafColumns, table, state)
+      _coreModelCache = { data, result }
+      return result
     },
 
     getFilteredRowModel(): EngineRowModel<T> {
@@ -198,18 +256,18 @@ export function createNuGridTable<T>(options: CreateNuGridTableOptions<T>): Engi
       return getVisibleLeafColumns().reduce((sum, col) => sum + col.getSize(), 0)
     },
 
-    // State
+    // State — lazy getters so callers only create reactive deps on properties they access
     getState(): Record<string, any> {
       return {
-        columnSizing: state.columnSizing(),
-        columnSizingInfo: state.columnSizingInfo(),
-        columnPinning: state.columnPinning(),
-        columnVisibility: state.columnVisibility(),
-        columnOrder: state.columnOrder(),
-        sorting: state.sorting(),
-        grouping: state.grouping(),
-        rowSelection: state.rowSelection(),
-        expanded: state.expanded(),
+        get columnSizing() { return state.columnSizing() },
+        get columnSizingInfo() { return state.columnSizingInfo() },
+        get columnPinning() { return state.columnPinning() },
+        get columnVisibility() { return state.columnVisibility() },
+        get columnOrder() { return state.columnOrder() },
+        get sorting() { return state.sorting() },
+        get grouping() { return state.grouping() },
+        get rowSelection() { return state.rowSelection() },
+        get expanded() { return state.expanded() },
       }
     },
 

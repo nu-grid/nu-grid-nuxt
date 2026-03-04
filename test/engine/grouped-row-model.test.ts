@@ -326,3 +326,121 @@ describe('buildGroupedRowModel — edge cases', () => {
     expect(groupedModel.rows).toHaveLength(5)
   })
 })
+
+// ---------------------------------------------------------------------------
+// Aggregation
+// ---------------------------------------------------------------------------
+
+describe('buildGroupedRowModel — aggregation', () => {
+  it('should populate _groupingValuesCache with sum aggregation', () => {
+    const state = createMockState()
+    const columns = [
+      createEngineColumn({ id: 'dept', accessorKey: 'dept' }, 0, undefined, state),
+      createEngineColumn({ id: 'age', accessorKey: 'age', aggregationFn: 'sum' }, 0, undefined, state),
+      createEngineColumn({ id: 'name', accessorKey: 'name' }, 0, undefined, state),
+    ]
+    const table = createMockTable(columns)
+    const coreModel = buildCoreRowModel(testData, columns, table, state)
+
+    const groupedModel = buildGroupedRowModel(coreModel, ['dept'], columns, table, state)
+
+    // eng group: 30 + 25 + 32 = 87
+    expect(groupedModel.rows[0].getValue('age')).toBe(87)
+    // sales group: 35 + 28 = 63
+    expect(groupedModel.rows[1].getValue('age')).toBe(63)
+  })
+
+  it('should populate _groupingValuesCache with count aggregation', () => {
+    const state = createMockState()
+    const columns = [
+      createEngineColumn({ id: 'dept', accessorKey: 'dept' }, 0, undefined, state),
+      createEngineColumn({ id: 'name', accessorKey: 'name', aggregationFn: 'count' }, 0, undefined, state),
+    ]
+    const table = createMockTable(columns)
+    const coreModel = buildCoreRowModel(testData, columns, table, state)
+
+    const groupedModel = buildGroupedRowModel(coreModel, ['dept'], columns, table, state)
+
+    expect(groupedModel.rows[0].getValue('name')).toBe(3) // eng has 3
+    expect(groupedModel.rows[1].getValue('name')).toBe(2) // sales has 2
+  })
+
+  it('should populate _groupingValuesCache with unique aggregation', () => {
+    const state = createMockState()
+    const columns = [
+      createEngineColumn({ id: 'dept', accessorKey: 'dept' }, 0, undefined, state),
+      createEngineColumn({ id: 'name', accessorKey: 'name', aggregationFn: 'unique' }, 0, undefined, state),
+    ]
+    const table = createMockTable(columns)
+    const coreModel = buildCoreRowModel(testData, columns, table, state)
+
+    const groupedModel = buildGroupedRowModel(coreModel, ['dept'], columns, table, state)
+
+    const engNames = groupedModel.rows[0].getValue<string[]>('name')
+    expect(engNames).toEqual(['Alice', 'Bob', 'Eve'])
+  })
+
+  it('should support custom aggregation functions', () => {
+    const state = createMockState()
+    const customFn = (columnId: string, leafRows: any[]) => {
+      return leafRows.map((r: any) => r.getValue(columnId)).join(', ')
+    }
+    const columns = [
+      createEngineColumn({ id: 'dept', accessorKey: 'dept' }, 0, undefined, state),
+      createEngineColumn({ id: 'name', accessorKey: 'name', aggregationFn: customFn }, 0, undefined, state),
+    ]
+    const table = createMockTable(columns)
+    const coreModel = buildCoreRowModel(testData, columns, table, state)
+
+    const groupedModel = buildGroupedRowModel(coreModel, ['dept'], columns, table, state)
+
+    expect(groupedModel.rows[0].getValue('name')).toBe('Alice, Bob, Eve')
+  })
+
+  it('should not aggregate columns without aggregationFn', () => {
+    const state = createMockState()
+    const columns = [
+      createEngineColumn({ id: 'dept', accessorKey: 'dept' }, 0, undefined, state),
+      createEngineColumn({ id: 'age', accessorKey: 'age', aggregationFn: 'sum' }, 0, undefined, state),
+      createEngineColumn({ id: 'name', accessorKey: 'name' }, 0, undefined, state),
+    ]
+    const table = createMockTable(columns)
+    const coreModel = buildCoreRowModel(testData, columns, table, state)
+
+    const groupedModel = buildGroupedRowModel(coreModel, ['dept'], columns, table, state)
+
+    // age is aggregated
+    expect(groupedModel.rows[0]._groupingValuesCache).toHaveProperty('age')
+    // name is NOT aggregated — falls back to first row's value
+    expect(groupedModel.rows[0]._groupingValuesCache).not.toHaveProperty('name')
+    expect(groupedModel.rows[0].getValue('name')).toBe('Alice')
+  })
+
+  it('should aggregate correctly with multi-level grouping', () => {
+    const multiData = [
+      { dept: 'eng', team: 'frontend', age: 30 },
+      { dept: 'eng', team: 'frontend', age: 25 },
+      { dept: 'eng', team: 'backend', age: 35 },
+      { dept: 'sales', team: 'east', age: 28 },
+    ]
+    const state = createMockState()
+    const columns = [
+      createEngineColumn({ id: 'dept', accessorKey: 'dept' }, 0, undefined, state),
+      createEngineColumn({ id: 'team', accessorKey: 'team' }, 0, undefined, state),
+      createEngineColumn({ id: 'age', accessorKey: 'age', aggregationFn: 'sum' }, 0, undefined, state),
+    ]
+    const table = createMockTable(columns)
+    const coreModel = buildCoreRowModel(multiData, columns, table, state)
+
+    const groupedModel = buildGroupedRowModel(coreModel, ['dept', 'team'], columns, table, state)
+
+    // Top-level eng group: 30 + 25 + 35 = 90
+    expect(groupedModel.rows[0].getValue('age')).toBe(90)
+    // eng > frontend: 30 + 25 = 55
+    expect(groupedModel.rows[0].subRows[0].getValue('age')).toBe(55)
+    // eng > backend: 35
+    expect(groupedModel.rows[0].subRows[1].getValue('age')).toBe(35)
+    // sales: 28
+    expect(groupedModel.rows[1].getValue('age')).toBe(28)
+  })
+})

@@ -69,6 +69,7 @@ export function createEngineRow<T>(options: CreateEngineRowOptions<T>): EngineRo
   // Caches
   let _allCells: EngineCell<T>[] | undefined
   let _allCellsByColumnId: Record<string, EngineCell<T>> | undefined
+  let _visibleCellsCache: { cols: EngineColumn<T>[]; result: EngineCell<T>[] } | null = null
 
   const row: EngineRow<T> = {
     id,
@@ -119,6 +120,11 @@ export function createEngineRow<T>(options: CreateEngineRowOptions<T>): EngineRo
     },
 
     getVisibleCells(): EngineCell<T>[] {
+      const visibleCols = table.getVisibleLeafColumns()
+      // Return cached result if visible columns list hasn't changed (identity check)
+      if (_visibleCellsCache && _visibleCellsCache.cols === visibleCols) {
+        return _visibleCellsCache.result
+      }
       // Build lookup from all cells, return only visible ones
       if (!_allCellsByColumnId) {
         _allCellsByColumnId = {}
@@ -126,9 +132,13 @@ export function createEngineRow<T>(options: CreateEngineRowOptions<T>): EngineRo
           _allCellsByColumnId[cell.column.id] = cell
         }
       }
-      return table.getVisibleLeafColumns()
-        .map(col => _allCellsByColumnId![col.id])
-        .filter((c): c is EngineCell<T> => !!c)
+      const result: EngineCell<T>[] = []
+      for (const col of visibleCols) {
+        const cell = _allCellsByColumnId[col.id]
+        if (cell) result.push(cell)
+      }
+      _visibleCellsCache = { cols: visibleCols, result }
+      return result
     },
 
     // -- Selection --

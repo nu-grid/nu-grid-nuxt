@@ -16,7 +16,6 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  toggleRowSelected,
   updatePageIndex,
   updatePageSize,
 } from '../src/runtime/utils/stateManagementFns'
@@ -164,62 +163,6 @@ describe('State Management Parity', () => {
 
   // ── Row Selection ────────────────────────────────────────────────
   describe('Row Selection — direct ref update vs tableApi.setRowSelection()', () => {
-    it('select a row in multi-select mode', () => {
-      const old = { row_1: true }
-      const rowId = 'row_2'
-
-      const tanstackResult = tanstackToggleSelected(old, rowId, true, true)
-      const nugridResult = toggleRowSelected(old, rowId, true, true)
-
-      expect(nugridResult).toEqual(tanstackResult)
-      expect(nugridResult).toEqual({ row_1: true, row_2: true })
-    })
-
-    it('deselect a row in multi-select mode', () => {
-      const old = { row_1: true, row_2: true }
-      const rowId = 'row_2'
-
-      const tanstackResult = tanstackToggleSelected(old, rowId, false, true)
-      const nugridResult = toggleRowSelected(old, rowId, false, true)
-
-      expect(nugridResult).toEqual(tanstackResult)
-      expect(nugridResult).toEqual({ row_1: true })
-      expect('row_2' in nugridResult).toBe(false)
-    })
-
-    it('select a row in single-select mode clears others', () => {
-      const old = { row_1: true }
-      const rowId = 'row_2'
-
-      const tanstackResult = tanstackToggleSelected(old, rowId, true, false)
-      const nugridResult = toggleRowSelected(old, rowId, true, false)
-
-      expect(nugridResult).toEqual(tanstackResult)
-      expect(nugridResult).toEqual({ row_2: true })
-    })
-
-    it('deselect in single-select mode', () => {
-      const old = { row_1: true }
-      const rowId = 'row_1'
-
-      const tanstackResult = tanstackToggleSelected(old, rowId, false, false)
-      const nugridResult = toggleRowSelected(old, rowId, false, false)
-
-      expect(nugridResult).toEqual(tanstackResult)
-      expect(nugridResult).toEqual({})
-    })
-
-    it('select when empty', () => {
-      const old = {}
-      const rowId = 'row_1'
-
-      const tanstackResult = tanstackToggleSelected(old, rowId, true, true)
-      const nugridResult = toggleRowSelected(old, rowId, true, true)
-
-      expect(nugridResult).toEqual(tanstackResult)
-      expect(nugridResult).toEqual({ row_1: true })
-    })
-
     it('group toggle — select all rows in group', () => {
       const current = { row_1: true }
       const groupRows = ['row_2', 'row_3', 'row_4']

@@ -366,11 +366,8 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
     // Move events update position if mouse follow is enabled
     if (type === 'move') {
       if (opts.mouseFollow && tooltipState.value) {
-        tooltipState.value = {
-          ...tooltipState.value,
-          x: lastMouseX,
-          y: lastMouseY,
-        }
+        tooltipState.value.x = lastMouseX
+        tooltipState.value.y = lastMouseY
       }
       return
     }

@@ -976,3 +976,4 @@ export interface NuGridSpreadsheetNavOptions {
   /** Grid ref to navigate to when moving before the first cell */
   previousGrid?: Ref<any>
 }
+

@@ -104,13 +104,12 @@ export function buildEngineHeaderGroups<T>(
 
   const findMaxDepth = (columns: EngineColumn<T>[], depth = 1) => {
     maxDepth = Math.max(maxDepth, depth)
-    columns
-      .filter(column => column.getIsVisible())
-      .forEach((column) => {
-        if (column.columns?.length) {
-          findMaxDepth(column.columns, depth + 1)
-        }
-      })
+    for (const column of columns) {
+      if (!column.getIsVisible()) continue
+      if (column.columns?.length) {
+        findMaxDepth(column.columns, depth + 1)
+      }
+    }
   }
 
   findMaxDepth(allColumns)
@@ -130,7 +129,7 @@ export function buildEngineHeaderGroups<T>(
     const pendingParentHeaders: EngineHeader<T>[] = []
 
     headersToGroup.forEach((headerToGroup) => {
-      const latestPendingParentHeader = [...pendingParentHeaders].reverse()[0]
+      const latestPendingParentHeader = pendingParentHeaders[pendingParentHeaders.length - 1]
       const isLeafHeader = headerToGroup.column.depth === headerGroup.depth
 
       let column: EngineColumn<T>

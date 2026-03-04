@@ -78,13 +78,12 @@ const animationEnabled = animationContext.enabled
 // Destructure from contexts
 const { tableRef, rootRef, tableApi, ui, hasFooter, rows: contextRows, propsUi } = coreContext
 
-// Create a local computed for animated rows to ensure proper reactivity tracking
-// IMPORTANT: Return a new array reference to trigger Vue's reactivity for FLIP animations
-// The source array from the engine may be the same reference even when order changes
+// Create a local computed for rows
+// When animations are enabled, return a shallow copy so Vue detects reordering for FLIP.
+// When disabled, pass through by reference to avoid O(n) allocation per render.
 const rows = computed(() => {
   const currentRows = contextRows.value ?? []
-  // Return a new array (shallow copy) to ensure Vue detects the change
-  return [...currentRows]
+  return animationEnabled.value ? [...currentRows] : currentRows
 })
 const { dragFns, rowDragOptions } = dragContext
 const {

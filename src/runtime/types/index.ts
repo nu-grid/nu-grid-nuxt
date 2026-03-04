@@ -94,6 +94,7 @@ export type {
   NuGridSearchOptions,
   NuGridSelectionOptions,
   NuGridSortOptions,
+  NuGridSpreadsheetNavOptions,
   NuGridStateOptions,
   NuGridStatePart,
   NuGridStorageType,

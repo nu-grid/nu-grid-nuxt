@@ -12,6 +12,7 @@ import {
   onUnmounted,
   ref,
   resolveComponent,
+  triggerRef,
 } from 'vue'
 
 import type {
@@ -606,11 +607,6 @@ export function useNuGridCellEditing<T extends TableData>(
     moveDirection?: 'up' | 'down' | 'next' | 'previous',
     options?: { restoreFocus?: boolean; isClickAway?: boolean },
   ) {
-    console.log('[CellEditing] stopEditing ENTERED:', {
-      columnId: cell.column.id,
-      newValue,
-      moveDirection,
-    })
     const shouldRestoreFocus = options?.restoreFocus !== false
     const isClickAway = options?.isClickAway === true
     const config = validationConfig.value
@@ -945,10 +941,10 @@ export function useNuGridCellEditing<T extends TableData>(
       // Ensure reactivity for regular rows (not add rows, which use valueVersion)
       // Only trigger data reactivity if this is NOT an add row
       if (!addRowContext?.isAddRowRow(row)) {
-        // Note: This may fail silently if data is a computed ref (readonly)
-        // but that's okay - the cache clear above handles value updates
+        // The data item was mutated in place above — triggerRef forces dependents
+        // to re-evaluate without allocating a new array (O(1) vs O(n) spread)
         if (!isReadonly(data)) {
-          data.value = [...data.value]
+          triggerRef(data)
         }
       }
 

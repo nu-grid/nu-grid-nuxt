@@ -28,9 +28,10 @@ function resolveAccessorFn<T>(columnDef: EngineColumnDef<T>): ((row: T, index: n
 
   // Support deep accessor keys like "address.city"
   if (accessorKey.includes('.')) {
+    const keys = accessorKey.split('.')
     return (originalRow: T) => {
       let result: any = originalRow
-      for (const key of accessorKey.split('.')) {
+      for (const key of keys) {
         result = result?.[key]
       }
       return result
@@ -129,8 +130,17 @@ export function createEngineColumn<T>(
     // -- Pinning --
 
     getIsPinned() {
-      const leafIds = column.getLeafColumns().map(c => c.id)
       const { left, right } = state.columnPinning()
+
+      // Fast path for leaf columns (the common case) — no array allocations
+      if (!column.columns.length) {
+        if (left?.includes(column.id)) return 'left'
+        if (right?.includes(column.id)) return 'right'
+        return false
+      }
+
+      // Group column: check if any leaf is pinned
+      const leafIds = column.getLeafColumns().map(c => c.id)
       const isLeft = leafIds.some(id => left?.includes(id))
       const isRight = leafIds.some(id => right?.includes(id))
       return isLeft ? 'left' : isRight ? 'right' : false
@@ -146,14 +156,18 @@ export function createEngineColumn<T>(
       const columns = getVisibleLeafColumnsForPosition<T>(state, position)
       const idx = columns.findIndex(c => c.id === column.id)
       if (idx <= 0) return 0
-      return columns.slice(0, idx).reduce((sum, c) => sum + c.getSize(), 0)
+      let sum = 0
+      for (let i = 0; i < idx; i++) sum += columns[i]!.getSize()
+      return sum
     },
 
     getAfter(position?) {
       const columns = getVisibleLeafColumnsForPosition<T>(state, position)
       const idx = columns.findIndex(c => c.id === column.id)
       if (idx < 0) return 0
-      return columns.slice(idx + 1).reduce((sum, c) => sum + c.getSize(), 0)
+      let sum = 0
+      for (let i = idx + 1; i < columns.length; i++) sum += columns[i]!.getSize()
+      return sum
     },
 
     // -- Sizing --

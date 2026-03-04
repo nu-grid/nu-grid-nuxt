@@ -569,7 +569,7 @@ export function useNuGridDataWatch<T extends TableData>(props: NuGridProps<T>, d
   watch(
     () => props.data,
     () => {
-      data.value = props.data ? [...props.data] : []
+      data.value = props.data ?? []
     },
     props.watchOptions,
   )
