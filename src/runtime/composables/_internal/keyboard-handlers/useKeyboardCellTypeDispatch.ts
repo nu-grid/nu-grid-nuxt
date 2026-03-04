@@ -1,4 +1,4 @@
-import type { TableData } from '@nuxt/ui'
+import type { TableData } from '../../../types/table-data'
 import type { Ref } from 'vue'
 
 import type { NuGridKeyboardHandler } from '../../../types/_internal'
@@ -35,7 +35,7 @@ export function createCellTypeDispatchHandler<T extends TableData>(
       if (!cell || !row) return { handled: false }
 
       const columnDef = cell.column.columnDef
-      const cellDataType = (columnDef as any).cellDataType || 'text'
+      const cellDataType = columnDef.cellDataType || 'text'
 
       const keyboardHandler = typeRegistry.getKeyboardHandler(cellDataType)
       if (!keyboardHandler) {

@@ -16,7 +16,7 @@ const checkboxRef = ref<any>(null)
 // Get the row selection state
 const isSelected = computed(() => props.row.getIsSelected())
 
-// Use TanStack's built-in row.getCanSelect() which respects enableRowSelection option
+// Use row.getCanSelect() which respects enableRowSelection option
 const canRowBeSelected = computed(() => props.row.getCanSelect())
 
 // Use the cell editor composable for keyboard handling and focus management

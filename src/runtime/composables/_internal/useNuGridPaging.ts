@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { PaginationState, Table } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { PaginationState, Table } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
 import { useResizeObserver } from '@vueuse/core'
@@ -53,7 +53,7 @@ export interface NuGridPagingContext {
 interface UseNuGridPagingOptions<T extends TableData> {
   /** NuGrid props */
   props: NuGridProps<T>
-  /** TanStack table instance (used for reading sort/filter state in events) */
+  /** Table instance (used for reading sort/filter state in events) */
   tableApi: Table<T>
   /** NuGrid-owned pagination state ref */
   paginationState: Ref<PaginationState>

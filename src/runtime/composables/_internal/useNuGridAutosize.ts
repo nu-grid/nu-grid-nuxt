@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { ColumnSizingState, Table } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { ColumnSizingState, Table } from '../../engine'
 import type { Ref } from 'vue'
 
 import { useDebounceFn } from '@vueuse/core'
@@ -257,7 +257,7 @@ export function useNuGridAutosize<T extends TableData>(
 
   /**
    * Measure actual rendered widths of flex columns from the DOM
-   * and sync them to TanStack's columnSizing (without marking as manually resized)
+   * and sync them to columnSizing (without marking as manually resized)
    * This allows resize to work correctly from the first click
    */
   function syncFlexColumnWidths() {
@@ -291,7 +291,7 @@ export function useNuGridAutosize<T extends TableData>(
       }
     }
 
-    // Set the measured widths in TanStack (this doesn't trigger visual change
+    // Set the measured widths in columnSizing (this doesn't trigger visual change
     // because CSS styling checks manuallyResizedColumns, not columnSizing)
     if (Object.keys(newSizing).length > 0) {
       columnSizingState.value = { ...columnSizingState.value, ...newSizing }
@@ -327,7 +327,7 @@ export function useNuGridAutosize<T extends TableData>(
             }
           }
 
-          // After first render, sync flex column widths to TanStack
+          // After first render, sync flex column widths to columnSizing
           // so resize works correctly from the first click
           // Check both props.data AND tableApi rows (which includes empty group placeholders)
           const hasRows =

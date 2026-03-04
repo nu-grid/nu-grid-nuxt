@@ -2,8 +2,9 @@
  * @internal
  */
 
-import type { TableColumn, TableData } from '@nuxt/ui'
-import type { Row } from '@tanstack/vue-table'
+import type { Row } from '../../engine'
+import type { NuGridColumn } from '../column'
+import type { TableData } from '../table-data'
 import type { Ref } from 'vue'
 
 import type { NuGridActionMenuItem } from '../action-menu'
@@ -41,7 +42,7 @@ export interface NuGridActionMenuButton {
  * @internal
  */
 export type NuGridActionMenuColumnDef<T extends TableData = TableData> = Partial<
-  Omit<TableColumn<T>, 'id' | 'header' | 'cell' | 'accessorFn' | 'meta' | 'cellDataType'>
+  Omit<NuGridColumn<T>, 'id' | 'header' | 'cell' | 'accessorFn' | 'meta' | 'cellDataType'>
 >
 
 /**

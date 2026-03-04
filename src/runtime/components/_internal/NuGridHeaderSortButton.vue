@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData } from '@nuxt/ui'
-import type { Header } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Header } from '../../engine'
 import type { Ref } from 'vue'
 
 import { computed, inject } from 'vue'
@@ -14,9 +14,9 @@ defineOptions({ inheritAttrs: false })
 
 const props = defineProps<{
   /**
-   * The TanStack Table header object
+   * The table header object
    */
-  header: Header<any, unknown>
+  header: Header<any>
 
   /**
    * Column-specific sort icon configuration

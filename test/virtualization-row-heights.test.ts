@@ -1,5 +1,5 @@
 import type { TableColumn } from '@nuxt/ui'
-import type { ColumnSizingInfoState, ExpandedState, GroupingState } from '@tanstack/vue-table'
+import type { ColumnSizingInfoState, ExpandedState, GroupingState } from '../src/runtime/engine'
 
 import { describe, expect, it } from 'vitest'
 import { nextTick, ref } from 'vue'

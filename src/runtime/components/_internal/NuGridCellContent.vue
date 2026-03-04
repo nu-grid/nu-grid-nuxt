@@ -5,6 +5,7 @@ import { FlexRender } from '../../utils/flexRender'
 import { computed, inject, ref, resolveComponent, watch } from 'vue'
 
 import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
+import type { Cell, Row } from '../../engine'
 import type {
   NuGridAddRowContext,
   NuGridCellEditing,
@@ -15,8 +16,8 @@ import { nuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegis
 import NuGridHighlightedText from './NuGridHighlightedText.vue'
 
 interface Props {
-  cell: any
-  row: any
+  cell: Cell
+  row: Row
   cellEditingFns: NuGridCellEditing<any>
 }
 
@@ -201,13 +202,13 @@ const pluginRendererProps = computed(() => {
   }
   const renderer = pluginRenderer.value
 
-  // For add rows, read value directly from row.original to bypass TanStack's cache
+  // For add rows, read value directly from row.original to bypass the cache
   // This ensures we always get the latest value after editing
   let cellValue: any
   if (isAddRow.value) {
     // Read directly from row.original using the accessor key
     const key = cellAccessorKey.value
-    cellValue = (props.row.original as any)?.[key]
+    cellValue = props.row.original?.[key]
   } else {
     cellValue = props.cell.getValue()
   }
@@ -240,7 +241,7 @@ const functionRendererResult = computed(() => {
     if (isAddRow.value) {
       addRowContext?.valueVersion?.value
       const key = cellAccessorKey.value
-      return (props.row.original as any)?.[key]
+      return props.row.original?.[key]
     }
     return props.cell.getValue()
   }
@@ -250,7 +251,7 @@ const functionRendererResult = computed(() => {
     row: props.row,
     getValue,
     column: props.cell.column,
-    table: props.cell.table,
+    table: props.cell.getContext().table,
   })
 })
 
@@ -319,7 +320,7 @@ const cellTextValue = computed(() => {
   if (isAddRow.value) {
     addRowContext?.valueVersion?.value
     const key = cellAccessorKey.value
-    const value = (props.row.original as any)?.[key]
+    const value = props.row.original?.[key]
     if (value === null || value === undefined) return ''
     return String(value)
   }

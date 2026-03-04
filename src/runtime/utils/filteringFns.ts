@@ -1,4 +1,4 @@
-import type { FilterFn, FilterMeta } from '@tanstack/vue-table'
+import type { FilterFn } from '../engine'
 
 // ---------------------------------------------------------------------------
 // Helper
@@ -109,7 +109,7 @@ const inNumberRange: FilterFn<any> & {
     row: any,
     columnId: string,
     filterValue: [number, number],
-    _addMeta: (meta: FilterMeta) => void,
+    _addMeta: (meta: any) => void,
   ) => {
     const [min, max] = filterValue
     const rowValue = row.getValue(columnId) as number

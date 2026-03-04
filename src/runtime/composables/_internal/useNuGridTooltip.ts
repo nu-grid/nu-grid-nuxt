@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, Table } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Row, Table } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
 import { onUnmounted, ref } from 'vue'
@@ -88,7 +88,7 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
     if (!cols) return undefined
     return cols.find((col) => {
       // Handle both accessorKey and id patterns
-      const colId = (col as any).accessorKey || (col as any).id
+      const colId = col.accessorKey || col.id
       return colId === columnId
     })
   }
@@ -289,7 +289,7 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
       if (rowId) {
         const rowData = getRowData(rowId)
         if (rowData) {
-          const fieldValue = (rowData as any)[columnDef.tooltipField]
+          const fieldValue = rowData[columnDef.tooltipField]
           if (fieldValue != null) {
             return { text: String(fieldValue), forceShow: true }
           }

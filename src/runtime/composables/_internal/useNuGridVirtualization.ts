@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, Table } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Row, Table } from '../../engine'
 import type { VirtualItem, Virtualizer } from '@tanstack/vue-virtual'
 import type { Primitive } from 'reka-ui'
 import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'

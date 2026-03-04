@@ -1,4 +1,4 @@
-import type { Row, RowSelectionState } from '@tanstack/vue-table'
+import type { Row, RowSelectionState } from '../src/runtime/engine'
 
 import { describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'

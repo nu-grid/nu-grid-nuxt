@@ -134,9 +134,6 @@ importers:
       '@nuxt/kit':
         specifier: 'catalog:'
         version: 4.3.0(magicast@0.5.1)
-      '@tanstack/vue-table':
-        specifier: 'catalog:'
-        version: 8.21.3(vue@3.5.27(typescript@5.9.3))
       defu:
         specifier: 'catalog:'
         version: 6.1.4

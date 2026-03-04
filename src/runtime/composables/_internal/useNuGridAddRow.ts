@@ -1,8 +1,8 @@
-import type { TableColumn, TableData } from '@nuxt/ui'
-import type { Cell, GroupingState, Row, Table } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { NuGridColumn } from '../../types/column'
+import type { Cell, GroupingState, Row, Table } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
-import { createRow } from '@tanstack/table-core'
 import { computed, isRef, nextTick, onUnmounted, ref, shallowRef, watch } from 'vue'
 
 import type { NuGridAddRowFinalizeResult, NuGridAddRowState, NuGridProps } from '../../types'
@@ -54,7 +54,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
   data: Ref<T[]>
   table: Table<T>
   rows: ComputedRef<Row<T>[]>
-  columns: ComputedRef<TableColumn<T>[]>
+  columns: ComputedRef<NuGridColumn<T>[]>
   groupingState: Ref<GroupingState>
   onAddRowRequested?: (row: T) => NuGridAddRowFinalizeResult & { row?: T }
   editingCell?: Ref<NuGridEditingCell | null>
@@ -132,10 +132,9 @@ export function useNuGridAddRow<T extends TableData>(options: {
 
     // For grouped add rows, reset the specific group's draft
     if (options.groupingState.value.length) {
-      const parentId = (row as any).parentId
-      if (parentId) {
-        groupAddRowDrafts.value.delete(parentId)
-        groupAddRowRows.value.delete(parentId)
+      if (row.parentId) {
+        groupAddRowDrafts.value.delete(row.parentId)
+        groupAddRowRows.value.delete(row.parentId)
       }
     } else {
       // For non-grouped, reset the main add row
@@ -162,11 +161,10 @@ export function useNuGridAddRow<T extends TableData>(options: {
         if (addRowRow.value.original !== addRowDraft.value) {
           // This shouldn't happen, but if it does, recreate the row
           const id =
-            (addRowDraft.value as any).id ??
+            addRowDraft.value.id ??
             `add-new-${Date.now()}-${Math.random().toString(36).slice(2)}`
           const rowIndex = options.rows.value.length
-          addRowRow.value = createRow(
-            options.table as any,
+          addRowRow.value = options.table.createRow(
             id as string,
             addRowDraft.value as T,
             rowIndex,
@@ -182,11 +180,10 @@ export function useNuGridAddRow<T extends TableData>(options: {
     const draft = addRowDraft.value ?? createAddRowRecord<T>()
     addRowDraft.value = draft
 
-    const id = (draft as any).id ?? `add-new-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    const id = draft.id ?? `add-new-${Date.now()}-${Math.random().toString(36).slice(2)}`
     const rowIndex = options.rows.value.length
 
-    addRowRow.value = createRow(
-      options.table as any,
+    addRowRow.value = options.table.createRow(
       id as string,
       draft as T,
       rowIndex,
@@ -249,7 +246,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
         if (newAddRow) {
           const firstEditableCell = newAddRow
             .getVisibleCells()
-            .find((c: Cell<T, any>) => options.cellEditingFns?.value?.isCellEditable(newAddRow, c))
+            .find((c: Cell<T>) => options.cellEditingFns?.value?.isCellEditable(newAddRow, c))
 
           if (firstEditableCell && options.focusFns.value && options.cellEditingFns?.value) {
             // Start editing on the first editable cell (same as keyboard navigation)
@@ -262,7 +259,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
   }
 
   function resolveGroupingValue(groupRow: Row<T>, columnId: string) {
-    const rowsById = (options.table.getRowModel() as any)?.rowsById ?? {}
+    const rowsById = options.table.getRowModel().rowsById
     let current: Row<T> | null | undefined = groupRow
 
     while (current) {
@@ -271,8 +268,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
         return value
       }
 
-      const parentId: string | undefined = (current as any).parentId
-      current = parentId ? rowsById[parentId] : null
+      current = current.parentId ? rowsById[current.parentId] : null
     }
 
     return undefined
@@ -335,12 +331,11 @@ export function useNuGridAddRow<T extends TableData>(options: {
       const draft = (existingDraft ?? createAddRowRecord<T>(buildGroupingValues(groupRow))) as T
       nextDrafts.set(groupRow.id, draft)
 
-      const id = (draft as any).id ?? `${groupRow.id}-add-new`
+      const id = draft.id ?? `${groupRow.id}-add-new`
       const rowIndex = groupRow.subRows?.length ?? 0
-      const depth = (groupRow as any).depth ?? (groupRow.parentId ? 1 : 0)
+      const depth = groupRow.depth ?? (groupRow.parentId ? 1 : 0)
 
-      const row = createRow(
-        options.table as any,
+      const row = options.table.createRow(
         id as string,
         draft as T,
         rowIndex,
@@ -365,7 +360,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
     if (typeof result === 'boolean') return { valid: result }
     if (typeof result === 'string') return { valid: false, message: result }
     if (typeof result === 'object' && 'valid' in result) {
-      return { valid: !!(result as any).valid, message: (result as any).message }
+      return { valid: !!result.valid, message: result.message }
     }
     return { valid: true }
   }
@@ -434,7 +429,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
       return validation
     }
 
-    let newRow: any = { ...(row.original as any) }
+    let newRow: any = { ...row.original }
     delete newRow[ADD_ROW_FLAG]
 
     if (options.onAddRowRequested) {
@@ -460,10 +455,9 @@ export function useNuGridAddRow<T extends TableData>(options: {
 
     // Clear the current draft so the next add row starts empty
     if (options.groupingState.value.length) {
-      const parentId = (row as any).parentId
-      if (parentId) {
-        groupAddRowDrafts.value.delete(parentId)
-        groupAddRowRows.value.delete(parentId)
+      if (row.parentId) {
+        groupAddRowDrafts.value.delete(row.parentId)
+        groupAddRowRows.value.delete(row.parentId)
       }
     } else {
       resetAddRowRow()
@@ -615,7 +609,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
   }
 
   // Helper to check if a cell is editable (replicates logic from useNuGridCellEditing)
-  function isCellEditable(row: Row<T>, cell: Cell<T, any>): boolean {
+  function isCellEditable(row: Row<T>, cell: Cell<T>): boolean {
     // Handle boolean shorthand: editing: false means disabled
     // editing: true or editing: { ... } means enabled (unless enabled: false in object)
     const editingProp = options.props.editing
@@ -654,8 +648,8 @@ export function useNuGridAddRow<T extends TableData>(options: {
   function findClosestEditableCellToLeft(
     row: Row<T>,
     clickedCellIndex: number | null,
-  ): Cell<T, any> | null {
-    const cells = row.getVisibleCells() as Cell<T, any>[]
+  ): Cell<T> | null {
+    const cells = row.getVisibleCells() as Cell<T>[]
     const startIndex = clickedCellIndex !== null ? clickedCellIndex : cells.length
 
     // Search from the clicked cell (or end) backwards to find the first editable cell
@@ -673,8 +667,8 @@ export function useNuGridAddRow<T extends TableData>(options: {
   function findFirstEditableCellToRight(
     row: Row<T>,
     clickedCellIndex: number | null,
-  ): Cell<T, any> | null {
-    const cells = row.getVisibleCells() as Cell<T, any>[]
+  ): Cell<T> | null {
+    const cells = row.getVisibleCells() as Cell<T>[]
     const startIndex = clickedCellIndex !== null ? clickedCellIndex : -1
 
     // Search from the clicked cell forwards to find the first editable cell
@@ -752,7 +746,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
             if (editingRow && isAddRowRow(editingRow)) {
               const editingCellObj = editingRow
                 .getVisibleCells()
-                .find((c: Cell<T, any>) => c.column.id === editingCell.columnId)
+                .find((c: Cell<T>) => c.column.id === editingCell.columnId)
 
               if (editingCellObj) {
                 // Double-check we're not already finalizing (race condition protection)
@@ -866,7 +860,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
           if (currentlyEditingRow) {
             const editingCellObj = currentlyEditingRow
               .getVisibleCells()
-              .find((c: Cell<T, any>) => c.column.id === editingCell.columnId)
+              .find((c: Cell<T>) => c.column.id === editingCell.columnId)
 
             if (editingCellObj) {
               const currentValue = cellEditingFns.editingValue?.value ?? editingCellObj.getValue()
@@ -887,7 +881,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
         // Use nextTick to ensure editing state is cleared before starting new editing
         nextTick(() => {
           // Find the cell index for the closest editable cell
-          const cells = row.getVisibleCells() as Cell<T, any>[]
+          const cells = row.getVisibleCells() as Cell<T>[]
           const targetCellIndex = cells.findIndex((c) => c.id === closestEditableCell.id)
 
           if (targetCellIndex !== -1 && options.focusFns?.value) {
@@ -968,7 +962,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
 
               if (row && isAddRowRow(row)) {
                 const cellIndex = Number.parseInt(cellIndexAttr, 10)
-                const cells = row.getVisibleCells() as Cell<T, any>[]
+                const cells = row.getVisibleCells() as Cell<T>[]
                 const cell = cells[cellIndex]
 
                 // If clicking on an uneditable cell while editing, finalize
@@ -996,7 +990,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
 
                       const editingCellObj = editingRow
                         .getVisibleCells()
-                        .find((c: Cell<T, any>) => c.column.id === editingCell.columnId)
+                        .find((c: Cell<T>) => c.column.id === editingCell.columnId)
 
                       if (editingCellObj) {
                         // Get current value from editingValue ref (Vue reactive value)

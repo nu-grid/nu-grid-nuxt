@@ -1,4 +1,4 @@
-import type { Row } from '@tanstack/vue-table'
+import type { Row } from '../engine'
 
 import type { NuGridActionMenuButton, NuGridActionMenuColumnDef } from './_internal'
 

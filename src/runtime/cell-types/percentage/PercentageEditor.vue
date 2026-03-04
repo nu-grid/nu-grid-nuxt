@@ -17,7 +17,7 @@ const { handleKeydown, handleBlur } = useNuGridCellEditor(props, emit, inputRef)
 
 // Get storage mode from column definition (default: 'decimal' for 0-1, 'percent' for 0-100)
 const storageMode = computed(
-  () => (props.cell?.column?.columnDef as any)?.percentageStorage ?? 'decimal',
+  () => props.cell?.column?.columnDef?.percentageStorage ?? 'decimal',
 )
 
 // Convert stored value to display value (percentage 0-100)

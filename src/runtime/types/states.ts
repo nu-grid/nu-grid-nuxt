@@ -11,7 +11,7 @@ import type {
   RowSelectionState,
   SortingState,
   VisibilityState,
-} from '@tanstack/vue-table'
+} from './state-types'
 import type { Ref } from 'vue'
 
 export interface NuGridStates {

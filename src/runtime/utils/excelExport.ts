@@ -1,9 +1,10 @@
-import type { Column, Table } from '@tanstack/vue-table'
+import type { Column, Table } from '../engine'
 import type { Cell, Row } from 'write-excel-file'
 
 import writeXlsxFile from 'write-excel-file'
 
 import type { NuGridColumn } from '../types'
+import type { TableData } from '../types/table-data'
 
 export interface ExcelExportOptions {
   /**
@@ -165,15 +166,15 @@ function calculateColumnWidth(header: string, values: unknown[], cellDataType?: 
 }
 
 /**
- * Gets column info from a TanStack column
+ * Gets column info from an engine column
  */
-function getColumnInfo<T>(
-  tableColumn: Column<T, unknown>,
+function getColumnInfo<T extends TableData>(
+  tableColumn: Column<T>,
   columnDefinitions: NuGridColumn<T>[],
 ): ColumnInfo | null {
   const colId = tableColumn.id
   const colDef = tableColumn.columnDef
-  const cellDataType = (colDef as any).cellDataType
+  const cellDataType = colDef.cellDataType
 
   // Skip special columns
   if (cellDataType === 'selection' || cellDataType === 'action-menu') {
@@ -181,7 +182,7 @@ function getColumnInfo<T>(
   }
 
   const originalCol = columnDefinitions.find(
-    (c) => (c as any).accessorKey === colId || (c as any).id === colId,
+    (c) => c.accessorKey === colId || c.id === colId,
   )
 
   let header = colId
@@ -194,7 +195,7 @@ function getColumnInfo<T>(
   return {
     id: colId,
     header,
-    accessorKey: (colDef as any).accessorKey || colId,
+    accessorKey: colDef.accessorKey || colId,
     cellDataType: originalCol?.cellDataType || cellDataType,
   }
 }
@@ -203,7 +204,7 @@ function getColumnInfo<T>(
  * Exports grid data to an Excel file
  * Respects current grid state: column visibility, column order, sorting, and filtering
  */
-export async function exportToExcel<T>(
+export async function exportToExcel<T extends TableData>(
   tableApi: Table<T>,
   columns: NuGridColumn<T>[],
   options: ExcelExportOptions = {},
@@ -375,7 +376,7 @@ function processGroupedRows(
  * Exports grouped grid data to an Excel file
  * Preserves group hierarchy with group header rows
  */
-export async function exportGroupedToExcel<T>(
+export async function exportGroupedToExcel<T extends TableData>(
   tableApi: Table<T>,
   columns: NuGridColumn<T>[],
   options: GroupedExcelExportOptions = {},

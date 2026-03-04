@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Cell, Column, Row, Table } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Cell, Column, Row, Table } from '../../engine'
 import type { Component, ComponentPublicInstance, Ref } from 'vue'
 
 import { FlexRender } from '../../utils/flexRender'
@@ -48,7 +48,7 @@ export const defaultValidationIcon = validationDefaults.icon
  * Resolve validation options with defaults
  * Only accepts the options object form (not schema shorthand)
  */
-function resolveValidationConfig<T>(
+function resolveValidationConfig<T extends TableData>(
   validation: NuGridValidationOptions<T> | false | undefined,
 ): NuGridResolvedValidation<T> | null {
   if (!validation) return null
@@ -76,7 +76,7 @@ export function useNuGridCellEditing<T extends TableData>(
   rootRef: Ref<HTMLElement | ComponentPublicInstance | null | undefined>,
   focusFns: NuGridFocus<T>,
   interactionRouter: NuGridInteractionRouter<T> | undefined,
-  emit: (payload: { row: Row<T>; column: Column<T, any>; oldValue: any; newValue: any }) => void,
+  emit: (payload: { row: Row<T>; column: Column<T>; oldValue: any; newValue: any }) => void,
   navigableRows?: Ref<Row<T>[]> | null,
   externalEditingCell?: Ref<NuGridEditingCell | null>,
   addRowContext?: NuGridAddRowContext<T> | null,
@@ -217,7 +217,7 @@ export function useNuGridCellEditing<T extends TableData>(
    * Run schema validation for a cell value
    * Returns true if valid, false if invalid
    */
-  function runSchemaValidation(row: Row<T>, cell: Cell<T, any>, value: any): boolean {
+  function runSchemaValidation(row: Row<T>, cell: Cell<T>, value: any): boolean {
     const config = validationConfig.value
     if (!config || !config.schema) return true
 
@@ -415,7 +415,7 @@ export function useNuGridCellEditing<T extends TableData>(
     })
   }
 
-  function isCellEditable(row: Row<T>, cell: Cell<T, any>): boolean {
+  function isCellEditable(row: Row<T>, cell: Cell<T>): boolean {
     if (editingEnabled.value === false) {
       return false
     }
@@ -446,7 +446,7 @@ export function useNuGridCellEditing<T extends TableData>(
 
   function startEditing(
     row: Row<T>,
-    cell: Cell<T, any>,
+    cell: Cell<T>,
     initialValue?: any,
     options?: { rowIndex?: number; cellIndex?: number },
   ) {
@@ -544,7 +544,7 @@ export function useNuGridCellEditing<T extends TableData>(
     const cellIndex =
       options?.cellIndex !== undefined
         ? options.cellIndex
-        : row.getVisibleCells().findIndex((c: Cell<T, any>) => c.id === cell.id)
+        : row.getVisibleCells().findIndex((c: Cell<T>) => c.id === cell.id)
 
     if (rowIndex !== -1 && cellIndex !== -1) {
       // Update focus system to track the editing cell
@@ -601,7 +601,7 @@ export function useNuGridCellEditing<T extends TableData>(
 
   function stopEditing(
     row: Row<T>,
-    cell: Cell<T, any>,
+    cell: Cell<T>,
     newValue: any,
     moveDirection?: 'up' | 'down' | 'next' | 'previous',
     options?: { restoreFocus?: boolean; isClickAway?: boolean },
@@ -643,7 +643,7 @@ export function useNuGridCellEditing<T extends TableData>(
       isVerticalNav &&
       (() => {
         const rowData = row.original as Record<string, unknown>
-        const visibleCellsList = row.getVisibleCells() as Cell<T, any>[]
+        const visibleCellsList = row.getVisibleCells() as Cell<T>[]
         for (const c of visibleCellsList) {
           if (c.id === cell.id) continue // skip the cell we're currently editing
           const colId = c.column.id
@@ -679,7 +679,7 @@ export function useNuGridCellEditing<T extends TableData>(
         if (targetRowIndex >= 0 && targetRowIndex < freshRowsList.length) {
           const targetRow = freshRowsList[targetRowIndex]
           if (targetRow) {
-            const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
+            const targetCells = targetRow.getVisibleCells() as Cell<T>[]
             const targetCellIdx = targetCells.findIndex((c) => c.column.id === cell.column.id)
             const targetCell = targetCellIdx !== -1 ? targetCells[targetCellIdx] : null
             if (targetCell && isCellEditable(targetRow, targetCell)) {
@@ -702,11 +702,11 @@ export function useNuGridCellEditing<T extends TableData>(
 
     const visibleCells = row.getVisibleCells()
     const editableCellIndices = visibleCells
-      .map((c: Cell<T, any>, idx) => ({ c, idx }))
+      .map((c: Cell<T>, idx) => ({ c, idx }))
       .filter(({ c }) => isCellEditable(row, c))
     const lastEditableIndex =
       editableCellIndices[editableCellIndices.length - 1]?.idx ?? visibleCells.length - 1
-    const currentCellIndex = visibleCells.findIndex((c: Cell<T, any>) => c.id === cell.id)
+    const currentCellIndex = visibleCells.findIndex((c: Cell<T>) => c.id === cell.id)
 
     // Get plugin for validation
     const columnDef = cell.column.columnDef
@@ -794,7 +794,7 @@ export function useNuGridCellEditing<T extends TableData>(
         const isHorizontalNavigation = navDirection === 'next' || navDirection === 'previous'
         if (isHorizontalNavigation) {
           // Check if there's another editable cell in this row in the requested direction
-          const cells = row.getVisibleCells() as Cell<T, any>[]
+          const cells = row.getVisibleCells() as Cell<T>[]
           let hasEditableCellInDirection = false
 
           if (navDirection === 'next') {
@@ -924,16 +924,16 @@ export function useNuGridCellEditing<T extends TableData>(
       }
 
       if (rowIndex !== -1) {
-        assignValue(data.value[rowIndex] as any)
+        assignValue(data.value[rowIndex])
       } else if (addRowContext?.isAddRowRow(row)) {
         // Keep placeholder row in sync so the edited value remains visible before finalize
-        assignValue(row.original as any)
+        assignValue(row.original)
         // Trigger reactivity for add row cells (they're not in the data array)
         addRowContext.triggerValueUpdate?.()
       }
 
-      // Clear TanStack's cached value so cell.getValue() returns the updated value
-      const valuesCache = (row as any)._valuesCache
+      // Clear the cached value so cell.getValue() returns the updated value
+      const valuesCache = row._valuesCache
       if (valuesCache) {
         if (typeof valuesCache.clear === 'function') {
           valuesCache.clear()
@@ -946,7 +946,7 @@ export function useNuGridCellEditing<T extends TableData>(
       // Only trigger data reactivity if this is NOT an add row
       if (!addRowContext?.isAddRowRow(row)) {
         // Note: This may fail silently if data is a computed ref (readonly)
-        // but that's okay - the TanStack cache clear above handles value updates
+        // but that's okay - the cache clear above handles value updates
         if (!isReadonly(data)) {
           data.value = [...data.value]
         }
@@ -971,7 +971,7 @@ export function useNuGridCellEditing<T extends TableData>(
     let groupIdToFocus: string | null = null
 
     if (isAddRow && addRowContext) {
-      const currentIndex = visibleCells.findIndex((c: Cell<T, any>) => c.id === cell.id)
+      const currentIndex = visibleCells.findIndex((c: Cell<T>) => c.id === cell.id)
       const isLastEditable = currentIndex === lastEditableIndex
 
       // Finalize when:
@@ -988,8 +988,7 @@ export function useNuGridCellEditing<T extends TableData>(
 
       if (shouldFinalizeAfterNav) {
         // Store the parentId (groupId) before finalizing, so we can focus the correct group's addrow
-        const parentId = (row as any).parentId
-        groupIdToFocus = parentId || null
+        groupIdToFocus = row.parentId || null
 
         const result = addRowContext.finalizeAddRow(row)
         if (!result.success) {
@@ -1021,8 +1020,8 @@ export function useNuGridCellEditing<T extends TableData>(
       targetRow: Row<T>,
       startIndex: number,
       direction: 'next' | 'previous',
-    ): { cell: Cell<T, any>; index: number } | null => {
-      const cells = targetRow.getVisibleCells() as Cell<T, any>[]
+    ): { cell: Cell<T>; index: number } | null => {
+      const cells = targetRow.getVisibleCells() as Cell<T>[]
       if (direction === 'next') {
         for (let i = startIndex + 1; i < cells.length; i++) {
           const candidate = cells[i]
@@ -1053,13 +1052,13 @@ export function useNuGridCellEditing<T extends TableData>(
           // Otherwise, find the first addrow (for non-grouped grids)
           const newAddRow = groupIdToFocus
             ? nextRowsList.find(
-                (r) => addRowContext?.isAddRowRow(r) && (r as any).parentId === groupIdToFocus,
+                (r) => addRowContext?.isAddRowRow(r) && r.parentId === groupIdToFocus,
               )
             : nextRowsList.find((r) => addRowContext?.isAddRowRow(r))
           if (newAddRow) {
             const firstEditableCell = newAddRow
               .getVisibleCells()
-              .find((c: Cell<T, any>) => isCellEditable(newAddRow, c))
+              .find((c: Cell<T>) => isCellEditable(newAddRow, c))
             if (firstEditableCell) {
               startEditing(newAddRow, firstEditableCell)
               isNavigating.value = false
@@ -1085,7 +1084,7 @@ export function useNuGridCellEditing<T extends TableData>(
           // Find the add-row — the newly created data row is just before it
           const addRowIdx = groupIdToFocus
             ? nextRowsList.findIndex(
-                (r) => addRowContext?.isAddRowRow(r) && (r as any).parentId === groupIdToFocus,
+                (r) => addRowContext?.isAddRowRow(r) && r.parentId === groupIdToFocus,
               )
             : nextRowsList.findIndex((r) => addRowContext?.isAddRowRow(r))
           // The row above the newly created row is 2 before the add-row
@@ -1093,7 +1092,7 @@ export function useNuGridCellEditing<T extends TableData>(
           if (targetIdx >= 0) {
             const targetRow = nextRowsList[targetIdx]
             if (targetRow) {
-              const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
+              const targetCells = targetRow.getVisibleCells() as Cell<T>[]
               const targetCellIdx = targetCells.findIndex((c) => c.column.id === cell.column.id)
               const targetCell = targetCellIdx !== -1 ? (targetCells[targetCellIdx] ?? null) : null
               if (targetCell && isCellEditable(targetRow, targetCell)) {
@@ -1117,7 +1116,7 @@ export function useNuGridCellEditing<T extends TableData>(
 
       if (navDirection === 'up' || navDirection === 'down') {
         // Get current column index for multi-row navigation
-        const visibleCells = row.getVisibleCells() as Cell<T, any>[]
+        const visibleCells = row.getVisibleCells() as Cell<T>[]
         const currentCellIdx = visibleCells.findIndex((c) => c.id === cell.id)
 
         // Multi-row mode: navigate between visual rows first
@@ -1147,9 +1146,9 @@ export function useNuGridCellEditing<T extends TableData>(
                 const targetRow = rowsList[ri]
                 if (!targetRow) continue
                 let targetColIdx = findColumnInVisualRow(currentCellIdx, lastVisualRow, targetRow)
-                const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
+                const targetCells = targetRow.getVisibleCells() as Cell<T>[]
                 const targetCell = targetCells[targetColIdx]
-                let effectiveTargetCell: Cell<T, any> | null = targetCell ?? null
+                let effectiveTargetCell: Cell<T> | null = targetCell ?? null
                 if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
                   const fallback = findEditableInRow(targetRow, targetColIdx, 'previous')
                   effectiveTargetCell = fallback?.cell ?? null
@@ -1192,9 +1191,9 @@ export function useNuGridCellEditing<T extends TableData>(
                 const targetRow = rowsList[ri]
                 if (!targetRow) continue
                 let targetColIdx = findColumnInVisualRow(currentCellIdx, 0, targetRow)
-                const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
+                const targetCells = targetRow.getVisibleCells() as Cell<T>[]
                 const targetCell = targetCells[targetColIdx]
-                let effectiveTargetCell: Cell<T, any> | null = targetCell ?? null
+                let effectiveTargetCell: Cell<T> | null = targetCell ?? null
                 if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
                   const fallback = findEditableInRow(targetRow, targetColIdx, 'previous')
                   effectiveTargetCell = fallback?.cell ?? null
@@ -1226,9 +1225,9 @@ export function useNuGridCellEditing<T extends TableData>(
           ) {
             const targetRow = rowsList[ri]
             if (!targetRow) continue
-            const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
+            const targetCells = targetRow.getVisibleCells() as Cell<T>[]
             const targetCellIdx = targetCells.findIndex((c) => c.column.id === cell.column.id)
-            let effectiveTargetCell: Cell<T, any> | null =
+            let effectiveTargetCell: Cell<T> | null =
               targetCellIdx !== -1 ? (targetCells[targetCellIdx] ?? null) : null
             let resolvedCellIdx = targetCellIdx
 
@@ -1261,7 +1260,7 @@ export function useNuGridCellEditing<T extends TableData>(
         return
       } else if (navDirection === 'next' || navDirection === 'previous') {
         // Horizontal navigation - different column, potentially different row
-        let targetCellInfo: { cell: Cell<T, any>; index: number } | null = null
+        let targetCellInfo: { cell: Cell<T>; index: number } | null = null
         let targetRow: Row<T> = row
         let targetRowIndex = currentRowIndex
 
@@ -1292,7 +1291,7 @@ export function useNuGridCellEditing<T extends TableData>(
             for (let r = currentRowIndex - 1; r >= 0; r--) {
               const candidateRow = rowsList[r]
               if (!candidateRow) continue
-              const cells = candidateRow.getVisibleCells() as Cell<T, any>[]
+              const cells = candidateRow.getVisibleCells() as Cell<T>[]
               const candidateCellInfo = findEditableInRow(candidateRow, cells.length, 'previous')
               if (candidateCellInfo) {
                 targetRow = candidateRow
@@ -1334,13 +1333,13 @@ export function useNuGridCellEditing<T extends TableData>(
         // Otherwise, find the first addrow (for non-grouped grids)
         const newAddRow = groupIdToFocus
           ? nextRowsList.find(
-              (r) => addRowContext?.isAddRowRow(r) && (r as any).parentId === groupIdToFocus,
+              (r) => addRowContext?.isAddRowRow(r) && r.parentId === groupIdToFocus,
             )
           : nextRowsList.find((r) => addRowContext?.isAddRowRow(r))
         if (newAddRow) {
           const firstEditableCell = newAddRow
             .getVisibleCells()
-            .find((c: Cell<T, any>) => isCellEditable(newAddRow, c))
+            .find((c: Cell<T>) => isCellEditable(newAddRow, c))
           if (firstEditableCell) {
             startEditing(newAddRow, firstEditableCell)
             return
@@ -1368,12 +1367,12 @@ export function useNuGridCellEditing<T extends TableData>(
     }
   }
 
-  function restoreFocus(row: Row<T>, cell: Cell<T, any>) {
+  function restoreFocus(row: Row<T>, cell: Cell<T>) {
     nextTick(() => {
       // Use navigableRows if available (for grouped tables), otherwise use rows
       const rowsList = navigableRows?.value ?? rows.value
       const rowIndex = rowsList.findIndex((r) => r.id === row.id)
-      const cellIndex = row.getVisibleCells().findIndex((c: Cell<T, any>) => c.id === cell.id)
+      const cellIndex = row.getVisibleCells().findIndex((c: Cell<T>) => c.id === cell.id)
 
       // Don't restore focus if row was removed (e.g., addrow was finalized)
       if (rowIndex === -1) {
@@ -1416,7 +1415,7 @@ export function useNuGridCellEditing<T extends TableData>(
    * Factory function to create editor context objects
    * This reduces code duplication and ensures consistent context structure
    */
-  function createEditorContext(cell: Cell<T, any>, row: Row<T>) {
+  function createEditorContext(cell: Cell<T>, row: Row<T>) {
     return {
       cell,
       row,
@@ -1435,7 +1434,7 @@ export function useNuGridCellEditing<T extends TableData>(
     }
   }
 
-  function createDefaultEditor(cell: Cell<T, any>, row: Row<T>) {
+  function createDefaultEditor(cell: Cell<T>, row: Row<T>) {
     // Determine which editor to use based on cellDataType with auto-detection
     const columnDef = cell.column.columnDef as NuGridColumn<T>
     const defined = columnDef.cellDataType
@@ -1482,7 +1481,7 @@ export function useNuGridCellEditing<T extends TableData>(
     return renderEditor(EditorComponent, context)
   }
 
-  function renderCellContent(cell: Cell<T, any>, row: Row<T>) {
+  function renderCellContent(cell: Cell<T>, row: Row<T>) {
     const columnDef = cell.column.columnDef
     const isEditing = isEditingCell(row, cell.column.id)
 
@@ -1577,7 +1576,7 @@ export function useNuGridCellEditing<T extends TableData>(
     return true
   }
 
-  function onCellClick(event: MouseEvent, row: Row<T>, cell: Cell<T, any>) {
+  function onCellClick(event: MouseEvent, row: Row<T>, cell: Cell<T>) {
     // Don't start editing if we just did a click-away on an invalid editor
     // (the user needs to click again to confirm discarding the invalid value)
     if (hasAttemptedClickAway.value) {
@@ -1591,7 +1590,7 @@ export function useNuGridCellEditing<T extends TableData>(
     }
   }
 
-  function onCellDoubleClick(event: MouseEvent, row: Row<T>, cell: Cell<T, any>) {
+  function onCellDoubleClick(event: MouseEvent, row: Row<T>, cell: Cell<T>) {
     // Don't start editing if we just did a click-away on an invalid editor
     if (hasAttemptedClickAway.value) {
       return
@@ -1653,7 +1652,7 @@ export function useNuGridCellEditing<T extends TableData>(
     })
   }
 
-  function onCellKeyDown(event: KeyboardEvent, row: Row<T>, cell: Cell<T, any>, cellIndex: number) {
+  function onCellKeyDown(event: KeyboardEvent, row: Row<T>, cell: Cell<T>, cellIndex: number) {
     const isEditing = isEditingCell(row, cell.column.id)
     const columnDef = cell.column.columnDef
     const cellDataType = columnDef.cellDataType || 'text'
@@ -1845,7 +1844,7 @@ export function useNuGridCellEditing<T extends TableData>(
             const fallbackKey = !accessorKey ? currentCell.column.id : undefined
 
             if (editingValue.value !== undefined && editingValue.value !== null) {
-              const target = currentRow.original as any
+              const target = currentRow.original as Record<string, any>
               if (accessorKey) {
                 target[accessorKey] = editingValue.value
               } else if (fallbackKey) {
@@ -1853,8 +1852,8 @@ export function useNuGridCellEditing<T extends TableData>(
               }
               addRowContext.triggerValueUpdate?.()
 
-              // Clear TanStack cache so cell.getValue() returns updated value
-              const valuesCache = (currentRow as any)._valuesCache
+              // Clear cache so cell.getValue() returns updated value
+              const valuesCache = currentRow._valuesCache
               if (valuesCache) {
                 if (typeof valuesCache.clear === 'function') {
                   valuesCache.clear()
@@ -1867,7 +1866,7 @@ export function useNuGridCellEditing<T extends TableData>(
             // Check if the add row has any meaningful data entered
             const hasValues = (() => {
               const rowData = currentRow.original as Record<string, unknown>
-              const visibleCellsList = currentRow.getVisibleCells() as Cell<T, any>[]
+              const visibleCellsList = currentRow.getVisibleCells() as Cell<T>[]
               for (const c of visibleCellsList) {
                 const colId = c.column.id
                 const val = rowData[colId]

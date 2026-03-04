@@ -1,4 +1,4 @@
-import type { TableData } from '@nuxt/ui'
+import type { TableData } from './table-data'
 
 import type { StandardSchemaV1 } from '../utils/standardSchema'
 import type { NuGridRowValidationRule } from './_internal'

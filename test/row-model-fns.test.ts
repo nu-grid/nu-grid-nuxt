@@ -1,4 +1,4 @@
-import type { ExpandedState, Row } from '@tanstack/vue-table'
+import type { ExpandedState, Row } from '../src/runtime/engine'
 
 import { describe, expect, it } from 'vitest'
 

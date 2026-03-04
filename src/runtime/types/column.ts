@@ -1,10 +1,42 @@
-import type { DropdownMenuItem, TableColumn, TableData } from '@nuxt/ui'
-import type { Column, Row } from '@tanstack/vue-table'
+import type { DropdownMenuItem } from '@nuxt/ui'
+import type { Column, EngineCell, EngineColumn, EngineHeader, EngineRow, EngineTable, Row } from '../engine'
 
 import type { NuGridEditorConfig } from './_internal'
 import type { NuGridValidationResult } from './cells'
 import type { NuGridLookupOptions } from './option-groups'
 import type { NuGridSortIcon } from './sort-icon'
+import type { TableData } from './table-data'
+
+// ---------------------------------------------------------------------------
+// Render Context Types
+// ---------------------------------------------------------------------------
+
+/**
+ * Context passed to header/footer render functions on column definitions
+ * Matches the return type of EngineHeader.getContext()
+ */
+export interface NuGridHeaderContext<T = any> {
+  table: EngineTable<T>
+  header: EngineHeader<T>
+  column: EngineColumn<T>
+}
+
+/**
+ * Context passed to cell render functions on column definitions
+ * Matches the return type of EngineCell.getContext()
+ */
+export interface NuGridCellContext<T = any> {
+  table: EngineTable<T>
+  column: EngineColumn<T>
+  row: EngineRow<T>
+  cell: EngineCell<T>
+  getValue: <V = unknown>() => V
+  renderValue: <V = unknown>() => V | null
+}
+
+// ---------------------------------------------------------------------------
+// Summary Types
+// ---------------------------------------------------------------------------
 
 /**
  * Built-in aggregate types for column summaries
@@ -54,6 +86,10 @@ export interface NuGridColumnSummary<T = unknown> {
   label?: string
 }
 
+// ---------------------------------------------------------------------------
+// Column Menu Types
+// ---------------------------------------------------------------------------
+
 /**
  * Extended dropdown menu item for column menus
  * Adds column parameter to onSelect callback
@@ -66,7 +102,7 @@ export type NuGridColumnMenuItem<T extends TableData = TableData> =
        * @param event The click event (optional)
        * @param column The column instance (automatically provided by NuGridColumnMenu)
        */
-      onSelect?: (event?: Event, column?: Column<T, unknown>) => void
+      onSelect?: (event?: Event, column?: Column<T>) => void
       /**
        * Nested menu items (children)
        */
@@ -83,13 +119,111 @@ export type NuGridColumnMenuItem<T extends TableData = TableData> =
  */
 export type NuGridColumnMenuItemsCallback<T extends TableData = TableData> = (
   defaultItems: NuGridColumnMenuItem<T>[],
-  column: Column<T, unknown>,
+  column: Column<T>,
 ) => NuGridColumnMenuItem<T>[]
 
+// ---------------------------------------------------------------------------
+// Column Definition
+// ---------------------------------------------------------------------------
+
 /**
- * Extended column type with editor support
+ * NuGrid column definition
+ *
+ * Fully self-contained — no dependency on @nuxt/ui.
+ * Base properties are what the NuGrid engine reads from columnDef.
  */
-export type NuGridColumn<T extends TableData> = TableColumn<T> & {
+export interface NuGridColumn<T extends TableData = TableData> {
+  // --- Identity ---
+
+  /** Column identifier. Auto-generated from accessorKey if not provided. */
+  id?: string
+
+  /** Key in the row data to access this column's value */
+  accessorKey?: string
+
+  /** Custom accessor function for computing cell values */
+  accessorFn?: (row: T, index: number) => any
+
+  // --- Rendering ---
+
+  /**
+   * Header content — string or render function
+   * @example
+   * header: 'Name'
+   * header: ({ column }) => `Sort: ${column.getIsSorted()}`
+   */
+  header?: string | ((props: NuGridHeaderContext<T>) => any)
+
+  /**
+   * Cell content render function
+   * @example
+   * cell: ({ getValue }) => `$${getValue<number>().toFixed(2)}`
+   */
+  cell?: string | ((props: NuGridCellContext<T>) => any)
+
+  /**
+   * Footer content — string or render function
+   */
+  footer?: string | ((props: NuGridHeaderContext<T>) => any)
+
+  // --- Column Groups ---
+
+  /** Child columns (for grouped header columns) */
+  columns?: NuGridColumn<T>[]
+
+  // --- Metadata ---
+
+  /** Arbitrary metadata attached to the column */
+  meta?: Record<string, any>
+
+  // --- Sizing ---
+
+  /**
+   * Default column width in pixels
+   * @defaultValue 150
+   */
+  size?: number
+
+  /** Minimum column width in pixels */
+  minSize?: number
+
+  /** Maximum column width in pixels */
+  maxSize?: number
+
+  // --- Feature Flags (read by engine) ---
+
+  /** Whether this column can be resized */
+  enableResizing?: boolean
+
+  /** Whether this column can be sorted */
+  enableSorting?: boolean
+
+  /** Whether this column can be hidden */
+  enableHiding?: boolean
+
+  /** Whether this column can be filtered */
+  enableColumnFilter?: boolean
+
+  /** Whether this column is included in global filter */
+  enableGlobalFilter?: boolean
+
+  /** Whether this column can be used for grouping */
+  enableGrouping?: boolean
+
+  /** Whether multi-sort is allowed for this column */
+  enableMultiSort?: boolean
+
+  /** Whether this column can be pinned */
+  enablePinning?: boolean
+
+  /** Whether descending sort comes first when toggling */
+  sortDescFirst?: boolean
+
+  /** How undefined values are treated during sorting */
+  sortUndefined?: false | -1 | 1 | 'first' | 'last'
+
+  // --- NuGrid Extensions ---
+
   /**
    * Editor configuration for the column cell
    * Can be specified as:
@@ -234,7 +368,7 @@ export type NuGridColumn<T extends TableData> = TableColumn<T> & {
     | NuGridColumnMenuItem<T>[]
     | ((
         defaultItems: NuGridColumnMenuItem<T>[],
-        column?: Column<T, unknown>,
+        column?: Column<T>,
       ) => NuGridColumnMenuItem<T>[])
 
   /**

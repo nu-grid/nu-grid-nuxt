@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData } from '@nuxt/ui'
-import type { Cell, Row } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Cell, Row } from '../../engine'
 import type { ComponentPublicInstance } from 'vue'
 
 import { computed, inject } from 'vue'
@@ -31,7 +31,7 @@ const props = defineProps<{
 const slots = defineSlots<{
   default?: (props: { cell: any; row: Row<T>; cellIndex: number }) => any
   expanded?: (props: { row: Row<T> }) => any
-  row?: (props: { row: Row<T>; cells: Cell<T, unknown>[] }) => any
+  row?: (props: { row: Row<T>; cells: Cell<T>[] }) => any
 }>()
 
 // Inject split contexts
@@ -75,7 +75,7 @@ const flexStyleOptions = computed(() => ({
 }))
 
 /** Get cell style with flex distribution support */
-function getCellStyle(cell: Cell<T, unknown>): Record<string, string | number> {
+function getCellStyle(cell: Cell<T>): Record<string, string | number> {
   return getFlexCellStyle(cell.column, flexStyleOptions.value)
 }
 
@@ -197,14 +197,14 @@ const row0Columns = computed(() => multiRowContext?.row0Columns.value ?? [])
 
 // Group cells by their row property for multi-row rendering
 interface CellWithIndex {
-  cell: Cell<T, unknown>
+  cell: Cell<T>
   cellIndex: number // Original index in the flat visible cells array
 }
 
 // Item in aligned row: can be a cell, a spacer under pinned column, or a flex filler
 interface AlignedRowItem {
   type: 'cell' | 'spacer' | 'filler'
-  cell?: Cell<T, unknown>
+  cell?: Cell<T>
   cellIndex?: number
   width?: number
   minWidth?: number
@@ -405,7 +405,7 @@ const alignedRightPinnedCells = computed(() => {
 
 // Calculate pinning position within a visual row
 function getMultiRowPinningStyle(
-  cell: Cell<T, unknown>,
+  cell: Cell<T>,
   _visualRowCells: CellWithIndex[],
 ): Record<string, string | number> {
   const pinned = cell.column.getIsPinned()

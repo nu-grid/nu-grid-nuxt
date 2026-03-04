@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData, TableSlots } from '@nuxt/ui'
+import type { TableData } from '../types/table-data'
+import type { NuGridSlots } from '../types/slots'
 import type {
   Cell,
   ColumnFiltersState,
@@ -15,7 +16,7 @@ import type {
   RowSelectionState,
   SortingState,
   VisibilityState,
-} from '@tanstack/vue-table'
+} from '../engine'
 import type { Primitive } from 'reka-ui'
 import type { Ref } from 'vue'
 
@@ -133,7 +134,7 @@ const emit = defineEmits<{
   keydown: [event: NuGridKeydownEvent<T>]
 }>()
 
-const slots = defineSlots<TableSlots<T>>()
+const slots = defineSlots<NuGridSlots<T>>()
 
 // Centralized event emitter for all grid events
 // Created early so it can be passed to composables that need it
@@ -306,7 +307,7 @@ const groupingFnsRef = shallowRef<NuGridGroupingFns<T> | null>(null)
 const interactionRouter = useNuGridInteractionRouter<T>({ eventEmitter })
 let groupingFns: NuGridGroupingFns<T> | null = null
 
-// Pre-filter data before passing to TanStack (NuGrid owns filtering)
+// Pre-filter data before passing to the engine (NuGrid owns filtering)
 const { filteredData, notifyEditedCell } = useNuGridFiltering(data, columns, globalFilterState, columnFiltersState)
 
 const statePersistence = useNuGridStatePersistence(
@@ -329,10 +330,10 @@ const { tableApi, columnsUpdatedSignal } = useNuGridApi(
 // NuGrid owns expansion — expand grouped rows based on expandedState
 const unsortedRows = computed(() => {
   // Reactive dependency on filteredData ensures this re-evaluates when data or filters change.
-  // The sync watcher in useNuGridApi calls setOptions() so TanStack has fresh data by this point.
+  // The sync watcher in useNuGridApi calls setOptions() so the engine has fresh data by this point.
   filteredData.value
-  // TanStack returns grouped rows with subRows; NuGrid flattens based on expanded state
-  return expandRows(tableApi.getRowModel().rows, expandedState.value)
+  // The engine returns grouped rows with subRows; NuGrid flattens based on expanded state
+  return expandRows(tableApi.getRowModel().rows, expandedState.value) as Row<T>[]
 })
 
 // NuGrid-owned sorting — replaces TanStack's getSortedRowModel
@@ -396,7 +397,7 @@ const {
 watch(
   [() => props.addNewRow, groupingState, data],
   () => {
-    // Use nextTick to ensure TanStack has processed the enhanced data
+    // Use nextTick to ensure the engine has processed the enhanced data
     // (including placeholder rows) before refreshing add rows
     nextTick(() => {
       refreshAddRows()
@@ -635,12 +636,12 @@ useKeyboardSetup<T>({
 // Autosize
 const autosizeFns = useNuGridAutosize(props, tableApi, tableRef, columnSizingState)
 
-// Performance optimization: Cache frequently accessed TanStack Table API results
+// Performance optimization: Cache frequently accessed table API results
 // These computed properties prevent redundant API calls in templates
 // Column visibility changes via row selection hidden property will trigger reactivity through columnVisibilityState
 
 // columnsUpdatedSignal triggers re-evaluation after tableApi.setOptions() completes
-// The reactive getter in useVueTable ensures TanStack sees column changes internally
+// The reactive getter in useVueTable ensures the engine sees column changes internally
 const headerGroups = computed(() => {
   columnsUpdatedSignal.value
   return tableApi.getHeaderGroups()
@@ -658,16 +659,16 @@ const allLeafColumns = computed(() => {
 // Performance optimization #1: Cache visible cells for each row
 // This prevents multiple calls to row.getVisibleCells() during rendering
 const visibleCellsCache = computed(() => {
-  const cache = new Map<string, Cell<T, unknown>[]>()
+  const cache = new Map<string, Cell<T>[]>()
   rows.value.forEach((row) => {
-    cache.set(row.id, row.getVisibleCells() as Cell<T, unknown>[])
+    cache.set(row.id, row.getVisibleCells() as Cell<T>[])
   })
   return cache
 })
 
 // Helper function to get visible cells from cache (fallback to direct call)
-function getVisibleCells(row: Row<T>): Cell<T, unknown>[] {
-  return visibleCellsCache.value.get(row.id) ?? (row.getVisibleCells() as Cell<T, unknown>[])
+function getVisibleCells(row: Row<T>): Cell<T>[] {
+  return visibleCellsCache.value.get(row.id) ?? (row.getVisibleCells() as Cell<T>[])
 }
 
 // Helper function to determine if cells should have borders for focus outline
@@ -746,7 +747,7 @@ provide('nugrid-core', {
   hasFooter,
   rows,
   rowSlot: (slots as any).row,
-  // NuGrid-owned state refs — direct updates bypass TanStack
+  // NuGrid-owned state refs — direct updates bypass the engine
   columnPinningState,
   expandedState,
   rowSelectionState,
@@ -902,10 +903,10 @@ provide('nugrid-multi-row', {
   }),
   row0Columns: computed(() => {
     // Get all visible columns that belong to row 0
-    const allColumns = tableApi.getAllLeafColumns().filter((col) => col.getIsVisible())
+    const allColumns = tableApi.getAllLeafColumns().filter((col: any) => col.getIsVisible())
     return allColumns
-      .filter((col) => (col.columnDef.row ?? 0) === 0)
-      .map((col) => ({
+      .filter((col: any) => (col.columnDef.row ?? 0) === 0)
+      .map((col: any) => ({
         id: col.id,
         width: col.getSize(),
         minWidth: col.columnDef.minSize ?? 50,
@@ -1058,9 +1059,9 @@ const excelExport = async (
 /**
  * Get the original data objects of all selected rows
  */
-function getSelectedRows<TRow = T>(): TRow[] {
+function getSelectedRows<TRow extends T = T>(): TRow[] {
   if (!tableApi) return []
-  return tableApi.getSelectedRowModel().rows.map((row) => row.original as unknown as TRow)
+  return tableApi.getSelectedRowModel().rows.map((row: Row<T>) => row.original as TRow)
 }
 
 // Column pinning helper methods — NuGrid owns pinning state directly

@@ -1,4 +1,4 @@
-import type { TableData } from '@nuxt/ui'
+import type { TableData } from '../../table-data'
 import type { ComputedRef, Ref } from 'vue'
 
 import type { NuGridUIReturn } from '../../../composables/_internal/useNuGridUI'

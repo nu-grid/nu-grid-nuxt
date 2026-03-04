@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, SortingState } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Row, SortingState } from '../../engine'
 import type { Ref, ShallowRef } from 'vue'
 
 import { usePreferredReducedMotion } from '@vueuse/core'
@@ -13,10 +13,10 @@ import type { NuGridFocus } from '../../types/_internal'
  * row transitions when re-sorting.
  *
  * When mode is 'maintain': captures a snapshot of row IDs before a change,
- * then reorders TanStack's re-sorted rows to match the snapshot. Tracks which
+ * then reorders the engine's re-sorted rows to match the snapshot. Tracks which
  * columns have stale sort state so the header can show an indicator.
  *
- * When mode is 'resort': forces TanStack to re-sort after changes by writing a
+ * When mode is 'resort': forces the engine to re-sort after changes by writing a
  * new reference to sortingState, which invalidates the sorted row model memo.
  */
 export function useNuGridSortStability<T extends TableData>(
@@ -149,7 +149,7 @@ export function useNuGridSortStability<T extends TableData>(
     // to avoid circular updates), so we resolve the ID from the cell's row index.
     //
     // Use lastSettledOrder (previous render's row IDs) for the fallback — NOT tableRows,
-    // because the sync data watcher in useNuGridCore has already updated TanStack with
+    // because the sync data watcher in useNuGridCore has already updated the engine with
     // the new data by the time this pre-flush watcher runs, so tableRows already reflects
     // the new sort order, not the previous visual order.
     savedFocusRowId = focusedRowId.value
@@ -286,7 +286,7 @@ export function useNuGridSortStability<T extends TableData>(
   /**
    * Detect external data mutations (not caused by cell editing).
    * In maintain mode: freeze the current visual row order.
-   * In resort mode: force TanStack to re-sort with FLIP animation.
+   * In resort mode: force the engine to re-sort with FLIP animation.
    */
   watch(data, () => {
     if (cellEditCausedChange) {
@@ -301,7 +301,7 @@ export function useNuGridSortStability<T extends TableData>(
     if (sortingState.value.length === 0) return
 
     if (mode.value === 'maintain' && !rowOrderSnapshot.value) {
-      // Only freeze if TanStack's new sort order actually differs from the displayed order.
+      // Only freeze if the engine's new sort order actually differs from the displayed order.
       // This avoids false stale indicators when data changes don't affect sort (e.g. filter changes).
       if (lastSettledOrder.length > 0) {
         const newOrder = tableRows.value.map((r) => r.id)
@@ -328,7 +328,7 @@ export function useNuGridSortStability<T extends TableData>(
   })
 
   /**
-   * Display rows: when a snapshot exists, reorder TanStack's rows to match
+   * Display rows: when a snapshot exists, reorder the engine's rows to match
    * the frozen order. New rows (not in snapshot) are appended at the end.
    * When no snapshot, pass through tableRows directly.
    */

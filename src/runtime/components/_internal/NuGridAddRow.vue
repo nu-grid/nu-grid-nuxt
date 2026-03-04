@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData } from '@nuxt/ui'
-import type { Row } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Row } from '../../engine'
 import type { ComponentPublicInstance } from 'vue'
 
 import { computed, inject } from 'vue'

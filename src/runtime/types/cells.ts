@@ -7,8 +7,8 @@
  * Import from '#nu-grid/cells' in your Nuxt application.
  */
 
-import type { TableData } from '@nuxt/ui'
-import type { Column, Row, Table } from '@tanstack/vue-table'
+import type { TableData } from './table-data'
+import type { Cell, Column, EngineColumnDef, Row, Table } from '../engine'
 import type { Component, Ref } from 'vue'
 
 import type { NuGridEditorConfig, NuGridInteractionRouter } from './_internal'
@@ -85,7 +85,7 @@ export interface NuGridCellRenderContext<T = any> {
   cell: any
   row: Row<T>
   getValue: () => any
-  column: Column<T, unknown>
+  column: Column<T>
   table: Table<T>
 }
 
@@ -130,7 +130,7 @@ export interface NuGridFilterConfig {
  */
 export interface NuGridFilterContext<T extends TableData = TableData> {
   /** The column being filtered */
-  column: Column<T, unknown>
+  column: Column<T>
   /** Current filter value (reactive) */
   filterValue: Ref<any>
   /** Set the filter value */
@@ -153,13 +153,13 @@ export interface NuGridFilterContext<T extends TableData = TableData> {
  */
 export interface NuGridCellTypeContext<T extends TableData = TableData> {
   /** The cell being operated on */
-  cell: any
+  cell: Cell<T>
   /** The row containing the cell */
   row: Row<T>
   /** Column definition */
-  columnDef: any
+  columnDef: EngineColumnDef<T>
   /** Column instance */
-  column: Column<T, unknown>
+  column: Column<T>
   /** Current cell value */
   getValue: () => any
   /** Whether the cell is currently focused */
@@ -168,7 +168,7 @@ export interface NuGridCellTypeContext<T extends TableData = TableData> {
   canEdit: boolean
   /** Data array reference (for direct updates) */
   data: T[]
-  /** TanStack table API */
+  /** Table API */
   tableApi: Table<T>
   /** Start editing the cell */
   startEditing: (initialValue?: any) => void
@@ -306,7 +306,7 @@ export interface NuGridCellType<T extends TableData = TableData> {
   /**
    * Custom filter function
    * Overrides default filtering logic for this cell type
-   * If not provided, uses TanStack Table's default filterFn or type's filter operators
+   * If not provided, uses the default filterFn or type's filter operators
    */
   filterFn?: (row: Row<T>, columnId: string, filterValue: any) => boolean
 
@@ -322,13 +322,13 @@ export interface NuGridCellType<T extends TableData = TableData> {
    */
   columnMenuItems?: (
     defaultItems: NuGridColumnMenuItem<T>[],
-    column: Column<T, unknown>,
+    column: Column<T>,
   ) => NuGridColumnMenuItem<T>[]
 
   /**
    * Default cell renderer function
    * Used if renderer component is not provided
-   * Falls back to TanStack Table's default cell rendering
+   * Falls back to the default cell rendering
    */
   defaultCellRenderer?: (context: NuGridCellRenderContext<T>) => any
 

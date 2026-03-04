@@ -1,7 +1,8 @@
 <!-- eslint-disable vue/block-tag-newline -->
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData, TableSlots } from '@nuxt/ui'
-import type { Header, Row } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { NuGridSlots } from '../../types/slots'
+import type { Header, Row } from '../../engine'
 import type { VirtualItem } from '@tanstack/vue-virtual'
 import type { ComponentPublicInstance, Ref } from 'vue'
 
@@ -43,7 +44,7 @@ import NuGridRow from './NuGridRow.vue'
 defineOptions({ inheritAttrs: false })
 
 const props = defineProps<NuGridProps<T>>()
-const slots = defineSlots<TableSlots<T>>()
+const slots = defineSlots<NuGridSlots<T>>()
 
 // Inject split contexts
 const coreContext = inject<NuGridCoreContext<T>>('nugrid-core')!
@@ -92,7 +93,7 @@ const { rowSelectionMode } = rowInteractionsContext
 const staleColumns = inject<Ref<Set<string>>>('nugrid-stale-sort-columns')
 const clearStale = inject<(() => void) | undefined>('nugrid-clear-stale-sort')
 
-function handleHeaderSortClick(event: MouseEvent, header: Header<T, unknown>) {
+function handleHeaderSortClick(event: MouseEvent, header: Header<T>) {
   if (toValue(dragFns.wasDragged)) return
   if (!header.column.getCanSort()) return
   if (staleColumns?.value?.has(header.column.id) && clearStale) {
@@ -102,7 +103,7 @@ function handleHeaderSortClick(event: MouseEvent, header: Header<T, unknown>) {
   }
 }
 
-function isCompactHeader(header: Header<T, unknown>): boolean {
+function isCompactHeader(header: Header<T>): boolean {
   const opt = header.column.columnDef.compactHeader
   if (opt === true) return true
   if (opt === false) return false
@@ -117,7 +118,7 @@ const flexStyleOptions = computed(() => ({
 }))
 
 /** Get header style with flex distribution support */
-function getHeaderStyle(header: Header<T, unknown>): Record<string, string | number> {
+function getHeaderStyle(header: Header<T>): Record<string, string | number> {
   return getFlexHeaderStyle(header, flexStyleOptions.value)
 }
 
@@ -133,7 +134,7 @@ const [DefineGroupSubheaderTemplate, ReuseGroupSubheaderTemplate] = createReusab
 
 // Reusable template for header cell
 const [DefineHeaderCellTemplate, ReuseHeaderCellTemplate] = createReusableTemplate<{
-  header: Header<T, unknown>
+  header: Header<T>
   rowIndex: number
 }>({ inheritAttrs: false })
 

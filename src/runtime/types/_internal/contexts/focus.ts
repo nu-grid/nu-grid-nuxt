@@ -1,4 +1,4 @@
-import type { TableData } from '@nuxt/ui'
+import type { TableData } from '../../table-data'
 
 import type { NuGridCellEditing } from '../cell-editing'
 import type { NuGridFocus } from '../focus'

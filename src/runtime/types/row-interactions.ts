@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row } from '@tanstack/vue-table'
+import type { TableData } from './table-data'
+import type { Row } from '../engine'
 
 /**
  * Type for nugrid-rowinteractions injection

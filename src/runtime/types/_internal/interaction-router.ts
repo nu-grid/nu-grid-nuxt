@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Cell, Row, Table } from '@tanstack/vue-table'
+import type { TableData } from '../table-data'
+import type { Cell, Row, Table } from '../../engine'
 
 import type { NuGridCellEditing } from './cell-editing'
 import type { NuGridFocus, NuGridFocusedCell } from './focus'
@@ -82,7 +82,7 @@ export function hasEventFlag(event: Event, key: string): boolean {
 export interface NuGridCellClickContext<T extends TableData = TableData> {
   event: MouseEvent
   row: Row<T>
-  cell: Cell<T, any>
+  cell: Cell<T>
   cellIndex: number
 }
 
@@ -127,7 +127,7 @@ export interface NuGridHoverHandler {
 export interface NuGridWheelContext<T extends TableData = TableData> {
   event: WheelEvent
   row: Row<T>
-  cell: Cell<T, any>
+  cell: Cell<T>
   cellIndex: number
 }
 
@@ -149,7 +149,7 @@ export interface NuGridKeyboardContext<T extends TableData = TableData> {
   /** The focused row instance (if focused) */
   focusedRow: Row<T> | null
   /** The focused cell instance (if focused) */
-  cell: Cell<T, any> | null
+  cell: Cell<T> | null
   /** Cell index within the row */
   cellIndex: number
   /** Whether a cell is currently being edited */
@@ -158,7 +158,7 @@ export interface NuGridKeyboardContext<T extends TableData = TableData> {
   focusMode: 'none' | 'cell' | 'row'
   /** Whether editing is enabled */
   editingEnabled: boolean
-  /** TanStack table API */
+  /** Table API */
   tableApi: Table<T>
   /** Focus functions for navigation */
   focusFns: NuGridFocus<T>

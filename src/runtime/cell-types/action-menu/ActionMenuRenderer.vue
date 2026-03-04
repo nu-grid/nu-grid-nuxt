@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Cell, Row } from '@tanstack/vue-table'
+import type { Cell, Row } from '../../engine'
 import type { Ref } from 'vue'
 
 import { computed, ref, watch } from 'vue'
@@ -12,7 +12,7 @@ const props = defineProps<Props>()
 
 interface Props {
   row: Row<any>
-  cell?: Cell<any, unknown>
+  cell?: Cell<any>
 }
 
 // Get column meta for action menu configuration

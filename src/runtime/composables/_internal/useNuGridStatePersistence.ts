@@ -1,4 +1,4 @@
-import type { TableData } from '@nuxt/ui'
+import type { TableData } from '../../types/table-data'
 import type {
   ColumnFiltersState,
   ColumnOrderState,
@@ -12,7 +12,7 @@ import type {
   RowSelectionState,
   SortingState,
   VisibilityState,
-} from '@tanstack/vue-table'
+} from '../../engine'
 
 import { useCookie } from '#imports'
 import { StorageSerializers, useStorage } from '@vueuse/core'

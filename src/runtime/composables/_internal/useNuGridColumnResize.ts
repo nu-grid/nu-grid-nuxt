@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { ColumnSizingInfoState, ColumnSizingState, Header, Table } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { ColumnSizingInfoState, ColumnSizingState, Header, Table } from '../../engine'
 import type { Ref } from 'vue'
 
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
@@ -38,7 +38,7 @@ export function useNuGridColumnResize<T extends TableData>(
   const resizeStartSizes = new Map<string, number>()
 
   /**
-   * Sync specific columns' actual DOM widths to TanStack's columnSizing.
+   * Sync specific columns' actual DOM widths to columnSizing state.
    * This prevents "jump" when switching from flex to fixed width during resize.
    * Uses getBoundingClientRect for sub-pixel precision to minimize visual jump.
    *
@@ -290,14 +290,14 @@ export function useNuGridColumnResize<T extends TableData>(
   const columnResizeMode = props.columnSizingOptions?.columnResizeMode ?? 'onChange'
   const columnResizeDirection = props.columnSizingOptions?.columnResizeDirection
 
-  function getResizeHandler(header: any) {
+  function getResizeHandler(header: Header<T>) {
     if (props.layout?.resizeMode === 'shift') {
       return createShiftResizeHandler(header, tableApi, columnSizingState, columnSizingInfoState, columnResizeMode, columnResizeDirection)
     }
     return createStandardResizeHandler(header, tableApi, columnSizingState, columnSizingInfoState, columnResizeMode, columnResizeDirection)
   }
 
-  function handleResizeStart(event: MouseEvent | TouchEvent, header: Header<T, any>) {
+  function handleResizeStart(event: MouseEvent | TouchEvent, header: Header<T>) {
     const resizeHandler = getResizeHandler(header)
 
     if (resizeHandler) {
@@ -305,8 +305,8 @@ export function useNuGridColumnResize<T extends TableData>(
       document.body.classList.add('is-resizing-column')
       resizingColumnId.value = header.column.id
 
-      // For fill mode, sync actual DOM widths to TanStack BEFORE switching to fixed width.
-      // This prevents "jump" when the flex-rendered width differs from TanStack's stored value.
+      // For fill mode, sync actual DOM widths to columnSizing BEFORE switching to fixed width.
+      // This prevents "jump" when the flex-rendered width differs from the stored columnSizing value.
       if (autoSize.value === 'fill') {
         // Sync ALL flex columns' widths to freeze the entire row layout.
         // This prevents other flex columns from redistributing when we switch some to fixed.
@@ -319,7 +319,7 @@ export function useNuGridColumnResize<T extends TableData>(
           })
           .map((col) => col.id)
 
-        // Sync DOM widths to TanStack (this updates getSize() return values)
+        // Sync DOM widths to columnSizing (this updates getSize() return values)
         syncColumnWidthsFromDOM(columnsToSync)
 
         // Mark the resized column (and next column in shift mode) as manually resized
@@ -359,7 +359,7 @@ export function useNuGridColumnResize<T extends TableData>(
     }
   }
 
-  function handleGroupResizeStart(event: MouseEvent | TouchEvent, header: Header<T, any>) {
+  function handleGroupResizeStart(event: MouseEvent | TouchEvent, header: Header<T>) {
     // Only handle group headers (colSpan > 1)
     if (header.colSpan <= 1) {
       return handleResizeStart(event, header)
@@ -433,7 +433,7 @@ export function useNuGridColumnResize<T extends TableData>(
  * to maintain the total table width
  */
 export function createShiftResizeHandler<TData>(
-  header: Header<TData, any>,
+  header: Header<TData>,
   table: Table<TData>,
   columnSizingState: Ref<ColumnSizingState>,
   columnSizingInfoState: Ref<ColumnSizingInfoState>,
@@ -653,7 +653,7 @@ export function createShiftResizeHandler<TData>(
  * Custom resize handler for column groups that resizes all leaf columns proportionately
  */
 export function createGroupResizeHandler<TData>(
-  header: Header<TData, any>,
+  header: Header<TData>,
   table: Table<TData>,
   columnSizingState: Ref<ColumnSizingState>,
   columnSizingInfoState: Ref<ColumnSizingInfoState>,
@@ -955,7 +955,7 @@ export function createGroupResizeHandler<TData>(
  * Uses proportional resizing: all leaf columns under a header scale by the same percentage.
  */
 export function createStandardResizeHandler<TData>(
-  header: Header<TData, any>,
+  header: Header<TData>,
   table: Table<TData>,
   columnSizingState: Ref<ColumnSizingState>,
   columnSizingInfoState: Ref<ColumnSizingInfoState>,

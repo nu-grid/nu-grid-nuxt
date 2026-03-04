@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, RowSelectionState } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Row, RowSelectionState } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
 /**

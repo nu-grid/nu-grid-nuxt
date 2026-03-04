@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Row } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
 import { computed } from 'vue'
@@ -63,7 +63,7 @@ export interface AggregateFormatContext {
 export function getColumnSummary<T extends TableData>(
   column: NuGridColumn<T>,
 ): NuGridColumnSummary | undefined {
-  // Check direct property (added via TanStack augmentation)
+  // Check direct property (added by the engine)
   if ('summary' in column && column.summary) {
     return column.summary as NuGridColumnSummary
   }

@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Row } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
 import { usePreferredReducedMotion } from '@vueuse/core'
@@ -13,7 +13,7 @@ import { usePropWithDefault } from '../../config/_internal'
 interface NuGridAnimationOptions<T extends TableData> {
   /** Root element ref for finding row elements */
   rootRef: Ref<HTMLElement | null>
-  /** Rows that trigger animation when order changes (sorted/filtered output from TanStack) */
+  /** Rows that trigger animation when order changes (sorted/filtered output from the engine) */
   rows: ComputedRef<Row<T>[]>
   /** Animation class from theme (overrides preset if provided) */
   animationClass?: ComputedRef<string>

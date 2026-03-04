@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, RowPinningState, SortingState, Table } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Row, RowPinningState, SortingState, Table } from '../../engine'
 import type { Ref } from 'vue'
 
 import { computed, shallowRef } from 'vue'

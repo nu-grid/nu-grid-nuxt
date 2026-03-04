@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Header, Row } from '@tanstack/vue-table'
+import type { TableData } from './table-data'
+import type { Header, Row } from '../engine'
 import type { MaybeRef, Ref } from 'vue'
 
 /**
@@ -78,9 +78,9 @@ export interface NuGridColumnDragDrop<T extends TableData = TableData> {
   handleColumnDragEnd: () => void
   handleColumnDragLeave: (e: DragEvent) => void
   handleColumnDragEnter: () => void
-  isHeaderDraggable: (header: Header<T, any>) => boolean
-  headerDragHandleProps: (header: Header<T, any>) => Record<string, unknown>
-  headerDragProps: (header: Header<T, any>) => Record<string, unknown>
+  isHeaderDraggable: (header: Header<T>) => boolean
+  headerDragHandleProps: (header: Header<T>) => Record<string, unknown>
+  headerDragProps: (header: Header<T>) => Record<string, unknown>
 }
 
 /**

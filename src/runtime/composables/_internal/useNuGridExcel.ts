@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Table } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Table } from '../../engine'
 import type { ComputedRef, MaybeRef, ShallowRef } from 'vue'
 
 import { defu } from 'defu'

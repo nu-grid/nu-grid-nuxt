@@ -2,7 +2,7 @@
  * @internal
  */
 
-import type { TableData } from '@nuxt/ui'
+import type { TableData } from '../table-data'
 
 import type { NuGridProps } from '../props'
 

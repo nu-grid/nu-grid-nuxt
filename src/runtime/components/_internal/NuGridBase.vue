@@ -1,9 +1,10 @@
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData, TableSlots } from '@nuxt/ui'
+import type { TableData } from '../../types/table-data'
+import type { NuGridSlots } from '../../types/slots'
 import type { VirtualItem } from '@tanstack/vue-virtual'
 import type { ComponentPublicInstance, Ref } from 'vue'
 
-import type { Header } from '@tanstack/vue-table'
+import type { Header } from '../../engine'
 
 import { FlexRender } from '../../utils/flexRender'
 import { createReusableTemplate } from '@vueuse/core'
@@ -43,7 +44,7 @@ defineOptions({ inheritAttrs: false })
 
 const props = defineProps<NuGridProps<T>>()
 
-const slots = defineSlots<TableSlots<T>>()
+const slots = defineSlots<NuGridSlots<T>>()
 
 // Inject split contexts
 const coreContext = inject<NuGridCoreContext<T>>('nugrid-core')!
@@ -79,7 +80,7 @@ const { tableRef, rootRef, tableApi, ui, hasFooter, rows: contextRows, propsUi }
 
 // Create a local computed for animated rows to ensure proper reactivity tracking
 // IMPORTANT: Return a new array reference to trigger Vue's reactivity for FLIP animations
-// The source array from TanStack may be the same reference even when order changes
+// The source array from the engine may be the same reference even when order changes
 const rows = computed(() => {
   const currentRows = contextRows.value ?? []
   // Return a new array (shallow copy) to ensure Vue detects the change
@@ -116,7 +117,7 @@ const {
 const staleColumns = inject<Ref<Set<string>>>('nugrid-stale-sort-columns')
 const clearStale = inject<(() => void) | undefined>('nugrid-clear-stale-sort')
 
-function handleHeaderSortClick(event: MouseEvent, header: Header<T, unknown>) {
+function handleHeaderSortClick(event: MouseEvent, header: Header<T>) {
   if (toValue(dragFns.wasDragged)) return
   if (!header.column.getCanSort()) return
   if (staleColumns?.value?.has(header.column.id) && clearStale) {
@@ -132,7 +133,7 @@ function handleHeaderSortClick(event: MouseEvent, header: Header<T, unknown>) {
 const isMounted = ref(false)
 onMounted(() => { isMounted.value = true })
 
-function isCompactHeader(header: Header<T, unknown>): boolean {
+function isCompactHeader(header: Header<T>): boolean {
   const opt = header.column.columnDef.compactHeader
   if (opt === true) return true
   if (opt === false) return false

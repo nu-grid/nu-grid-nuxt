@@ -1,4 +1,4 @@
-import type { TableData } from '@nuxt/ui'
+import type { TableData } from '../../../types/table-data'
 
 import { nextTick } from 'vue'
 

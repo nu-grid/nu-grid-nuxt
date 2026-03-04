@@ -51,7 +51,7 @@ export const ratingCellType: NuGridCellType = {
 
         if (rowIndex !== -1 && columnDef.accessorKey) {
           const key = columnDef.accessorKey as string
-          ;(data[rowIndex] as any)[key] = null
+          data[rowIndex]![key] = null
           emitChange(oldValue, null)
         }
 
@@ -67,7 +67,7 @@ export const ratingCellType: NuGridCellType = {
 
         if (rowIndex !== -1 && columnDef.accessorKey) {
           const key = columnDef.accessorKey as string
-          ;(data[rowIndex] as any)[key] = newValue
+          data[rowIndex]![key] = newValue
           emitChange(oldValue, newValue)
         }
 

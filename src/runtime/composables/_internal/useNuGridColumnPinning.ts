@@ -1,4 +1,4 @@
-import type { ColumnPinningState } from '@tanstack/vue-table'
+import type { ColumnPinningState } from '../../engine'
 import type { Ref } from 'vue'
 
 export interface ColumnPinningControls {

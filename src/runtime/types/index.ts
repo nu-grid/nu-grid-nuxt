@@ -1,6 +1,3 @@
-// Reference module augmentation to ensure TanStack Table types are extended
-/// <reference path="./tanstack-table.d.ts" />
-
 // ============================================================================
 // PUBLIC API TYPES
 // These types are part of the stable public API for nu-grid users.
@@ -36,10 +33,12 @@ export type {
 // Column
 export type {
   NuGridAggregateType,
+  NuGridCellContext,
   NuGridColumn,
   NuGridColumnMenuItem,
   NuGridColumnMenuItemsCallback,
   NuGridColumnSummary,
+  NuGridHeaderContext,
   NuGridSummaryFormatContext,
 } from './column'
 
@@ -112,7 +111,7 @@ export type { NuGridRow } from './row'
 export type { NuGridRowSelectOptions } from './row-selection'
 
 // Slots
-export type { NuGridCellSlotProps } from './slots'
+export type { NuGridCellSlotProps, NuGridSlots } from './slots'
 
 // Sort Icon
 export type { NuGridSortIcon } from './sort-icon'
@@ -128,7 +127,7 @@ export type {
   NuGridValidationOptions,
 } from './validation'
 
-// TanStack Table State Types (re-exported for convenience)
+// State Types (NuGrid-owned, re-exported for convenience)
 // These are used in NuGridStateSnapshot and various v-models
 export type {
   ColumnFiltersState,
@@ -136,4 +135,7 @@ export type {
   PaginationState,
   RowSelectionState,
   SortingState,
-} from '@tanstack/vue-table'
+} from './state-types'
+
+// Table Data (NuGrid-owned generic constraint)
+export type { TableData } from './table-data'

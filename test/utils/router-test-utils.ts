@@ -1,5 +1,5 @@
 import type { TableData } from '@nuxt/ui'
-import type { Cell, Row } from '@tanstack/vue-table'
+import type { Cell, Row } from '../../src/runtime/engine'
 
 import { vi } from 'vitest'
 
@@ -35,7 +35,7 @@ export interface RouterTestUtils<T extends TableData = TableData> {
   /** Simulate a cell click event */
   simulateCellClick: (
     row: Row<T>,
-    cell: Cell<T, any>,
+    cell: Cell<T>,
     cellIndex?: number,
     event?: Partial<MouseEvent>,
   ) => void
@@ -43,7 +43,7 @@ export interface RouterTestUtils<T extends TableData = TableData> {
   /** Simulate a cell double-click event */
   simulateCellDoubleClick: (
     row: Row<T>,
-    cell: Cell<T, any>,
+    cell: Cell<T>,
     cellIndex?: number,
     event?: Partial<MouseEvent>,
   ) => void
@@ -51,7 +51,7 @@ export interface RouterTestUtils<T extends TableData = TableData> {
   /** Simulate a context menu event */
   simulateContextMenu: (
     row: Row<T>,
-    cell: Cell<T, any>,
+    cell: Cell<T>,
     cellIndex?: number,
     event?: Partial<MouseEvent>,
   ) => void
@@ -59,7 +59,7 @@ export interface RouterTestUtils<T extends TableData = TableData> {
   /** Simulate a wheel event */
   simulateWheel: (
     row: Row<T>,
-    cell: Cell<T, any>,
+    cell: Cell<T>,
     cellIndex?: number,
     event?: Partial<WheelEvent>,
   ) => void
@@ -138,7 +138,7 @@ export function createTestRouter<T extends TableData = TableData>(
   // Helper to simulate cell click
   function simulateCellClick(
     row: Row<T>,
-    cell: Cell<T, any>,
+    cell: Cell<T>,
     cellIndex = 0,
     event?: Partial<MouseEvent>,
   ) {
@@ -160,7 +160,7 @@ export function createTestRouter<T extends TableData = TableData>(
   // Helper to simulate cell double-click
   function simulateCellDoubleClick(
     row: Row<T>,
-    cell: Cell<T, any>,
+    cell: Cell<T>,
     cellIndex = 0,
     event?: Partial<MouseEvent>,
   ) {
@@ -182,7 +182,7 @@ export function createTestRouter<T extends TableData = TableData>(
   // Helper to simulate context menu
   function simulateContextMenu(
     row: Row<T>,
-    cell: Cell<T, any>,
+    cell: Cell<T>,
     cellIndex = 0,
     event?: Partial<MouseEvent>,
   ) {
@@ -204,7 +204,7 @@ export function createTestRouter<T extends TableData = TableData>(
   // Helper to simulate wheel
   function simulateWheel(
     row: Row<T>,
-    cell: Cell<T, any>,
+    cell: Cell<T>,
     cellIndex = 0,
     eventOptions?: Partial<WheelEvent>,
   ) {
@@ -428,7 +428,7 @@ export function createMockCell<T extends TableData>(
   row: Row<T>,
   columnId: string,
   value?: any,
-): Cell<T, any> {
+): Cell<T> {
   return {
     id: `${row.id}-${columnId}`,
     row,
@@ -441,7 +441,7 @@ export function createMockCell<T extends TableData>(
     } as any,
     getValue: () => value ?? row.getValue(columnId),
     getContext: () => ({ row, column: { id: columnId } as any, cell: null as any }),
-  } as Cell<T, any>
+  } as Cell<T>
 }
 
 /**

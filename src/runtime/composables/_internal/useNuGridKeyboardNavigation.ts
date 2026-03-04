@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, Table } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Row, Table } from '../../engine'
 
 import { computed } from 'vue'
 
@@ -66,7 +66,7 @@ export function useNuGridKeyboardNavigation<T extends TableData>(
     const mapping: number[] = []
     const maxRow = Math.max(1, multiRowCount.value) - 1
     for (let i = 0; i < cols.length; i++) {
-      const rowNum = (cols[i]!.columnDef as any).row ?? 0
+      const rowNum = cols[i]!.columnDef.row ?? 0
       mapping[i] = Math.max(0, Math.min(rowNum, maxRow))
     }
     return mapping

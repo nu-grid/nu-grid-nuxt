@@ -1,4 +1,4 @@
-import type { Cell, Column, Row, Table } from '@tanstack/vue-table'
+import type { Cell, Column, Row, Table } from '../src/runtime/engine'
 import type { ComponentPublicInstance, Ref } from 'vue'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -71,8 +71,8 @@ vi.mock('../src/runtime/config/_internal', () => ({
  * Note: router-test-utils provides a simpler version for router tests
  */
 function createMockCell(
-  overrides: Omit<Partial<Cell<any, any>>, 'getValue'> & { getValue?: () => any } = {},
-): Cell<any, any> {
+  overrides: Omit<Partial<Cell<any>>, 'getValue'> & { getValue?: () => any } = {},
+): Cell<any> {
   const columnId = overrides.column?.id ?? 'col1'
   const { getValue: getValueOverride, ...restOverrides } = overrides
   return {
@@ -86,10 +86,10 @@ function createMockCell(
         ...overrides.column?.columnDef,
       },
       ...overrides.column,
-    } as Column<any, any>,
+    } as Column<any>,
     row: restOverrides.row ?? createMockRow(),
     ...restOverrides,
-  } as Cell<any, any>
+  } as Cell<any>
 }
 
 /**
@@ -162,7 +162,7 @@ describe('useNuGridCellEditing', () => {
   let interactionRouter: ReturnType<typeof createTestRouter>['router']
   let emit: (payload: {
     row: Row<any>
-    column: Column<any, any>
+    column: Column<any>
     oldValue: any
     newValue: any
   }) => void
@@ -315,7 +315,7 @@ describe('useNuGridCellEditing', () => {
         column: {
           id: 'col1',
           columnDef: { enableEditing: false },
-        } as Column<any, any>,
+        } as Column<any>,
       })
 
       expect(result.isCellEditable(row, cell)).toBe(false)
@@ -342,7 +342,7 @@ describe('useNuGridCellEditing', () => {
         column: {
           id: 'col1',
           columnDef: { enableEditing: enableEditingFn },
-        } as unknown as Column<any, any>,
+        } as unknown as Column<any>,
       })
 
       expect(result.isCellEditable(row, cell)).toBe(true)
@@ -370,7 +370,7 @@ describe('useNuGridCellEditing', () => {
         column: {
           id: 'col1',
           columnDef: { enableEditing: enableEditingFn },
-        } as unknown as Column<any, any>,
+        } as unknown as Column<any>,
       })
 
       expect(result.isCellEditable(row, cell)).toBe(false)
@@ -592,7 +592,7 @@ describe('useNuGridCellEditing', () => {
         column: {
           id: 'col1',
           columnDef: { enableEditing: false },
-        } as Column<any, any>,
+        } as Column<any>,
       })
 
       result.startEditing(row, cell)
@@ -623,7 +623,7 @@ describe('useNuGridCellEditing', () => {
         column: {
           id: 'col1',
           columnDef: { accessorKey: 'name' },
-        } as Column<any, any>,
+        } as Column<any>,
       })
       ;(row.getVisibleCells as ReturnType<typeof vi.fn>).mockReturnValue([cell])
 
@@ -687,7 +687,7 @@ describe('useNuGridCellEditing', () => {
         column: {
           id: 'count',
           columnDef: { accessorKey: 'count' },
-        } as Column<any, any>,
+        } as Column<any>,
       })
       ;(row.getVisibleCells as ReturnType<typeof vi.fn>).mockReturnValue([cell])
 
@@ -723,7 +723,7 @@ describe('useNuGridCellEditing', () => {
         column: {
           id: 'active',
           columnDef: { accessorKey: 'active' },
-        } as Column<any, any>,
+        } as Column<any>,
       })
       ;(row.getVisibleCells as ReturnType<typeof vi.fn>).mockReturnValue([cell])
 
@@ -1382,7 +1382,7 @@ describe('useNuGridCellEditing', () => {
       const row = createRouterMockRow({ id: 'row1', name: 'Test' }, { id: 'row1' })
       const cell = createRouterMockCell(row, 'name', 'Test')
 
-      simulateCellClick(row as Row<any>, cell as Cell<any, any>)
+      simulateCellClick(row as Row<any>, cell as Cell<any>)
 
       expect(result.editingCell.value).toEqual({
         rowId: 'row1',

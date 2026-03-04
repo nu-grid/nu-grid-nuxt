@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { ExpandedState, Row, Table } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { ExpandedState, Row, Table } from '../../engine'
 import type { Primitive } from 'reka-ui'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
@@ -59,9 +59,9 @@ export function useNuGridGrouping<T extends TableData>(
     return collectAllGroupRows(rows.value)
   })
 
-  // Use TanStack's expansion state for group expansion
+  // Use the engine's expansion state for group expansion
   // This ensures pagination counts rows correctly based on expanded/collapsed state
-  // TanStack's ExpandedState can be true (all expanded), Record<string, boolean>, or ExpandedStateList
+  // ExpandedState can be true (all expanded), Record<string, boolean>, or ExpandedStateList
   const isRowExpanded = (groupId: string): boolean => {
     const expanded = expandedState.value
     if (expanded === true) return true

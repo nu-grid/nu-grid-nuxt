@@ -1,5 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, VisibilityState } from '@tanstack/vue-table'
+import type { TableData } from '../../types/table-data'
+import type { Row, VisibilityState } from '../../engine'
 import type { Ref } from 'vue'
 
 import { computed, h, ref, watch } from 'vue'
@@ -63,7 +63,7 @@ function createActionMenuColumn<T extends TableData>(
     header: () => '',
     // Cell renderer for action menu - get from plugin registry
     // The action menu plugin always uses a Component renderer
-    cell: ({ row, cell }: { row: Row<T>; cell: any }) => {
+    cell: ({ row, cell }: any) => {
       const renderer = nuGridCellTypeRegistry.getRenderer('action-menu')
       if (renderer) {
         return h(renderer as any, {

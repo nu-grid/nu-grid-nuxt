@@ -1,7 +1,7 @@
 {
   "name": "@nu-grid/nuxt",
   "version": "0.3.1",
-  "description": "A powerful data grid component for Nuxt with virtualization, cell editing, and TanStack Table integration",
+  "description": "A powerful data grid component for Nuxt with virtualization, cell editing, and advanced table features",
   "homepage": "https://www.nu-grid.dev",
   "license": "MIT",
   "repository": "https://github.com/nu-grid/nu-grid-nuxt",
@@ -78,7 +78,6 @@
   },
   "dependencies": {
     "@nuxt/kit": "catalog:",
-    "@tanstack/vue-table": "catalog:",
     "defu": "catalog:",
     "tailwind-scrollbar": "catalog:"
   },

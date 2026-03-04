@@ -1,4 +1,4 @@
-import type { Column } from '@tanstack/vue-table'
+import type { Column } from '../../../engine'
 import type { ComputedRef } from 'vue'
 
 /**
@@ -14,7 +14,7 @@ export interface Row0ColumnSlot {
   /** Whether this column is pinned */
   pinned: 'left' | 'right' | false
   /** The column reference for pinning calculations */
-  column: Column<any, unknown>
+  column: Column<any>
 }
 
 /**

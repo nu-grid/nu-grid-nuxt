@@ -1,4 +1,4 @@
-import type { TableData } from '@nuxt/ui'
+import type { TableData } from '../../table-data'
 import type { ComputedRef } from 'vue'
 
 import type { NuGridRowInteractions } from '../../row-interactions'
