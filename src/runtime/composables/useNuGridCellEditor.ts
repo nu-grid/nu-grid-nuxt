@@ -94,7 +94,7 @@ export function useNuGridCellEditor(
   /**
    * Request navigation to another cell
    */
-  function scheduleNavigation(direction: 'up' | 'down' | 'next' | 'previous') {
+  function scheduleNavigation(direction: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') {
     emit('update:isNavigating', true)
     emit('stopEditing', direction)
   }
@@ -200,7 +200,13 @@ export function useNuGridCellEditor(
     }
 
     const input = getNativeInput(inputRef)
-    if (!input) return false
+
+    // Non-input editors (e.g. checkbox): always navigate on ArrowLeft/Right
+    if (!input) {
+      e.preventDefault()
+      scheduleNavigation(e.key === 'ArrowRight' ? 'right' : 'left')
+      return true
+    }
 
     const { selectionStart, selectionEnd, value } = input
     const len = value.length
@@ -209,7 +215,7 @@ export function useNuGridCellEditor(
     // treat as all-selected since spreadsheetNav auto-selects on focus
     if (selectionStart === null || selectionEnd === null) {
       e.preventDefault()
-      scheduleNavigation(e.key === 'ArrowRight' ? 'next' : 'previous')
+      scheduleNavigation(e.key === 'ArrowRight' ? 'right' : 'left')
       return true
     }
 
@@ -220,11 +226,11 @@ export function useNuGridCellEditor(
 
     if (e.key === 'ArrowRight' && (atEnd || allSelected || isEmpty)) {
       e.preventDefault()
-      scheduleNavigation('next')
+      scheduleNavigation('right')
       return true
     } else if (e.key === 'ArrowLeft' && (atStart || allSelected || isEmpty)) {
       e.preventDefault()
-      scheduleNavigation('previous')
+      scheduleNavigation('left')
       return true
     }
 

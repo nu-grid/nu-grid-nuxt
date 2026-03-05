@@ -57,7 +57,7 @@ export function createCellTypeDispatchHandler<T extends TableData>(
         data: options.data.value,
         tableApi,
         startEditing: (initialValue?: any) => cellEditingFns.startEditing(row, cell, initialValue),
-        stopEditing: (newValue: any, moveDirection?: 'up' | 'down' | 'next' | 'previous') => {
+        stopEditing: (newValue: any, moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') => {
           cellEditingFns.stopEditing(row, cell, newValue, moveDirection)
         },
         emitChange: (oldValue: any, newValue: any) => {

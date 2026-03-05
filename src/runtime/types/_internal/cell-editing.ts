@@ -59,12 +59,17 @@ export interface NuGridCellEditing<T extends TableData = TableData> {
   // Cell editing functions
   isEditingCell: (row: Row<T>, columnId: string) => boolean
   isCellEditable: (row: Row<T>, cell: Cell<T>) => boolean
-  startEditing: (row: Row<T>, cell: Cell<T>, initialValue?: any) => void
+  startEditing: (
+    row: Row<T>,
+    cell: Cell<T>,
+    initialValue?: any,
+    options?: { rowIndex?: number; cellIndex?: number },
+  ) => void
   stopEditing: (
     row: Row<T>,
     cell: Cell<T>,
     newValue: any,
-    moveDirection?: 'up' | 'down' | 'next' | 'previous',
+    moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous',
     options?: { restoreFocus?: boolean },
   ) => void
   createDefaultEditor: (cell: Cell<T>, row: Row<T>) => any
@@ -84,7 +89,7 @@ export interface NuGridEditorRenderContext<T = any> {
   row: Row<T>
   getValue: () => any
   setValue: (value: any) => void
-  stopEditing: (moveDirection?: 'up' | 'down' | 'next' | 'previous') => void
+  stopEditing: (moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') => void
   table: Table<T>
   column: Column<T>
 }

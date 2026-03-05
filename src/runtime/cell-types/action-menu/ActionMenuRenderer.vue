@@ -2,7 +2,7 @@
 import type { Cell, Row } from '../../engine'
 import type { Ref } from 'vue'
 
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 import type { NuGridActionMenuColumnMeta } from '../../types/_internal'
 

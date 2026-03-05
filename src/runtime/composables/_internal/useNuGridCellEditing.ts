@@ -1,6 +1,6 @@
 import type { TableData } from '../../types/table-data'
 import type { Cell, Column, Row, Table } from '../../engine'
-import type { Component, ComponentPublicInstance, Ref } from 'vue'
+import type { Component, ComponentPublicInstance, ComputedRef, Ref } from 'vue'
 
 import { FlexRender } from '../../utils/flexRender'
 import {
@@ -365,7 +365,7 @@ export function useNuGridCellEditing<T extends TableData>(
       'onUpdate:isNavigating': (value: boolean) => {
         isNavigating.value = value
       },
-      'onStopEditing': (direction?: 'up' | 'down' | 'next' | 'previous') => {
+      'onStopEditing': (direction?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') => {
         // Block navigation if scroll is already in progress (same pattern as focus mode)
         // This prevents rapid key repeats from overwhelming rendering
         if (direction && scrollManager.isProcessingScroll) {
@@ -606,7 +606,7 @@ export function useNuGridCellEditing<T extends TableData>(
     row: Row<T>,
     cell: Cell<T>,
     newValue: any,
-    moveDirection?: 'up' | 'down' | 'next' | 'previous',
+    moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous',
     options?: { restoreFocus?: boolean; isClickAway?: boolean },
   ) {
     const shouldRestoreFocus = options?.restoreFocus !== false
@@ -707,7 +707,7 @@ export function useNuGridCellEditing<T extends TableData>(
         // SpreadsheetNav: navigate to linked grid when at boundary
         if (spreadsheetNavOptions?.value) {
           const opts = spreadsheetNavOptions.value
-          const visibleCellsList = row.getVisibleCells() as Cell<T, any>[]
+          const visibleCellsList = row.getVisibleCells() as Cell<T>[]
           const cellIdx = visibleCellsList.findIndex((c) => c.column.id === cell.column.id)
           if (navDirection === 'down' && opts.nextGrid?.value) {
             focusFns.setFocusedCell(null)
@@ -758,7 +758,7 @@ export function useNuGridCellEditing<T extends TableData>(
         data: data.value,
         tableApi,
         startEditing: (initialValue?: any) => startEditing(row, cell, initialValue),
-        stopEditing: (value: any, dir?: 'up' | 'down' | 'next' | 'previous') =>
+        stopEditing: (value: any, dir?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') =>
           stopEditing(row, cell, value, dir),
         emitChange: (oldVal: any, newVal: any) => {
           emit({ row, column: cell.column, oldValue: oldVal, newValue: newVal })
@@ -821,15 +821,15 @@ export function useNuGridCellEditing<T extends TableData>(
         validationError.value = rowValidationResult.message || 'Row validation failed'
         isRowLevelValidationError.value = true // Row-level error
 
-        // For row-level errors, allow within-row navigation (next/previous)
+        // For row-level errors, allow within-row navigation (left/right/next/previous)
         // but block navigation to other rows (up/down) or wrapping to adjacent rows
-        const isHorizontalNavigation = navDirection === 'next' || navDirection === 'previous'
+        const isHorizontalNavigation = navDirection === 'left' || navDirection === 'right' || navDirection === 'next' || navDirection === 'previous'
         if (isHorizontalNavigation) {
           // Check if there's another editable cell in this row in the requested direction
           const cells = row.getVisibleCells() as Cell<T>[]
           let hasEditableCellInDirection = false
 
-          if (navDirection === 'next') {
+          if (navDirection === 'next' || navDirection === 'right') {
             // Check if there's an editable cell after the current one
             for (let i = currentCellIndex + 1; i < cells.length; i++) {
               const candidateCell = cells[i]
@@ -922,7 +922,7 @@ export function useNuGridCellEditing<T extends TableData>(
           data: data.value,
           tableApi,
           startEditing: (initialValue?: any) => startEditing(row, cell, initialValue),
-          stopEditing: (value: any, dir?: 'up' | 'down' | 'next' | 'previous') =>
+          stopEditing: (value: any, dir?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') =>
             stopEditing(row, cell, value, dir),
           emitChange: (oldVal: any, newVal: any) => {
             emit({ row, column: cell.column, oldValue: oldVal, newValue: newVal })
@@ -1147,13 +1147,13 @@ export function useNuGridCellEditing<T extends TableData>(
             // ArrowDown: stay in same column; Tab/Enter: focus first editable cell
             const targetCell =
               navDirection === 'down'
-                ? (newAddRow.getVisibleCells() as Cell<T, any>[]).find(
+                ? (newAddRow.getVisibleCells() as Cell<T>[]).find(
                     (c) => c.column.id === cell.column.id && isCellEditable(newAddRow, c),
                   )
                 : undefined
             const cellToFocus =
               targetCell ??
-              newAddRow.getVisibleCells().find((c: Cell<T, any>) => isCellEditable(newAddRow, c))
+              newAddRow.getVisibleCells().find((c: Cell<T>) => isCellEditable(newAddRow, c))
             if (cellToFocus) {
               startEditing(newAddRow, cellToFocus)
               isNavigating.value = false
@@ -1380,6 +1380,24 @@ export function useNuGridCellEditing<T extends TableData>(
           restoreFocus(row, cell)
         }
         return
+      } else if (navDirection === 'left' || navDirection === 'right') {
+        // Arrow key horizontal navigation - same row only, no wrapping
+        const dir = navDirection === 'right' ? 'next' : 'previous'
+        const targetCellInfo = findEditableInRow(row, currentCellIndex, dir)
+
+        if (targetCellInfo) {
+          nextTick(() => {
+            startEditing(row, targetCellInfo!.cell, undefined, {
+              rowIndex: currentRowIndex,
+              cellIndex: targetCellInfo!.index,
+            })
+            isNavigating.value = false
+          })
+          return
+        }
+        // At edge of row — stay in current cell
+        isNavigating.value = false
+        return
       } else if (navDirection === 'next' || navDirection === 'previous') {
         // Horizontal navigation - different column, potentially different row
         let targetCellInfo: { cell: Cell<T>; index: number } | null = null
@@ -1572,7 +1590,7 @@ export function useNuGridCellEditing<T extends TableData>(
       setValue: (value: any) => {
         editingValue.value = value
       },
-      stopEditing: (moveDirection?: 'up' | 'down' | 'next' | 'previous') => {
+      stopEditing: (moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') => {
         const ctx = getCurrentEditingContext()
         if (ctx) {
           stopEditing(ctx.row, ctx.cell, editingValue.value, moveDirection)
@@ -1644,7 +1662,7 @@ export function useNuGridCellEditing<T extends TableData>(
           setValue: (value: any) => {
             editingValue.value = value
           },
-          stopEditing: (moveDirection?: 'up' | 'down' | 'next' | 'previous') => {
+          stopEditing: (moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') => {
             // Find current editing cell dynamically
             if (!editingCell.value) return
 
@@ -1824,7 +1842,7 @@ export function useNuGridCellEditing<T extends TableData>(
           data: data.value,
           tableApi,
           startEditing: (initialValue?: any) => startEditing(row, cell, initialValue),
-          stopEditing: (newValue: any, moveDirection?: 'up' | 'down' | 'next' | 'previous') => {
+          stopEditing: (newValue: any, moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') => {
             stopEditing(row, cell, newValue, moveDirection)
           },
           emitChange: (oldValue: any, newValue: any) => {

@@ -2,6 +2,7 @@ import type { TableData } from '../../types/table-data'
 import type { Table } from '../../engine'
 import type { ComputedRef, MaybeRef, ShallowRef } from 'vue'
 
+import { computed, unref } from 'vue'
 import { defu } from 'defu'
 
 import type { NuGridColumn } from '../../types'

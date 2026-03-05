@@ -447,7 +447,7 @@ describe('lookupEditor', () => {
 
       vm.handleMenuClose(false)
 
-      expect(wrapper.emitted('stop-editing')).toBeFalsy()
+      expect(wrapper.emitted('stopEditing')).toBeFalsy()
     })
 
     it('should not exit edit mode when navigatingViaTab flag is set', () => {
@@ -463,7 +463,7 @@ describe('lookupEditor', () => {
 
       vm.handleMenuClose(false)
 
-      expect(wrapper.emitted('stop-editing')).toBeFalsy()
+      expect(wrapper.emitted('stopEditing')).toBeFalsy()
     })
 
     it('should not exit edit mode when escapingMenu flag is set', () => {
@@ -479,7 +479,7 @@ describe('lookupEditor', () => {
 
       vm.handleMenuClose(false)
 
-      expect(wrapper.emitted('stop-editing')).toBeFalsy()
+      expect(wrapper.emitted('stopEditing')).toBeFalsy()
     })
 
     it('should exit edit mode when Enter was last key pressed', async () => {
@@ -498,7 +498,7 @@ describe('lookupEditor', () => {
       // Wait for setTimeout
       await new Promise((resolve) => setTimeout(resolve, 150))
 
-      expect(wrapper.emitted('stop-editing')).toBeTruthy()
+      expect(wrapper.emitted('stopEditing')).toBeTruthy()
     })
   })
 
@@ -547,8 +547,8 @@ describe('lookupEditor', () => {
       // Wait for setTimeout
       await new Promise((resolve) => setTimeout(resolve, 100))
 
-      expect(wrapper.emitted('stop-editing')).toBeTruthy()
-      expect(wrapper.emitted('stop-editing')![0]).toEqual(['next'])
+      expect(wrapper.emitted('stopEditing')).toBeTruthy()
+      expect(wrapper.emitted('stopEditing')![0]).toEqual(['next'])
     })
 
     it('should navigate to previous cell on Shift+Tab when menu is open', async () => {
@@ -582,7 +582,7 @@ describe('lookupEditor', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100))
 
-      expect(wrapper.emitted('stop-editing')![0]).toEqual(['previous'])
+      expect(wrapper.emitted('stopEditing')![0]).toEqual(['previous'])
 
       // Cleanup
       document.body.removeChild(mockListbox)
@@ -602,8 +602,8 @@ describe('lookupEditor', () => {
       const event = new KeyboardEvent('keydown', { key: 'Tab' })
       vm.handleKeydown(createMinimalKeyboardContext(event))
 
-      expect(wrapper.emitted('stop-editing')).toBeTruthy()
-      expect(wrapper.emitted('stop-editing')![0]).toEqual(['next'])
+      expect(wrapper.emitted('stopEditing')).toBeTruthy()
+      expect(wrapper.emitted('stopEditing')![0]).toEqual(['next'])
     })
   })
 
@@ -629,7 +629,7 @@ describe('lookupEditor', () => {
       expect(vm.escapingMenu).toBe(true) // Flag set to prevent exit on menu close
       expect(result.preventDefault).toBe(true)
       expect(result.stopPropagation).toBe(true)
-      expect(wrapper.emitted('cancel-editing')).toBeFalsy() // Stays in edit mode
+      expect(wrapper.emitted('cancelEditing')).toBeFalsy() // Stays in edit mode
     })
 
     it('should cancel editing on second Escape', () => {
@@ -646,7 +646,7 @@ describe('lookupEditor', () => {
       const event = new KeyboardEvent('keydown', { key: 'Escape' })
       vm.handleKeydown(createMinimalKeyboardContext(event))
 
-      expect(wrapper.emitted('cancel-editing')).toBeTruthy()
+      expect(wrapper.emitted('cancelEditing')).toBeTruthy()
     })
   })
 
@@ -781,7 +781,7 @@ describe('lookupEditor', () => {
       const result = vm.handleKeydown(ctx)
 
       expect(result.preventDefault).toBe(true)
-      expect(wrapper.emitted('stop-editing')).toBeTruthy()
+      expect(wrapper.emitted('stopEditing')).toBeTruthy()
     })
   })
 

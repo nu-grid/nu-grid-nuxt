@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ComputedRef } from 'vue'
 
-import { computed, inject, isRef, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, inject, isRef, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 
 import type { NuGridCellEditorEmits, NuGridCellEditorProps, NuGridLookupItem } from '../../types'
 import type { NuGridKeyboardContext } from '../../types/_internal'
@@ -118,13 +118,13 @@ function handleMenuClose(open: boolean) {
       if (getEnterBehavior() === 'moveDown') {
         emit('update:isNavigating', true)
 
-        emit('stop-editing', shiftHeld ? 'up' : 'down')
+        emit('stopEditing', shiftHeld ? 'up' : 'down')
       } else if (getEnterBehavior() === 'moveCell') {
         emit('update:isNavigating', true)
 
-        emit('stop-editing', shiftHeld ? 'previous' : 'next')
+        emit('stopEditing', shiftHeld ? 'previous' : 'next')
       } else {
-        emit('stop-editing')
+        emit('stopEditing')
       }
     }, 100)
     return
@@ -132,7 +132,7 @@ function handleMenuClose(open: boolean) {
 
   if (!open && !valueJustChanged.value && !navigatingViaTab.value && !escapingMenu.value) {
     setTimeout(() => {
-      emit('stop-editing')
+      emit('stopEditing')
     }, 100)
   }
 
@@ -202,13 +202,13 @@ function handleKeydown(ctx: NuGridKeyboardContext<any>) {
       setTimeout(() => {
         emit('update:isNavigating', true)
 
-        emit('stop-editing', direction)
+        emit('stopEditing', direction)
       }, 50)
     } else {
       // Menu already closed - just navigate
       emit('update:isNavigating', true)
 
-      emit('stop-editing', e.shiftKey ? 'previous' : 'next')
+      emit('stopEditing', e.shiftKey ? 'previous' : 'next')
     }
     return { handled: true, preventDefault: true, stopPropagation: true }
   }
@@ -237,7 +237,7 @@ function handleKeydown(ctx: NuGridKeyboardContext<any>) {
     } else {
       // Second escape: menu already closed, cancel editing
 
-      emit('cancel-editing')
+      emit('cancelEditing')
       return { handled: true, preventDefault: true, stopPropagation: true }
     }
   }
@@ -295,13 +295,13 @@ function handleKeydown(ctx: NuGridKeyboardContext<any>) {
       if (getEnterBehavior() === 'moveDown') {
         emit('update:isNavigating', true)
 
-        emit('stop-editing', e.shiftKey ? 'up' : 'down')
+        emit('stopEditing', e.shiftKey ? 'up' : 'down')
       } else if (getEnterBehavior() === 'moveCell') {
         emit('update:isNavigating', true)
 
-        emit('stop-editing', e.shiftKey ? 'previous' : 'next')
+        emit('stopEditing', e.shiftKey ? 'previous' : 'next')
       } else {
-        emit('stop-editing')
+        emit('stopEditing')
       }
       return { handled: true, preventDefault: true, stopPropagation: true }
     }

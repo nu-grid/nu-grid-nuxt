@@ -60,8 +60,8 @@ export interface NuGridCellEditorProps<T extends TableData = TableData> {
  */
 export interface NuGridCellEditorEmits {
   (e: 'update:modelValue', value: any): void
-  (e: 'stop-editing', moveDirection?: 'up' | 'down' | 'next' | 'previous'): void
-  (e: 'cancel-editing'): void
+  (e: 'stopEditing', moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous'): void
+  (e: 'cancelEditing'): void
   (e: 'update:isNavigating', value: boolean): void
 }
 
@@ -173,7 +173,7 @@ export interface NuGridCellTypeContext<T extends TableData = TableData> {
   /** Start editing the cell */
   startEditing: (initialValue?: any) => void
   /** Stop editing and save value */
-  stopEditing: (newValue: any, moveDirection?: 'up' | 'down' | 'next' | 'previous') => void
+  stopEditing: (newValue: any, moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') => void
   /** Emit cell value change event */
   emitChange: (oldValue: any, newValue: any) => void
 }
