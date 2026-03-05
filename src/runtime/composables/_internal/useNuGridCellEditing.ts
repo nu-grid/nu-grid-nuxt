@@ -82,6 +82,8 @@ export function useNuGridCellEditing<T extends TableData>(
   externalEditingCell?: Ref<NuGridEditingCell | null>,
   addRowContext?: NuGridAddRowContext<T> | null,
   eventEmitter?: NuGridEventEmitter<T>,
+  onBeforeSortedCellEdit?: (columnId: string, rowId: string) => void,
+  onAfterSortedCellEdit?: () => void,
   spreadsheetNavOptions?: ComputedRef<NuGridSpreadsheetNavOptions | null>,
 ): NuGridCellEditing<T> {
   const editingCell = externalEditingCell ?? ref<NuGridEditingCell | null>(null)
@@ -947,6 +949,11 @@ export function useNuGridCellEditing<T extends TableData>(
         }
       }
 
+      // Notify sort stability BEFORE mutation (captures snapshot in maintain mode)
+      if (onBeforeSortedCellEdit) {
+        onBeforeSortedCellEdit(cell.column.id, row.id)
+      }
+
       if (rowIndex !== -1) {
         assignValue(data.value[rowIndex] as any)
       } else if (addRowContext?.isAddRowRow(row)) {
@@ -974,6 +981,11 @@ export function useNuGridCellEditing<T extends TableData>(
         if (!isReadonly(data)) {
           data.value = [...data.value]
         }
+      }
+
+      // Notify sort stability AFTER mutation (forces re-sort in resort mode)
+      if (onAfterSortedCellEdit) {
+        onAfterSortedCellEdit()
       }
 
       // Emit AFTER data is mutated so handlers can read the current state
@@ -1224,31 +1236,30 @@ export function useNuGridCellEditing<T extends TableData>(
               }
             } else {
               // At top visual row - move to previous data row's last visual row
-              const targetRowIndex = currentRowIndex - 1
-              if (targetRowIndex >= 0) {
-                const targetRow = rowsList[targetRowIndex]
-                if (targetRow) {
-                  let targetColIdx = findColumnInVisualRow(currentCellIdx, lastVisualRow, targetRow)
-                  const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
-                  const targetCell = targetCells[targetColIdx]
-                  let effectiveTargetCell: Cell<T, any> | null = targetCell ?? null
-                  if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
-                    const fallback = findEditableInRow(targetRow, targetColIdx, 'previous')
-                    effectiveTargetCell = fallback?.cell ?? null
-                    if (fallback) {
-                      targetColIdx = fallback.index
-                    }
+              // Loop to skip uneditable rows
+              for (let ri = currentRowIndex - 1; ri >= 0; ri--) {
+                const targetRow = rowsList[ri]
+                if (!targetRow) continue
+                let targetColIdx = findColumnInVisualRow(currentCellIdx, lastVisualRow, targetRow)
+                const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
+                const targetCell = targetCells[targetColIdx]
+                let effectiveTargetCell: Cell<T, any> | null = targetCell ?? null
+                if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
+                  const fallback = findEditableInRow(targetRow, targetColIdx, 'previous')
+                  effectiveTargetCell = fallback?.cell ?? null
+                  if (fallback) {
+                    targetColIdx = fallback.index
                   }
-                  if (effectiveTargetCell) {
-                    nextTick(() => {
-                      startEditing(targetRow, effectiveTargetCell!, undefined, {
-                        rowIndex: targetRowIndex,
-                        cellIndex: targetColIdx,
-                      })
-                      isNavigating.value = false
+                }
+                if (effectiveTargetCell) {
+                  nextTick(() => {
+                    startEditing(targetRow, effectiveTargetCell!, undefined, {
+                      rowIndex: ri,
+                      cellIndex: targetColIdx,
                     })
-                    return
-                  }
+                    isNavigating.value = false
+                  })
+                  return
                 }
               }
             }
@@ -1270,64 +1281,66 @@ export function useNuGridCellEditing<T extends TableData>(
               }
             } else {
               // At bottom visual row - move to next data row's first visual row
-              const targetRowIndex = currentRowIndex + 1
-              if (targetRowIndex < rowsList.length) {
-                const targetRow = rowsList[targetRowIndex]
-                if (targetRow) {
-                  let targetColIdx = findColumnInVisualRow(currentCellIdx, 0, targetRow)
-                  const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
-                  const targetCell = targetCells[targetColIdx]
-                  let effectiveTargetCell: Cell<T, any> | null = targetCell ?? null
-                  if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
-                    const fallback = findEditableInRow(targetRow, targetColIdx, 'previous')
-                    effectiveTargetCell = fallback?.cell ?? null
-                    if (fallback) {
-                      targetColIdx = fallback.index
-                    }
+              // Loop to skip uneditable rows
+              for (let ri = currentRowIndex + 1; ri < rowsList.length; ri++) {
+                const targetRow = rowsList[ri]
+                if (!targetRow) continue
+                let targetColIdx = findColumnInVisualRow(currentCellIdx, 0, targetRow)
+                const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
+                const targetCell = targetCells[targetColIdx]
+                let effectiveTargetCell: Cell<T, any> | null = targetCell ?? null
+                if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
+                  const fallback = findEditableInRow(targetRow, targetColIdx, 'previous')
+                  effectiveTargetCell = fallback?.cell ?? null
+                  if (fallback) {
+                    targetColIdx = fallback.index
                   }
-                  if (effectiveTargetCell) {
-                    nextTick(() => {
-                      startEditing(targetRow, effectiveTargetCell!, undefined, {
-                        rowIndex: targetRowIndex,
-                        cellIndex: targetColIdx,
-                      })
-                      isNavigating.value = false
+                }
+                if (effectiveTargetCell) {
+                  nextTick(() => {
+                    startEditing(targetRow, effectiveTargetCell!, undefined, {
+                      rowIndex: ri,
+                      cellIndex: targetColIdx,
                     })
-                    return
-                  }
+                    isNavigating.value = false
+                  })
+                  return
                 }
               }
             }
           }
         } else {
           // Standard single-row vertical navigation
-          const targetRowIndex = navDirection === 'up' ? currentRowIndex - 1 : currentRowIndex + 1
+          // Loop to skip uneditable rows (e.g., rows marked as read-only)
+          const step = navDirection === 'up' ? -1 : 1
+          for (
+            let ri = currentRowIndex + step;
+            ri >= 0 && ri < rowsList.length;
+            ri += step
+          ) {
+            const targetRow = rowsList[ri]
+            if (!targetRow) continue
+            const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
+            const targetCellIdx = targetCells.findIndex((c) => c.column.id === cell.column.id)
+            let effectiveTargetCell: Cell<T, any> | null =
+              targetCellIdx !== -1 ? (targetCells[targetCellIdx] ?? null) : null
+            let resolvedCellIdx = targetCellIdx
 
-          if (targetRowIndex >= 0 && targetRowIndex < rowsList.length) {
-            const targetRow = rowsList[targetRowIndex]
-            if (targetRow) {
-              const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
-              const targetCellIdx = targetCells.findIndex((c) => c.column.id === cell.column.id)
-              let effectiveTargetCell: Cell<T, any> | null =
-                targetCellIdx !== -1 ? (targetCells[targetCellIdx] ?? null) : null
-              let resolvedCellIdx = targetCellIdx
+            if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
+              const fallback = findEditableInRow(targetRow, targetCellIdx, 'previous')
+              effectiveTargetCell = fallback?.cell ?? null
+              resolvedCellIdx = fallback?.index ?? targetCellIdx
+            }
 
-              if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
-                const fallback = findEditableInRow(targetRow, targetCellIdx, 'previous')
-                effectiveTargetCell = fallback?.cell ?? null
-                resolvedCellIdx = fallback?.index ?? targetCellIdx
-              }
-
-              if (effectiveTargetCell) {
-                nextTick(() => {
-                  startEditing(targetRow, effectiveTargetCell!, undefined, {
-                    rowIndex: targetRowIndex,
-                    cellIndex: resolvedCellIdx,
-                  })
-                  isNavigating.value = false
+            if (effectiveTargetCell) {
+              nextTick(() => {
+                startEditing(targetRow, effectiveTargetCell!, undefined, {
+                  rowIndex: ri,
+                  cellIndex: resolvedCellIdx,
                 })
-                return
-              }
+                isNavigating.value = false
+              })
+              return
             }
           }
         }

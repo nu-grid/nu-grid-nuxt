@@ -176,12 +176,6 @@ export function useNuGridWheelSmoothing(
     const magnitude = Math.max(Math.abs(event.deltaY), Math.abs(event.deltaX))
     if (magnitude < threshold) return
 
-    // Don't intercept if the container can't scroll in the wheel's dominant direction.
-    // Grids set to expand (auto-height) have no overflow — let the page scroll instead.
-    const isVertical = Math.abs(event.deltaY) >= Math.abs(event.deltaX)
-    if (isVertical && el.scrollHeight <= el.clientHeight) return
-    if (!isVertical && el.scrollWidth <= el.clientWidth) return
-
     // Detect touchpad vs mouse wheel based on delta magnitude
     // Touchpads typically send small deltas (3-20px), mouse wheels send larger deltas (40-120px)
     isTouchpad = maxVelocityPxPerSecTouchpad !== undefined && magnitude < touchpadDeltaThreshold

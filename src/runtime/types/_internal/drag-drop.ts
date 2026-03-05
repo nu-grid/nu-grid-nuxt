@@ -16,6 +16,7 @@ export interface NuGridColumnDragDrop<T extends TableData = TableData> {
   dropTargetColumnId: MaybeRef<string | null>
   dropPosition: MaybeRef<'left' | 'right'>
   isDraggingOutside: Ref<boolean>
+  wasDragged: Ref<boolean>
   handleColumnDragStart: (e: DragEvent, columnId: string) => void
   handleColumnDragOver: (e: DragEvent, columnId: string) => void
   handleColumnDrop: (e: DragEvent, columnId: string) => void

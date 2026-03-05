@@ -548,7 +548,7 @@ const focusFns = useNuGridFocus(
   tableRef,
   rootRef,
   groupingFns?.activeStickyHeight ?? baseStickyHeight,
-  groupingFns?.virtualizer ?? virtualizer ?? false,
+  groupingFns?.virtualizer?.value ? groupingFns.virtualizer : virtualizer?.value ? virtualizer : false,
   editingCellRef,
   interactionRouter,
   eventEmitter,
@@ -584,6 +584,11 @@ const cellEditingFns = useNuGridCellEditing(
     triggerValueUpdate: addRowTriggerValueUpdate,
   },
   eventEmitter,
+  (columnId: string, rowId: string) => {
+    notifyEditedCell(columnId)
+    onBeforeSortedCellEdit(columnId, rowId)
+  },
+  onAfterSortedCellEdit,
   spreadsheetNavOptions,
 )
 cellEditingFnsRef.value = cellEditingFns
@@ -627,18 +632,15 @@ const autosizeFns = useNuGridAutosize(props, tableApi, tableRef)
 // columnsUpdatedSignal triggers re-evaluation after tableApi.setOptions() completes
 // The reactive getter in useVueTable ensures TanStack sees column changes internally
 const headerGroups = computed(() => {
-  // oxlint-disable-next-line no-unused-expressions
   columnsUpdatedSignal.value
   return tableApi.getHeaderGroups()
 })
 const headerGroupsLength = computed(() => headerGroups.value.length)
 const footerGroups = computed(() => {
-  // oxlint-disable-next-line no-unused-expressions
   columnsUpdatedSignal.value
   return tableApi.getFooterGroups()
 })
 const allLeafColumns = computed(() => {
-  // oxlint-disable-next-line no-unused-expressions
   columnsUpdatedSignal.value
   return tableApi.getAllLeafColumns()
 })
@@ -847,6 +849,8 @@ provide('nugrid-validation', {
 })
 
 provide('nugrid-enter-behavior', cellEditingFns.enterBehavior)
+provide('nugrid-stale-sort-columns', staleColumns)
+provide('nugrid-clear-stale-sort', clearStale)
 
 // SpreadsheetNav: provide boolean flag for editors (ArrowLeft/Right cursor-aware nav)
 const spreadsheetNavEnabled = computed(() => !!props.spreadsheetNav)

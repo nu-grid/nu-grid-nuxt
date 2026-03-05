@@ -48,7 +48,7 @@ describe('useNuGridCellEditor', () => {
 
       expect(preventDefaultSpy).toHaveBeenCalled()
       expect(stopPropagationSpy).toHaveBeenCalled()
-      expect(emit).toHaveBeenCalledWith('stop-editing')
+      expect(emit).toHaveBeenCalledWith('stopEditing')
     })
 
     it('should emit cancel-editing on Escape key', () => {
@@ -62,7 +62,7 @@ describe('useNuGridCellEditor', () => {
 
       handleKeydown(event)
 
-      expect(emit).toHaveBeenCalledWith('cancel-editing')
+      expect(emit).toHaveBeenCalledWith('cancelEditing')
     })
 
     it('should emit stop-editing with up direction on ArrowUp key', () => {
@@ -77,7 +77,7 @@ describe('useNuGridCellEditor', () => {
       handleKeydown(event)
 
       expect(emit).toHaveBeenCalledWith('update:isNavigating', true)
-      expect(emit).toHaveBeenCalledWith('stop-editing', 'up')
+      expect(emit).toHaveBeenCalledWith('stopEditing', 'up')
     })
 
     it('should emit stop-editing with down direction on ArrowDown key', () => {
@@ -92,7 +92,7 @@ describe('useNuGridCellEditor', () => {
       handleKeydown(event)
 
       expect(emit).toHaveBeenCalledWith('update:isNavigating', true)
-      expect(emit).toHaveBeenCalledWith('stop-editing', 'down')
+      expect(emit).toHaveBeenCalledWith('stopEditing', 'down')
     })
 
     it('should emit stop-editing with next direction on Tab key', () => {
@@ -107,7 +107,7 @@ describe('useNuGridCellEditor', () => {
       handleKeydown(event)
 
       expect(emit).toHaveBeenCalledWith('update:isNavigating', true)
-      expect(emit).toHaveBeenCalledWith('stop-editing', 'next')
+      expect(emit).toHaveBeenCalledWith('stopEditing', 'next')
     })
 
     it('should emit stop-editing with previous direction on Shift+Tab key', () => {
@@ -122,7 +122,7 @@ describe('useNuGridCellEditor', () => {
       handleKeydown(event)
 
       expect(emit).toHaveBeenCalledWith('update:isNavigating', true)
-      expect(emit).toHaveBeenCalledWith('stop-editing', 'previous')
+      expect(emit).toHaveBeenCalledWith('stopEditing', 'previous')
     })
 
     it('should stop propagation for all keys to prevent focus system interference', () => {
@@ -151,7 +151,7 @@ describe('useNuGridCellEditor', () => {
 
       handleBlur()
 
-      expect(emit).toHaveBeenCalledWith('stop-editing')
+      expect(emit).toHaveBeenCalledWith('stopEditing')
     })
 
     it('should not emit stop-editing when navigating', () => {

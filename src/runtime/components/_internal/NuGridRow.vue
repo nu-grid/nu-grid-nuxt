@@ -140,12 +140,6 @@ function getMemoizedTdClass(
   return cached
 }
 
-const isRowFocused = computed(() => !!focusFns.isFocusedRow(props.row))
-const isRowActive = computed(
-  () => focusFns.isActiveRow(props.row) && !focusFns.isFocusedRow(props.row),
-)
-const rowHasValidationError = computed(() => cellEditingFns.hasRowValidationError(props.row.id))
-
 const rowTrClass = computed(() =>
   ui.value.tr({
     class: [propsUi?.value?.tr, resolveValue(tableApi.options.meta?.class?.tr, props.row)],
@@ -163,6 +157,12 @@ const rowMultiRowContainerClass = computed(() =>
     focusMultiRow: focusFns.isFocusedRow(props.row) && focusFns.gridHasFocus.value,
   }),
 )
+
+const isRowFocused = computed(() => !!focusFns.isFocusedRow(props.row))
+const isRowActive = computed(
+  () => focusFns.isActiveRow(props.row) && !focusFns.isFocusedRow(props.row),
+)
+const rowHasValidationError = computed(() => cellEditingFns.hasRowValidationError(props.row.id))
 const gridIsFocused = computed(() => focusFns.gridHasFocus.value)
 
 // Handle row click for focus when using row slot (since there are no cells to click)

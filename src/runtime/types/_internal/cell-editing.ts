@@ -50,7 +50,7 @@ export interface NuGridCellEditing<T extends TableData = TableData> {
   showValidationErrors: Ref<NuGridShowErrors>
   validationIcon: Ref<string>
   startClicks: Ref<'none' | 'single' | 'double'>
-  enterBehavior: ComputedRef<'default' | 'moveDown' | 'moveCell'>
+  enterBehavior: ComputedRef<string>
   // Row validation state
   rowValidationErrors: Ref<Map<string, NuGridRowValidationError>>
   hasRowValidationError: (rowId: string) => boolean

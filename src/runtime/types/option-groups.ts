@@ -342,6 +342,14 @@ export interface NuGridColumnDefaultsOptions<T extends TableData = TableData> {
    * @defaultValue { valueKey: 'value', labelKey: 'label', searchable: true, placeholder: 'Select...', clearable: false, autoOpen: true }
    */
   lookup?: Omit<NuGridLookupOptions, 'items'>
+
+  /**
+   * Default minimum column width in pixels
+   * Prevents columns from being resized below this width
+   * Can be overridden at the column level using minSize
+   * @defaultValue 60
+   */
+  minSize?: number
 }
 
 /**
@@ -934,6 +942,28 @@ export interface NuGridSummaryOptions {
    * @defaultValue true (when any column has summary config)
    */
   groupSummaries?: boolean
+}
+
+/**
+ * Sort behavior options
+ */
+export interface NuGridSortOptions {
+  /**
+   * How the grid handles row order when data changes in sorted columns
+   * - 'maintain': Freeze row order and show stale sort indicator (user re-sorts manually)
+   * - 'resort': Immediately re-sort rows after data changes
+   * @defaultValue 'maintain'
+   */
+  dataChangeBehavior?: 'maintain' | 'resort'
+
+  /**
+   * Debounce delay in milliseconds for re-sorting after cell edits (resort mode only).
+   * During the debounce window, row order is maintained. When the timer fires,
+   * rows animate to their new sorted positions. Useful for editable grids where
+   * users rapidly tab through cells in sorted columns.
+   * @defaultValue 0 (no debounce)
+   */
+  sortDebounce?: number
 }
 
 /**

@@ -14,6 +14,7 @@ import type {
   NuGridPagingOptions,
   NuGridSearchOptions,
   NuGridSelectionOptions,
+  NuGridSortOptions,
   NuGridSpreadsheetNavOptions,
   NuGridStateOptions,
   NuGridSummaryOptions,
@@ -269,6 +270,15 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    * }
    */
   animation?: false | NuGridAnimationOptions
+
+  /**
+   * Sort behavior configuration
+   *
+   * @example
+   * // Re-sort rows immediately when data changes
+   * sort: { dataChangeBehavior: 'resort' }
+   */
+  sort?: NuGridSortOptions
 
   /**
    * Paging configuration
