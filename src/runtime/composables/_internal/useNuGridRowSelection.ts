@@ -1,15 +1,15 @@
-import type { TableData } from '../../types/table-data'
-import type { Row, Table, VisibilityState } from '../../engine'
 import type { Ref } from 'vue'
 
 import { computed, h, ref, watch } from 'vue'
 
+import type { Row, Table, VisibilityState } from '../../engine'
 import type { NuGridColumn, NuGridRowSelectOptions } from '../../types'
 import type {
   NuGridRowSelectionMode,
   NuGridSelectionColumnDef,
   UseNuGridRowSelectionReturn,
 } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 import NuGridCellCheckbox from '../../components/NuGridCellCheckbox.vue'
 import { getDefaults } from '../../config/_internal'

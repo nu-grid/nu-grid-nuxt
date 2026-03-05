@@ -1,10 +1,11 @@
-import type { TableData } from '../../types/table-data'
-import type { ColumnFiltersState, FilterFn } from '../../engine'
 import type { Ref } from 'vue'
 
 import { computed } from 'vue'
 
+import type { ColumnFiltersState, FilterFn } from '../../engine'
 import type { NuGridColumn } from '../../types/column'
+import type { TableData } from '../../types/table-data'
+
 import { filterFns, resolveFilterFn } from '../../utils/filteringFns'
 
 // ---------------------------------------------------------------------------
@@ -107,7 +108,7 @@ export function useNuGridFiltering<T extends TableData>(
     if (!hasColumnFilters && !hasGlobalFilter) return null
 
     // Build column accessor key map for quick lookup
-    const columnMap = new Map<string, { accessorKey: string, filterFn?: FilterFn<any> | string }>()
+    const columnMap = new Map<string, { accessorKey: string; filterFn?: FilterFn<any> | string }>()
     for (const col of cols) {
       const colAny = col as any
       const id = colAny.accessorKey ?? colAny.id
@@ -256,7 +257,7 @@ export function useNuGridFiltering<T extends TableData>(
       const editCol = pendingEditColumnId
       pendingEditColumnId = null
 
-      const affectsColumnFilter = hasColFilters && colFilters.some(cf => cf.id === editCol)
+      const affectsColumnFilter = hasColFilters && colFilters.some((cf) => cf.id === editCol)
       const affectsGlobalFilter = hasGlobalFilter && searchableKeys.value.includes(editCol)
 
       if (!affectsColumnFilter && !affectsGlobalFilter) {
@@ -351,7 +352,6 @@ export function useNuGridFiltering<T extends TableData>(
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
 
 /**
  * Create a minimal row shim that provides `getValue()` for FilterFn

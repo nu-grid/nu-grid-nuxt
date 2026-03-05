@@ -326,5 +326,4 @@ describe('standardSchema utils', () => {
       expect((result as NuGridValidationResult).valid).toBe(true)
     })
   })
-
 })

@@ -2,6 +2,8 @@
  * @internal
  */
 
+import type { Ref } from 'vue'
+
 import type {
   ColumnFiltersState,
   ColumnOrderState,
@@ -16,7 +18,6 @@ import type {
   SortingState,
   VisibilityState,
 } from '../state-types'
-import type { Ref } from 'vue'
 
 /**
  * Grid state refs container

@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import type { EngineColumn, EngineTable, StateAccessors } from '../../src/runtime/engine/types'
+
 import { createEngineColumn } from '../../src/runtime/engine/column'
 import { buildCoreRowModel } from '../../src/runtime/engine/core-row-model'
-import type { EngineColumn, EngineTable, StateAccessors } from '../../src/runtime/engine/types'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -48,7 +49,10 @@ function createTestColumns(state?: StateAccessors): EngineColumn<any>[] {
   ]
 }
 
-function createMockTable(columns: EngineColumn<any>[], overrides?: Partial<EngineTable<any>>): EngineTable<any> {
+function createMockTable(
+  columns: EngineColumn<any>[],
+  overrides?: Partial<EngineTable<any>>,
+): EngineTable<any> {
   return {
     getHeaderGroups: () => [],
     getFooterGroups: () => [],
@@ -56,7 +60,7 @@ function createMockTable(columns: EngineColumn<any>[], overrides?: Partial<Engin
     getAllLeafColumns: () => columns,
     getAllFlatColumns: () => columns,
     getVisibleLeafColumns: () => columns,
-    getColumn: (id: string) => columns.find(c => c.id === id),
+    getColumn: (id: string) => columns.find((c) => c.id === id),
     getRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),
     getSelectedRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),
     getPrePaginationRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),

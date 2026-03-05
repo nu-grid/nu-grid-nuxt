@@ -1,17 +1,14 @@
 <!-- eslint-disable vue/block-tag-newline -->
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData } from '../../types/table-data'
-import type { NuGridSlots } from '../../types/slots'
-import type { Header, Row } from '../../engine'
 import type { VirtualItem } from '@tanstack/vue-virtual'
 import type { ComponentPublicInstance, Ref } from 'vue'
 
-import { FlexRender } from '../../utils/flexRender'
 import { createReusableTemplate, useElementSize } from '@vueuse/core'
 import { Primitive } from 'reka-ui'
 import { upperFirst } from 'scule'
 import { computed, inject, ref, toValue } from 'vue'
 
+import type { Header, Row } from '../../engine'
 import type { NuGridProps } from '../../types'
 import type {
   NuGridAddRowContext,
@@ -26,6 +23,8 @@ import type {
   NuGridVirtualItemStyle,
   NuGridVirtualizationContext,
 } from '../../types/_internal'
+import type { NuGridSlots } from '../../types/slots'
+import type { TableData } from '../../types/table-data'
 
 import {
   getFlexHeaderStyle,
@@ -35,6 +34,7 @@ import {
   resolveValue,
   useNuGridGroupSelection,
 } from '../../composables/_internal'
+import { FlexRender } from '../../utils/flexRender'
 import NuGridAddRow from './NuGridAddRow.vue'
 import NuGridColumnMenu from './NuGridColumnMenu.vue'
 import NuGridGroupCheckbox from './NuGridGroupCheckbox.vue'
@@ -160,7 +160,10 @@ const {
 } = groupingFns
 
 // Group-aware row selection
-const { toggleAllGroupRows, getGroupCheckboxState } = useNuGridGroupSelection(rowSelectionState, groupedRows)
+const { toggleAllGroupRows, getGroupCheckboxState } = useNuGridGroupSelection(
+  rowSelectionState,
+  groupedRows,
+)
 
 // Check if row selection mode is enabled
 const rowSelectionEnabled = computed(() => {
@@ -403,8 +406,9 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           >
             <NuGridHeaderSortButton
               v-if="
-                (header.column.columnDef.sortIcons?.position ?? gridSortIcons?.position ?? 'edge') ===
-                'edge'
+                (header.column.columnDef.sortIcons?.position ??
+                  gridSortIcons?.position ??
+                  'edge') === 'edge'
               "
               :header="header"
               :sort-icons="header.column.columnDef.sortIcons"
@@ -419,8 +423,9 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           <template v-else>
             <NuGridHeaderSortButton
               v-if="
-                (header.column.columnDef.sortIcons?.position ?? gridSortIcons?.position ?? 'edge') ===
-                'edge'
+                (header.column.columnDef.sortIcons?.position ??
+                  gridSortIcons?.position ??
+                  'edge') === 'edge'
               "
               :header="header"
               :sort-icons="header.column.columnDef.sortIcons"

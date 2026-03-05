@@ -1,6 +1,16 @@
 import type { DropdownMenuItem } from '@nuxt/ui'
-import type { AggregationFn, BuiltinAggregationFn, Column, EngineCell, EngineColumn, EngineHeader, EngineRow, EngineTable, Row } from '../engine'
 
+import type {
+  AggregationFn,
+  BuiltinAggregationFn,
+  Column,
+  EngineCell,
+  EngineColumn,
+  EngineHeader,
+  EngineRow,
+  EngineTable,
+  Row,
+} from '../engine'
 import type { NuGridEditorConfig } from './_internal'
 import type { NuGridValidationResult } from './cells'
 import type { NuGridLookupOptions } from './option-groups'
@@ -366,10 +376,7 @@ export interface NuGridColumn<T extends TableData = TableData> {
    */
   columnMenuItems?:
     | NuGridColumnMenuItem<T>[]
-    | ((
-        defaultItems: NuGridColumnMenuItem<T>[],
-        column?: Column<T>,
-      ) => NuGridColumnMenuItem<T>[])
+    | ((defaultItems: NuGridColumnMenuItem<T>[], column?: Column<T>) => NuGridColumnMenuItem<T>[])
 
   /**
    * Controls whether this column's editor is shown when the user clicks "Add New"

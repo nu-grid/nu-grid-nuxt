@@ -1,3 +1,7 @@
+import type { ComputedRef } from 'vue'
+
+import type { Row } from '../../engine'
+import type { NuGridActionMenuOptions, NuGridColumn, NuGridRowSelectOptions } from '../index'
 /**
  * Return type interfaces for internal composables.
  * These explicit types solve TS4058 errors where TypeScript cannot name
@@ -8,10 +12,6 @@
  * @internal
  */
 import type { TableData } from '../table-data'
-import type { Row } from '../../engine'
-import type { ComputedRef } from 'vue'
-
-import type { NuGridActionMenuOptions, NuGridColumn, NuGridRowSelectOptions } from '../index'
 
 /**
  * Return type for useNuGridActionMenu composable

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
+import type { EngineColumn, EngineTable, StateAccessors } from '../../src/runtime/engine/types'
+
 import { createEngineColumn } from '../../src/runtime/engine/column'
 import { buildCoreRowModel } from '../../src/runtime/engine/core-row-model'
 import { buildGroupedRowModel } from '../../src/runtime/engine/grouped-row-model'
-import type { EngineColumn, EngineTable, StateAccessors } from '../../src/runtime/engine/types'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -50,7 +51,10 @@ function createTestColumns(state?: StateAccessors): EngineColumn<any>[] {
   ]
 }
 
-function createMockTable(columns: EngineColumn<any>[], overrides?: Partial<EngineTable<any>>): EngineTable<any> {
+function createMockTable(
+  columns: EngineColumn<any>[],
+  overrides?: Partial<EngineTable<any>>,
+): EngineTable<any> {
   return {
     getHeaderGroups: () => [],
     getFooterGroups: () => [],
@@ -58,7 +62,7 @@ function createMockTable(columns: EngineColumn<any>[], overrides?: Partial<Engin
     getAllLeafColumns: () => columns,
     getAllFlatColumns: () => columns,
     getVisibleLeafColumns: () => columns,
-    getColumn: (id: string) => columns.find(c => c.id === id),
+    getColumn: (id: string) => columns.find((c) => c.id === id),
     getRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),
     getSelectedRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),
     getPrePaginationRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),
@@ -336,7 +340,12 @@ describe('buildGroupedRowModel — aggregation', () => {
     const state = createMockState()
     const columns = [
       createEngineColumn({ id: 'dept', accessorKey: 'dept' }, 0, undefined, state),
-      createEngineColumn({ id: 'age', accessorKey: 'age', aggregationFn: 'sum' }, 0, undefined, state),
+      createEngineColumn(
+        { id: 'age', accessorKey: 'age', aggregationFn: 'sum' },
+        0,
+        undefined,
+        state,
+      ),
       createEngineColumn({ id: 'name', accessorKey: 'name' }, 0, undefined, state),
     ]
     const table = createMockTable(columns)
@@ -354,7 +363,12 @@ describe('buildGroupedRowModel — aggregation', () => {
     const state = createMockState()
     const columns = [
       createEngineColumn({ id: 'dept', accessorKey: 'dept' }, 0, undefined, state),
-      createEngineColumn({ id: 'name', accessorKey: 'name', aggregationFn: 'count' }, 0, undefined, state),
+      createEngineColumn(
+        { id: 'name', accessorKey: 'name', aggregationFn: 'count' },
+        0,
+        undefined,
+        state,
+      ),
     ]
     const table = createMockTable(columns)
     const coreModel = buildCoreRowModel(testData, columns, table, state)
@@ -369,7 +383,12 @@ describe('buildGroupedRowModel — aggregation', () => {
     const state = createMockState()
     const columns = [
       createEngineColumn({ id: 'dept', accessorKey: 'dept' }, 0, undefined, state),
-      createEngineColumn({ id: 'name', accessorKey: 'name', aggregationFn: 'unique' }, 0, undefined, state),
+      createEngineColumn(
+        { id: 'name', accessorKey: 'name', aggregationFn: 'unique' },
+        0,
+        undefined,
+        state,
+      ),
     ]
     const table = createMockTable(columns)
     const coreModel = buildCoreRowModel(testData, columns, table, state)
@@ -387,7 +406,12 @@ describe('buildGroupedRowModel — aggregation', () => {
     }
     const columns = [
       createEngineColumn({ id: 'dept', accessorKey: 'dept' }, 0, undefined, state),
-      createEngineColumn({ id: 'name', accessorKey: 'name', aggregationFn: customFn }, 0, undefined, state),
+      createEngineColumn(
+        { id: 'name', accessorKey: 'name', aggregationFn: customFn },
+        0,
+        undefined,
+        state,
+      ),
     ]
     const table = createMockTable(columns)
     const coreModel = buildCoreRowModel(testData, columns, table, state)
@@ -401,7 +425,12 @@ describe('buildGroupedRowModel — aggregation', () => {
     const state = createMockState()
     const columns = [
       createEngineColumn({ id: 'dept', accessorKey: 'dept' }, 0, undefined, state),
-      createEngineColumn({ id: 'age', accessorKey: 'age', aggregationFn: 'sum' }, 0, undefined, state),
+      createEngineColumn(
+        { id: 'age', accessorKey: 'age', aggregationFn: 'sum' },
+        0,
+        undefined,
+        state,
+      ),
       createEngineColumn({ id: 'name', accessorKey: 'name' }, 0, undefined, state),
     ]
     const table = createMockTable(columns)
@@ -427,7 +456,12 @@ describe('buildGroupedRowModel — aggregation', () => {
     const columns = [
       createEngineColumn({ id: 'dept', accessorKey: 'dept' }, 0, undefined, state),
       createEngineColumn({ id: 'team', accessorKey: 'team' }, 0, undefined, state),
-      createEngineColumn({ id: 'age', accessorKey: 'age', aggregationFn: 'sum' }, 0, undefined, state),
+      createEngineColumn(
+        { id: 'age', accessorKey: 'age', aggregationFn: 'sum' },
+        0,
+        undefined,
+        state,
+      ),
     ]
     const table = createMockTable(columns)
     const coreModel = buildCoreRowModel(multiData, columns, table, state)

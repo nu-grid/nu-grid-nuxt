@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { createEngineColumn } from '../../src/runtime/engine/column'
-import { createEngineCell } from '../../src/runtime/engine/cell'
-import { createEngineRow } from '../../src/runtime/engine/row'
 import type { EngineColumn, EngineTable, StateAccessors } from '../../src/runtime/engine/types'
+
+import { createEngineCell } from '../../src/runtime/engine/cell'
+import { createEngineColumn } from '../../src/runtime/engine/column'
+import { createEngineRow } from '../../src/runtime/engine/row'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -60,7 +61,10 @@ function createTestSetup(data: Record<string, any> = { name: 'Alice', age: 30 })
   return { state, columns, table, row }
 }
 
-function createMockTable(columns: EngineColumn<any>[], overrides?: Partial<EngineTable<any>>): EngineTable<any> {
+function createMockTable(
+  columns: EngineColumn<any>[],
+  overrides?: Partial<EngineTable<any>>,
+): EngineTable<any> {
   return {
     getHeaderGroups: () => [],
     getFooterGroups: () => [],
@@ -68,7 +72,7 @@ function createMockTable(columns: EngineColumn<any>[], overrides?: Partial<Engin
     getAllLeafColumns: () => columns,
     getAllFlatColumns: () => columns,
     getVisibleLeafColumns: () => columns,
-    getColumn: (id: string) => columns.find(c => c.id === id),
+    getColumn: (id: string) => columns.find((c) => c.id === id),
     getRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),
     getSelectedRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),
     getPrePaginationRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),
@@ -244,12 +248,24 @@ describe('EngineCell — grouping', () => {
     })
     // Assign EngineRow subRows (as grouped row model would)
     const child1 = createEngineRow({
-      id: '0', index: 0, original: { name: 'Alice', age: 30 }, depth: 1,
-      parentId: 'name:Alice', table, columns, state,
+      id: '0',
+      index: 0,
+      original: { name: 'Alice', age: 30 },
+      depth: 1,
+      parentId: 'name:Alice',
+      table,
+      columns,
+      state,
     })
     const child2 = createEngineRow({
-      id: '1', index: 1, original: { name: 'Alice', age: 31 }, depth: 1,
-      parentId: 'name:Alice', table, columns, state,
+      id: '1',
+      index: 1,
+      original: { name: 'Alice', age: 31 },
+      depth: 1,
+      parentId: 'name:Alice',
+      table,
+      columns,
+      state,
     })
     groupRow.subRows = [child1, child2]
 

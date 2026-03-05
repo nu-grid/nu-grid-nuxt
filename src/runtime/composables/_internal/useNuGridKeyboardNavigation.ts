@@ -1,9 +1,8 @@
-import type { TableData } from '../../types/table-data'
-import type { Row, Table } from '../../engine'
-
 import { computed } from 'vue'
 
+import type { Row, Table } from '../../engine'
 import type { NuGridProps } from '../../types'
+import type { TableData } from '../../types/table-data'
 
 /**
  * Navigation result containing target row and column indices

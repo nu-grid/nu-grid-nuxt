@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  calculateProportionalSizes,
-} from '../src/runtime/utils/columnSizingFns'
+import { calculateProportionalSizes } from '../src/runtime/utils/columnSizingFns'
 
 /**
  * Reference: TanStack's proportional resize formula — verbatim from getResizeHandler's updateOffset
@@ -16,9 +14,8 @@ function tanstackCalculateProportionalSizes(
 ): Record<string, number> {
   const result: Record<string, number> = {}
   columnSizingStart.forEach(([columnId, headerSize]) => {
-    result[columnId] = Math.round(
-      Math.max(headerSize + headerSize * deltaPercentage, 0) * 100,
-    ) / 100
+    result[columnId] =
+      Math.round(Math.max(headerSize + headerSize * deltaPercentage, 0) * 100) / 100
   })
   return result
 }
@@ -41,12 +38,20 @@ describe('calculateProportionalSizes — parity with TanStack resize formula', (
     },
     {
       name: 'grow multiple columns proportionally',
-      columnSizingStart: [['col1', 100], ['col2', 200], ['col3', 50]],
+      columnSizingStart: [
+        ['col1', 100],
+        ['col2', 200],
+        ['col3', 50],
+      ],
       deltaPercentage: 0.3,
     },
     {
       name: 'shrink multiple columns proportionally',
-      columnSizingStart: [['col1', 100], ['col2', 200], ['col3', 50]],
+      columnSizingStart: [
+        ['col1', 100],
+        ['col2', 200],
+        ['col3', 50],
+      ],
       deltaPercentage: -0.4,
     },
     {
@@ -61,7 +66,10 @@ describe('calculateProportionalSizes — parity with TanStack resize formula', (
     },
     {
       name: 'zero delta (no change)',
-      columnSizingStart: [['col1', 100], ['col2', 200]],
+      columnSizingStart: [
+        ['col1', 100],
+        ['col2', 200],
+      ],
       deltaPercentage: 0,
     },
     {
@@ -76,7 +84,10 @@ describe('calculateProportionalSizes — parity with TanStack resize formula', (
     },
     {
       name: 'fractional start sizes',
-      columnSizingStart: [['col1', 133.33], ['col2', 66.67]],
+      columnSizingStart: [
+        ['col1', 133.33],
+        ['col2', 66.67],
+      ],
       deltaPercentage: 0.15,
     },
     {

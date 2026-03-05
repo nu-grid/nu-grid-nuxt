@@ -15,10 +15,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import {
-  updatePageIndex,
-  updatePageSize,
-} from '../src/runtime/utils/stateManagementFns'
+import { updatePageIndex, updatePageSize } from '../src/runtime/utils/stateManagementFns'
 
 // ─── Reference: TanStack's valueUpdater ────────────────────────────
 // This is the bridge function from useNuGridCore.ts that TanStack calls
@@ -43,7 +40,7 @@ function tanstackToggleSelected(
   if (value) {
     if (!enableMultiRowSelection) {
       // Single select: clear all others
-      Object.keys(selectedRowIds).forEach(key => delete selectedRowIds[key])
+      Object.keys(selectedRowIds).forEach((key) => delete selectedRowIds[key])
     }
     selectedRowIds[rowId] = true
   } else {
@@ -73,8 +70,7 @@ function tanstackSetPageIndex(
   newPageIndex: number,
   pageCount: number | undefined,
 ): number {
-  const maxPageIndex =
-    pageCount === undefined ? Number.MAX_SAFE_INTEGER : pageCount - 1
+  const maxPageIndex = pageCount === undefined ? Number.MAX_SAFE_INTEGER : pageCount - 1
   return Math.max(0, Math.min(newPageIndex, maxPageIndex))
 }
 
@@ -107,8 +103,8 @@ describe('State Management Parity', () => {
     it('unpin column', () => {
       const current = { left: ['a', 'b'], right: ['c'] }
       const newPinning = {
-        left: current.left.filter(id => id !== 'b'),
-        right: current.right.filter(id => id !== 'b'),
+        left: current.left.filter((id) => id !== 'b'),
+        right: current.right.filter((id) => id !== 'b'),
       }
 
       expect(newPinning).toEqual({ left: ['a'], right: ['c'] })
@@ -116,7 +112,7 @@ describe('State Management Parity', () => {
 
     it('move column from left to right pin', () => {
       const current = { left: ['a', 'b'], right: [] as string[] }
-      const afterRemoveLeft = { ...current, left: current.left.filter(id => id !== 'b') }
+      const afterRemoveLeft = { ...current, left: current.left.filter((id) => id !== 'b') }
       const newPinning = { ...afterRemoveLeft, right: [...afterRemoveLeft.right, 'b'] }
 
       expect(newPinning).toEqual({ left: ['a'], right: ['b'] })
@@ -142,7 +138,9 @@ describe('State Management Parity', () => {
       // When state is `true` (all expanded), NuGrid builds a record
       const groupIds = ['group_a', 'group_b', 'group_c']
       const newState: Record<string, boolean> = {}
-      groupIds.forEach(id => { newState[id] = id !== 'group_b' })
+      groupIds.forEach((id) => {
+        newState[id] = id !== 'group_b'
+      })
 
       expect(newState).toEqual({ group_a: true, group_b: false, group_c: true })
     })
@@ -167,7 +165,9 @@ describe('State Management Parity', () => {
       const current = { row_1: true }
       const groupRows = ['row_2', 'row_3', 'row_4']
       const newSelection = { ...current }
-      groupRows.forEach(id => { newSelection[id] = true })
+      groupRows.forEach((id) => {
+        newSelection[id] = true
+      })
 
       expect(newSelection).toEqual({ row_1: true, row_2: true, row_3: true, row_4: true })
     })
@@ -176,7 +176,9 @@ describe('State Management Parity', () => {
       const current: Record<string, boolean> = { row_1: true, row_2: true, row_3: true }
       const groupRows = ['row_2', 'row_3']
       const newSelection = { ...current }
-      groupRows.forEach(id => { delete newSelection[id] })
+      groupRows.forEach((id) => {
+        delete newSelection[id]
+      })
 
       expect(newSelection).toEqual({ row_1: true })
     })

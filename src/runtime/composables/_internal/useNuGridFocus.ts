@@ -1,11 +1,10 @@
-import type { TableData } from '../../types/table-data'
-import type { Column, Row, Table } from '../../engine'
 import type { Primitive } from 'reka-ui'
 import type { ComputedRef, Ref } from 'vue'
 
 import { useElementSize } from '@vueuse/core'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
+import type { Column, Row, Table } from '../../engine'
 import type {
   NuGridEventEmitter,
   NuGridProps,
@@ -19,6 +18,7 @@ import type {
   NuGridInteractionRouter,
   NuGridVirtualizer,
 } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 import { usePropWithDefault } from '../../config/_internal'
 import { useNuGridKeyboardNavigation } from './useNuGridKeyboardNavigation'

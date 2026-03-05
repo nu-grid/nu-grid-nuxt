@@ -5,8 +5,6 @@
  * Creates synthetic group rows with groupingColumnId, groupingValue, subRows, leafRows.
  */
 
-import { builtinAggregationFns } from './aggregation-fns'
-import { createEngineRow } from './row'
 import type {
   AggregationFn,
   EngineColumn,
@@ -15,6 +13,9 @@ import type {
   EngineTable,
   StateAccessors,
 } from './types'
+
+import { builtinAggregationFns } from './aggregation-fns'
+import { createEngineRow } from './row'
 
 // ---------------------------------------------------------------------------
 // Utility: flatten subRows recursively
@@ -47,8 +48,7 @@ function groupBy<T>(rows: EngineRow<T>[], columnId: string): Map<string, EngineR
     const existing = groupMap.get(key)
     if (existing) {
       existing.push(row)
-    }
-    else {
+    } else {
       groupMap.set(key, [row])
     }
   }
@@ -77,9 +77,7 @@ export function buildGroupedRowModel<T>(
   }
 
   // Filter grouping to columns that actually exist
-  const existingGrouping = grouping.filter(columnId =>
-    columns.some(c => c.id === columnId),
-  )
+  const existingGrouping = grouping.filter((columnId) => columns.some((c) => c.id === columnId))
 
   if (!existingGrouping.length) {
     coreModel.rows.forEach((row) => {
@@ -134,9 +132,7 @@ export function buildGroupedRowModel<T>(
         })
 
         // Flatten the leaf rows
-        const leafRows = depth
-          ? flattenBy(groupedRows, row => row.subRows)
-          : groupedRows
+        const leafRows = depth ? flattenBy(groupedRows, (row) => row.subRows) : groupedRows
 
         // Create the group row
         const row = createEngineRow<T>({
@@ -165,8 +161,7 @@ export function buildGroupedRowModel<T>(
           let resolvedFn: AggregationFn | undefined
           if (typeof aggFn === 'function') {
             resolvedFn = aggFn
-          }
-          else if (typeof aggFn === 'string') {
+          } else if (typeof aggFn === 'string') {
             resolvedFn = builtinAggregationFns[aggFn]
           }
 
@@ -182,7 +177,7 @@ export function buildGroupedRowModel<T>(
         row.getValue = <TValue = unknown>(colId: string): TValue => {
           // Grouping columns: return the value from the first grouped row
           if (existingGrouping.includes(colId)) {
-            if (row._valuesCache.hasOwnProperty(colId)) {
+            if (Object.prototype.hasOwnProperty.call(row._valuesCache, colId)) {
               return row._valuesCache[colId] as TValue
             }
             if (groupedRows[0]) {
@@ -192,7 +187,7 @@ export function buildGroupedRowModel<T>(
           }
 
           // Non-grouping columns: check grouping values cache
-          if (row._groupingValuesCache.hasOwnProperty(colId)) {
+          if (Object.prototype.hasOwnProperty.call(row._groupingValuesCache, colId)) {
             return row._groupingValuesCache[colId] as TValue
           }
 

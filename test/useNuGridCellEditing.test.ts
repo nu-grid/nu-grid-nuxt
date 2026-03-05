@@ -1,9 +1,9 @@
-import type { Cell, Column, Row, Table } from '../src/runtime/engine'
 import type { ComponentPublicInstance, Ref } from 'vue'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
+import type { Cell, Column, Row, Table } from '../src/runtime/engine'
 import type { NuGridProps } from '../src/runtime/types'
 import type { NuGridEditingCell, NuGridFocus } from '../src/runtime/types/_internal'
 
@@ -160,12 +160,7 @@ describe('useNuGridCellEditing', () => {
   let focusFns: NuGridFocus<any>
   let routerUtils: ReturnType<typeof createTestRouter>
   let interactionRouter: ReturnType<typeof createTestRouter>['router']
-  let emit: (payload: {
-    row: Row<any>
-    column: Column<any>
-    oldValue: any
-    newValue: any
-  }) => void
+  let emit: (payload: { row: Row<any>; column: Column<any>; oldValue: any; newValue: any }) => void
 
   beforeEach(() => {
     vi.clearAllMocks()

@@ -38,7 +38,13 @@ interface DeductionItem {
 }
 
 const deductionsData = ref<DeductionItem[]>([
-  { id: 1, category: 'Mortgage Interest', amount: 14200, taxYear: '2025', notes: 'Primary residence' },
+  {
+    id: 1,
+    category: 'Mortgage Interest',
+    amount: 14200,
+    taxYear: '2025',
+    notes: 'Primary residence',
+  },
   { id: 2, category: 'State Taxes', amount: 8500, taxYear: '2025', notes: 'Income tax' },
   { id: 3, category: 'Charitable', amount: 3000, taxYear: '2025', notes: 'Various nonprofits' },
   { id: 4, category: 'Medical', amount: 2100, taxYear: '2025', notes: 'Out-of-pocket' },
@@ -61,8 +67,20 @@ interface CreditItem {
 }
 
 const creditsData = ref<CreditItem[]>([
-  { id: 1, credit: 'Child Tax Credit', amount: 2000, eligible: true, notes: 'Per qualifying child' },
-  { id: 2, credit: 'Education Credit', amount: 2500, eligible: true, notes: 'American Opportunity' },
+  {
+    id: 1,
+    credit: 'Child Tax Credit',
+    amount: 2000,
+    eligible: true,
+    notes: 'Per qualifying child',
+  },
+  {
+    id: 2,
+    credit: 'Education Credit',
+    amount: 2500,
+    eligible: true,
+    notes: 'American Opportunity',
+  },
   { id: 3, credit: 'Energy Credit', amount: 1200, eligible: false, notes: 'Solar panels pending' },
 ])
 
@@ -89,10 +107,13 @@ const creditsSpreadsheetNav = computed(() => ({
 
 // Totals
 const incomeTotal = computed(() => incomeData.value.reduce((sum, r) => sum + (r.amount || 0), 0))
-const deductionsTotal = computed(() => deductionsData.value.reduce((sum, r) => sum + (r.amount || 0), 0))
+const deductionsTotal = computed(() =>
+  deductionsData.value.reduce((sum, r) => sum + (r.amount || 0), 0),
+)
 const creditsTotal = computed(() => creditsData.value.reduce((sum, r) => sum + (r.amount || 0), 0))
 
-const fmt = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
+const fmt = (n: number) =>
+  n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 
 const exampleCode = `<!-- Link three grids as one spreadsheet -->
 <NuGrid
@@ -137,7 +158,9 @@ const exampleCode = `<!-- Link three grids as one spreadsheet -->
       </p>
       <ul class="text-muted list-inside list-disc space-y-1 text-sm">
         <li><strong>ArrowUp/Down:</strong> Navigate between rows, crossing grid boundaries</li>
-        <li><strong>ArrowLeft/Right:</strong> Move between cells when cursor is at text boundary</li>
+        <li>
+          <strong>ArrowLeft/Right:</strong> Move between cells when cursor is at text boundary
+        </li>
         <li><strong>Tab/Shift+Tab:</strong> Move to next/previous editable cell</li>
         <li><strong>Enter:</strong> Save and move down (moveDown mode)</li>
         <li><strong>Add Row:</strong> Each grid has an add-row at the bottom</li>
@@ -159,7 +182,12 @@ const exampleCode = `<!-- Link three grids as one spreadsheet -->
             :data="incomeData"
             :columns="incomeColumns"
             :spreadsheet-nav="incomeSpreadsheetNav"
-            :editing="{ enabled: true, startClicks: 'single', enterBehavior: 'moveDown', startKeys: 'all' }"
+            :editing="{
+              enabled: true,
+              startClicks: 'single',
+              enterBehavior: 'moveDown',
+              startKeys: 'all',
+            }"
             :focus="{ mode: 'cell' }"
             :add-new-row="{ position: 'bottom' }"
             resize-columns
@@ -179,7 +207,12 @@ const exampleCode = `<!-- Link three grids as one spreadsheet -->
             :data="deductionsData"
             :columns="deductionsColumns"
             :spreadsheet-nav="deductionsSpreadsheetNav"
-            :editing="{ enabled: true, startClicks: 'single', enterBehavior: 'moveDown', startKeys: 'all' }"
+            :editing="{
+              enabled: true,
+              startClicks: 'single',
+              enterBehavior: 'moveDown',
+              startKeys: 'all',
+            }"
             :focus="{ mode: 'cell' }"
             :add-new-row="{ position: 'bottom' }"
             resize-columns
@@ -199,7 +232,12 @@ const exampleCode = `<!-- Link three grids as one spreadsheet -->
             :data="creditsData"
             :columns="creditsColumns"
             :spreadsheet-nav="creditsSpreadsheetNav"
-            :editing="{ enabled: true, startClicks: 'single', enterBehavior: 'moveDown', startKeys: 'all' }"
+            :editing="{
+              enabled: true,
+              startClicks: 'single',
+              enterBehavior: 'moveDown',
+              startKeys: 'all',
+            }"
             :focus="{ mode: 'cell' }"
             :add-new-row="{ position: 'bottom' }"
             resize-columns

@@ -1,10 +1,10 @@
 import type { TableColumn } from '@nuxt/ui'
-import type { ColumnSizingInfoState, GroupingState } from '../src/runtime/types/state-types'
 
 import { describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
 
 import type { NuGridStates } from '../src/runtime/types/_internal'
+import type { ColumnSizingInfoState, GroupingState } from '../src/runtime/types/state-types'
 
 import { useNuGridApi, useNuGridColumns } from '../src/runtime/composables/_internal/useNuGridCore'
 import { useNuGridSorting } from '../src/runtime/composables/_internal/useNuGridSorting'

@@ -1,8 +1,8 @@
-import type { TableData } from '../../table-data'
 import type { ComputedRef } from 'vue'
 
 import type { RowDragOptions } from '../../../composables/_internal/useNuGridRowDragDrop'
 import type { NuGridColumnDragDrop, NuGridRowDragDrop } from '../../drag-drop'
+import type { TableData } from '../../table-data'
 
 /**
  * Drag & Drop context

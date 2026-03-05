@@ -2,12 +2,12 @@
  * @internal
  */
 
-import type { Row } from '../../engine'
-import type { NuGridColumn } from '../column'
-import type { TableData } from '../table-data'
 import type { Ref } from 'vue'
 
+import type { Row } from '../../engine'
 import type { NuGridActionMenuItem } from '../action-menu'
+import type { NuGridColumn } from '../column'
+import type { TableData } from '../table-data'
 
 /**
  * Button configuration for the action menu trigger

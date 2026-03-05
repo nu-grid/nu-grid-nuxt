@@ -1,8 +1,9 @@
-import type { TableData } from '../../types/table-data'
-import type { GroupingState } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
 import { computed } from 'vue'
+
+import type { GroupingState } from '../../engine'
+import type { TableData } from '../../types/table-data'
 
 export const EMPTY_GROUP_PLACEHOLDER_FLAG = '__nugridEmptyGroupPlaceholder'
 

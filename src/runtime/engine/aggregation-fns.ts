@@ -11,10 +11,7 @@ import type { AggregationFn } from './types'
 
 export const builtinAggregationFns: Record<string, AggregationFn> = {
   sum(columnId, leafRows) {
-    return leafRows.reduce(
-      (sum, row) => sum + (Number(row.getValue(columnId)) || 0),
-      0,
-    )
+    return leafRows.reduce((sum, row) => sum + (Number(row.getValue(columnId)) || 0), 0)
   },
 
   min(columnId, leafRows) {
@@ -58,31 +55,26 @@ export const builtinAggregationFns: Record<string, AggregationFn> = {
 
   mean(columnId, leafRows) {
     if (leafRows.length === 0) return 0
-    const sum = leafRows.reduce(
-      (s, row) => s + (Number(row.getValue(columnId)) || 0),
-      0,
-    )
+    const sum = leafRows.reduce((s, row) => s + (Number(row.getValue(columnId)) || 0), 0)
     return sum / leafRows.length
   },
 
   median(columnId, leafRows) {
     if (leafRows.length === 0) return 0
     const values = leafRows
-      .map(row => Number(row.getValue(columnId)))
-      .filter(n => !Number.isNaN(n))
+      .map((row) => Number(row.getValue(columnId)))
+      .filter((n) => !Number.isNaN(n))
       .sort((a, b) => a - b)
     if (values.length === 0) return 0
     const mid = Math.floor(values.length / 2)
-    return values.length % 2 !== 0
-      ? values[mid]!
-      : (values[mid - 1]! + values[mid]!) / 2
+    return values.length % 2 !== 0 ? values[mid]! : (values[mid - 1]! + values[mid]!) / 2
   },
 
   unique(columnId, leafRows) {
-    return [...new Set(leafRows.map(row => row.getValue(columnId)))]
+    return [...new Set(leafRows.map((row) => row.getValue(columnId)))]
   },
 
   uniqueCount(columnId, leafRows) {
-    return new Set(leafRows.map(row => row.getValue(columnId))).size
+    return new Set(leafRows.map((row) => row.getValue(columnId))).size
   },
 }

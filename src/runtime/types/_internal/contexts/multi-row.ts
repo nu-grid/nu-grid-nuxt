@@ -1,5 +1,6 @@
-import type { Column } from '../../../engine'
 import type { ComputedRef } from 'vue'
+
+import type { Column } from '../../../engine'
 
 /**
  * Information about a row 0 column slot for aligned mode

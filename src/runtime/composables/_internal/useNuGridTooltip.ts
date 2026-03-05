@@ -1,9 +1,8 @@
-import type { TableData } from '../../types/table-data'
-import type { Row, Table } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
 import { onUnmounted, ref } from 'vue'
 
+import type { Row, Table } from '../../engine'
 import type { NuGridProps } from '../../types'
 import type {
   NuGridHoverContext,
@@ -11,6 +10,7 @@ import type {
   NuGridPointerHandler,
 } from '../../types/_internal'
 import type { NuGridColumn } from '../../types/column'
+import type { TableData } from '../../types/table-data'
 
 import { usePropWithDefault } from '../../config/_internal'
 

@@ -1,6 +1,6 @@
-import type { ExpandedState, Row } from '../src/runtime/engine'
-
 import { describe, expect, it } from 'vitest'
+
+import type { ExpandedState, Row } from '../src/runtime/engine'
 
 import { expandRows, paginateRows } from '../src/runtime/utils/rowModelFns'
 
@@ -21,10 +21,7 @@ interface TestData {
 }
 
 /** Minimal Row-like object for testing expandRows */
-function createRow(
-  id: string,
-  subRows: Row<TestData>[] = [],
-): Row<TestData> {
+function createRow(id: string, subRows: Row<TestData>[] = []): Row<TestData> {
   return {
     id,
     subRows,
@@ -103,8 +100,9 @@ describe('paginateRows', () => {
   it('should match TanStack for various page sizes', () => {
     for (const pageSize of [1, 2, 3, 5, 7, 10, 20]) {
       for (let pageIndex = 0; pageIndex <= Math.ceil(items.length / pageSize); pageIndex++) {
-        expect(paginateRows(items, pageIndex, pageSize))
-          .toEqual(tanstackPaginateReference(items, pageIndex, pageSize))
+        expect(paginateRows(items, pageIndex, pageSize)).toEqual(
+          tanstackPaginateReference(items, pageIndex, pageSize),
+        )
       }
     }
   })
@@ -137,8 +135,8 @@ describe('expandRows', () => {
     const handleRow = (row: Row<T>) => {
       result.push(row)
       if (row.subRows?.length) {
-        const isExpanded = expandedState === true
-          || (typeof expandedState === 'object' && expandedState[row.id])
+        const isExpanded =
+          expandedState === true || (typeof expandedState === 'object' && expandedState[row.id])
         if (isExpanded) {
           row.subRows.forEach(handleRow)
         }
@@ -287,13 +285,12 @@ describe('expandRows', () => {
         true,
         {},
         { a: true },
-        { a: true, 'a.b': true },
+        { 'a': true, 'a.b': true },
         { 'a.b': true }, // mid not reachable unless parent expanded
       ]
 
       for (const expanded of scenarios) {
-        expect(expandRows([root], expanded))
-          .toEqual(tanstackExpandReference([root], expanded))
+        expect(expandRows([root], expanded)).toEqual(tanstackExpandReference([root], expanded))
       }
     })
   })

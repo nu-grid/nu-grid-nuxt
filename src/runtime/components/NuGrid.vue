@@ -1,6 +1,10 @@
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData } from '../types/table-data'
-import type { NuGridSlots } from '../types/slots'
+import type { Primitive } from 'reka-ui'
+import type { Ref } from 'vue'
+
+import { computed, nextTick, onMounted, provide, ref, shallowRef, watch } from 'vue'
+
+import type { NuGridStateSnapshot } from '../composables/_internal/useNuGridStatePersistence'
 import type {
   Cell,
   ColumnFiltersState,
@@ -17,12 +21,6 @@ import type {
   SortingState,
   VisibilityState,
 } from '../engine'
-import type { Primitive } from 'reka-ui'
-import type { Ref } from 'vue'
-
-import { computed, nextTick, onMounted, provide, ref, shallowRef, watch } from 'vue'
-
-import type { NuGridStateSnapshot } from '../composables/_internal/useNuGridStatePersistence'
 import type {
   NuGridAddRowState,
   NuGridCellClickEvent,
@@ -49,6 +47,8 @@ import type {
   NuGridGroupingFns,
 } from '../types/_internal'
 import type { RowDragEvent } from '../types/drag-drop'
+import type { NuGridSlots } from '../types/slots'
+import type { TableData } from '../types/table-data'
 
 import {
   formatAggregateValue,
@@ -90,8 +90,8 @@ import {
 } from '../composables/_internal/keyboard-handlers'
 import { resolvePagingOptions } from '../composables/_internal/useNuGridPaging'
 import { nuGridDefaults, usePropWithDefault } from '../config/_internal'
-import { expandRows, paginateRows } from '../utils/rowModelFns'
 import { NUGRID_EVENTS_KEY } from '../types/events'
+import { expandRows, paginateRows } from '../utils/rowModelFns'
 import NuGridBase from './_internal/NuGridBase.vue'
 import NuGridGroup from './_internal/NuGridGroup.vue'
 import NuGridPaging from './_internal/NuGridPaging.vue'
@@ -309,7 +309,12 @@ const interactionRouter = useNuGridInteractionRouter<T>({ eventEmitter })
 let groupingFns: NuGridGroupingFns<T> | null = null
 
 // Pre-filter data before passing to the engine (NuGrid owns filtering)
-const { filteredData, notifyEditedCell } = useNuGridFiltering(data, columns, globalFilterState, columnFiltersState)
+const { filteredData, notifyEditedCell } = useNuGridFiltering(
+  data,
+  columns,
+  globalFilterState,
+  columnFiltersState,
+)
 
 const statePersistence = useNuGridStatePersistence(
   states,
@@ -338,7 +343,12 @@ const unsortedRows = computed(() => {
 })
 
 // NuGrid-owned sorting — replaces TanStack's getSortedRowModel
-const { sortedRows, notifyEditedRow, movedRowIds } = useNuGridSorting(unsortedRows, sortingState, tableApi, rowPinningState)
+const { sortedRows, notifyEditedRow, movedRowIds } = useNuGridSorting(
+  unsortedRows,
+  sortingState,
+  tableApi,
+  rowPinningState,
+)
 
 // Sort stability — freeze row order after data changes in sorted columns
 const { displayRows, onBeforeSortedCellEdit, onAfterSortedCellEdit, staleColumns, clearStale } =
@@ -414,7 +424,11 @@ const rows = computed(() => {
   if (!opts.enabled || opts.manualPagination) {
     return orderedRows.value
   }
-  return paginateRows(orderedRows.value, paginationState.value.pageIndex, paginationState.value.pageSize)
+  return paginateRows(
+    orderedRows.value,
+    paginationState.value.pageIndex,
+    paginationState.value.pageSize,
+  )
 })
 
 // Show/hide column headers
@@ -478,7 +492,13 @@ statePersistence.setResizeHelpers({
 })
 
 // Column drag and drop
-const dragFns = useNuGridColumnDragDrop(tableApi, states.columnOrderState, tableRef, props.columnDefaults?.reorder ?? false, columnPinningState)
+const dragFns = useNuGridColumnDragDrop(
+  tableApi,
+  states.columnOrderState,
+  tableRef,
+  props.columnDefaults?.reorder ?? false,
+  columnPinningState,
+)
 
 // Row drag and drop
 const rowDragOptions = computed(() => props.rowDragOptions || { enabled: false })
@@ -501,11 +521,20 @@ const rowDragFns = useNuGridRowDragDrop(
 const gridMode = props.layout?.mode ?? 'div'
 groupingFns =
   gridMode === 'group' || gridMode === 'splitgroup'
-    ? useNuGridGrouping(props, tableApi, rootRef, expandedState, stickyEnabled, showHeaders, gridMode, {
-        addRowPosition,
-        isAddRowRow,
-        getAddRowForGroup: getGroupAddRow,
-      })
+    ? useNuGridGrouping(
+        props,
+        tableApi,
+        rootRef,
+        expandedState,
+        stickyEnabled,
+        showHeaders,
+        gridMode,
+        {
+          addRowPosition,
+          isAddRowRow,
+          getAddRowForGroup: getGroupAddRow,
+        },
+      )
     : null
 groupingFnsRef.value = groupingFns
 
@@ -568,7 +597,11 @@ const focusFns = useNuGridFocus(
   tableRef,
   rootRef,
   groupingFns?.activeStickyHeight ?? baseStickyHeight,
-  groupingFns?.virtualizer?.value ? groupingFns.virtualizer : virtualizer?.value ? virtualizer : false,
+  groupingFns?.virtualizer?.value
+    ? groupingFns.virtualizer
+    : virtualizer?.value
+      ? virtualizer
+      : false,
   editingCellRef,
   interactionRouter,
   eventEmitter,

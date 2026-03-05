@@ -2,9 +2,10 @@
  * @internal
  */
 
-import type { TableData } from '../table-data'
-import type { Header, Row } from '../../engine'
 import type { MaybeRef, Ref } from 'vue'
+
+import type { Header, Row } from '../../engine'
+import type { TableData } from '../table-data'
 
 /**
  * Type for nugrid-dragfns injection

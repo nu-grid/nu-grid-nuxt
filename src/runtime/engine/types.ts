@@ -282,7 +282,14 @@ export interface EngineTable<T = any> {
   getRow: (rowId: string, searchAll?: boolean) => EngineRow<T> | undefined
 
   // Row creation
-  createRow: (id: string, original: T, index: number, depth: number, subRows?: T[], parentId?: string) => EngineRow<T>
+  createRow: (
+    id: string,
+    original: T,
+    index: number,
+    depth: number,
+    subRows?: T[],
+    parentId?: string,
+  ) => EngineRow<T>
 
   // Selection
   toggleAllPageRowsSelected: (value: boolean) => void

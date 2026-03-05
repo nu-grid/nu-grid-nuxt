@@ -71,7 +71,7 @@ async function measure(name: string, fn: () => void | Promise<void>) {
   await nextTick()
   await nextTick()
   // Wait for one animation frame to ensure paint
-  await new Promise(r => requestAnimationFrame(r))
+  await new Promise((r) => requestAnimationFrame(r))
   const elapsed = performance.now() - start
   results.value.push({ name, ms: Math.round(elapsed * 100) / 100 })
   return elapsed
@@ -115,11 +115,10 @@ const perfApi = {
   /** Measure sort toggle */
   async toggleSort(columnId: string) {
     return measure(`sort by ${columnId}`, () => {
-      const current = sortingState.value.find(s => s.id === columnId)
+      const current = sortingState.value.find((s) => s.id === columnId)
       if (current) {
         sortingState.value = [{ id: columnId, desc: !current.desc }]
-      }
-      else {
+      } else {
         sortingState.value = [{ id: columnId, desc: false }]
       }
     })
@@ -170,7 +169,7 @@ const perfApi = {
     // 1. Initial load
     await this.loadData(count)
     // Small settle delay
-    await new Promise(r => setTimeout(r, 100))
+    await new Promise((r) => setTimeout(r, 100))
 
     // 2. Single cell edit
     await this.editCell(Math.floor(count / 2))
@@ -180,11 +179,11 @@ const perfApi = {
 
     // 4. Sort by name
     await this.toggleSort('name')
-    await new Promise(r => setTimeout(r, 50))
+    await new Promise((r) => setTimeout(r, 50))
 
     // 5. Sort by amount (second sort)
     await this.toggleSort('amount')
-    await new Promise(r => setTimeout(r, 50))
+    await new Promise((r) => setTimeout(r, 50))
 
     // 6. Select 100 rows
     await this.selectRows(100)
@@ -223,9 +222,7 @@ onMounted(() => {
   <div class="flex h-screen flex-col">
     <!-- Header with controls -->
     <div class="border-default flex items-center gap-4 border-b p-4">
-      <h1 class="text-lg font-bold">
-        NuGrid Performance Benchmark
-      </h1>
+      <h1 class="text-lg font-bold">NuGrid Performance Benchmark</h1>
       <div class="flex gap-2">
         <UButton
           v-for="count in ROW_COUNTS"
@@ -238,9 +235,7 @@ onMounted(() => {
           {{ count.toLocaleString() }} rows
         </UButton>
       </div>
-      <UButton color="success" size="sm" @click="perfApi.runSuite(rowCount)">
-        Run Suite
-      </UButton>
+      <UButton color="success" size="sm" @click="perfApi.runSuite(rowCount)"> Run Suite </UButton>
       <span class="text-muted text-sm">{{ data.length.toLocaleString() }} rows loaded</span>
     </div>
 
@@ -253,7 +248,10 @@ onMounted(() => {
           class="rounded-md bg-white px-3 py-1.5 text-sm shadow-sm dark:bg-gray-800"
         >
           <span class="text-muted">{{ r.name }}:</span>
-          <span class="ml-1 font-mono font-bold" :class="r.ms > 100 ? 'text-red-500' : r.ms > 16 ? 'text-amber-500' : 'text-green-500'">
+          <span
+            class="ml-1 font-mono font-bold"
+            :class="r.ms > 100 ? 'text-red-500' : r.ms > 16 ? 'text-amber-500' : 'text-green-500'"
+          >
             {{ r.ms }}ms
           </span>
         </div>

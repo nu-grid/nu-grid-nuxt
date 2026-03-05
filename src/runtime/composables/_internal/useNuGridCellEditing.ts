@@ -1,8 +1,5 @@
-import type { TableData } from '../../types/table-data'
-import type { Cell, Column, Row, Table } from '../../engine'
 import type { Component, ComponentPublicInstance, ComputedRef, Ref } from 'vue'
 
-import { FlexRender } from '../../utils/flexRender'
 import {
   computed,
   h,
@@ -15,6 +12,7 @@ import {
   triggerRef,
 } from 'vue'
 
+import type { Cell, Column, Row, Table } from '../../engine'
 import type {
   NuGridColumn,
   NuGridEventEmitter,
@@ -33,10 +31,12 @@ import type {
   NuGridResolvedValidation,
   NuGridRowValidationResult,
 } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 import type { NuGridValidationResult } from '../../utils/standardSchema'
 
 import { textCellType } from '../../cell-types'
 import { getDefaults, usePropWithDefault } from '../../config/_internal'
+import { FlexRender } from '../../utils/flexRender'
 import { splitPath, validateFieldValue } from '../../utils/standardSchema'
 import { useNuGridCellTypeRegistry } from '../useNuGridCellTypeRegistry'
 import { useNuGridKeyboardNavigation } from './useNuGridKeyboardNavigation'
@@ -823,7 +823,11 @@ export function useNuGridCellEditing<T extends TableData>(
 
         // For row-level errors, allow within-row navigation (left/right/next/previous)
         // but block navigation to other rows (up/down) or wrapping to adjacent rows
-        const isHorizontalNavigation = navDirection === 'left' || navDirection === 'right' || navDirection === 'next' || navDirection === 'previous'
+        const isHorizontalNavigation =
+          navDirection === 'left' ||
+          navDirection === 'right' ||
+          navDirection === 'next' ||
+          navDirection === 'previous'
         if (isHorizontalNavigation) {
           // Check if there's another editable cell in this row in the requested direction
           const cells = row.getVisibleCells() as Cell<T>[]
@@ -1313,11 +1317,7 @@ export function useNuGridCellEditing<T extends TableData>(
           // Standard single-row vertical navigation
           // Loop to skip uneditable rows (e.g., rows marked as read-only)
           const step = navDirection === 'up' ? -1 : 1
-          for (
-            let ri = currentRowIndex + step;
-            ri >= 0 && ri < rowsList.length;
-            ri += step
-          ) {
+          for (let ri = currentRowIndex + step; ri >= 0 && ri < rowsList.length; ri += step) {
             const targetRow = rowsList[ri]
             if (!targetRow) continue
             const targetCells = targetRow.getVisibleCells() as Cell<T>[]
@@ -1499,9 +1499,7 @@ export function useNuGridCellEditing<T extends TableData>(
         // If we have a groupId, find the addrow for that specific group
         // Otherwise, find the first addrow (for non-grouped grids)
         const newAddRow = groupIdToFocus
-          ? nextRowsList.find(
-              (r) => addRowContext?.isAddRowRow(r) && r.parentId === groupIdToFocus,
-            )
+          ? nextRowsList.find((r) => addRowContext?.isAddRowRow(r) && r.parentId === groupIdToFocus)
           : nextRowsList.find((r) => addRowContext?.isAddRowRow(r))
         if (newAddRow) {
           const firstEditableCell = newAddRow
@@ -1842,7 +1840,10 @@ export function useNuGridCellEditing<T extends TableData>(
           data: data.value,
           tableApi,
           startEditing: (initialValue?: any) => startEditing(row, cell, initialValue),
-          stopEditing: (newValue: any, moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') => {
+          stopEditing: (
+            newValue: any,
+            moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous',
+          ) => {
             stopEditing(row, cell, newValue, moveDirection)
           },
           emitChange: (oldValue: any, newValue: any) => {

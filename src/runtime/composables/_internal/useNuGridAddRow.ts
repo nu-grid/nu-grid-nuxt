@@ -1,10 +1,8 @@
-import type { TableData } from '../../types/table-data'
-import type { NuGridColumn } from '../../types/column'
-import type { Cell, GroupingState, Row, Table } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
 import { computed, isRef, nextTick, onUnmounted, ref, shallowRef, watch } from 'vue'
 
+import type { Cell, GroupingState, Row, Table } from '../../engine'
 import type { NuGridAddRowFinalizeResult, NuGridAddRowState, NuGridProps } from '../../types'
 import type {
   NuGridCellEditing,
@@ -13,6 +11,8 @@ import type {
   NuGridGroupingFns,
   NuGridInteractionRouter,
 } from '../../types/_internal'
+import type { NuGridColumn } from '../../types/column'
+import type { TableData } from '../../types/table-data'
 
 import { isEmptyGroupPlaceholder } from './useNuGridEmptyGroups'
 
@@ -161,8 +161,7 @@ export function useNuGridAddRow<T extends TableData>(options: {
         if (addRowRow.value.original !== addRowDraft.value) {
           // This shouldn't happen, but if it does, recreate the row
           const id =
-            addRowDraft.value.id ??
-            `add-new-${Date.now()}-${Math.random().toString(36).slice(2)}`
+            addRowDraft.value.id ?? `add-new-${Date.now()}-${Math.random().toString(36).slice(2)}`
           const rowIndex = options.rows.value.length
           addRowRow.value = options.table.createRow(
             id as string,

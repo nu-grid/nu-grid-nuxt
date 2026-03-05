@@ -2,12 +2,12 @@
  * @internal
  */
 
-import type { Row } from '../../engine'
-import type { NuGridColumn } from '../column'
-import type { TableData } from '../table-data'
 import type { Ref } from 'vue'
 
+import type { Row } from '../../engine'
+import type { NuGridColumn } from '../column'
 import type { NuGridRowSelectOptions } from '../row-selection'
+import type { TableData } from '../table-data'
 
 /**
  * Column definition overrides for the selection column

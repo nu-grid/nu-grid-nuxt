@@ -4,14 +4,9 @@
  * Converts a flat data array into EngineRow objects.
  */
 
+import type { EngineColumn, EngineRow, EngineRowModel, EngineTable, StateAccessors } from './types'
+
 import { createEngineRow } from './row'
-import type {
-  EngineColumn,
-  EngineRow,
-  EngineRowModel,
-  EngineTable,
-  StateAccessors,
-} from './types'
 
 // ---------------------------------------------------------------------------
 // Build core row model

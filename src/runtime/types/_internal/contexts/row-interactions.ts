@@ -1,8 +1,8 @@
-import type { TableData } from '../../table-data'
 import type { ComputedRef } from 'vue'
 
-import type { NuGridRowInteractions } from '../row-interactions'
 import type { NuGridRowSelectOptions } from '../../row-selection'
+import type { TableData } from '../../table-data'
+import type { NuGridRowInteractions } from '../row-interactions'
 
 /**
  * Row Interactions context

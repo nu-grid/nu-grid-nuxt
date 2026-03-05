@@ -1,13 +1,13 @@
-import type { TableData } from '../../types/table-data'
-import type { Table } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
 import { useDebounceFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
+import type { Table } from '../../engine'
 import type { NuGridFocus, NuGridInteractionRouter } from '../../types/_internal'
 import type { NuGridSearchOptions } from '../../types/option-groups'
 import type { NuGridProps } from '../../types/props'
+import type { TableData } from '../../types/table-data'
 
 import { nuGridDefaults } from '../../config/_internal'
 

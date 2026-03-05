@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { Cell, Row } from '../../engine'
 import type { Ref } from 'vue'
 
 import { computed, nextTick, ref, watch } from 'vue'
 
+import type { Cell, Row } from '../../engine'
 import type { NuGridActionMenuColumnMeta } from '../../types/_internal'
 
 defineOptions({ inheritAttrs: false })

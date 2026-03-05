@@ -1,6 +1,7 @@
-import type { TableData } from './table-data'
-import type { Header } from '../engine'
 import type { Ref } from 'vue'
+
+import type { Header } from '../engine'
+import type { TableData } from './table-data'
 
 /**
  * Type for nugrid-resizefns injection

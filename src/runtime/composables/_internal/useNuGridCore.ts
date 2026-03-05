@@ -1,15 +1,11 @@
-import type { Row } from '../../engine'
-import type { TableData } from '../../types/table-data'
 import type { ComponentPublicInstance, PropType, Ref } from 'vue'
 
 import { createReusableTemplate } from '@vueuse/core'
 import { upperFirst } from 'scule'
 import { computed, nextTick, ref, shallowRef, watch } from 'vue'
 
-import { createNuGridTable } from '../../engine/table'
+import type { Row } from '../../engine'
 import type { StateAccessors } from '../../engine/types'
-import type { Updater, VisibilityState } from '../../types/state-types'
-
 import type {
   NuGridActionMenuOptions,
   NuGridColumn,
@@ -23,8 +19,11 @@ import type {
   UseNuGridColumnsReturn,
 } from '../../types/_internal'
 import type { NuGridCellType } from '../../types/cells'
+import type { Updater, VisibilityState } from '../../types/state-types'
+import type { TableData } from '../../types/table-data'
 
 import { nuGridDefaults } from '../../config/_internal'
+import { createNuGridTable } from '../../engine/table'
 import { extractColumnValues, inferCellDataType } from '../../utils/inferCellDataType'
 import { nuGridCellTypeRegistry } from '../useNuGridCellTypeRegistry'
 import { useNuGridActionMenu } from './useNuGridActionMenu'
@@ -402,32 +401,27 @@ export function useNuGridApi<T extends TableData>(
 
     // Mutators — update refs and emit events
     setSorting: (updater) => {
-      states.sortingState.value = typeof updater === 'function'
-        ? updater(states.sortingState.value)
-        : updater
+      states.sortingState.value =
+        typeof updater === 'function' ? updater(states.sortingState.value) : updater
       if (eventEmitter?.sortChanged) {
         eventEmitter.sortChanged({ sorting: states.sortingState.value })
       }
     },
     setRowSelection: (updater) => {
-      states.rowSelectionState.value = typeof updater === 'function'
-        ? updater(states.rowSelectionState.value)
-        : updater
+      states.rowSelectionState.value =
+        typeof updater === 'function' ? updater(states.rowSelectionState.value) : updater
     },
     setExpanded: (updater) => {
-      states.expandedState.value = typeof updater === 'function'
-        ? updater(states.expandedState.value)
-        : updater
+      states.expandedState.value =
+        typeof updater === 'function' ? updater(states.expandedState.value) : updater
     },
     setColumnFilters: (updater) => {
-      states.columnFiltersState.value = typeof updater === 'function'
-        ? updater(states.columnFiltersState.value)
-        : updater
+      states.columnFiltersState.value =
+        typeof updater === 'function' ? updater(states.columnFiltersState.value) : updater
     },
     setColumnVisibility: (updater) => {
-      states.columnVisibilityState.value = typeof updater === 'function'
-        ? updater(states.columnVisibilityState.value)
-        : updater
+      states.columnVisibilityState.value =
+        typeof updater === 'function' ? updater(states.columnVisibilityState.value) : updater
     },
 
     // Column list accessors — patched by the engine at creation time
@@ -448,22 +442,23 @@ export function useNuGridApi<T extends TableData>(
   }
 
   // Create engine table — columns are built from defs, data is a reactive getter
-  const buildEngine = () => createNuGridTable<T>({
-    data: () => data.value, // reactive getter — row model reads fresh data each time
-    columnDefs: columns.value,
-    state: stateAccessors,
-    getRowId,
-    meta: props.meta ?? {},
-    enableColumnResizing: props.enableColumnResizing,
-    enableSorting: props.enableSorting,
-    enableMultiSort: props.enableMultiSort,
-    enableExpanding: props.enableExpanding,
-    enableRowSelection: rowSelection?.enableRowSelection.value ?? true,
-    enableMultiRowSelection: rowSelection?.enableMultiRowSelection.value ?? true,
-    isMultiSortEvent: props.isMultiSortEvent,
-    maxMultiSortColCount: props.maxMultiSortColCount,
-    renderFallbackValue: props.renderFallbackValue,
-  })
+  const buildEngine = () =>
+    createNuGridTable<T>({
+      data: () => data.value, // reactive getter — row model reads fresh data each time
+      columnDefs: columns.value,
+      state: stateAccessors,
+      getRowId,
+      meta: props.meta ?? {},
+      enableColumnResizing: props.enableColumnResizing,
+      enableSorting: props.enableSorting,
+      enableMultiSort: props.enableMultiSort,
+      enableExpanding: props.enableExpanding,
+      enableRowSelection: rowSelection?.enableRowSelection.value ?? true,
+      enableMultiRowSelection: rowSelection?.enableMultiRowSelection.value ?? true,
+      isMultiSortEvent: props.isMultiSortEvent,
+      maxMultiSortColCount: props.maxMultiSortColCount,
+      renderFallbackValue: props.renderFallbackValue,
+    })
 
   // Engine is held in a shallowRef — rebuilt when columns change
   const engine = shallowRef(buildEngine())
@@ -488,7 +483,14 @@ export function useNuGridApi<T extends TableData>(
     getSelectedRowModel: () => engine.value.getSelectedRowModel(),
     getPrePaginationRowModel: () => engine.value.getPrePaginationRowModel(),
     getRow: (id: string, searchAll?: boolean) => engine.value.getRow(id, searchAll),
-    createRow: (id: string, original: any, index: number, depth: number, subRows?: any[], parentId?: string) => engine.value.createRow(id, original, index, depth, subRows, parentId),
+    createRow: (
+      id: string,
+      original: any,
+      index: number,
+      depth: number,
+      subRows?: any[],
+      parentId?: string,
+    ) => engine.value.createRow(id, original, index, depth, subRows, parentId),
     toggleAllPageRowsSelected: (value: boolean) => engine.value.toggleAllPageRowsSelected(value),
     toggleAllRowsSelected: (value: boolean) => engine.value.toggleAllRowsSelected(value),
     getTotalSize: () => engine.value.getTotalSize(),

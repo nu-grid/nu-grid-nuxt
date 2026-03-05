@@ -2,12 +2,7 @@
  * NuGrid Cell factory.
  */
 
-import type {
-  EngineCell,
-  EngineColumn,
-  EngineRow,
-  EngineTable,
-} from './types'
+import type { EngineCell, EngineColumn, EngineRow, EngineTable } from './types'
 
 // ---------------------------------------------------------------------------
 // Factory
@@ -53,11 +48,7 @@ export function createEngineCell<T>(
     },
 
     getIsAggregated(): boolean {
-      return (
-        !cell.getIsGrouped()
-        && !cell.getIsPlaceholder()
-        && !!row.subRows?.length
-      )
+      return !cell.getIsGrouped() && !cell.getIsPlaceholder() && !!row.subRows?.length
     },
   }
 

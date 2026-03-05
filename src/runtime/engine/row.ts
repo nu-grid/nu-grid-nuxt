@@ -5,14 +5,9 @@
  * backed by NuGrid state refs via StateAccessors.
  */
 
+import type { EngineCell, EngineColumn, EngineRow, EngineTable, StateAccessors } from './types'
+
 import { createEngineCell } from './cell'
-import type {
-  EngineCell,
-  EngineColumn,
-  EngineRow,
-  EngineTable,
-  StateAccessors,
-} from './types'
 
 // ---------------------------------------------------------------------------
 // Utility: flatten subRows recursively
@@ -91,7 +86,7 @@ export function createEngineRow<T>(options: CreateEngineRowOptions<T>): EngineRo
     // -- Value access --
 
     getValue<TValue = unknown>(columnId: string): TValue {
-      if (row._valuesCache.hasOwnProperty(columnId)) {
+      if (Object.prototype.hasOwnProperty.call(row._valuesCache, columnId)) {
         return row._valuesCache[columnId] as TValue
       }
 
@@ -113,9 +108,7 @@ export function createEngineRow<T>(options: CreateEngineRowOptions<T>): EngineRo
 
     getAllCells(): EngineCell<T>[] {
       if (_allCells) return _allCells
-      _allCells = table.getAllLeafColumns().map(column =>
-        createEngineCell(row, column, table),
-      )
+      _allCells = table.getAllLeafColumns().map((column) => createEngineCell(row, column, table))
       return _allCells
     },
 
@@ -155,8 +148,7 @@ export function createEngineRow<T>(options: CreateEngineRowOptions<T>): EngineRo
         const next = { ...old }
         if (newValue) {
           next[row.id] = true
-        }
-        else {
+        } else {
           delete next[row.id]
         }
         return next
@@ -185,7 +177,8 @@ export function createEngineRow<T>(options: CreateEngineRowOptions<T>): EngineRo
 
     toggleExpanded(expanded?: boolean): void {
       state.setExpanded((old) => {
-        const isCurrentlyExpanded = old === true ? true : !!(old as Record<string, boolean>)?.[row.id]
+        const isCurrentlyExpanded =
+          old === true ? true : !!(old as Record<string, boolean>)?.[row.id]
         const newValue = expanded ?? !isCurrentlyExpanded
 
         // Convert `true` (expand all) to explicit object
@@ -193,15 +186,13 @@ export function createEngineRow<T>(options: CreateEngineRowOptions<T>): EngineRo
         if (old === true) {
           // When all expanded, we can't enumerate all row IDs, so just create with this row
           oldObj = { [row.id]: true }
-        }
-        else {
+        } else {
           oldObj = (old as Record<string, boolean>) ?? {}
         }
 
         if (newValue) {
           return { ...oldObj, [row.id]: true }
-        }
-        else {
+        } else {
           const { [row.id]: _, ...rest } = oldObj
           return rest
         }
@@ -221,7 +212,7 @@ export function createEngineRow<T>(options: CreateEngineRowOptions<T>): EngineRo
     },
 
     getGroupingValue(columnId: string): unknown {
-      if (row._groupingValuesCache.hasOwnProperty(columnId)) {
+      if (Object.prototype.hasOwnProperty.call(row._groupingValuesCache, columnId)) {
         return row._groupingValuesCache[columnId]
       }
       // Lazily compute and cache grouping values
@@ -235,7 +226,7 @@ export function createEngineRow<T>(options: CreateEngineRowOptions<T>): EngineRo
     // -- Navigation --
 
     getLeafRows(): EngineRow<T>[] {
-      return flattenBy(row.subRows, r => r.subRows)
+      return flattenBy(row.subRows, (r) => r.subRows)
     },
 
     getParentRow(): EngineRow<T> | undefined {
@@ -246,7 +237,7 @@ export function createEngineRow<T>(options: CreateEngineRowOptions<T>): EngineRo
     getParentRows(): EngineRow<T>[] {
       const parents: EngineRow<T>[] = []
       let current: EngineRow<T> | undefined = row
-      // eslint-disable-next-line no-cond-assign
+
       while ((current = current.getParentRow())) {
         parents.push(current)
       }

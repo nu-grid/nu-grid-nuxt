@@ -1,11 +1,11 @@
-import type { TableData } from '../../types/table-data'
-import type { ExpandedState, Row, Table } from '../../engine'
 import type { Primitive } from 'reka-ui'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 import { computed, toValue, watch } from 'vue'
 
+import type { ExpandedState, Row, Table } from '../../engine'
 import type { NuGridProps } from '../../types'
+import type { TableData } from '../../types/table-data'
 
 import { isEmptyGroupPlaceholder } from './useNuGridEmptyGroups'
 import {

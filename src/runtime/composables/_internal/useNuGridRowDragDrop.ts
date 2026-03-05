@@ -1,11 +1,11 @@
-import type { TableData } from '../../types/table-data'
-import type { Row, Table } from '../../engine'
 import type { Ref } from 'vue'
 
 import { markRaw, onBeforeUnmount, ref, toRaw, toRef } from 'vue'
 
+import type { Row, Table } from '../../engine'
 import type { NuGridEventEmitter } from '../../types'
 import type { RowDragEvent } from '../../types/drag-drop'
+import type { TableData } from '../../types/table-data'
 
 // Re-export for backwards compatibility
 export type { RowDragEvent } from '../../types/drag-drop'

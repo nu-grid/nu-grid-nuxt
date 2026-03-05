@@ -1,10 +1,9 @@
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData } from '../../types/table-data'
-import type { Cell, Row } from '../../engine'
 import type { ComponentPublicInstance } from 'vue'
 
 import { computed, inject } from 'vue'
 
+import type { Cell, Row } from '../../engine'
 import type {
   NuGridCoreContext,
   NuGridDragContext,
@@ -16,6 +15,7 @@ import type {
   NuGridRowInteractionsContext,
   NuGridUIConfigContext,
 } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 import { getFlexCellStyle, resolveStyleObject, resolveValue } from '../../composables/_internal'
 import NuGridCellContent from './NuGridCellContent.vue'

@@ -1,10 +1,10 @@
-import type { TableData } from '../../types/table-data'
-import type { Row } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
 import { computed } from 'vue'
 
+import type { Row } from '../../engine'
 import type { NuGridColumn, NuGridColumnSummary } from '../../types'
+import type { TableData } from '../../types/table-data'
 
 import { isEmptyGroupPlaceholder } from './useNuGridEmptyGroups'
 

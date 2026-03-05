@@ -2,10 +2,10 @@
  * @internal
  */
 
-import type { TableData } from '../table-data'
-import type { Row } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
+import type { Row } from '../../engine'
+import type { TableData } from '../table-data'
 import type {
   GroupingVirtualRowHeights,
   GroupVirtualRowItem,

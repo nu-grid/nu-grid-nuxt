@@ -1,12 +1,12 @@
-import type { TableData } from '../../types/table-data'
-import type { Row } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
 import { usePreferredReducedMotion } from '@vueuse/core'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
+import type { Row } from '../../engine'
 import type { NuGridAnimationPreset, NuGridProps } from '../../types'
 import type { NuGridAnimationContext } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 import { usePropWithDefault } from '../../config/_internal'
 

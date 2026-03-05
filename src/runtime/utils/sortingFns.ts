@@ -84,10 +84,7 @@ export function compareAlphanumeric(aStr: string, bStr: string): number {
 
 /** Case-insensitive alphanumeric sort (smart number handling in strings) */
 export function sortAlphanumeric(a: unknown, b: unknown): number {
-  return compareAlphanumeric(
-    toString(a).toLowerCase(),
-    toString(b).toLowerCase(),
-  )
+  return compareAlphanumeric(toString(a).toLowerCase(), toString(b).toLowerCase())
 }
 
 /** Case-sensitive alphanumeric sort */

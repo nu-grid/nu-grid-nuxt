@@ -1,4 +1,3 @@
-import type { TableData } from '../../table-data'
 import type { ComputedRef, Ref } from 'vue'
 
 import type { NuGridUIReturn } from '../../../composables/_internal/useNuGridUI'
@@ -10,6 +9,7 @@ import type {
 } from '../../option-groups'
 import type { NuGridScrollbars } from '../../props'
 import type { NuGridSortIcon } from '../../sort-icon'
+import type { TableData } from '../../table-data'
 
 /**
  * UI Configuration context

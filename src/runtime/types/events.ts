@@ -1,8 +1,7 @@
-import type { TableData } from './table-data'
-import type { Cell, Column, ColumnFiltersState, Row, SortingState } from '../engine'
-
 import type { NuGridStateSnapshot } from '../composables/_internal/useNuGridStatePersistence'
+import type { Cell, Column, ColumnFiltersState, Row, SortingState } from '../engine'
 import type { RowDragEvent } from './drag-drop'
+import type { TableData } from './table-data'
 
 // ============================================================================
 // CELL CLICK EVENTS

@@ -1,10 +1,10 @@
-import type { TableData } from '../../types/table-data'
-import type { ColumnSizingInfoState, ColumnSizingState, Header, Table } from '../../engine'
 import type { Ref } from 'vue'
 
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
+import type { ColumnSizingInfoState, ColumnSizingState, Header, Table } from '../../engine'
 import type { NuGridProps } from '../../types'
+import type { TableData } from '../../types/table-data'
 
 import { usePropWithDefault } from '../../config/_internal'
 import { calculateProportionalSizes } from '../../utils/columnSizingFns'
@@ -292,9 +292,23 @@ export function useNuGridColumnResize<T extends TableData>(
 
   function getResizeHandler(header: Header<T>) {
     if (props.layout?.resizeMode === 'shift') {
-      return createShiftResizeHandler(header, tableApi, columnSizingState, columnSizingInfoState, columnResizeMode, columnResizeDirection)
+      return createShiftResizeHandler(
+        header,
+        tableApi,
+        columnSizingState,
+        columnSizingInfoState,
+        columnResizeMode,
+        columnResizeDirection,
+      )
     }
-    return createStandardResizeHandler(header, tableApi, columnSizingState, columnSizingInfoState, columnResizeMode, columnResizeDirection)
+    return createStandardResizeHandler(
+      header,
+      tableApi,
+      columnSizingState,
+      columnSizingInfoState,
+      columnResizeMode,
+      columnResizeDirection,
+    )
   }
 
   function handleResizeStart(event: MouseEvent | TouchEvent, header: Header<T>) {
@@ -376,7 +390,14 @@ export function useNuGridColumnResize<T extends TableData>(
       resizeStartSizes.set(leafHeader.column.id, leafHeader.column.getSize())
     }
 
-    const resizeHandler = createGroupResizeHandler(header, tableApi, columnSizingState, columnSizingInfoState, columnResizeMode, columnResizeDirection)
+    const resizeHandler = createGroupResizeHandler(
+      header,
+      tableApi,
+      columnSizingState,
+      columnSizingInfoState,
+      columnResizeMode,
+      columnResizeDirection,
+    )
     resizeHandler(event)
   }
 
@@ -981,7 +1002,7 @@ export function createStandardResizeHandler<TData>(
     const startSize = header.getSize()
 
     const columnSizingStart: [string, number][] = header
-      ? header.getLeafHeaders().map(d => [d.column.id, d.column.getSize()])
+      ? header.getLeafHeaders().map((d) => [d.column.id, d.column.getSize()])
       : [[column.id, column.getSize()]]
 
     const clientX = isTouchStartEvent(e)
@@ -990,10 +1011,7 @@ export function createStandardResizeHandler<TData>(
 
     let newColumnSizing: Record<string, number> = {}
 
-    const updateOffset = (
-      eventType: 'move' | 'end',
-      clientXPos?: number,
-    ) => {
+    const updateOffset = (eventType: 'move' | 'end', clientXPos?: number) => {
       if (typeof clientXPos !== 'number') {
         return
       }

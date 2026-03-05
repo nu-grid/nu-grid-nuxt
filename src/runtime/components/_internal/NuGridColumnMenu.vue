@@ -1,10 +1,9 @@
 <script setup lang="ts" generic="T extends TableData">
 import type { DropdownMenuItem } from '@nuxt/ui'
-import type { TableData } from '../../types/table-data'
-import type { Column, Header } from '../../engine'
 
 import { computed, inject, ref, resolveComponent, watch } from 'vue'
 
+import type { Column, Header } from '../../engine'
 import type { NuGridColumnMenuItem, NuGridFilterContext } from '../../types'
 import type {
   NuGridCoreContext,
@@ -12,6 +11,7 @@ import type {
   NuGridResizeContext,
   NuGridUIConfigContext,
 } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 import { nuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegistry'
 import { nuGridDefaults } from '../../config/_internal'

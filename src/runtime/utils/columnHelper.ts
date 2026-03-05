@@ -1,6 +1,5 @@
-import type { TableData } from '../types/table-data'
-
 import type { NuGridColumn } from '../types/column'
+import type { TableData } from '../types/table-data'
 
 /** Template for column def rendering — string or render function */
 type ColumnDefTemplate<TProps extends object> = string | ((props: TProps) => any)

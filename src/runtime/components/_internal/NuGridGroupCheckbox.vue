@@ -4,11 +4,11 @@ import type { AppConfig } from '@nuxt/schema'
 import type { CheckboxEmits, CheckboxProps, CheckboxSlots, ComponentConfig } from '@nuxt/ui'
 
 import { useAppConfig } from '#imports'
+import { useFormField } from '@nuxt/ui/composables/useFormField'
 import { tv } from '@nuxt/ui/runtime/utils/tv.js'
 import { reactivePick } from '@vueuse/core'
 import { CheckboxIndicator, CheckboxRoot, Label, Primitive, useForwardProps } from 'reka-ui'
 import { computed, inject, useId } from 'vue'
-import { useFormField } from '@nuxt/ui/composables/useFormField'
 
 import type { NuGridUIConfigContext } from '../../types/_internal'
 

@@ -2,10 +2,10 @@
  * @internal
  */
 
-import type { TableData } from '../table-data'
-import type { Cell, Column, Row, Table } from '../../engine'
 import type { Component, ComputedRef, Ref } from 'vue'
 
+import type { Cell, Column, Row, Table } from '../../engine'
+import type { TableData } from '../table-data'
 import type { NuGridShowErrors } from '../validation'
 
 /**

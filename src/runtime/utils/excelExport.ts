@@ -1,8 +1,8 @@
-import type { Column, Table } from '../engine'
 import type { Cell, Row } from 'write-excel-file'
 
 import writeXlsxFile from 'write-excel-file'
 
+import type { Column, Table } from '../engine'
 import type { NuGridColumn } from '../types'
 import type { TableData } from '../types/table-data'
 
@@ -181,9 +181,7 @@ function getColumnInfo<T extends TableData>(
     return null
   }
 
-  const originalCol = columnDefinitions.find(
-    (c) => c.accessorKey === colId || c.id === colId,
-  )
+  const originalCol = columnDefinitions.find((c) => c.accessorKey === colId || c.id === colId)
 
   let header = colId
   if (typeof colDef.header === 'string') {
@@ -449,4 +447,3 @@ export async function exportGroupedToExcel<T extends TableData>(
     sheet: sheetName,
   })
 }
-

@@ -1,11 +1,11 @@
-import type { TableData } from '../../types/table-data'
-import type { ColumnSizingState, Table } from '../../engine'
 import type { Ref } from 'vue'
 
 import { useDebounceFn } from '@vueuse/core'
 import { nextTick, ref, watch } from 'vue'
 
+import type { ColumnSizingState, Table } from '../../engine'
 import type { NuGridProps } from '../../types'
+import type { TableData } from '../../types/table-data'
 
 import { usePropWithDefault } from '../../config/_internal'
 

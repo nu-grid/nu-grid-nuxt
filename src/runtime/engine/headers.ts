@@ -4,12 +4,7 @@
  * Turns a column tree into HeaderGroup[] with Header objects.
  */
 
-import type {
-  EngineColumn,
-  EngineHeader,
-  EngineHeaderGroup,
-  EngineTable,
-} from './types'
+import type { EngineColumn, EngineHeader, EngineHeaderGroup, EngineTable } from './types'
 
 // ---------------------------------------------------------------------------
 // Header creation
@@ -67,8 +62,7 @@ function createEngineHeader<T>(
       const recurse = (h: EngineHeader<T>) => {
         if (h.subHeaders.length) {
           h.subHeaders.forEach(recurse)
-        }
-        else {
+        } else {
           sum += h.column.getSize()
         }
       }
@@ -116,10 +110,7 @@ export function buildEngineHeaderGroups<T>(
 
   const headerGroups: EngineHeaderGroup<T>[] = []
 
-  const createHeaderGroup = (
-    headersToGroup: EngineHeader<T>[],
-    depth: number,
-  ) => {
+  const createHeaderGroup = (headersToGroup: EngineHeader<T>[], depth: number) => {
     const headerGroup: EngineHeaderGroup<T> = {
       depth,
       id: [headerFamily, `${depth}`].filter(Boolean).join('_'),
@@ -137,26 +128,19 @@ export function buildEngineHeaderGroups<T>(
 
       if (isLeafHeader && headerToGroup.column.parent) {
         column = headerToGroup.column.parent
-      }
-      else {
+      } else {
         column = headerToGroup.column
         isPlaceholder = true
       }
 
-      if (
-        latestPendingParentHeader
-        && latestPendingParentHeader.column === column
-      ) {
+      if (latestPendingParentHeader && latestPendingParentHeader.column === column) {
         latestPendingParentHeader.subHeaders.push(headerToGroup)
-      }
-      else {
+      } else {
         const header = createEngineHeader(column, table, {
-          id: [headerFamily, depth, column.id, headerToGroup?.id]
-            .filter(Boolean)
-            .join('_'),
+          id: [headerFamily, depth, column.id, headerToGroup?.id].filter(Boolean).join('_'),
           isPlaceholder,
           placeholderId: isPlaceholder
-            ? `${pendingParentHeaders.filter(d => d.column === column).length}`
+            ? `${pendingParentHeaders.filter((d) => d.column === column).length}`
             : undefined,
           depth,
           index: pendingParentHeaders.length,
@@ -192,9 +176,7 @@ export function buildEngineHeaderGroups<T>(
   const recurseHeadersForSpans = (
     headers: EngineHeader<T>[],
   ): { colSpan: number; rowSpan: number }[] => {
-    const filteredHeaders = headers.filter(header =>
-      header.column.getIsVisible(),
-    )
+    const filteredHeaders = headers.filter((header) => header.column.getIsVisible())
 
     return filteredHeaders.map((header) => {
       let colSpan = 0
@@ -209,8 +191,7 @@ export function buildEngineHeaderGroups<T>(
             childRowSpans.push(childRowSpan)
           },
         )
-      }
-      else {
+      } else {
         colSpan = 1
       }
 

@@ -18,7 +18,9 @@ const DEFAULT_MAX_SIZE = Number.MAX_SAFE_INTEGER
 // Accessor resolution
 // ---------------------------------------------------------------------------
 
-function resolveAccessorFn<T>(columnDef: EngineColumnDef<T>): ((row: T, index: number) => any) | undefined {
+function resolveAccessorFn<T>(
+  columnDef: EngineColumnDef<T>,
+): ((row: T, index: number) => any) | undefined {
   if (columnDef.accessorFn) {
     return columnDef.accessorFn
   }
@@ -47,12 +49,10 @@ function resolveAccessorFn<T>(columnDef: EngineColumnDef<T>): ((row: T, index: n
 
 function resolveColumnId(columnDef: EngineColumnDef): string {
   return (
-    columnDef.id
-    ?? (columnDef.accessorKey
-      ? String(columnDef.accessorKey).replaceAll('.', '_')
-      : undefined)
-    ?? (typeof columnDef.header === 'string' ? columnDef.header : undefined)
-    ?? ''
+    columnDef.id ??
+    (columnDef.accessorKey ? String(columnDef.accessorKey).replaceAll('.', '_') : undefined) ??
+    (typeof columnDef.header === 'string' ? columnDef.header : undefined) ??
+    ''
   )
 }
 
@@ -96,12 +96,12 @@ export function createEngineColumn<T>(
     // -- Tree traversal --
 
     getFlatColumns() {
-      return [column, ...column.columns.flatMap(c => c.getFlatColumns())]
+      return [column, ...column.columns.flatMap((c) => c.getFlatColumns())]
     },
 
     getLeafColumns() {
       if (column.columns.length) {
-        return column.columns.flatMap(c => c.getLeafColumns())
+        return column.columns.flatMap((c) => c.getLeafColumns())
       }
       return [column]
     },
@@ -110,7 +110,7 @@ export function createEngineColumn<T>(
 
     getIsVisible() {
       if (column.columns.length) {
-        return column.columns.some(c => c.getIsVisible())
+        return column.columns.some((c) => c.getIsVisible())
       }
       return state.columnVisibility()?.[column.id] ?? true
     },
@@ -140,9 +140,9 @@ export function createEngineColumn<T>(
       }
 
       // Group column: check if any leaf is pinned
-      const leafIds = column.getLeafColumns().map(c => c.id)
-      const isLeft = leafIds.some(id => left?.includes(id))
-      const isRight = leafIds.some(id => right?.includes(id))
+      const leafIds = column.getLeafColumns().map((c) => c.id)
+      const isLeft = leafIds.some((id) => left?.includes(id))
+      const isRight = leafIds.some((id) => right?.includes(id))
       return isLeft ? 'left' : isRight ? 'right' : false
     },
 
@@ -154,7 +154,7 @@ export function createEngineColumn<T>(
 
     getStart(position?) {
       const columns = getVisibleLeafColumnsForPosition<T>(state, position)
-      const idx = columns.findIndex(c => c.id === column.id)
+      const idx = columns.findIndex((c) => c.id === column.id)
       if (idx <= 0) return 0
       let sum = 0
       for (let i = 0; i < idx; i++) sum += columns[i]!.getSize()
@@ -163,7 +163,7 @@ export function createEngineColumn<T>(
 
     getAfter(position?) {
       const columns = getVisibleLeafColumnsForPosition<T>(state, position)
-      const idx = columns.findIndex(c => c.id === column.id)
+      const idx = columns.findIndex((c) => c.id === column.id)
       if (idx < 0) return 0
       let sum = 0
       for (let i = idx + 1; i < columns.length; i++) sum += columns[i]!.getSize()
@@ -185,10 +185,7 @@ export function createEngineColumn<T>(
     },
 
     getCanResize() {
-      return (
-        (columnDef.enableResizing ?? true)
-        && (options.enableColumnResizing ?? true)
-      )
+      return (columnDef.enableResizing ?? true) && (options.enableColumnResizing ?? true)
     },
 
     getIsResizing() {
@@ -198,21 +195,17 @@ export function createEngineColumn<T>(
     // -- Sorting --
 
     getCanSort() {
-      return (
-        (columnDef.enableSorting ?? true)
-        && (options.enableSorting ?? true)
-        && !!accessorFn
-      )
+      return (columnDef.enableSorting ?? true) && (options.enableSorting ?? true) && !!accessorFn
     },
 
     getIsSorted() {
-      const sort = state.sorting().find(s => s.id === column.id)
+      const sort = state.sorting().find((s) => s.id === column.id)
       if (!sort) return false
       return sort.desc ? 'desc' : 'asc'
     },
 
     getSortIndex() {
-      return state.sorting().findIndex(s => s.id === column.id)
+      return state.sorting().findIndex((s) => s.id === column.id)
     },
 
     getCanMultiSort() {
@@ -223,7 +216,7 @@ export function createEngineColumn<T>(
       if (!column.getCanSort()) return
 
       const old = state.sorting()
-      const existingIndex = old.findIndex(s => s.id === column.id)
+      const existingIndex = old.findIndex((s) => s.id === column.id)
       const existingSorting = existingIndex >= 0 ? old[existingIndex] : undefined
       const hasManualValue = desc !== undefined
 
@@ -232,15 +225,12 @@ export function createEngineColumn<T>(
       if (!hasManualValue) {
         if (!existingSorting) {
           nextSortingOrder = 'asc'
-        }
-        else if (existingSorting.desc) {
+        } else if (existingSorting.desc) {
           nextSortingOrder = false // remove
-        }
-        else {
+        } else {
           nextSortingOrder = 'desc'
         }
-      }
-      else {
+      } else {
         nextSortingOrder = desc ? 'desc' : 'asc'
       }
 
@@ -252,37 +242,29 @@ export function createEngineColumn<T>(
         if (existingSorting) {
           if (nextSortingOrder === false) {
             // Remove from multi-sort
-            newSorting = old.filter(s => s.id !== column.id)
-          }
-          else {
+            newSorting = old.filter((s) => s.id !== column.id)
+          } else {
             // Toggle direction in place
-            newSorting = old.map(s =>
+            newSorting = old.map((s) =>
               s.id === column.id ? { ...s, desc: nextSortingOrder === 'desc' } : s,
             )
           }
-        }
-        else if (nextSortingOrder !== false) {
+        } else if (nextSortingOrder !== false) {
           // Add to multi-sort
-          newSorting = [
-            ...old,
-            { id: column.id, desc: nextSortingOrder === 'desc' },
-          ]
+          newSorting = [...old, { id: column.id, desc: nextSortingOrder === 'desc' }]
           // Enforce maxMultiSortColCount
           const max = options.maxMultiSortColCount
           if (max && newSorting.length > max) {
             newSorting = newSorting.slice(newSorting.length - max)
           }
-        }
-        else {
+        } else {
           newSorting = old
         }
-      }
-      else {
+      } else {
         // Single sort — replace all
         if (nextSortingOrder === false) {
           newSorting = []
-        }
-        else {
+        } else {
           newSorting = [{ id: column.id, desc: nextSortingOrder === 'desc' }]
         }
       }
@@ -291,7 +273,7 @@ export function createEngineColumn<T>(
     },
 
     clearSorting() {
-      state.setSorting(state.sorting().filter(s => s.id !== column.id))
+      state.setSorting(state.sorting().filter((s) => s.id !== column.id))
     },
 
     getToggleSortingHandler() {
@@ -301,9 +283,7 @@ export function createEngineColumn<T>(
         ;(e as any)?.persist?.()
         column.toggleSorting(
           undefined,
-          column.getCanMultiSort()
-            ? (options.isMultiSortEvent?.(e) ?? false)
-            : false,
+          column.getCanMultiSort() ? (options.isMultiSortEvent?.(e) ?? false) : false,
         )
       }
     },
@@ -315,17 +295,17 @@ export function createEngineColumn<T>(
     },
 
     getFilterValue() {
-      return state.columnFilters().find(f => f.id === column.id)?.value
+      return state.columnFilters().find((f) => f.id === column.id)?.value
     },
 
     setFilterValue(value: unknown) {
       state.setColumnFilters((old) => {
-        const existing = old.find(f => f.id === column.id)
+        const existing = old.find((f) => f.id === column.id)
         if (value === undefined || value === null || value === '') {
-          return old.filter(f => f.id !== column.id)
+          return old.filter((f) => f.id !== column.id)
         }
         if (existing) {
-          return old.map(f => f.id === column.id ? { ...f, value } : f)
+          return old.map((f) => (f.id === column.id ? { ...f, value } : f))
         }
         return [...old, { id: column.id, value }]
       })
@@ -345,7 +325,7 @@ export function createEngineColumn<T>(
 
     getIndex(position?) {
       const columns = getVisibleLeafColumnsForPosition<T>(state, position)
-      return columns.findIndex(c => c.id === column.id)
+      return columns.findIndex((c) => c.id === column.id)
     },
   }
 

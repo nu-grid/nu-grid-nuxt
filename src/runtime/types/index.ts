@@ -117,17 +117,6 @@ export type { NuGridCellSlotProps, NuGridSlots } from './slots'
 // Sort Icon
 export type { NuGridSortIcon } from './sort-icon'
 
-// Theme
-export type { NuGridTheme, NuGridThemeDefinition } from './theme'
-
-// Validation (public types only)
-export type {
-  NuGridOnInvalid,
-  NuGridShowErrors,
-  NuGridValidateOn,
-  NuGridValidationOptions,
-} from './validation'
-
 // State Types (NuGrid-owned, re-exported for convenience)
 // These are used in NuGridStateSnapshot and various v-models
 export type {
@@ -140,3 +129,14 @@ export type {
 
 // Table Data (NuGrid-owned generic constraint)
 export type { TableData } from './table-data'
+
+// Theme
+export type { NuGridTheme, NuGridThemeDefinition } from './theme'
+
+// Validation (public types only)
+export type {
+  NuGridOnInvalid,
+  NuGridShowErrors,
+  NuGridValidateOn,
+  NuGridValidationOptions,
+} from './validation'

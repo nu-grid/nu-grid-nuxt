@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Component, ComputedRef } from 'vue'
 
-import { FlexRender } from '../../utils/flexRender'
 import { computed, inject, ref, resolveComponent, watch } from 'vue'
 
 import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
@@ -13,6 +12,7 @@ import type {
 } from '../../types/_internal'
 
 import { nuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegistry'
+import { FlexRender } from '../../utils/flexRender'
 import NuGridHighlightedText from './NuGridHighlightedText.vue'
 
 interface Props {
@@ -358,7 +358,11 @@ const cellTextValue = computed(() => {
       v-else-if="shouldUsePluginRenderer && pluginRendererComponent"
       v-bind="pluginRendererProps"
     />
-    <FlexRender v-else-if="cell.getIsAggregated?.() && cell.column.columnDef.aggregatedCell" :render="cell.column.columnDef.aggregatedCell" :props="cell.getContext()" />
+    <FlexRender
+      v-else-if="cell.getIsAggregated?.() && cell.column.columnDef.aggregatedCell"
+      :render="cell.column.columnDef.aggregatedCell"
+      :props="cell.getContext()"
+    />
     <FlexRender v-else :render="cell.column.columnDef.cell" :props="cell.getContext()" />
     <div :class="coreContext.ui.value.editorContainerTextarea?.()">
       <component :is="editorContent" />
@@ -386,7 +390,11 @@ const cellTextValue = computed(() => {
     />
     <!-- Use highlighted text when search is active and this column is searchable -->
     <NuGridHighlightedText v-else-if="shouldHighlight && cellTextValue" :text="cellTextValue" />
-    <FlexRender v-else-if="cell.getIsAggregated?.() && cell.column.columnDef.aggregatedCell" :render="cell.column.columnDef.aggregatedCell" :props="cell.getContext()" />
+    <FlexRender
+      v-else-if="cell.getIsAggregated?.() && cell.column.columnDef.aggregatedCell"
+      :render="cell.column.columnDef.aggregatedCell"
+      :props="cell.getContext()"
+    />
     <FlexRender v-else :render="cell.column.columnDef.cell" :props="cell.getContext()" />
   </div>
 </template>

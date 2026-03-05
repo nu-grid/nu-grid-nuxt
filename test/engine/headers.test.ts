@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import type { EngineColumn, StateAccessors } from '../../src/runtime/engine/types'
+
 import { createEngineColumn } from '../../src/runtime/engine/column'
 import { buildEngineHeaderGroups } from '../../src/runtime/engine/headers'
-import type { EngineColumn, StateAccessors } from '../../src/runtime/engine/types'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -42,7 +43,7 @@ function createMockState(overrides?: Partial<StateAccessors>): StateAccessors {
 
 function makeColumns(defs: any[], state?: StateAccessors): EngineColumn<any>[] {
   const s = state ?? createMockState()
-  return defs.map(def => createEngineColumn(def, 0, undefined, s))
+  return defs.map((def) => createEngineColumn(def, 0, undefined, s))
 }
 
 // ---------------------------------------------------------------------------
@@ -52,10 +53,13 @@ function makeColumns(defs: any[], state?: StateAccessors): EngineColumn<any>[] {
 describe('buildEngineHeaderGroups — flat columns', () => {
   it('should create a single header group for flat columns', () => {
     const state = createMockState()
-    const cols = makeColumns([
-      { id: 'name', accessorKey: 'name', header: 'Name' },
-      { id: 'age', accessorKey: 'age', header: 'Age' },
-    ], state)
+    const cols = makeColumns(
+      [
+        { id: 'name', accessorKey: 'name', header: 'Name' },
+        { id: 'age', accessorKey: 'age', header: 'Age' },
+      ],
+      state,
+    )
 
     const groups = buildEngineHeaderGroups(cols, cols, null as any)
 
@@ -79,9 +83,7 @@ describe('buildEngineHeaderGroups — flat columns', () => {
   })
 
   it('should mark headers as not placeholder', () => {
-    const cols = makeColumns([
-      { id: 'a', accessorKey: 'a', header: 'A' },
-    ])
+    const cols = makeColumns([{ id: 'a', accessorKey: 'a', header: 'A' }])
 
     const groups = buildEngineHeaderGroups(cols, cols, null as any)
 
@@ -89,9 +91,7 @@ describe('buildEngineHeaderGroups — flat columns', () => {
   })
 
   it('should set headerGroup back-reference', () => {
-    const cols = makeColumns([
-      { id: 'a', accessorKey: 'a', header: 'A' },
-    ])
+    const cols = makeColumns([{ id: 'a', accessorKey: 'a', header: 'A' }])
 
     const groups = buildEngineHeaderGroups(cols, cols, null as any)
 
@@ -139,20 +139,27 @@ describe('buildEngineHeaderGroups — nested column groups', () => {
   it('should create placeholder headers for uneven nesting', () => {
     const state = createMockState()
     const cols = [
-      createEngineColumn({
-        id: 'info',
-        header: 'Info',
-        columns: [
-          { id: 'name', accessorKey: 'name', header: 'Name' },
-          { id: 'age', accessorKey: 'age', header: 'Age' },
-        ],
-      }, 0, undefined, state),
+      createEngineColumn(
+        {
+          id: 'info',
+          header: 'Info',
+          columns: [
+            { id: 'name', accessorKey: 'name', header: 'Name' },
+            { id: 'age', accessorKey: 'age', header: 'Age' },
+          ],
+        },
+        0,
+        undefined,
+        state,
+      ),
       createEngineColumn(
         { id: 'status', accessorKey: 'status', header: 'Status' },
-        0, undefined, state,
+        0,
+        undefined,
+        state,
       ),
     ]
-    const leafColumns = cols.flatMap(c => c.getLeafColumns())
+    const leafColumns = cols.flatMap((c) => c.getLeafColumns())
 
     const groups = buildEngineHeaderGroups(cols, leafColumns, null as any)
 
@@ -182,32 +189,37 @@ describe('buildEngineHeaderGroups — nested column groups', () => {
 
 describe('header.getLeafHeaders()', () => {
   it('should return self for leaf header', () => {
-    const cols = makeColumns([
-      { id: 'a', accessorKey: 'a', header: 'A' },
-    ])
+    const cols = makeColumns([{ id: 'a', accessorKey: 'a', header: 'A' }])
     const groups = buildEngineHeaderGroups(cols, cols, null as any)
     const header = groups[0].headers[0]
 
-    expect(header.getLeafHeaders().map(h => h.column.id)).toEqual(['a'])
+    expect(header.getLeafHeaders().map((h) => h.column.id)).toEqual(['a'])
   })
 
   it('should return leaf headers for group header', () => {
     const state = createMockState()
-    const cols = [createEngineColumn({
-      id: 'info',
-      header: 'Info',
-      columns: [
-        { id: 'name', accessorKey: 'name', header: 'Name' },
-        { id: 'age', accessorKey: 'age', header: 'Age' },
-      ],
-    }, 0, undefined, state)]
+    const cols = [
+      createEngineColumn(
+        {
+          id: 'info',
+          header: 'Info',
+          columns: [
+            { id: 'name', accessorKey: 'name', header: 'Name' },
+            { id: 'age', accessorKey: 'age', header: 'Age' },
+          ],
+        },
+        0,
+        undefined,
+        state,
+      ),
+    ]
     const leafColumns = cols[0].getLeafColumns()
 
     const groups = buildEngineHeaderGroups(cols, leafColumns, null as any)
     const groupHeader = groups[0].headers[0]
 
     // TanStack's getLeafHeaders uses DFS post-order: children first, then self
-    expect(groupHeader.getLeafHeaders().map(h => h.column.id)).toEqual(['name', 'age', 'info'])
+    expect(groupHeader.getLeafHeaders().map((h) => h.column.id)).toEqual(['name', 'age', 'info'])
   })
 })
 
@@ -217,9 +229,7 @@ describe('header.getLeafHeaders()', () => {
 
 describe('header.getContext()', () => {
   it('should return context with header and column', () => {
-    const cols = makeColumns([
-      { id: 'a', accessorKey: 'a', header: 'A' },
-    ])
+    const cols = makeColumns([{ id: 'a', accessorKey: 'a', header: 'A' }])
     const mockTable = { mock: true } as any
     const groups = buildEngineHeaderGroups(cols, cols, mockTable)
     const header = groups[0].headers[0]
@@ -240,9 +250,7 @@ describe('header.getSize()', () => {
     const state = createMockState({
       columnSizing: () => ({ a: 200 }),
     })
-    const cols = makeColumns([
-      { id: 'a', accessorKey: 'a', header: 'A' },
-    ], state)
+    const cols = makeColumns([{ id: 'a', accessorKey: 'a', header: 'A' }], state)
     const groups = buildEngineHeaderGroups(cols, cols, null as any)
 
     expect(groups[0].headers[0].getSize()).toBe(200)
@@ -252,14 +260,21 @@ describe('header.getSize()', () => {
     const state = createMockState({
       columnSizing: () => ({ name: 100, age: 200 }),
     })
-    const cols = [createEngineColumn({
-      id: 'info',
-      header: 'Info',
-      columns: [
-        { id: 'name', accessorKey: 'name', header: 'Name' },
-        { id: 'age', accessorKey: 'age', header: 'Age' },
-      ],
-    }, 0, undefined, state)]
+    const cols = [
+      createEngineColumn(
+        {
+          id: 'info',
+          header: 'Info',
+          columns: [
+            { id: 'name', accessorKey: 'name', header: 'Name' },
+            { id: 'age', accessorKey: 'age', header: 'Age' },
+          ],
+        },
+        0,
+        undefined,
+        state,
+      ),
+    ]
     const leafColumns = cols[0].getLeafColumns()
 
     const groups = buildEngineHeaderGroups(cols, leafColumns, null as any)
@@ -277,14 +292,21 @@ describe('header.getSize()', () => {
 describe('footer groups', () => {
   it('should be reversed header groups', () => {
     const state = createMockState()
-    const cols = [createEngineColumn({
-      id: 'info',
-      header: 'Info',
-      columns: [
-        { id: 'name', accessorKey: 'name', header: 'Name' },
-        { id: 'age', accessorKey: 'age', header: 'Age' },
-      ],
-    }, 0, undefined, state)]
+    const cols = [
+      createEngineColumn(
+        {
+          id: 'info',
+          header: 'Info',
+          columns: [
+            { id: 'name', accessorKey: 'name', header: 'Name' },
+            { id: 'age', accessorKey: 'age', header: 'Age' },
+          ],
+        },
+        0,
+        undefined,
+        state,
+      ),
+    ]
     const leafColumns = cols[0].getLeafColumns()
 
     const headerGroups = buildEngineHeaderGroups(cols, leafColumns, null as any)

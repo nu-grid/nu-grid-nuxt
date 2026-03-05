@@ -1,7 +1,7 @@
-import type { Row, RowSelectionState } from '../src/runtime/engine'
-
 import { describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
+
+import type { Row, RowSelectionState } from '../src/runtime/engine'
 
 import { useNuGridGroupSelection } from '../src/runtime/composables/_internal/useNuGridGroupSelection'
 

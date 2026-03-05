@@ -1,6 +1,7 @@
 import type { WatchOptions } from 'vue'
-import type { Row } from '../engine'
+
 import type { RowDragOptions } from '../composables/_internal/useNuGridRowDragDrop'
+import type { Row } from '../engine'
 import type { NuGridConfig, NuGridPreset, NuGridVirtualizerOptions } from './_internal'
 import type { NuGridCellType } from './cells'
 import type { NuGridColumn } from './column'

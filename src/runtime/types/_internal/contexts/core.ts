@@ -1,10 +1,18 @@
-import type { TableData } from '../../table-data'
-import type { Cell, ColumnPinningState, ExpandedState, PaginationState, Row, RowSelectionState, Table } from '../../../engine'
 import type { Primitive } from 'reka-ui'
 import type { ComputedRef, Ref } from 'vue'
 
 import type { NuGridUISlots } from '../../../composables/_internal/useNuGridUI'
+import type {
+  Cell,
+  ColumnPinningState,
+  ExpandedState,
+  PaginationState,
+  Row,
+  RowSelectionState,
+  Table,
+} from '../../../engine'
 import type { NuGridConfig } from '../../config'
+import type { TableData } from '../../table-data'
 
 /**
  * Core context - essential table API and UI

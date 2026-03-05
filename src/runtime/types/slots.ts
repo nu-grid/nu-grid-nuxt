@@ -1,5 +1,4 @@
 import type { Cell, Column, EngineRow, Row } from '../engine'
-
 import type { NuGridCellContext, NuGridHeaderContext } from './column'
 import type { TableData } from './table-data'
 
@@ -55,6 +54,6 @@ export type NuGridSlots<T extends TableData = TableData> = {
   'body-top': (props?: {}) => any
   'body-bottom': (props?: {}) => any
   [key: string]: ((...args: any[]) => any) | undefined
-} & Record<`${string}-header`, (props: NuGridHeaderContext<T>) => any>
-  & Record<`${string}-footer`, (props: NuGridHeaderContext<T>) => any>
-  & Record<`${string}-cell`, (props: NuGridCellContext<T>) => any>
+} & Record<`${string}-header`, (props: NuGridHeaderContext<T>) => any> &
+  Record<`${string}-footer`, (props: NuGridHeaderContext<T>) => any> &
+  Record<`${string}-cell`, (props: NuGridCellContext<T>) => any>

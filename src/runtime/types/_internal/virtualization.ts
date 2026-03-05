@@ -1,7 +1,8 @@
-import type { TableData } from '../table-data'
-import type { Row } from '../../engine'
 import type { Virtualizer, VirtualizerOptions } from '@tanstack/vue-virtual'
 import type { ComputedRef } from 'vue'
+
+import type { Row } from '../../engine'
+import type { TableData } from '../table-data'
 
 /**
  * Configuration for virtual row heights in grouped grid mode.

@@ -1,8 +1,8 @@
 import type { TableData } from '@nuxt/ui'
-import type { Cell, Row } from '../../src/runtime/engine'
 
 import { vi } from 'vitest'
 
+import type { Cell, Row } from '../../src/runtime/engine'
 import type {
   NuGridCellClickContext,
   NuGridInteractionRouter,

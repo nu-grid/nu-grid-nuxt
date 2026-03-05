@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Row } from '../../engine'
-
 import { computed } from 'vue'
+
+import type { Row } from '../../engine'
 
 import NuGridCellCheckbox from '../../components/NuGridCellCheckbox.vue'
 

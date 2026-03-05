@@ -1,12 +1,12 @@
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData } from '../../types/table-data'
-import type { Header } from '../../engine'
 import type { Ref } from 'vue'
 
 import { computed, inject } from 'vue'
 
+import type { Header } from '../../engine'
 import type { NuGridSortIcon } from '../../types'
 import type { NuGridCoreContext, NuGridUIConfigContext } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 import { nuGridDefaults } from '../../config/_internal'
 

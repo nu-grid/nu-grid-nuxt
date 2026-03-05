@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import type { StateAccessors } from '../../src/runtime/engine/types'
+
 import { createEngineColumn } from '../../src/runtime/engine/column'
 import { createNuGridTable } from '../../src/runtime/engine/table'
-import type { StateAccessors } from '../../src/runtime/engine/types'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -173,7 +174,7 @@ describe('createNuGridTable — column access', () => {
 
     const visible = table.getVisibleLeafColumns()
     expect(visible).toHaveLength(2)
-    expect(visible.map(c => c.id)).toEqual(['name', 'age'])
+    expect(visible.map((c) => c.id)).toEqual(['name', 'age'])
   })
 })
 

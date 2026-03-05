@@ -1,10 +1,10 @@
-import type { TableData } from '../../types/table-data'
-import type { ColumnPinningState, Header, Table } from '../../engine'
 import type { Ref } from 'vue'
 
 import { markRaw, ref } from 'vue'
 
+import type { ColumnPinningState, Header, Table } from '../../engine'
 import type { NuGridColumnDragDrop } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 /**
  * Column drag and drop functionality
  */

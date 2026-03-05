@@ -12,9 +12,8 @@ export function calculateProportionalSizes(
 ): Record<string, number> {
   const result: Record<string, number> = {}
   for (const [columnId, headerSize] of columnSizingStart) {
-    result[columnId] = Math.round(
-      Math.max(headerSize + headerSize * deltaPercentage, 0) * 100,
-    ) / 100
+    result[columnId] =
+      Math.round(Math.max(headerSize + headerSize * deltaPercentage, 0) * 100) / 100
   }
   return result
 }

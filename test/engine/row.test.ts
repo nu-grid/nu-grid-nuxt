@@ -1,8 +1,14 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import type {
+  EngineColumn,
+  EngineRow,
+  EngineTable,
+  StateAccessors,
+} from '../../src/runtime/engine/types'
+
 import { createEngineColumn } from '../../src/runtime/engine/column'
 import { createEngineRow } from '../../src/runtime/engine/row'
-import type { EngineColumn, EngineRow, EngineTable, StateAccessors } from '../../src/runtime/engine/types'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -80,7 +86,7 @@ describe('EngineRow — getValue', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -107,7 +113,7 @@ describe('EngineRow — getValue', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -128,12 +134,17 @@ describe('EngineRow — getValue', () => {
   it('should support deep accessorKey', () => {
     const state = createMockState()
     const columns = [
-      createEngineColumn({ id: 'address_city', accessorKey: 'address.city', header: 'City' }, 0, undefined, state),
+      createEngineColumn(
+        { id: 'address_city', accessorKey: 'address.city', header: 'City' },
+        0,
+        undefined,
+        state,
+      ),
     ]
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -151,13 +162,11 @@ describe('EngineRow — getValue', () => {
 
   it('should return undefined for column without accessorFn', () => {
     const state = createMockState()
-    const columns = [
-      createEngineColumn({ id: 'actions', header: 'Actions' }, 0, undefined, state),
-    ]
+    const columns = [createEngineColumn({ id: 'actions', header: 'Actions' }, 0, undefined, state)]
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -185,7 +194,7 @@ describe('EngineRow — renderValue', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -209,7 +218,7 @@ describe('EngineRow — renderValue', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
       options: { renderFallbackValue: '—' },
     })
 
@@ -238,7 +247,7 @@ describe('EngineRow — selection', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -260,7 +269,7 @@ describe('EngineRow — selection', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -288,7 +297,7 @@ describe('EngineRow — selection', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -317,7 +326,7 @@ describe('EngineRow — selection', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -346,7 +355,7 @@ describe('EngineRow — selection', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -378,7 +387,7 @@ describe('EngineRow — expansion', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -400,7 +409,7 @@ describe('EngineRow — expansion', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -422,7 +431,7 @@ describe('EngineRow — expansion', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -450,7 +459,7 @@ describe('EngineRow — expansion', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -464,8 +473,14 @@ describe('EngineRow — expansion', () => {
     })
     // Simulate group row with subRows (set after creation, like core row model does)
     const childRow = createEngineRow({
-      id: 'c1', index: 0, original: { name: 'Sub', age: 1, email: 's@b.c' },
-      depth: 1, parentId: 'r1', table, columns, state,
+      id: 'c1',
+      index: 0,
+      original: { name: 'Sub', age: 1, email: 's@b.c' },
+      depth: 1,
+      parentId: 'r1',
+      table,
+      columns,
+      state,
     })
     row.subRows = [childRow]
 
@@ -482,7 +497,7 @@ describe('EngineRow — expansion', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const rowWithSubs = createEngineRow({
@@ -496,8 +511,14 @@ describe('EngineRow — expansion', () => {
     })
     // Assign subRows after creation (as core row model would)
     const child = createEngineRow({
-      id: 'c1', index: 0, original: { name: 'Sub', age: 1, email: 's@b.c' },
-      depth: 1, parentId: 'r1', table, columns, state,
+      id: 'c1',
+      index: 0,
+      original: { name: 'Sub', age: 1, email: 's@b.c' },
+      depth: 1,
+      parentId: 'r1',
+      table,
+      columns,
+      state,
     })
     rowWithSubs.subRows = [child]
     expect(rowWithSubs.getCanExpand()).toBe(true)
@@ -526,7 +547,7 @@ describe('EngineRow — grouping', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -548,7 +569,7 @@ describe('EngineRow — grouping', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -574,7 +595,7 @@ describe('EngineRow — grouping', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -605,7 +626,7 @@ describe('EngineRow — cells', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -620,7 +641,7 @@ describe('EngineRow — cells', () => {
 
     const cells = row.getAllCells()
     expect(cells).toHaveLength(3)
-    expect(cells.map(c => c.column.id)).toEqual(['name', 'age', 'email'])
+    expect(cells.map((c) => c.column.id)).toEqual(['name', 'age', 'email'])
   })
 
   it('getVisibleCells should filter by visibility', () => {
@@ -628,11 +649,11 @@ describe('EngineRow — cells', () => {
       columnVisibility: () => ({ email: false }),
     })
     const columns = createTestColumns(state)
-    const visibleColumns = columns.filter(c => c.getIsVisible())
+    const visibleColumns = columns.filter((c) => c.getIsVisible())
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => visibleColumns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -647,7 +668,7 @@ describe('EngineRow — cells', () => {
 
     const cells = row.getVisibleCells()
     expect(cells).toHaveLength(2)
-    expect(cells.map(c => c.column.id)).toEqual(['name', 'age'])
+    expect(cells.map((c) => c.column.id)).toEqual(['name', 'age'])
   })
 
   it('cell IDs should be formatted as rowId_columnId', () => {
@@ -656,7 +677,7 @@ describe('EngineRow — cells', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -687,7 +708,7 @@ describe('EngineRow — navigation', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const child1 = createEngineRow({
@@ -722,7 +743,7 @@ describe('EngineRow — navigation', () => {
     })
     parent.subRows = [child1, child2]
 
-    expect(parent.getLeafRows().map(r => r.id)).toEqual(['c1', 'c2'])
+    expect(parent.getLeafRows().map((r) => r.id)).toEqual(['c1', 'c2'])
   })
 
   it('getParentRow should return parent via table.getRow', () => {
@@ -741,8 +762,8 @@ describe('EngineRow — navigation', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
-      getRow: (id: string) => id === 'p1' ? parentRow : undefined,
+      getColumn: (id: string) => columns.find((c) => c.id === id),
+      getRow: (id: string) => (id === 'p1' ? parentRow : undefined),
     })
 
     const child = createEngineRow({
@@ -765,7 +786,7 @@ describe('EngineRow — navigation', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({
@@ -793,7 +814,7 @@ describe('EngineRow — subRows', () => {
     const table = createMockTable({
       getAllLeafColumns: () => columns,
       getVisibleLeafColumns: () => columns,
-      getColumn: (id: string) => columns.find(c => c.id === id),
+      getColumn: (id: string) => columns.find((c) => c.id === id),
     })
 
     const row = createEngineRow({

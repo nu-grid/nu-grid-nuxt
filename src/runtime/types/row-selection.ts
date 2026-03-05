@@ -1,7 +1,6 @@
-import type { TableData } from './table-data'
 import type { Row } from '../engine'
-
 import type { NuGridSelectionColumnDef } from './_internal'
+import type { TableData } from './table-data'
 
 /**
  * Row selection options object type for advanced configuration

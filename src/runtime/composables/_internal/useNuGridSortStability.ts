@@ -1,11 +1,11 @@
-import type { TableData } from '../../types/table-data'
-import type { Row, SortingState } from '../../engine'
 import type { Ref, ShallowRef } from 'vue'
 
 import { usePreferredReducedMotion } from '@vueuse/core'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
+import type { Row, SortingState } from '../../engine'
 import type { NuGridFocus } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 /**
  * Sort stability composable — manages row order after cell edits or external
@@ -57,9 +57,18 @@ export function useNuGridSortStability<T extends TableData>(
   })
 
   onBeforeUnmount(() => {
-    if (settledTimer) { clearTimeout(settledTimer); settledTimer = null }
-    if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null }
-    if (flipCleanupTimer) { clearTimeout(flipCleanupTimer); flipCleanupTimer = null }
+    if (settledTimer) {
+      clearTimeout(settledTimer)
+      settledTimer = null
+    }
+    if (debounceTimer) {
+      clearTimeout(debounceTimer)
+      debounceTimer = null
+    }
+    if (flipCleanupTimer) {
+      clearTimeout(flipCleanupTimer)
+      flipCleanupTimer = null
+    }
   })
 
   // Last settled row order — updated inside displayRows computed when in passthrough

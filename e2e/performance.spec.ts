@@ -36,10 +36,7 @@ async function getResults(page: any): Promise<PerfResult[]> {
 
 // Helper: run the full benchmark suite
 async function runSuite(page: any, rowCount: number): Promise<PerfResult[]> {
-  return page.evaluate(
-    (count: number) => (window as any).__PERF__.runSuite(count),
-    rowCount,
-  )
+  return page.evaluate((count: number) => (window as any).__PERF__.runSuite(count), rowCount)
 }
 
 // Helper: format results as a table
@@ -47,14 +44,16 @@ function formatResults(results: PerfResult[], label: string) {
   console.log(`\n${'═'.repeat(60)}`)
   console.log(`  ${label}`)
   console.log(`${'═'.repeat(60)}`)
-  const maxName = Math.max(...results.map(r => r.name.length))
+  const maxName = Math.max(...results.map((r) => r.name.length))
   for (const r of results) {
     const indicator = r.ms > 100 ? '🔴' : r.ms > 16 ? '🟡' : '🟢'
     console.log(`  ${indicator} ${r.name.padEnd(maxName + 2)} ${String(r.ms).padStart(8)}ms`)
   }
   const total = results.reduce((sum, r) => sum + r.ms, 0)
   console.log(`${'─'.repeat(60)}`)
-  console.log(`  TOTAL${' '.repeat(maxName - 3)} ${String(Math.round(total * 100) / 100).padStart(8)}ms`)
+  console.log(
+    `  TOTAL${' '.repeat(maxName - 3)} ${String(Math.round(total * 100) / 100).padStart(8)}ms`,
+  )
   console.log(`${'═'.repeat(60)}\n`)
 }
 
@@ -70,7 +69,7 @@ test.describe('NuGrid Performance Benchmarks', () => {
     formatResults(results, 'Full Suite — 1,000 rows')
     expect(results.length).toBeGreaterThan(0)
     // Sanity: load should complete in under 2 seconds
-    const loadResult = results.find(r => r.name.includes('load'))
+    const loadResult = results.find((r) => r.name.includes('load'))
     expect(loadResult?.ms).toBeLessThan(2000)
   })
 
@@ -78,7 +77,7 @@ test.describe('NuGrid Performance Benchmarks', () => {
     const results = await runSuite(page, 5000)
     formatResults(results, 'Full Suite — 5,000 rows')
     expect(results.length).toBeGreaterThan(0)
-    const loadResult = results.find(r => r.name.includes('load'))
+    const loadResult = results.find((r) => r.name.includes('load'))
     expect(loadResult?.ms).toBeLessThan(5000)
   })
 
@@ -86,7 +85,7 @@ test.describe('NuGrid Performance Benchmarks', () => {
     const results = await runSuite(page, 10000)
     formatResults(results, 'Full Suite — 10,000 rows')
     expect(results.length).toBeGreaterThan(0)
-    const loadResult = results.find(r => r.name.includes('load'))
+    const loadResult = results.find((r) => r.name.includes('load'))
     expect(loadResult?.ms).toBeLessThan(10000)
   })
 
@@ -164,15 +163,25 @@ test.describe('NuGrid Performance Benchmarks', () => {
       let gridEl: Element | null = null
       for (const div of allDivs) {
         const style = getComputedStyle(div)
-        if ((style.overflow === 'auto' || style.overflowY === 'auto')
-          && div.scrollHeight > div.clientHeight
-          && div.clientHeight > 100) {
+        if (
+          (style.overflow === 'auto' || style.overflowY === 'auto') &&
+          div.scrollHeight > div.clientHeight &&
+          div.clientHeight > 100
+        ) {
           gridEl = div
           break
         }
       }
 
-      if (!gridEl) return { totalMs: 0, avgFrameMs: 0, maxFrameMs: 0, estimatedFps: 0, frameCount: 0, error: 'no scroll container' }
+      if (!gridEl)
+        return {
+          totalMs: 0,
+          avgFrameMs: 0,
+          maxFrameMs: 0,
+          estimatedFps: 0,
+          frameCount: 0,
+          error: 'no scroll container',
+        }
 
       const frames: number[] = []
       let lastTime = performance.now()
@@ -193,13 +202,11 @@ test.describe('NuGrid Performance Benchmarks', () => {
         gridEl.scrollTop += scrollDistance
         measureFrame()
         // Wait for next frame
-        await new Promise(r => requestAnimationFrame(r))
+        await new Promise((r) => requestAnimationFrame(r))
       }
 
       const totalMs = performance.now() - start
-      const avgFrameMs = frames.length > 0
-        ? frames.reduce((a, b) => a + b, 0) / frames.length
-        : 0
+      const avgFrameMs = frames.length > 0 ? frames.reduce((a, b) => a + b, 0) / frames.length : 0
       const maxFrameMs = frames.length > 0 ? Math.max(...frames) : 0
       const estimatedFps = avgFrameMs > 0 ? Math.round(1000 / avgFrameMs) : 0
 
@@ -253,12 +260,11 @@ test.describe('NuGrid Performance Benchmarks', () => {
 
     if (baselineMemory && loadedMemory) {
       const deltaBytes = loadedMemory.usedJSHeapSize - baselineMemory.usedJSHeapSize
-      const deltaMB = Math.round(deltaBytes / 1024 / 1024 * 100) / 100
+      const deltaMB = Math.round((deltaBytes / 1024 / 1024) * 100) / 100
       console.log(`  Memory delta for 10K rows: ${deltaMB}MB`)
       console.log(`    Baseline: ${Math.round(baselineMemory.usedJSHeapSize / 1024 / 1024)}MB`)
       console.log(`    After load: ${Math.round(loadedMemory.usedJSHeapSize / 1024 / 1024)}MB`)
-    }
-    else {
+    } else {
       console.log('  Memory API not available (non-Chromium or flag not set)')
     }
 

@@ -1,5 +1,6 @@
-import type { ColumnPinningState } from '../../engine'
 import type { Ref } from 'vue'
+
+import type { ColumnPinningState } from '../../engine'
 
 export interface ColumnPinningControls {
   pinColumn: (columnId: string, side: 'left' | 'right') => void
@@ -11,7 +12,9 @@ export interface ColumnPinningControls {
 /**
  * Composable for managing column pinning state
  */
-export function useNuGridColumnPinning(columnPinningState: Ref<ColumnPinningState>): ColumnPinningControls {
+export function useNuGridColumnPinning(
+  columnPinningState: Ref<ColumnPinningState>,
+): ColumnPinningControls {
   const pinColumn = (columnId: string, side: 'left' | 'right') => {
     const currentPinning = columnPinningState.value
     const newPinning = { ...currentPinning }

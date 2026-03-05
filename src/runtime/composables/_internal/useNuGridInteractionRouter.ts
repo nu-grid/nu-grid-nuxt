@@ -1,5 +1,3 @@
-import type { TableData } from '../../types/table-data'
-
 import { ref } from 'vue'
 
 import type { NuGridEventEmitter } from '../../types'
@@ -15,6 +13,7 @@ import type {
   NuGridWheelContext,
   NuGridWheelHandler,
 } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 interface RouterOptions<T extends TableData = TableData> {
   debug?: boolean

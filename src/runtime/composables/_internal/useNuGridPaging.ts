@@ -1,11 +1,11 @@
-import type { TableData } from '../../types/table-data'
-import type { PaginationState, Table } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
 
 import { useResizeObserver } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 
+import type { PaginationState, Table } from '../../engine'
 import type { NuGridEventEmitter, NuGridPagingOptions, NuGridProps } from '../../types'
+import type { TableData } from '../../types/table-data'
 
 import { nuGridDefaults } from '../../config/_internal'
 import { updatePageIndex, updatePageSize } from '../../utils/stateManagementFns'
@@ -188,7 +188,10 @@ export function useNuGridPaging<T extends TableData = TableData>(
     [enabled, () => resolvedOptions.value.pageSize, autoPageSizeEnabled],
     ([isEnabled, configuredPageSize]) => {
       if (isEnabled && !autoPageSizeEnabled.value) {
-        paginationState.value = updatePageSize(paginationState.value, configuredPageSize ?? nuGridDefaults.paging.pageSize)
+        paginationState.value = updatePageSize(
+          paginationState.value,
+          configuredPageSize ?? nuGridDefaults.paging.pageSize,
+        )
       }
     },
     { immediate: true },
@@ -252,7 +255,11 @@ export function useNuGridPaging<T extends TableData = TableData>(
 
   // Navigation methods - direct ref updates, nextTick for event emission
   const setPageIndex = async (index: number) => {
-    const clamped = updatePageIndex(paginationState.value.pageIndex, index, totalPages.value || undefined)
+    const clamped = updatePageIndex(
+      paginationState.value.pageIndex,
+      index,
+      totalPages.value || undefined,
+    )
     paginationState.value = { ...paginationState.value, pageIndex: clamped }
     await nextTick()
     emitPageChanged()
@@ -278,7 +285,11 @@ export function useNuGridPaging<T extends TableData = TableData>(
   }
 
   const nextPage = async () => {
-    const next = updatePageIndex(paginationState.value.pageIndex, paginationState.value.pageIndex + 1, totalPages.value || undefined)
+    const next = updatePageIndex(
+      paginationState.value.pageIndex,
+      paginationState.value.pageIndex + 1,
+      totalPages.value || undefined,
+    )
     paginationState.value = { ...paginationState.value, pageIndex: next }
     await nextTick()
     emitPageChanged()

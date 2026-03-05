@@ -56,8 +56,8 @@ const rows1K = generateRows(1_000)
 const rows10K = generateRows(10_000)
 const rows50K = generateRows(50_000)
 
-const alphanumericPairs = rows10K.map((r, i) =>
-  [r.name, rows10K[(i + 1) % rows10K.length]!.name] as [string, string],
+const alphanumericPairs = rows10K.map(
+  (r, i) => [r.name, rows10K[(i + 1) % rows10K.length]!.name] as [string, string],
 )
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -65,7 +65,7 @@ const alphanumericPairs = rows10K.map((r, i) =>
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('Sorting: compareBasic', () => {
-  const numbers = rows10K.map(r => r.amount)
+  const numbers = rows10K.map((r) => r.amount)
 
   bench('sort 10K numbers', () => {
     const arr = [...numbers]
@@ -73,13 +73,13 @@ describe('Sorting: compareBasic', () => {
   })
 
   bench('sort 50K numbers', () => {
-    const arr = rows50K.map(r => r.amount)
+    const arr = rows50K.map((r) => r.amount)
     arr.sort(compareBasic)
   })
 })
 
 describe('Sorting: sortAlphanumeric', () => {
-  const strings = rows10K.map(r => r.name)
+  const strings = rows10K.map((r) => r.name)
 
   bench('sort 10K mixed alphanumeric strings', () => {
     const arr = [...strings]
@@ -96,7 +96,7 @@ describe('Sorting: compareAlphanumeric hot path', () => {
 })
 
 describe('Sorting: sortText vs sortAlphanumeric', () => {
-  const strings = rows10K.map(r => r.name)
+  const strings = rows10K.map((r) => r.name)
 
   bench('sortText (simple lowercase compare) 10K', () => {
     const arr = [...strings]
@@ -149,19 +149,19 @@ describe('Data reactivity: cell edit trigger', () => {
     // Simulate mutation
     copy[500] = { ...copy[500]!, amount: 999 }
     // Old: re-spread to trigger reactivity
-    void ([...copy])
+    void [...copy]
   })
 
   bench('spread copy 10K rows (old pattern)', () => {
     const copy = [...rows10K]
     copy[5000] = { ...copy[5000]!, amount: 999 }
-    void ([...copy])
+    void [...copy]
   })
 
   bench('spread copy 50K rows (old pattern)', () => {
     const copy = [...rows50K]
     copy[25000] = { ...copy[25000]!, amount: 999 }
-    void ([...copy])
+    void [...copy]
   })
 
   bench('in-place mutate (new pattern — no copy)', () => {
@@ -177,7 +177,7 @@ describe('Data reactivity: props.data watch', () => {
   // The spread breaks identity for downstream caches
 
   bench('spread on prop change 10K (old pattern)', () => {
-    void ([...rows10K])
+    void [...rows10K]
   })
 
   bench('direct assign on prop change (new pattern — zero cost)', () => {
@@ -191,7 +191,7 @@ describe('Data reactivity: props.data watch', () => {
 
 describe('getVisibleCells: allocation patterns', () => {
   const columns = generateColumns(30) // typical grid width
-  const visibleColumnIds = columns.slice(0, 20).map(c => c.id) // 20 visible
+  const visibleColumnIds = columns.slice(0, 20).map((c) => c.id) // 20 visible
   const allCellsByColumnId: Record<string, { column: { id: string } }> = {}
   for (const col of columns) {
     allCellsByColumnId[col.id] = { column: { id: col.id } }
@@ -243,7 +243,7 @@ describe('Range extractor: sticky row merging', () => {
   bench('Set dedup (old pattern) × 1K frames', () => {
     for (let i = 0; i < 1000; i++) {
       const merged = new Set([...stickyIndexes, ...viewportRange])
-      void ([...merged])
+      void [...merged]
     }
   })
 
@@ -266,7 +266,7 @@ describe('Range extractor: sticky row merging', () => {
   bench('Set dedup large (20 sticky + 50 viewport) × 1K', () => {
     for (let i = 0; i < 1000; i++) {
       const merged = new Set([...manyStickyIndexes, ...largeViewport])
-      void ([...merged])
+      void [...merged]
     }
   })
 
@@ -325,15 +325,33 @@ describe('getState: eager vs lazy with Vue refs', () => {
   // Lazy getState: only accessed properties create deps
   function lazyGetState() {
     return {
-      get columnSizing() { return columnSizing.value },
-      get columnSizingInfo() { return columnSizingInfo.value },
-      get columnPinning() { return columnPinning.value },
-      get columnVisibility() { return columnVisibility.value },
-      get columnOrder() { return columnOrder.value },
-      get sorting() { return sorting.value },
-      get grouping() { return grouping.value },
-      get rowSelection() { return rowSelection.value },
-      get expanded() { return expanded.value },
+      get columnSizing() {
+        return columnSizing.value
+      },
+      get columnSizingInfo() {
+        return columnSizingInfo.value
+      },
+      get columnPinning() {
+        return columnPinning.value
+      },
+      get columnVisibility() {
+        return columnVisibility.value
+      },
+      get columnOrder() {
+        return columnOrder.value
+      },
+      get sorting() {
+        return sorting.value
+      },
+      get grouping() {
+        return grouping.value
+      },
+      get rowSelection() {
+        return rowSelection.value
+      },
+      get expanded() {
+        return expanded.value
+      },
     }
   }
 
@@ -384,14 +402,14 @@ describe('Filtering: string includes', () => {
   const filterValue = 'item 5'
 
   bench('filter 10K rows — string includes (case insensitive)', () => {
-    const result = rows10K.filter(row =>
+    const result = rows10K.filter((row) =>
       row.name.toLowerCase().includes(filterValue.toLowerCase()),
     )
     void result.length
   })
 
   bench('filter 50K rows — string includes (case insensitive)', () => {
-    const result = rows50K.filter(row =>
+    const result = rows50K.filter((row) =>
       row.name.toLowerCase().includes(filterValue.toLowerCase()),
     )
     void result.length
@@ -400,19 +418,19 @@ describe('Filtering: string includes', () => {
 
 describe('Filtering: number range', () => {
   bench('filter 10K rows — number range', () => {
-    const result = rows10K.filter(row => row.amount >= 20 && row.amount <= 80)
+    const result = rows10K.filter((row) => row.amount >= 20 && row.amount <= 80)
     void result.length
   })
 
   bench('filter 50K rows — number range', () => {
-    const result = rows50K.filter(row => row.amount >= 20 && row.amount <= 80)
+    const result = rows50K.filter((row) => row.amount >= 20 && row.amount <= 80)
     void result.length
   })
 })
 
 describe('Filtering: equality check', () => {
   bench('filter 10K rows — string equality', () => {
-    const result = rows10K.filter(row => row.category === 'A')
+    const result = rows10K.filter((row) => row.category === 'A')
     void result.length
   })
 })
@@ -426,11 +444,11 @@ describe('Row model: shallow copy vs direct reference', () => {
   // Now it only copies when animation is enabled
 
   bench('shallow copy 1K rows (animation path)', () => {
-    void ([...rows1K])
+    void [...rows1K]
   })
 
   bench('shallow copy 10K rows (animation path)', () => {
-    void ([...rows10K])
+    void [...rows10K]
   })
 
   bench('direct reference (non-animation path — zero cost)', () => {
@@ -451,7 +469,7 @@ describe('Tooltip: mouse follow update (60fps mousemove)', () => {
 
   bench('spread new object × 1K moves (old — 16.7sec @ 60fps)', () => {
     for (let i = 0; i < 1000; i++) {
-      void ({ ...state, x: i, y: i + 50 })
+      void { ...state, x: i, y: i + 50 }
     }
   })
 
@@ -468,19 +486,18 @@ describe('Tooltip: mouse follow update (60fps mousemove)', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('Column sizing: proportional resize', () => {
-  const columnSizingStart: [string, number][] = Array.from(
-    { length: 20 },
-    (_, i) => [`col-${i}`, 100 + Math.random() * 200],
-  )
+  const columnSizingStart: [string, number][] = Array.from({ length: 20 }, (_, i) => [
+    `col-${i}`,
+    100 + Math.random() * 200,
+  ])
   const deltaPercentage = 0.15
 
   bench('calculate proportional sizes for 20 columns × 1K', () => {
     for (let i = 0; i < 1000; i++) {
       const result: Record<string, number> = {}
       for (const [columnId, headerSize] of columnSizingStart) {
-        result[columnId] = Math.round(
-          Math.max(headerSize + headerSize * deltaPercentage, 0) * 100,
-        ) / 100
+        result[columnId] =
+          Math.round(Math.max(headerSize + headerSize * deltaPercentage, 0) * 100) / 100
       }
       void result
     }
@@ -494,7 +511,7 @@ describe('Column sizing: proportional resize', () => {
 describe('Pipeline: filter → sort → paginate (simulated)', () => {
   bench('10K rows → filter → sort → take 50', () => {
     // Filter
-    const filtered = rows10K.filter(r => r.category === 'A' || r.category === 'B')
+    const filtered = rows10K.filter((r) => r.category === 'A' || r.category === 'B')
     // Sort
     filtered.sort((a, b) => sortBasic(a.amount, b.amount))
     // Paginate
@@ -503,7 +520,7 @@ describe('Pipeline: filter → sort → paginate (simulated)', () => {
   })
 
   bench('50K rows → filter → sort → take 50', () => {
-    const filtered = rows50K.filter(r => r.category === 'A' || r.category === 'B')
+    const filtered = rows50K.filter((r) => r.category === 'A' || r.category === 'B')
     filtered.sort((a, b) => sortBasic(a.amount, b.amount))
     const page = filtered.slice(0, 50)
     void page.length
@@ -542,9 +559,10 @@ describe('TanStack: valueUpdater pattern overhead', () => {
   // Vue ref already imported at top level
 
   function valueUpdater<T>(updaterOrValue: T | ((old: T) => T), target: { value: T }) {
-    target.value = typeof updaterOrValue === 'function'
-      ? (updaterOrValue as (old: T) => T)(target.value)
-      : updaterOrValue
+    target.value =
+      typeof updaterOrValue === 'function'
+        ? (updaterOrValue as (old: T) => T)(target.value)
+        : updaterOrValue
   }
 
   const sortingRef = ref([{ id: 'col1', desc: false }])
@@ -571,7 +589,7 @@ describe('TanStack: valueUpdater pattern overhead', () => {
 
   bench('TanStack setOptions spread 50-prop object × 10K', () => {
     for (let i = 0; i < 10_000; i++) {
-      void ({ ...bigOptions, data: rows1K })
+      void { ...bigOptions, data: rows1K }
     }
   })
 
@@ -606,9 +624,15 @@ describe('TanStack: Row object creation overhead', () => {
         // TanStack allocates a new array every call
         return [{ id: `${index}_name`, getValue: () => original.name }]
       },
-      getIsSelected() { return false },
-      getIsExpanded() { return false },
-      getCanSelect() { return true },
+      getIsSelected() {
+        return false
+      },
+      getIsExpanded() {
+        return false
+      },
+      getCanSelect() {
+        return true
+      },
     }
   }
 
@@ -661,10 +685,7 @@ describe('TanStack: getCoreRowModel memo overhead', () => {
   // If the array ref hasn't changed, return cached result immediately.
 
   // Simulated TanStack memo with deps checking
-  function tanstackMemo<T>(
-    getDeps: () => any[],
-    factory: () => T,
-  ): () => T {
+  function tanstackMemo<T>(getDeps: () => any[], factory: () => T): () => T {
     let lastDeps: any[] | null = null
     let lastResult: T | undefined
     return () => {

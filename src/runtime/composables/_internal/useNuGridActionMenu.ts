@@ -1,9 +1,8 @@
-import type { TableData } from '../../types/table-data'
-import type { Row, VisibilityState } from '../../engine'
 import type { Ref } from 'vue'
 
 import { computed, h, ref, watch } from 'vue'
 
+import type { Row, VisibilityState } from '../../engine'
 import type { NuGridActionMenuOptions, NuGridColumn } from '../../types'
 import type {
   NuGridActionMenuButton,
@@ -11,6 +10,7 @@ import type {
   NuGridActionMenuColumnMeta,
   UseNuGridActionMenuReturn,
 } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 import { nuGridCellTypeRegistry } from '../useNuGridCellTypeRegistry'
 

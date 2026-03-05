@@ -1,5 +1,3 @@
-import type { TableData } from '../../types/table-data'
-import type { Row, Table } from '../../engine'
 import type { VirtualItem, Virtualizer } from '@tanstack/vue-virtual'
 import type { Primitive } from 'reka-ui'
 import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
@@ -8,6 +6,7 @@ import { defaultRangeExtractor, useVirtualizer } from '@tanstack/vue-virtual'
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 import { computed, ref, shallowRef, toValue, triggerRef, watch } from 'vue'
 
+import type { Row, Table } from '../../engine'
 import type { NuGridProps } from '../../types'
 import type {
   GroupingVirtualRowHeights,
@@ -18,6 +17,7 @@ import type {
   OverscanSetting,
   ResolvedNuGridVirtualizeOptions,
 } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 import { nuGridDefaults } from '../../config/_internal'
 

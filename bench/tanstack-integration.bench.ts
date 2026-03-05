@@ -1,3 +1,14 @@
+import {
+  type ColumnDef,
+  type ColumnPinningState,
+  type ColumnSizingState,
+  type ExpandedState,
+  getCoreRowModel,
+  type RowSelectionState,
+  type SortingState,
+  useVueTable,
+  type VisibilityState,
+} from '@tanstack/vue-table'
 /**
  * TanStack Table Integration Benchmarks
  *
@@ -8,17 +19,6 @@
  */
 import { bench, describe } from 'vitest'
 import { computed, nextTick, ref, watch } from 'vue'
-import {
-  type ColumnDef,
-  type RowSelectionState,
-  type SortingState,
-  type ExpandedState,
-  type ColumnPinningState,
-  type VisibilityState,
-  type ColumnSizingState,
-  getCoreRowModel,
-  useVueTable,
-} from '@tanstack/vue-table'
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Test data
@@ -65,9 +65,10 @@ const rows10K = generateRows(10_000)
 // ═══════════════════════════════════════════════════════════════════════════
 
 function valueUpdater<T>(updaterOrValue: T | ((old: T) => T), target: { value: T }) {
-  target.value = typeof updaterOrValue === 'function'
-    ? (updaterOrValue as (old: T) => T)(target.value)
-    : updaterOrValue
+  target.value =
+    typeof updaterOrValue === 'function'
+      ? (updaterOrValue as (old: T) => T)(target.value)
+      : updaterOrValue
 }
 
 function createNuGridTable(data: TestRow[]) {
@@ -80,7 +81,9 @@ function createNuGridTable(data: TestRow[]) {
   const columnSizingState = ref<ColumnSizingState>({})
 
   const tableApi = useVueTable({
-    get data() { return dataRef.value },
+    get data() {
+      return dataRef.value
+    },
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualSorting: true,
@@ -92,12 +95,24 @@ function createNuGridTable(data: TestRow[]) {
     onColumnVisibilityChange: (updater) => valueUpdater(updater, columnVisibilityState),
     onColumnSizingChange: (updater) => valueUpdater(updater, columnSizingState),
     state: {
-      get sorting() { return sortingState.value },
-      get rowSelection() { return rowSelectionState.value },
-      get expanded() { return expandedState.value },
-      get columnPinning() { return columnPinningState.value },
-      get columnVisibility() { return columnVisibilityState.value },
-      get columnSizing() { return columnSizingState.value },
+      get sorting() {
+        return sortingState.value
+      },
+      get rowSelection() {
+        return rowSelectionState.value
+      },
+      get expanded() {
+        return expandedState.value
+      },
+      get columnPinning() {
+        return columnPinningState.value
+      },
+      get columnVisibility() {
+        return columnVisibilityState.value
+      },
+      get columnSizing() {
+        return columnSizingState.value
+      },
     },
   })
 

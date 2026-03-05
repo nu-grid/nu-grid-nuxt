@@ -1,7 +1,7 @@
-import type { Row } from '../src/runtime/engine'
-
 import { describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
+
+import type { Row } from '../src/runtime/engine'
 
 import { ADD_ROW_FLAG, useNuGridAddRow } from '../src/runtime/composables/_internal/useNuGridAddRow'
 

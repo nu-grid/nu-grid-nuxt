@@ -29,7 +29,6 @@ export function updatePageIndex(
   newPageIndex: number,
   pageCount: number | undefined,
 ): number {
-  const maxPageIndex =
-    pageCount === undefined ? Number.MAX_SAFE_INTEGER : pageCount - 1
+  const maxPageIndex = pageCount === undefined ? Number.MAX_SAFE_INTEGER : pageCount - 1
   return Math.max(0, Math.min(newPageIndex, maxPageIndex))
 }

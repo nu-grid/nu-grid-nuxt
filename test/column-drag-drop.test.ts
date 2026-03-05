@@ -1,7 +1,7 @@
-import type { Header, Table } from '../src/runtime/engine'
-
 import { describe, expect, it, vi } from 'vitest'
 import { ref, toValue } from 'vue'
+
+import type { Header, Table } from '../src/runtime/engine'
 
 import { useNuGridColumnDragDrop } from '../src/runtime/composables/_internal/useNuGridColumnDragDrop'
 

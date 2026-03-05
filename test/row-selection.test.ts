@@ -1,9 +1,9 @@
 import type { TableColumn } from '@nuxt/ui'
-import type { ColumnSizingInfoState, GroupingState, VisibilityState } from '../src/runtime/engine'
 
 import { describe, expect, it } from 'vitest'
 import { nextTick, ref } from 'vue'
 
+import type { ColumnSizingInfoState, GroupingState, VisibilityState } from '../src/runtime/engine'
 import type { NuGridSelectionOptions } from '../src/runtime/types'
 import type { NuGridRowSelectionMode, NuGridStates } from '../src/runtime/types/_internal'
 

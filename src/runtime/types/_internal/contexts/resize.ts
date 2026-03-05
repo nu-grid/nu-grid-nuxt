@@ -1,8 +1,8 @@
-import type { TableData } from '../../table-data'
-import type { ColumnSizingState } from '../../../engine'
 import type { Ref } from 'vue'
 
+import type { ColumnSizingState } from '../../../engine'
 import type { NuGridColumnResize } from '../../resize'
+import type { TableData } from '../../table-data'
 
 /**
  * Column Resize context

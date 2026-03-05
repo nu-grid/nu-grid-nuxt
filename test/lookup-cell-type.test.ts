@@ -32,14 +32,19 @@ const NuGridSelectMenuStub = defineComponent({
   },
   emits: ['update:modelValue', 'update:open'],
   setup(_props, { emit, slots }) {
-    return () => h('div', { class: 'nugrid-select-menu-stub' }, [
-      h('button', {
-        'aria-haspopup': 'listbox',
-        'tabindex': '0',
-        'onClick': () => emit('update:open', true),
-      }, 'trigger'),
-      slots.trailing?.(),
-    ])
+    return () =>
+      h('div', { class: 'nugrid-select-menu-stub' }, [
+        h(
+          'button',
+          {
+            'aria-haspopup': 'listbox',
+            'tabindex': '0',
+            'onClick': () => emit('update:open', true),
+          },
+          'trigger',
+        ),
+        slots.trailing?.(),
+      ])
   },
 })
 

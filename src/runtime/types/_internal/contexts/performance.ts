@@ -1,6 +1,7 @@
-import type { TableData } from '../../table-data'
-import type { Cell, Column, HeaderGroup, Row } from '../../../engine'
 import type { ComputedRef } from 'vue'
+
+import type { Cell, Column, HeaderGroup, Row } from '../../../engine'
+import type { TableData } from '../../table-data'
 
 /**
  * Performance context

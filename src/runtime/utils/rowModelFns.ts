@@ -36,9 +36,10 @@ export function expandRows<T extends ExpandableRow>(
     result.push(row)
 
     if (row.subRows?.length) {
-      const isExpanded = expandedState === true || (expandedState as Record<string, boolean>)[row.id]
+      const isExpanded =
+        expandedState === true || (expandedState as Record<string, boolean>)[row.id]
       if (isExpanded) {
-        (row.subRows as T[]).forEach(handleRow)
+        ;(row.subRows as T[]).forEach(handleRow)
       }
     }
   }
@@ -56,11 +57,7 @@ export function expandRows<T extends ExpandableRow>(
  * @param pageSize - Number of rows per page
  * @returns Slice of rows for the requested page
  */
-export function paginateRows<T>(
-  rows: T[],
-  pageIndex: number,
-  pageSize: number,
-): T[] {
+export function paginateRows<T>(rows: T[], pageIndex: number, pageSize: number): T[] {
   const pageStart = pageSize * pageIndex
   const pageEnd = pageStart + pageSize
   return rows.slice(pageStart, pageEnd)

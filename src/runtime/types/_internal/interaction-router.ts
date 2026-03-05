@@ -1,6 +1,5 @@
-import type { TableData } from '../table-data'
 import type { Cell, Row, Table } from '../../engine'
-
+import type { TableData } from '../table-data'
 import type { NuGridCellEditing } from './cell-editing'
 import type { NuGridFocus, NuGridFocusedCell } from './focus'
 

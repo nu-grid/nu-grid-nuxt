@@ -1,9 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
+import type {
+  EngineColumn,
+  EngineRow,
+  EngineTable,
+  StateAccessors,
+} from '../../src/runtime/engine/types'
+
 import { builtinAggregationFns } from '../../src/runtime/engine/aggregation-fns'
 import { createEngineColumn } from '../../src/runtime/engine/column'
 import { buildCoreRowModel } from '../../src/runtime/engine/core-row-model'
-import type { EngineColumn, EngineRow, EngineTable, StateAccessors } from '../../src/runtime/engine/types'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -48,7 +54,7 @@ function createMockTable(columns: EngineColumn<any>[]): EngineTable<any> {
     getAllLeafColumns: () => columns,
     getAllFlatColumns: () => columns,
     getVisibleLeafColumns: () => columns,
-    getColumn: (id: string) => columns.find(c => c.id === id),
+    getColumn: (id: string) => columns.find((c) => c.id === id),
     getRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),
     getSelectedRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),
     getPrePaginationRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),

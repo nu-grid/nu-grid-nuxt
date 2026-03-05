@@ -1,11 +1,11 @@
-import type { TableData } from './table-data'
-import type { Row } from '../engine'
 import type { Ref } from 'vue'
 
+import type { Row } from '../engine'
 import type { NuGridEditorConfig } from './_internal'
 import type { NuGridColumnMenuItemsCallback } from './column'
 import type { NuGridScrollbars } from './props'
 import type { NuGridSortIcon } from './sort-icon'
+import type { TableData } from './table-data'
 
 // Defaults are defined in nuGridDefaults (app/nugrid/options-defaults.ts); keep @defaultValue notes in sync.
 
@@ -1005,4 +1005,3 @@ export interface NuGridSpreadsheetNavOptions {
    */
   nextGrid?: Ref<any>
 }
-

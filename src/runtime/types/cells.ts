@@ -7,12 +7,12 @@
  * Import from '#nu-grid/cells' in your Nuxt application.
  */
 
-import type { TableData } from './table-data'
-import type { Cell, Column, EngineColumnDef, Row, Table } from '../engine'
 import type { Component, Ref } from 'vue'
 
+import type { Cell, Column, EngineColumnDef, Row, Table } from '../engine'
 import type { NuGridEditorConfig, NuGridInteractionRouter } from './_internal'
 import type { NuGridColumn, NuGridColumnMenuItem } from './column'
+import type { TableData } from './table-data'
 import type { NuGridShowErrors } from './validation'
 
 // =============================================================================
@@ -173,7 +173,10 @@ export interface NuGridCellTypeContext<T extends TableData = TableData> {
   /** Start editing the cell */
   startEditing: (initialValue?: any) => void
   /** Stop editing and save value */
-  stopEditing: (newValue: any, moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') => void
+  stopEditing: (
+    newValue: any,
+    moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous',
+  ) => void
   /** Emit cell value change event */
   emitChange: (oldValue: any, newValue: any) => void
 }

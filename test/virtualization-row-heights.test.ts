@@ -1,9 +1,9 @@
 import type { TableColumn } from '@nuxt/ui'
-import type { ColumnSizingInfoState, ExpandedState, GroupingState } from '../src/runtime/engine'
 
 import { describe, expect, it } from 'vitest'
 import { nextTick, ref } from 'vue'
 
+import type { ColumnSizingInfoState, ExpandedState, GroupingState } from '../src/runtime/engine'
 import type { NuGridProps } from '../src/runtime/types'
 import type { GroupingVirtualRowHeights } from '../src/runtime/types/_internal'
 

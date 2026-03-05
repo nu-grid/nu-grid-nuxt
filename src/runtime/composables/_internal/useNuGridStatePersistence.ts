@@ -1,4 +1,7 @@
-import type { TableData } from '../../types/table-data'
+import { useCookie } from '#imports'
+import { StorageSerializers, useStorage } from '@vueuse/core'
+import { nextTick, onMounted, watch } from 'vue'
+
 import type {
   ColumnFiltersState,
   ColumnOrderState,
@@ -13,13 +16,9 @@ import type {
   SortingState,
   VisibilityState,
 } from '../../engine'
-
-import { useCookie } from '#imports'
-import { StorageSerializers, useStorage } from '@vueuse/core'
-import { nextTick, onMounted, watch } from 'vue'
-
 import type { NuGridEventEmitter } from '../../types'
 import type { NuGridStates } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 export interface NuGridStateSnapshot {
   globalFilter?: string

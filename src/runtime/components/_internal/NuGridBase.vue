@@ -1,17 +1,13 @@
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData } from '../../types/table-data'
-import type { NuGridSlots } from '../../types/slots'
 import type { VirtualItem } from '@tanstack/vue-virtual'
 import type { ComponentPublicInstance, Ref } from 'vue'
 
-import type { Header } from '../../engine'
-
-import { FlexRender } from '../../utils/flexRender'
 import { createReusableTemplate } from '@vueuse/core'
 import { Primitive } from 'reka-ui'
 import { computed, inject, onMounted, ref, toValue } from 'vue'
 
 import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
+import type { Header } from '../../engine'
 import type { NuGridProps } from '../../types'
 import type {
   GroupVirtualRowType,
@@ -27,6 +23,8 @@ import type {
   NuGridVirtualItemStyle,
   NuGridVirtualizationContext,
 } from '../../types/_internal'
+import type { NuGridSlots } from '../../types/slots'
+import type { TableData } from '../../types/table-data'
 
 import {
   getFlexHeaderStyle,
@@ -35,6 +33,7 @@ import {
   resolveStyleObject,
   resolveValue,
 } from '../../composables/_internal'
+import { FlexRender } from '../../utils/flexRender'
 import NuGridAddRow from './NuGridAddRow.vue'
 import NuGridColumnMenu from './NuGridColumnMenu.vue'
 import NuGridHeaderSortButton from './NuGridHeaderSortButton.vue'
@@ -130,7 +129,9 @@ function handleHeaderSortClick(event: MouseEvent, header: Header<T>) {
 // SSR/hydration mismatch (header.getSize() depends on container width
 // which isn't available during SSR).
 const isMounted = ref(false)
-onMounted(() => { isMounted.value = true })
+onMounted(() => {
+  isMounted.value = true
+})
 
 function isCompactHeader(header: Header<T>): boolean {
   const opt = header.column.columnDef.compactHeader
@@ -1039,7 +1040,11 @@ function getVirtualItemStyle(
                           <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
                             <div
                               v-if="isCompactHeader(header)"
-                              :class="ui.headerControlsCompact({ class: [propsUi?.headerControlsCompact] })"
+                              :class="
+                                ui.headerControlsCompact({
+                                  class: [propsUi?.headerControlsCompact],
+                                })
+                              "
                             >
                               <NuGridHeaderSortButton
                                 v-if="
@@ -1263,7 +1268,11 @@ function getVirtualItemStyle(
                             <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
                               <div
                                 v-if="isCompactHeader(header)"
-                                :class="ui.headerControlsCompact({ class: [propsUi?.headerControlsCompact] })"
+                                :class="
+                                  ui.headerControlsCompact({
+                                    class: [propsUi?.headerControlsCompact],
+                                  })
+                                "
                               >
                                 <NuGridHeaderSortButton
                                   v-if="

@@ -1,8 +1,7 @@
-import type { TableData } from '../../../types/table-data'
-
 import { nextTick } from 'vue'
 
 import type { NuGridKeyboardHandler, NuGridPagingContext } from '../../../types/_internal'
+import type { TableData } from '../../../types/table-data'
 
 import { ROUTER_PRIORITIES } from '../../../types/_internal'
 

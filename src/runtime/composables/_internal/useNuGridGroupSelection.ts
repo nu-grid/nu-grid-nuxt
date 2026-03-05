@@ -1,6 +1,7 @@
-import type { TableData } from '../../types/table-data'
-import type { Row, RowSelectionState } from '../../engine'
 import type { ComputedRef, Ref } from 'vue'
+
+import type { Row, RowSelectionState } from '../../engine'
+import type { TableData } from '../../types/table-data'
 
 /**
  * Composable for managing row selection within groups in a grouped table.

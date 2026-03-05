@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import type { ComputedRef } from 'vue'
 
-import { computed, inject, isRef, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
+import {
+  computed,
+  inject,
+  isRef,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+  watchEffect,
+} from 'vue'
 
 import type { NuGridCellEditorEmits, NuGridCellEditorProps, NuGridLookupItem } from '../../types'
 import type { NuGridKeyboardContext } from '../../types/_internal'

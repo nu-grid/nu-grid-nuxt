@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { createEngineColumn } from '../../src/runtime/engine/column'
 import type { EngineColumn, StateAccessors } from '../../src/runtime/engine/types'
+
+import { createEngineColumn } from '../../src/runtime/engine/column'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -22,10 +23,7 @@ function tanstackGetSize(
 ): number {
   const columnSize = columnSizing[columnId]
   return Math.min(
-    Math.max(
-      columnDef.minSize ?? TS_DEFAULT_MIN,
-      columnSize ?? columnDef.size ?? TS_DEFAULT_SIZE,
-    ),
+    Math.max(columnDef.minSize ?? TS_DEFAULT_MIN, columnSize ?? columnDef.size ?? TS_DEFAULT_SIZE),
     columnDef.maxSize ?? TS_DEFAULT_MAX,
   )
 }
@@ -37,10 +35,7 @@ function tanstackGetCanResize(
   columnDef: { enableResizing?: boolean },
   tableEnableResizing?: boolean,
 ): boolean {
-  return (
-    (columnDef.enableResizing ?? true)
-    && (tableEnableResizing ?? true)
-  )
+  return (columnDef.enableResizing ?? true) && (tableEnableResizing ?? true)
 }
 
 function createMockStateAccessors(overrides?: Partial<StateAccessors>): StateAccessors {
@@ -87,12 +82,7 @@ function createTestColumn(
     header: id,
     ...def,
   }
-  return createEngineColumn(
-    fullDef,
-    0,
-    undefined,
-    stateAccessors ?? createMockStateAccessors(),
-  )
+  return createEngineColumn(fullDef, 0, undefined, stateAccessors ?? createMockStateAccessors())
 }
 
 // ---------------------------------------------------------------------------
@@ -519,14 +509,14 @@ describe('column.toggleSorting()', () => {
 describe('column.getFlatColumns()', () => {
   it('should return self for leaf column', () => {
     const col = createTestColumn('name')
-    expect(col.getFlatColumns().map(c => c.id)).toEqual(['name'])
+    expect(col.getFlatColumns().map((c) => c.id)).toEqual(['name'])
   })
 })
 
 describe('column.getLeafColumns()', () => {
   it('should return self for leaf column', () => {
     const col = createTestColumn('name')
-    expect(col.getLeafColumns().map(c => c.id)).toEqual(['name'])
+    expect(col.getLeafColumns().map((c) => c.id)).toEqual(['name'])
   })
 })
 

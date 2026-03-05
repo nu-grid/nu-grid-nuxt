@@ -1,9 +1,9 @@
-import type { TableData } from '../types/table-data'
 import type { Ref } from 'vue'
 
 import { computed } from 'vue'
 
 import type { NuGridCellType } from '../types/cells'
+import type { TableData } from '../types/table-data'
 
 import { builtInCellTypes } from '../cell-types'
 
