@@ -967,13 +967,42 @@ export interface NuGridSortOptions {
 }
 
 /**
- * Options for spreadsheet-style navigation between multiple grids.
- * When a user navigates past the last/first cell, focus moves to the linked grid.
+ * Spreadsheet navigation configuration
+ * Enables unified navigation across linked NuGrid instances,
+ * making multiple grids feel like one continuous spreadsheet.
+ *
+ * When enabled (boolean or object):
+ * - ArrowLeft/ArrowRight in editors navigate between cells when cursor is at text boundary
+ *
+ * When linked (object with previousGrid/nextGrid):
+ * - ArrowUp at first row navigates to previous grid's last row (same column)
+ * - ArrowDown at last row navigates to next grid's first row (same column)
+ * - Works in both focus mode and editing mode
+ *
+ * @example
+ * // Just left/right cursor-aware navigation in editors
+ * spreadsheetNav: true
+ *
+ * @example
+ * // Link grids for unified vertical + horizontal navigation
+ * spreadsheetNav: {
+ *   previousGrid: gridAboveRef,
+ *   nextGrid: gridBelowRef,
+ * }
  */
 export interface NuGridSpreadsheetNavOptions {
-  /** Grid ref to navigate to when moving past the last cell */
-  nextGrid?: Ref<any>
-  /** Grid ref to navigate to when moving before the first cell */
+  /**
+   * Template ref to the NuGrid above this one in the spreadsheet layout.
+   * When the user presses ArrowUp at the first row, focus/editing moves to
+   * the previous grid's last row at the same column.
+   */
   previousGrid?: Ref<any>
+
+  /**
+   * Template ref to the NuGrid below this one in the spreadsheet layout.
+   * When the user presses ArrowDown at the last row, focus/editing moves to
+   * the next grid's first row at the same column.
+   */
+  nextGrid?: Ref<any>
 }
 

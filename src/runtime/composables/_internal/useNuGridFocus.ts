@@ -1,12 +1,17 @@
 import type { TableData } from '../../types/table-data'
 import type { Column, Row, Table } from '../../engine'
 import type { Primitive } from 'reka-ui'
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
 import { useElementSize } from '@vueuse/core'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
-import type { NuGridEventEmitter, NuGridProps, NuGridRowSelectOptions } from '../../types'
+import type {
+  NuGridEventEmitter,
+  NuGridProps,
+  NuGridRowSelectOptions,
+  NuGridSpreadsheetNavOptions,
+} from '../../types'
 import type {
   NuGridEditingCell,
   NuGridFocus,
@@ -35,6 +40,7 @@ export function useNuGridFocus<T extends TableData>(
   interactionRouter?: NuGridInteractionRouter<T>,
   eventEmitter?: NuGridEventEmitter<T>,
   focusedRowIdModel?: Ref<string | null>,
+  spreadsheetNavOptions?: ComputedRef<NuGridSpreadsheetNavOptions | null>,
 ): NuGridFocus<T> {
   // Extract values from grouped props using helpers (defaults from nuGridDefaults)
   const focusMode = usePropWithDefault(props, 'focus', 'mode')
@@ -1550,6 +1556,27 @@ export function useNuGridFocus<T extends TableData>(
         stopProcessingLock()
       })
     } else if (!skipFinalFocus) {
+      // SpreadsheetNav: intercept at grid boundary for inter-grid navigation
+      if (newRowIndex === rowIndex && spreadsheetNavOptions?.value) {
+        const opts = spreadsheetNavOptions.value
+        if (e.key === 'ArrowUp' && rowIndex === 0) {
+          if (opts.previousGrid?.value) {
+            setFocusedCell(null)
+            opts.previousGrid.value.spreadsheetFocusLastRow?.(newColumnIndex, false)
+          }
+          // No linked grid above — stay put
+          return
+        }
+        if (e.key === 'ArrowDown' && rowIndex === visibleRows.length - 1) {
+          if (opts.nextGrid?.value) {
+            setFocusedCell(null)
+            opts.nextGrid.value.spreadsheetFocusFirstRow?.(newColumnIndex, false)
+          }
+          // No linked grid below — stay put
+          return
+        }
+      }
+
       // Normal arrow key navigation - use existing scroll-to-cell behavior
       setFocusedCell({ rowIndex: newRowIndex, columnIndex: newColumnIndex })
 
