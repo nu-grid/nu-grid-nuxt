@@ -14,7 +14,7 @@ import type {
   NuGridPagingOptions,
   NuGridSearchOptions,
   NuGridSelectionOptions,
-  NuGridSortOptions,
+  NuGridSpreadsheetNavOptions,
   NuGridStateOptions,
   NuGridSummaryOptions,
   NuGridTooltipOptions,
@@ -269,15 +269,6 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    * }
    */
   animation?: false | NuGridAnimationOptions
-
-  /**
-   * Sort behavior configuration
-   *
-   * @example
-   * // Re-sort rows immediately when data changes
-   * sort: { dataChangeBehavior: 'resort' }
-   */
-  sort?: NuGridSortOptions
 
   /**
    * Paging configuration
@@ -573,6 +564,24 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    * }
    */
   summaries?: NuGridSummaryOptions
+
+  /**
+   * Spreadsheet-style navigation across linked grids
+   * - true: Enable left/right cursor-aware cell navigation in editors
+   * - object: Enable inter-grid vertical linking AND left/right cursor-aware navigation
+   *
+   * @example
+   * // Just left/right cursor nav in editors
+   * spreadsheetNav: true
+   *
+   * @example
+   * // Link grids for unified vertical + horizontal navigation
+   * spreadsheetNav: {
+   *   previousGrid: gridAboveRef,
+   *   nextGrid: gridBelowRef,
+   * }
+   */
+  spreadsheetNav?: boolean | NuGridSpreadsheetNavOptions
 }
 
 /**

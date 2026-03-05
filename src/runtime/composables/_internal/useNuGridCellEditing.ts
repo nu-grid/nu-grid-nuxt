@@ -1,6 +1,6 @@
 import type { TableData } from '@nuxt/ui'
 import type { Cell, Column, Row, Table } from '@tanstack/vue-table'
-import type { Component, ComponentPublicInstance, Ref } from 'vue'
+import type { Component, ComponentPublicInstance, ComputedRef, Ref } from 'vue'
 
 import { FlexRender } from '@tanstack/vue-table'
 import {
@@ -18,6 +18,7 @@ import type {
   NuGridColumn,
   NuGridEventEmitter,
   NuGridProps,
+  NuGridSpreadsheetNavOptions,
   NuGridValidationOptions,
 } from '../../types'
 import type {
@@ -81,8 +82,7 @@ export function useNuGridCellEditing<T extends TableData>(
   externalEditingCell?: Ref<NuGridEditingCell | null>,
   addRowContext?: NuGridAddRowContext<T> | null,
   eventEmitter?: NuGridEventEmitter<T>,
-  onBeforeSortedCellEdit?: (columnId: string, rowId: string) => void,
-  onAfterSortedCellEdit?: () => void,
+  spreadsheetNavOptions?: ComputedRef<NuGridSpreadsheetNavOptions | null>,
 ): NuGridCellEditing<T> {
   const editingCell = externalEditingCell ?? ref<NuGridEditingCell | null>(null)
   const editingValue = ref<any>(null)
@@ -606,11 +606,6 @@ export function useNuGridCellEditing<T extends TableData>(
     moveDirection?: 'up' | 'down' | 'next' | 'previous',
     options?: { restoreFocus?: boolean; isClickAway?: boolean },
   ) {
-    console.log('[CellEditing] stopEditing ENTERED:', {
-      columnId: cell.column.id,
-      newValue,
-      moveDirection,
-    })
     const shouldRestoreFocus = options?.restoreFocus !== false
     const isClickAway = options?.isClickAway === true
     const config = validationConfig.value
@@ -658,6 +653,18 @@ export function useNuGridCellEditing<T extends TableData>(
       const rowsList = navigableRows?.value ?? rows.value
       const currentRowIndex = rowsList.findIndex((r) => r.id === row.id)
 
+      // SpreadsheetNav: if at chain boundary with no linked target, stay put in edit mode
+      if (spreadsheetNavOptions?.value) {
+        const targetRowIndex = navDirection === 'up' ? currentRowIndex - 1 : currentRowIndex + 1
+        if (targetRowIndex < 0 || targetRowIndex >= rowsList.length) {
+          const opts = spreadsheetNavOptions.value
+          const hasLinkedTarget =
+            (navDirection === 'down' && opts.nextGrid?.value) ||
+            (navDirection === 'up' && opts.previousGrid?.value)
+          if (!hasLinkedTarget) return
+        }
+      }
+
       // Clear editing state
       editingCell.value = null
       editingValue.value = null
@@ -692,6 +699,28 @@ export function useNuGridCellEditing<T extends TableData>(
               })
               return
             }
+          }
+        }
+        // SpreadsheetNav: navigate to linked grid when at boundary
+        if (spreadsheetNavOptions?.value) {
+          const opts = spreadsheetNavOptions.value
+          const visibleCellsList = row.getVisibleCells() as Cell<T, any>[]
+          const cellIdx = visibleCellsList.findIndex((c) => c.column.id === cell.column.id)
+          if (navDirection === 'down' && opts.nextGrid?.value) {
+            focusFns.setFocusedCell(null)
+            nextTick(() => {
+              isNavigating.value = false
+              opts.nextGrid!.value!.spreadsheetFocusFirstRow?.(cellIdx, true)
+            })
+            return
+          }
+          if (navDirection === 'up' && opts.previousGrid?.value) {
+            focusFns.setFocusedCell(null)
+            nextTick(() => {
+              isNavigating.value = false
+              opts.previousGrid!.value!.spreadsheetFocusLastRow?.(cellIdx, true)
+            })
+            return
           }
         }
         // Fallback - just clear navigation state
@@ -918,11 +947,6 @@ export function useNuGridCellEditing<T extends TableData>(
         }
       }
 
-      // Notify sort stability BEFORE mutation (captures snapshot in maintain mode)
-      if (onBeforeSortedCellEdit) {
-        onBeforeSortedCellEdit(cell.column.id, row.id)
-      }
-
       if (rowIndex !== -1) {
         assignValue(data.value[rowIndex] as any)
       } else if (addRowContext?.isAddRowRow(row)) {
@@ -952,11 +976,6 @@ export function useNuGridCellEditing<T extends TableData>(
         }
       }
 
-      // Notify sort stability AFTER mutation (forces re-sort in resort mode)
-      if (onAfterSortedCellEdit) {
-        onAfterSortedCellEdit()
-      }
-
       // Emit AFTER data is mutated so handlers can read the current state
       emit({
         row,
@@ -971,6 +990,53 @@ export function useNuGridCellEditing<T extends TableData>(
     let groupIdToFocus: string | null = null
 
     if (isAddRow && addRowContext) {
+      // SpreadsheetNav: ArrowDown/Up on add-row — cross to adjacent grid only if finalization fails
+      if (spreadsheetNavOptions?.value) {
+        const opts = spreadsheetNavOptions.value
+        if (navDirection === 'down' && opts.nextGrid?.value) {
+          const parentId = (row as any).parentId
+          const result = addRowContext.finalizeAddRow(row)
+          if (result.success) {
+            // Data was saved — stay in this grid and focus the new add-row
+            groupIdToFocus = parentId || null
+            shouldFocusNewAddRowAfterFinalize = true
+          } else {
+            // Empty/invalid row — cross to the next grid
+            editingCell.value = null
+            editingValue.value = null
+            isNavigating.value = true
+            hasAttemptedClickAway.value = false
+            focusFns.setFocusedCell(null)
+            nextTick(() => {
+              isNavigating.value = false
+              opts.nextGrid!.value!.spreadsheetFocusFirstRow?.(currentCellIndex, true)
+            })
+            return
+          }
+        }
+        if (navDirection === 'up' && opts.previousGrid?.value) {
+          const parentId = (row as any).parentId
+          const result = addRowContext.finalizeAddRow(row)
+          if (result.success) {
+            // Data was saved — stay in this grid and focus row above the new data row
+            groupIdToFocus = parentId || null
+            shouldFocusPrevRowAfterFinalize = true
+          } else {
+            // Empty/invalid row — cross to the previous grid
+            editingCell.value = null
+            editingValue.value = null
+            isNavigating.value = true
+            hasAttemptedClickAway.value = false
+            focusFns.setFocusedCell(null)
+            nextTick(() => {
+              isNavigating.value = false
+              opts.previousGrid!.value!.spreadsheetFocusLastRow?.(currentCellIndex, true)
+            })
+            return
+          }
+        }
+      }
+
       const currentIndex = visibleCells.findIndex((c: Cell<T, any>) => c.id === cell.id)
       const isLastEditable = currentIndex === lastEditableIndex
 
@@ -986,7 +1052,11 @@ export function useNuGridCellEditing<T extends TableData>(
         (navDirection === 'next' && isLastEditable) ||
         (navDirection === undefined && !addRowContext?.addRowTransitioning?.value)
 
-      if (shouldFinalizeAfterNav) {
+      if (
+        shouldFinalizeAfterNav &&
+        !shouldFocusNewAddRowAfterFinalize &&
+        !shouldFocusPrevRowAfterFinalize
+      ) {
         // Store the parentId (groupId) before finalizing, so we can focus the correct group's addrow
         const parentId = (row as any).parentId
         groupIdToFocus = parentId || null
@@ -1006,7 +1076,12 @@ export function useNuGridCellEditing<T extends TableData>(
           // Focus new addrow when:
           // - Tab from last editable column
           // - Enter key (from any column)
-          if ((navDirection === 'next' && isLastEditable) || navDirection === undefined) {
+          // - ArrowDown (stay in same column on new add row)
+          if (
+            (navDirection === 'next' && isLastEditable) ||
+            navDirection === undefined ||
+            navDirection === 'down'
+          ) {
             shouldFocusNewAddRowAfterFinalize = true
           }
           if (navDirection === 'up') {
@@ -1057,11 +1132,18 @@ export function useNuGridCellEditing<T extends TableData>(
               )
             : nextRowsList.find((r) => addRowContext?.isAddRowRow(r))
           if (newAddRow) {
-            const firstEditableCell = newAddRow
-              .getVisibleCells()
-              .find((c: Cell<T, any>) => isCellEditable(newAddRow, c))
-            if (firstEditableCell) {
-              startEditing(newAddRow, firstEditableCell)
+            // ArrowDown: stay in same column; Tab/Enter: focus first editable cell
+            const targetCell =
+              navDirection === 'down'
+                ? (newAddRow.getVisibleCells() as Cell<T, any>[]).find(
+                    (c) => c.column.id === cell.column.id && isCellEditable(newAddRow, c),
+                  )
+                : undefined
+            const cellToFocus =
+              targetCell ??
+              newAddRow.getVisibleCells().find((c: Cell<T, any>) => isCellEditable(newAddRow, c))
+            if (cellToFocus) {
+              startEditing(newAddRow, cellToFocus)
               isNavigating.value = false
               return
             }
@@ -1142,30 +1224,31 @@ export function useNuGridCellEditing<T extends TableData>(
               }
             } else {
               // At top visual row - move to previous data row's last visual row
-              // Loop to skip uneditable rows
-              for (let ri = currentRowIndex - 1; ri >= 0; ri--) {
-                const targetRow = rowsList[ri]
-                if (!targetRow) continue
-                let targetColIdx = findColumnInVisualRow(currentCellIdx, lastVisualRow, targetRow)
-                const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
-                const targetCell = targetCells[targetColIdx]
-                let effectiveTargetCell: Cell<T, any> | null = targetCell ?? null
-                if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
-                  const fallback = findEditableInRow(targetRow, targetColIdx, 'previous')
-                  effectiveTargetCell = fallback?.cell ?? null
-                  if (fallback) {
-                    targetColIdx = fallback.index
+              const targetRowIndex = currentRowIndex - 1
+              if (targetRowIndex >= 0) {
+                const targetRow = rowsList[targetRowIndex]
+                if (targetRow) {
+                  let targetColIdx = findColumnInVisualRow(currentCellIdx, lastVisualRow, targetRow)
+                  const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
+                  const targetCell = targetCells[targetColIdx]
+                  let effectiveTargetCell: Cell<T, any> | null = targetCell ?? null
+                  if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
+                    const fallback = findEditableInRow(targetRow, targetColIdx, 'previous')
+                    effectiveTargetCell = fallback?.cell ?? null
+                    if (fallback) {
+                      targetColIdx = fallback.index
+                    }
                   }
-                }
-                if (effectiveTargetCell) {
-                  nextTick(() => {
-                    startEditing(targetRow, effectiveTargetCell!, undefined, {
-                      rowIndex: ri,
-                      cellIndex: targetColIdx,
+                  if (effectiveTargetCell) {
+                    nextTick(() => {
+                      startEditing(targetRow, effectiveTargetCell!, undefined, {
+                        rowIndex: targetRowIndex,
+                        cellIndex: targetColIdx,
+                      })
+                      isNavigating.value = false
                     })
-                    isNavigating.value = false
-                  })
-                  return
+                    return
+                  }
                 }
               }
             }
@@ -1187,70 +1270,95 @@ export function useNuGridCellEditing<T extends TableData>(
               }
             } else {
               // At bottom visual row - move to next data row's first visual row
-              // Loop to skip uneditable rows
-              for (let ri = currentRowIndex + 1; ri < rowsList.length; ri++) {
-                const targetRow = rowsList[ri]
-                if (!targetRow) continue
-                let targetColIdx = findColumnInVisualRow(currentCellIdx, 0, targetRow)
-                const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
-                const targetCell = targetCells[targetColIdx]
-                let effectiveTargetCell: Cell<T, any> | null = targetCell ?? null
-                if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
-                  const fallback = findEditableInRow(targetRow, targetColIdx, 'previous')
-                  effectiveTargetCell = fallback?.cell ?? null
-                  if (fallback) {
-                    targetColIdx = fallback.index
+              const targetRowIndex = currentRowIndex + 1
+              if (targetRowIndex < rowsList.length) {
+                const targetRow = rowsList[targetRowIndex]
+                if (targetRow) {
+                  let targetColIdx = findColumnInVisualRow(currentCellIdx, 0, targetRow)
+                  const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
+                  const targetCell = targetCells[targetColIdx]
+                  let effectiveTargetCell: Cell<T, any> | null = targetCell ?? null
+                  if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
+                    const fallback = findEditableInRow(targetRow, targetColIdx, 'previous')
+                    effectiveTargetCell = fallback?.cell ?? null
+                    if (fallback) {
+                      targetColIdx = fallback.index
+                    }
                   }
-                }
-                if (effectiveTargetCell) {
-                  nextTick(() => {
-                    startEditing(targetRow, effectiveTargetCell!, undefined, {
-                      rowIndex: ri,
-                      cellIndex: targetColIdx,
+                  if (effectiveTargetCell) {
+                    nextTick(() => {
+                      startEditing(targetRow, effectiveTargetCell!, undefined, {
+                        rowIndex: targetRowIndex,
+                        cellIndex: targetColIdx,
+                      })
+                      isNavigating.value = false
                     })
-                    isNavigating.value = false
-                  })
-                  return
+                    return
+                  }
                 }
               }
             }
           }
         } else {
           // Standard single-row vertical navigation
-          // Loop to skip uneditable rows (e.g., rows marked as read-only)
-          const step = navDirection === 'up' ? -1 : 1
-          for (
-            let ri = currentRowIndex + step;
-            ri >= 0 && ri < rowsList.length;
-            ri += step
-          ) {
-            const targetRow = rowsList[ri]
-            if (!targetRow) continue
-            const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
-            const targetCellIdx = targetCells.findIndex((c) => c.column.id === cell.column.id)
-            let effectiveTargetCell: Cell<T, any> | null =
-              targetCellIdx !== -1 ? (targetCells[targetCellIdx] ?? null) : null
-            let resolvedCellIdx = targetCellIdx
+          const targetRowIndex = navDirection === 'up' ? currentRowIndex - 1 : currentRowIndex + 1
 
-            if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
-              const fallback = findEditableInRow(targetRow, targetCellIdx, 'previous')
-              effectiveTargetCell = fallback?.cell ?? null
-              resolvedCellIdx = fallback?.index ?? targetCellIdx
-            }
+          if (targetRowIndex >= 0 && targetRowIndex < rowsList.length) {
+            const targetRow = rowsList[targetRowIndex]
+            if (targetRow) {
+              const targetCells = targetRow.getVisibleCells() as Cell<T, any>[]
+              const targetCellIdx = targetCells.findIndex((c) => c.column.id === cell.column.id)
+              let effectiveTargetCell: Cell<T, any> | null =
+                targetCellIdx !== -1 ? (targetCells[targetCellIdx] ?? null) : null
+              let resolvedCellIdx = targetCellIdx
 
-            if (effectiveTargetCell) {
-              nextTick(() => {
-                startEditing(targetRow, effectiveTargetCell!, undefined, {
-                  rowIndex: ri,
-                  cellIndex: resolvedCellIdx,
+              if (effectiveTargetCell && !isCellEditable(targetRow, effectiveTargetCell)) {
+                const fallback = findEditableInRow(targetRow, targetCellIdx, 'previous')
+                effectiveTargetCell = fallback?.cell ?? null
+                resolvedCellIdx = fallback?.index ?? targetCellIdx
+              }
+
+              if (effectiveTargetCell) {
+                nextTick(() => {
+                  startEditing(targetRow, effectiveTargetCell!, undefined, {
+                    rowIndex: targetRowIndex,
+                    cellIndex: resolvedCellIdx,
+                  })
+                  isNavigating.value = false
                 })
-                isNavigating.value = false
-              })
-              return
+                return
+              }
             }
           }
         }
-        // Can't move in that direction, restore focus and clear editing state
+        // Can't move in that direction — try inter-grid navigation if spreadsheetNav is configured
+        if (spreadsheetNavOptions?.value) {
+          const opts = spreadsheetNavOptions.value
+          if (navDirection === 'up' && opts.previousGrid?.value) {
+            editingCell.value = null
+            editingValue.value = null
+            isNavigating.value = false
+            hasAttemptedClickAway.value = false
+            focusFns.setFocusedCell(null)
+            opts.previousGrid.value.spreadsheetFocusLastRow?.(currentCellIndex, true)
+            return
+          }
+          if (navDirection === 'down' && opts.nextGrid?.value) {
+            editingCell.value = null
+            editingValue.value = null
+            isNavigating.value = false
+            hasAttemptedClickAway.value = false
+            focusFns.setFocusedCell(null)
+            opts.nextGrid.value.spreadsheetFocusFirstRow?.(currentCellIndex, true)
+            return
+          }
+        }
+        // SpreadsheetNav enabled: stay in current cell at chain boundary
+        if (spreadsheetNavOptions) {
+          isNavigating.value = false
+          return
+        }
+        // No inter-grid target, restore focus and clear editing state
         editingCell.value = null
         editingValue.value = null
         isNavigating.value = false
@@ -1314,7 +1422,34 @@ export function useNuGridCellEditing<T extends TableData>(
           })
           return
         }
-        // Can't move in that direction, restore focus and clear editing state
+        // Can't move in that direction — try inter-grid navigation if spreadsheetNav is configured
+        if (spreadsheetNavOptions?.value) {
+          const opts = spreadsheetNavOptions.value
+          if (navDirection === 'next' && opts.nextGrid?.value) {
+            editingCell.value = null
+            editingValue.value = null
+            isNavigating.value = false
+            hasAttemptedClickAway.value = false
+            focusFns.setFocusedCell(null)
+            opts.nextGrid.value.spreadsheetFocusFirstRow?.(0, true)
+            return
+          }
+          if (navDirection === 'previous' && opts.previousGrid?.value) {
+            editingCell.value = null
+            editingValue.value = null
+            isNavigating.value = false
+            hasAttemptedClickAway.value = false
+            focusFns.setFocusedCell(null)
+            opts.previousGrid.value.spreadsheetFocusLastRow?.(-1, true)
+            return
+          }
+        }
+        // SpreadsheetNav enabled: stay in current cell at chain boundary
+        if (spreadsheetNavOptions) {
+          isNavigating.value = false
+          return
+        }
+        // No inter-grid target, restore focus and clear editing state
         editingCell.value = null
         editingValue.value = null
         isNavigating.value = false

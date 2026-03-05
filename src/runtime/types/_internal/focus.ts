@@ -37,7 +37,13 @@ export interface NuGridFocus<T extends TableData = TableData> {
   isFocusedCell: (row: Row<T>, cellIndex: number) => boolean
   rowFocusProps: (row: Row<T>) => Record<string, unknown>
   cellFocusProps: (row: Row<T>, cellIndex: number) => Record<string, unknown>
-  focusCell: (targetRow: Row<T>, newRowIndex: number, newColumnIndex: number) => void
+  focusCell: (
+    targetRow: Row<T>,
+    newRowIndex: number,
+    newColumnIndex: number,
+    verticalOnly?: boolean,
+    onScrollComplete?: () => void,
+  ) => void
   findFirstFocusableColumn: (row: Row<T>) => number
   /** Get a cell element by row ID and column index (uses internal cache for performance) */
   getCellElement: (rowId: string, columnIndex: number) => HTMLElement | null
@@ -62,6 +68,8 @@ export interface NuGridFocus<T extends TableData = TableData> {
    * Focus a row by its ID, scrolling to make it visible
    * @param rowId - The ID of the row to focus, or null to clear focus
    * @param options - Optional settings for focus behavior
+   * @param options.columnIndex - The column index to focus within the row
+   * @param options.align - Scroll alignment: 'nearest' just makes visible, 'top' scrolls row to top, 'center' centers the row
    * @returns true if row was found and focused, false if row ID not found
    */
   focusRowById: (
@@ -72,6 +80,4 @@ export interface NuGridFocus<T extends TableData = TableData> {
       align?: 'nearest' | 'top' | 'center'
     },
   ) => boolean
-  /** Scroll a row into view without stealing DOM focus */
-  scrollRowIntoView: (rowId: string) => void
 }

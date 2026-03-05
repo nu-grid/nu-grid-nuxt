@@ -1,12 +1,17 @@
 import type { TableData } from '@nuxt/ui'
 import type { Column, Row, Table } from '@tanstack/vue-table'
 import type { Primitive } from 'reka-ui'
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
 import { useElementSize } from '@vueuse/core'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
-import type { NuGridEventEmitter, NuGridProps, NuGridRowSelectOptions } from '../../types'
+import type {
+  NuGridEventEmitter,
+  NuGridProps,
+  NuGridRowSelectOptions,
+  NuGridSpreadsheetNavOptions,
+} from '../../types'
 import type {
   NuGridEditingCell,
   NuGridFocus,
@@ -30,11 +35,12 @@ export function useNuGridFocus<T extends TableData>(
   tableRef: Ref<HTMLDivElement | null>,
   rootRef: Ref<InstanceType<typeof Primitive> | null | undefined> | null,
   virtualizedStickyHeight?: Ref<number>,
-  virtualizer?: Ref<NuGridVirtualizer | null> | false,
+  virtualizer?: Ref<NuGridVirtualizer> | false,
   editingCell?: Ref<NuGridEditingCell | null>,
   interactionRouter?: NuGridInteractionRouter<T>,
   eventEmitter?: NuGridEventEmitter<T>,
   focusedRowIdModel?: Ref<string | null>,
+  spreadsheetNavOptions?: ComputedRef<NuGridSpreadsheetNavOptions | null>,
 ): NuGridFocus<T> {
   // Extract values from grouped props using helpers (defaults from nuGridDefaults)
   const focusMode = usePropWithDefault(props, 'focus', 'mode')
@@ -450,13 +456,13 @@ export function useNuGridFocus<T extends TableData>(
         map.set(row.id, arrayIndex)
       })
 
-      for (const rowId of [...rowElementCache.keys()]) {
+      for (const rowId of rowElementCache.keys()) {
         if (!map.has(rowId)) {
           rowElementCache.delete(rowId)
         }
       }
 
-      for (const rowId of [...cellElementCache.keys()]) {
+      for (const rowId of cellElementCache.keys()) {
         if (!map.has(rowId)) {
           cellElementCache.delete(rowId)
         }
@@ -471,21 +477,20 @@ export function useNuGridFocus<T extends TableData>(
         const focusedRowId = oldRows?.[oldIndex]?.id ?? focusedRowIdModel?.value
         if (focusedRowId && map.has(focusedRowId)) {
           const newIndex = map.get(focusedRowId)!
-          // Capture columnIndex now so the deferred focusRowById preserves it
-          const currentColumnIndex = focusedCell.value.columnIndex
           if (newIndex !== oldIndex) {
-            // Row index changed - update internal state and scroll after DOM updates
+            // Row index changed (e.g., filter/sort) - update internal state and scroll after DOM updates
+            const currentColumnIndex = focusedCell.value.columnIndex
             focusedCell.value = {
               rowIndex: newIndex,
               columnIndex: currentColumnIndex,
             }
-          }
-          nextTick(() => {
-            focusRowById(focusedRowId, {
-              align: alignOnModel.value ?? 'nearest',
-              columnIndex: currentColumnIndex,
+            nextTick(() => {
+              focusRowById(focusedRowId, {
+                align: alignOnModel.value ?? 'nearest',
+                columnIndex: currentColumnIndex,
+              })
             })
-          })
+          }
         }
       }
 
@@ -1548,6 +1553,27 @@ export function useNuGridFocus<T extends TableData>(
         stopProcessingLock()
       })
     } else if (!skipFinalFocus) {
+      // SpreadsheetNav: intercept at grid boundary for inter-grid navigation
+      if (newRowIndex === rowIndex && spreadsheetNavOptions?.value) {
+        const opts = spreadsheetNavOptions.value
+        if (e.key === 'ArrowUp' && rowIndex === 0) {
+          if (opts.previousGrid?.value) {
+            setFocusedCell(null)
+            opts.previousGrid.value.spreadsheetFocusLastRow?.(newColumnIndex, false)
+          }
+          // No linked grid above — stay put
+          return
+        }
+        if (e.key === 'ArrowDown' && rowIndex === visibleRows.length - 1) {
+          if (opts.nextGrid?.value) {
+            setFocusedCell(null)
+            opts.nextGrid.value.spreadsheetFocusFirstRow?.(newColumnIndex, false)
+          }
+          // No linked grid below — stay put
+          return
+        }
+      }
+
       // Normal arrow key navigation - use existing scroll-to-cell behavior
       setFocusedCell({ rowIndex: newRowIndex, columnIndex: newColumnIndex })
 
@@ -1827,11 +1853,10 @@ export function useNuGridFocus<T extends TableData>(
     const columnIndex = options?.columnIndex ?? findFirstFocusableColumn(targetRow)
     const align = options?.align ?? alignOnModel.value ?? 'nearest'
 
-    // Update focus state — let setFocusedCell sync to focusedRowIdModel so
-    // sort stability (and other consumers) can always read the focused row ID.
-    // The isUpdatingToModel guard in setFocusedCell already prevents circular
-    // updates with the model watcher.
+    // Update focus state
+    isUpdatingFromModel = true
     setFocusedCell({ rowIndex, columnIndex })
+    isUpdatingFromModel = false
 
     // Focus and scroll to the cell/row
     // Pass alignment callback so it runs after scroll completes (not via nextTick which fires too early)
@@ -1917,39 +1942,6 @@ export function useNuGridFocus<T extends TableData>(
     )
   }
 
-  /**
-   * Scroll a row into view without stealing DOM focus.
-   * Uses the grid's scroll infrastructure (sticky header handling, scroll containers).
-   */
-  function scrollRowIntoView(rowId: string) {
-    const element =
-      focusMode.value === 'cell'
-        ? getCellElement(rowId, findFirstFocusableColumn(rows.value.find((r) => r.id === rowId)!))
-        : getRowElement(rowId)
-    if (!element) return
-
-    const effectiveScrollContainer = verticalScrollContainer.value
-    const tableElement = tableRef.value
-    if (!effectiveScrollContainer || !tableElement) return
-
-    const rowIndex = rowIdToIndexMap.value.get(rowId) ?? -1
-    if (rowIndex < 0) return
-
-    scrollManager.scrollToCell({
-      cellElement: element,
-      scrollContainer: effectiveScrollContainer,
-      horizontalScrollContainer: horizontalScrollContainer.value ?? undefined,
-      tableElement,
-      rowIndex,
-      columnIndex: 0,
-      virtualizedStickyHeight: resolveStickyHeight(tableElement),
-      behavior: 'instant',
-      verticalPadding: 15,
-      skipHorizontalScroll: true,
-      verticalOnly: true,
-    })
-  }
-
   return {
     focusedCell,
     gridHasFocus,
@@ -1972,7 +1964,6 @@ export function useNuGridFocus<T extends TableData>(
     scrollToCellAndFocus,
     setFocusedCell,
     focusRowById,
-    scrollRowIntoView,
   }
 }
 
