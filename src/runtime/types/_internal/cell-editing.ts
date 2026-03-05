@@ -59,7 +59,12 @@ export interface NuGridCellEditing<T extends TableData = TableData> {
   // Cell editing functions
   isEditingCell: (row: Row<T>, columnId: string) => boolean
   isCellEditable: (row: Row<T>, cell: any) => boolean
-  startEditing: (row: Row<T>, cell: any, initialValue?: any) => void
+  startEditing: (
+    row: Row<T>,
+    cell: any,
+    initialValue?: any,
+    options?: { rowIndex?: number; cellIndex?: number },
+  ) => void
   stopEditing: (
     row: Row<T>,
     cell: any,

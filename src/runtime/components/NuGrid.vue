@@ -38,6 +38,7 @@ import type {
   NuGridProps,
   NuGridRowClickEvent,
   NuGridSortChangedEvent,
+  NuGridSpreadsheetNavOptions,
 } from '../types'
 import type {
   NuGridAddRowContext,
@@ -532,6 +533,12 @@ const getGrandTotalValue = (columnId: string): string | undefined => {
   return formatAggregateValue(value, summaryCol.summary, { isGrandTotal: true })
 }
 
+// SpreadsheetNav: resolve object options for inter-grid linking (null if boolean or absent)
+const spreadsheetNavOptions = computed<NuGridSpreadsheetNavOptions | null>(() => {
+  if (typeof props.spreadsheetNav === 'object') return props.spreadsheetNav
+  return null
+})
+
 // Cell/row focus navigation
 const focusFns = useNuGridFocus(
   props,
@@ -546,6 +553,7 @@ const focusFns = useNuGridFocus(
   interactionRouter,
   eventEmitter,
   focusedRowIdState,
+  spreadsheetNavOptions,
 )
 focusFnsRef.value = focusFns
 
@@ -581,6 +589,7 @@ const cellEditingFns = useNuGridCellEditing(
     onBeforeSortedCellEdit(columnId, rowId)
   },
   onAfterSortedCellEdit,
+  spreadsheetNavOptions,
 )
 cellEditingFnsRef.value = cellEditingFns
 
@@ -842,6 +851,10 @@ provide('nugrid-validation', {
 provide('nugrid-enter-behavior', cellEditingFns.enterBehavior)
 provide('nugrid-stale-sort-columns', staleColumns)
 provide('nugrid-clear-stale-sort', clearStale)
+
+// SpreadsheetNav: provide boolean flag for editors (ArrowLeft/Right cursor-aware nav)
+const spreadsheetNavEnabled = computed(() => !!props.spreadsheetNav)
+provide('nugrid-spreadsheet-nav', spreadsheetNavEnabled)
 
 provide('nugrid-row-interactions', {
   rowInteractions,
@@ -1119,6 +1132,56 @@ defineExpose({
   searchClear: () => searchContext.clear(),
   searchGetQuery: () => searchContext.searchQuery.value,
   searchIsActive: () => searchContext.isSearching.value,
+  // SpreadsheetNav inter-grid methods
+  spreadsheetFocusFirstRow(columnIndex: number, startEditingMode = false) {
+    const rowsList = groupingFns?.navigableRows?.value ?? rows.value
+    if (rowsList.length === 0) return
+    const firstRow = rowsList[0]
+    if (!firstRow) return
+    const visibleCells = firstRow.getVisibleCells()
+    const clampedCol =
+      columnIndex < 0 ? visibleCells.length - 1 : Math.min(columnIndex, visibleCells.length - 1)
+    focusFns.setFocusedCell({ rowIndex: 0, columnIndex: clampedCol })
+    focusFns.focusCell(firstRow, 0, clampedCol, false, () => {
+      if (startEditingMode) {
+        const cell = visibleCells[clampedCol]
+        if (cell && cellEditingFns.isCellEditable(firstRow, cell)) {
+          nextTick(() =>
+            cellEditingFns.startEditing(firstRow, cell, undefined, {
+              rowIndex: 0,
+              cellIndex: clampedCol,
+            }),
+          )
+        }
+      }
+    })
+    nextTick(() => wrapperRef.value?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }))
+  },
+  spreadsheetFocusLastRow(columnIndex: number, startEditingMode = false) {
+    const rowsList = groupingFns?.navigableRows?.value ?? rows.value
+    if (rowsList.length === 0) return
+    const lastRowIndex = rowsList.length - 1
+    const lastRow = rowsList[lastRowIndex]
+    if (!lastRow) return
+    const visibleCells = lastRow.getVisibleCells()
+    const clampedCol =
+      columnIndex < 0 ? visibleCells.length - 1 : Math.min(columnIndex, visibleCells.length - 1)
+    focusFns.setFocusedCell({ rowIndex: lastRowIndex, columnIndex: clampedCol })
+    focusFns.focusCell(lastRow, lastRowIndex, clampedCol, false, () => {
+      if (startEditingMode) {
+        const cell = visibleCells[clampedCol]
+        if (cell && cellEditingFns.isCellEditable(lastRow, cell)) {
+          nextTick(() =>
+            cellEditingFns.startEditing(lastRow, cell, undefined, {
+              rowIndex: lastRowIndex,
+              cellIndex: clampedCol,
+            }),
+          )
+        }
+      }
+    })
+    nextTick(() => wrapperRef.value?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }))
+  },
 })
 
 const childGrid = computed(() => {
