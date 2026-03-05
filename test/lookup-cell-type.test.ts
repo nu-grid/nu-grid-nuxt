@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 import type { NuGridCellTypeContext } from '../src/runtime/types'
 import type { NuGridKeyboardContext } from '../src/runtime/types/_internal'
@@ -8,6 +8,40 @@ import type { NuGridKeyboardContext } from '../src/runtime/types/_internal'
 import { lookupCellType } from '../src/runtime/cell-types/lookup'
 import LookupEditor from '../src/runtime/cell-types/lookup/LookupEditor.vue'
 import LookupRenderer from '../src/runtime/cell-types/lookup/LookupRenderer.vue'
+
+/**
+ * Stub for NuGridSelectMenu to avoid reka-ui Popper rendering issues in tests.
+ * Emits the same events LookupEditor listens to.
+ */
+const NuGridSelectMenuStub = defineComponent({
+  name: 'NuGridSelectMenu',
+  props: {
+    modelValue: { default: undefined },
+    items: { type: Array, default: () => [] },
+    valueKey: { type: String, default: 'value' },
+    labelKey: { type: String, default: 'label' },
+    descriptionKey: { type: String, default: undefined },
+    searchInput: { type: Boolean, default: true },
+    filterFields: { type: Array, default: () => [] },
+    placeholder: { type: String, default: '' },
+    loading: { type: Boolean, default: false },
+    disabled: { type: Boolean, default: false },
+    highlight: { type: Boolean, default: false },
+    highlightSelectedOnOpen: { type: Boolean, default: true },
+    ui: { type: Object, default: () => ({}) },
+  },
+  emits: ['update:modelValue', 'update:open'],
+  setup(_props, { emit, slots }) {
+    return () => h('div', { class: 'nugrid-select-menu-stub' }, [
+      h('button', {
+        'aria-haspopup': 'listbox',
+        'tabindex': '0',
+        'onClick': () => emit('update:open', true),
+      }, 'trigger'),
+      slots.trailing?.(),
+    ])
+  },
+})
 
 /**
  * Helper to create a minimal keyboard context for testing editor handlers
@@ -267,9 +301,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: {
-            Teleport: true,
-          },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -280,7 +312,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -304,7 +336,7 @@ describe('lookupEditor', () => {
           cell: createMockCell({ lookup: { items } }),
         }),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -329,7 +361,7 @@ describe('lookupEditor', () => {
           cell: createMockCell({ lookup: { items: asyncItems } }),
         }),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -355,7 +387,7 @@ describe('lookupEditor', () => {
           cell: createMockCell({ lookup: { items: asyncItems } }),
         }),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -373,7 +405,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -388,7 +420,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -406,7 +438,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -422,7 +454,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -438,7 +470,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -454,7 +486,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -475,7 +507,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -523,7 +555,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -560,7 +592,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -580,7 +612,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -604,7 +636,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -623,7 +655,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -648,7 +680,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -667,7 +699,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -692,7 +724,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -715,7 +747,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -736,7 +768,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -765,7 +797,7 @@ describe('lookupEditor', () => {
           }),
         }),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -787,7 +819,7 @@ describe('lookupEditor', () => {
           }),
         }),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 

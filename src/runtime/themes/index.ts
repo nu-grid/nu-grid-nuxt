@@ -28,6 +28,14 @@ export function getTheme(name: string): NuGridThemeDefinition | undefined {
 }
 
 /**
+ * Get all registered themes
+ * @returns Array of all registered theme definitions
+ */
+export function getAllThemes(): NuGridThemeDefinition[] {
+  return Array.from(themeRegistry.values())
+}
+
+/**
  * Helper to create a custom NuGrid theme
  * Supports extending existing themes with slot/variant overrides
  *

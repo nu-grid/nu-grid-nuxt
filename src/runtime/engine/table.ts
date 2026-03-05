@@ -125,7 +125,7 @@ export function createNuGridTable<T>(options: CreateNuGridTableOptions<T>): Engi
 
   let _headerCache: { vis: EngineColumn<T>[]; result: EngineHeaderGroup<T>[] } | null = null
   let _footerCache: { source: EngineHeaderGroup<T>[]; result: EngineHeaderGroup<T>[] } | null = null
-  let _rowModelCache: { data: T[]; grouping: any; expanded: any; selection: any; result: EngineRowModel<T> } | null = null
+  let _rowModelCache: { data: T[]; grouping: any; expanded: any; result: EngineRowModel<T> } | null = null
   let _coreModelCache: { data: T[]; result: EngineRowModel<T> } | null = null
 
   // -- Build table object --
@@ -164,19 +164,17 @@ export function createNuGridTable<T>(options: CreateNuGridTableOptions<T>): Engi
       const data = typeof options.data === 'function' ? (options.data as () => T[])() : options.data
       const grouping = state.grouping()
       const expanded = state.expanded()
-      const selection = state.rowSelection()
       if (_rowModelCache
         && _rowModelCache.data === data
         && _rowModelCache.grouping === grouping
-        && _rowModelCache.expanded === expanded
-        && _rowModelCache.selection === selection) {
+        && _rowModelCache.expanded === expanded) {
         return _rowModelCache.result
       }
       const coreModel = buildCoreRowModel(data, allLeafColumns, table, state)
       const result = grouping.length
         ? buildGroupedRowModel(coreModel, grouping, allLeafColumns, table, state)
         : coreModel
-      _rowModelCache = { data, grouping, expanded, selection, result }
+      _rowModelCache = { data, grouping, expanded, result }
       return result
     },
 
