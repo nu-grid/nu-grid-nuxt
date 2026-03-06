@@ -194,8 +194,8 @@ const pluginRendererProps = computed(() => {
   // Access reactive dependencies at the TOP to ensure they're tracked before early returns
   // - valueVersion: triggers re-render when add row values change
   // - isEditing: triggers re-render when editing state changes (value saved on edit stop)
-  addRowContext?.valueVersion?.value
-  isEditing.value
+  void addRowContext?.valueVersion?.value
+  void isEditing.value
 
   if (!shouldUsePluginRenderer.value || !pluginRenderer.value || isRendererFunction.value) {
     return {}
@@ -239,7 +239,7 @@ const functionRendererResult = computed(() => {
   // For add rows, read value directly from row.original
   const getValue = () => {
     if (isAddRow.value) {
-      addRowContext?.valueVersion?.value
+      void addRowContext?.valueVersion?.value
       const key = cellAccessorKey.value
       return props.row.original?.[key]
     }
@@ -318,7 +318,7 @@ const shouldHighlight = computed(() => {
 const cellTextValue = computed(() => {
   // For add rows, read directly from row.original
   if (isAddRow.value) {
-    addRowContext?.valueVersion?.value
+    void addRowContext?.valueVersion?.value
     const key = cellAccessorKey.value
     const value = props.row.original?.[key]
     if (value === null || value === undefined) return ''

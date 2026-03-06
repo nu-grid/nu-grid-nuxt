@@ -337,7 +337,7 @@ const { tableApi, columnsUpdatedSignal } = useNuGridApi(
 const unsortedRows = computed(() => {
   // Reactive dependency on filteredData ensures this re-evaluates when data or filters change.
   // The sync watcher in useNuGridApi calls setOptions() so the engine has fresh data by this point.
-  filteredData.value
+  void filteredData.value
   // The engine returns grouped rows with subRows; NuGrid flattens based on expanded state
   return expandRows(tableApi.getRowModel().rows, expandedState.value) as Row<T>[]
 })
@@ -685,22 +685,26 @@ const autosizeFns = useNuGridAutosize(props, tableApi, tableRef, columnSizingSta
 // columnsUpdatedSignal triggers re-evaluation after tableApi.setOptions() completes
 // The reactive getter in useVueTable ensures the engine sees column changes internally
 const headerGroups = computed(() => {
-  columnsUpdatedSignal.value
+  void columnsUpdatedSignal.value
+  void columnVisibilityState.value
   return tableApi.getHeaderGroups()
 })
 const headerGroupsLength = computed(() => headerGroups.value.length)
 const footerGroups = computed(() => {
-  columnsUpdatedSignal.value
+  void columnsUpdatedSignal.value
+  void columnVisibilityState.value
   return tableApi.getFooterGroups()
 })
 const allLeafColumns = computed(() => {
-  columnsUpdatedSignal.value
+  void columnsUpdatedSignal.value
+  void columnVisibilityState.value
   return tableApi.getAllLeafColumns()
 })
 
 // Performance optimization #1: Cache visible cells for each row
 // This prevents multiple calls to row.getVisibleCells() during rendering
 const visibleCellsCache = computed(() => {
+  void columnVisibilityState.value
   const cache = new Map<string, Cell<T>[]>()
   rows.value.forEach((row) => {
     cache.set(row.id, row.getVisibleCells() as Cell<T>[])
