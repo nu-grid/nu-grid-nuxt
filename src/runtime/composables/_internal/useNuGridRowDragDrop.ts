@@ -1,11 +1,11 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, Table } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 
-import { markRaw, ref, toRaw, toRef } from 'vue'
+import { markRaw, onBeforeUnmount, ref, toRaw, toRef } from 'vue'
 
+import type { Row, Table } from '../../engine'
 import type { NuGridEventEmitter } from '../../types'
 import type { RowDragEvent } from '../../types/drag-drop'
+import type { TableData } from '../../types/table-data'
 
 // Re-export for backwards compatibility
 export type { RowDragEvent } from '../../types/drag-drop'
@@ -97,7 +97,7 @@ export function useNuGridRowDragDrop<T extends TableData>(
     document.body.classList.add('is-dragging-row')
 
     // Use original data ID, not row model ID (important for grouped tables)
-    const dataId = (row.original as any).id
+    const dataId = row.original.id
     draggedRowId.value = dataId
     draggedRowData.value = row.original
     dragSourceGridId.value = options.value.gridId || null
@@ -183,7 +183,7 @@ export function useNuGridRowDragDrop<T extends TableData>(
     }
 
     // Use original data ID, not row model ID (important for grouped tables)
-    const dataId = (row.original as any).id
+    const dataId = row.original.id
 
     // Don't allow dropping on the same row
     if (draggedRowId.value === dataId) {
@@ -233,8 +233,8 @@ export function useNuGridRowDragDrop<T extends TableData>(
       const rows = tableApi.getRowModel().rows
 
       // Use data ID to find target row (important for grouped tables where row.id differs from data ID)
-      const targetDataId = (row.original as any)?.id
-      const targetIndex = rows.findIndex((r) => (r.original as any).id === targetDataId)
+      const targetDataId = row.original?.id
+      const targetIndex = rows.findIndex((r) => r.original.id === targetDataId)
 
       // Check if this is a cross-grid drag
       const isCrossGrid = sourceGridId !== targetGridId
@@ -274,7 +274,7 @@ export function useNuGridRowDragDrop<T extends TableData>(
         // For grouped tables, rows might not be in visible row model
         // Work directly with data array using IDs
         const targetRow = row
-        const targetDataId = (targetRow.original as any)?.id
+        const targetDataId = targetRow.original?.id
         let groupingField = ''
 
         // Get grouping information if available
@@ -305,12 +305,12 @@ export function useNuGridRowDragDrop<T extends TableData>(
 
           // Get source group from the item itself
           if (groupingField && movedItem) {
-            sourceGroup = String((movedItem as any)[groupingField] ?? '')
+            sourceGroup = String(movedItem[groupingField] ?? '')
           }
 
           // Get target group from target row
           if (groupingField && targetRow?.original) {
-            targetGroup = String((targetRow.original as any)[groupingField] ?? '')
+            targetGroup = String(targetRow.original[groupingField] ?? '')
           }
 
           // Remove from source position
@@ -340,13 +340,13 @@ export function useNuGridRowDragDrop<T extends TableData>(
 
             // If moved to a different group and cross-group is allowed, update the group field
             if (groupingField && sourceGroup !== targetGroup && options.value.allowCrossGroup) {
-              ;(movedItem as any)[groupingField] = targetGroup
+              ;(movedItem as Record<string, any>)[groupingField] = targetGroup
             }
 
             // Update sort order field if specified
             if (options.value.sortOrderField) {
               newData.forEach((item, index) => {
-                ;(item as any)[options.value.sortOrderField!] = index
+                ;(item as Record<string, any>)[options.value.sortOrderField!] = index
               })
             }
 
@@ -423,7 +423,7 @@ export function useNuGridRowDragDrop<T extends TableData>(
 
   function rowDragProps(row: Row<T>) {
     // Use original data ID, not row model ID (important for grouped tables)
-    const dataId = (row.original as any).id
+    const dataId = row.original.id
     const isDragging = draggedRowId.value === dataId
     const isDropTarget = dropTargetRowId.value === dataId
     const isDropBefore = isDropTarget && dropPosition.value === 'before'
@@ -458,6 +458,11 @@ export function useNuGridRowDragDrop<T extends TableData>(
       onDragstart: (e: DragEvent) => draggable && handleRowDragStart(e, row),
     }
   }
+
+  onBeforeUnmount(() => {
+    document.body.classList.remove('is-dragging-row')
+    document.body.classList.remove('is-dragging-row-outside')
+  })
 
   // Use markRaw for the static handler functions to prevent unnecessary reactivity overhead
   return toRef<NuGridRowDragDrop<T>>({

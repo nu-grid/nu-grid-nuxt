@@ -1,7 +1,7 @@
-import type { Header, Table } from '@tanstack/vue-table'
-
 import { describe, expect, it, vi } from 'vitest'
 import { ref, toValue } from 'vue'
+
+import type { Header, Table } from '../src/runtime/engine'
 
 import { useNuGridColumnDragDrop } from '../src/runtime/composables/_internal/useNuGridColumnDragDrop'
 
@@ -32,7 +32,7 @@ function createMockTableApi(): Table<TestData> {
 function createMockHeader(
   columnId: string,
   options: { isPlaceholder?: boolean; colSpan?: number; enableReordering?: boolean } = {},
-): Header<TestData, unknown> {
+): Header<TestData> {
   return {
     column: {
       id: columnId,
@@ -40,7 +40,7 @@ function createMockHeader(
     },
     isPlaceholder: options.isPlaceholder ?? false,
     colSpan: options.colSpan ?? 1,
-  } as unknown as Header<TestData, unknown>
+  } as unknown as Header<TestData>
 }
 
 describe('useNuGridColumnDragDrop', () => {
@@ -128,7 +128,7 @@ describe('useNuGridColumnDragDrop', () => {
         column: { id: '', columnDef: { enableReordering: true } },
         isPlaceholder: false,
         colSpan: 1,
-      } as unknown as Header<TestData, unknown>
+      } as unknown as Header<TestData>
 
       const dragFns = useNuGridColumnDragDrop(tableApi, columnOrderState, tableRef)
 

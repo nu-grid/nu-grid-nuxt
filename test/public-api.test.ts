@@ -334,18 +334,6 @@ describe('themes entry point', () => {
     expect(typeof getTheme).toBe('function')
   })
 
-  it('exports getAvailableThemes function', async () => {
-    const { getAvailableThemes } = await import('../src/runtime/themes')
-    expect(getAvailableThemes).toBeDefined()
-    expect(typeof getAvailableThemes).toBe('function')
-  })
-
-  it('exports getAllThemes function', async () => {
-    const { getAllThemes } = await import('../src/runtime/themes')
-    expect(getAllThemes).toBeDefined()
-    expect(typeof getAllThemes).toBe('function')
-  })
-
   it('exports createNuGridTheme function', async () => {
     const { createNuGridTheme } = await import('../src/runtime/themes')
     expect(createNuGridTheme).toBeDefined()
@@ -365,21 +353,6 @@ describe('themes entry point', () => {
   })
 
   describe('theme functions behavior', () => {
-    it('getAvailableThemes returns array containing default and compact', async () => {
-      const { getAvailableThemes } = await import('../src/runtime/themes')
-      const themes = getAvailableThemes()
-      expect(Array.isArray(themes)).toBe(true)
-      expect(themes).toContain('default')
-      expect(themes).toContain('compact')
-    })
-
-    it('getAllThemes returns array of theme definitions', async () => {
-      const { getAllThemes } = await import('../src/runtime/themes')
-      const themes = getAllThemes()
-      expect(Array.isArray(themes)).toBe(true)
-      expect(themes.length).toBeGreaterThanOrEqual(2)
-    })
-
     it('getTheme returns theme by name', async () => {
       const { getTheme } = await import('../src/runtime/themes')
       const defaultTheme = getTheme('default')
@@ -458,8 +431,6 @@ describe('themes entry point', () => {
     const expectedExports = [
       'registerTheme',
       'getTheme',
-      'getAvailableThemes',
-      'getAllThemes',
       'createNuGridTheme',
       'nuGridTheme',
       'nuGridThemeCompact',

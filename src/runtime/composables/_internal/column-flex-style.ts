@@ -1,4 +1,4 @@
-import type { Column, ColumnSizingState, Header } from '@tanstack/vue-table'
+import type { Column, ColumnSizingState, Header } from '../../engine'
 
 interface ColumnDefWithFlex {
   grow?: boolean
@@ -13,7 +13,7 @@ interface FlexStyleOptions {
   useCssFlexDistribution: boolean
   /** Set of column IDs that have been manually resized */
   manuallyResizedColumns: Set<string>
-  /** Column sizing state from TanStack (for SSR - detects restored sizing) */
+  /** Column sizing state (for SSR - detects restored sizing) */
   columnSizing?: ColumnSizingState
 }
 
@@ -24,7 +24,7 @@ interface FlexStyleOptions {
  * Once a column is manually resized, it switches to fixed width.
  */
 export function getFlexHeaderStyle<T>(
-  header: Header<T, unknown>,
+  header: Header<T>,
   options: FlexStyleOptions,
 ): Record<string, string | number> {
   const { useCssFlexDistribution, manuallyResizedColumns, columnSizing } = options
@@ -74,7 +74,7 @@ export function getFlexHeaderStyle<T>(
     }
   }
 
-  // Default: fixed widths from TanStack
+  // Default: fixed widths from columnSizing
   return {
     width: `${header.getSize()}px`,
     minWidth: `${header.getSize()}px`,
@@ -87,7 +87,7 @@ export function getFlexHeaderStyle<T>(
  * Mirrors the header style logic for consistent column widths.
  */
 export function getFlexCellStyle<T>(
-  column: Column<T, unknown>,
+  column: Column<T>,
   options: FlexStyleOptions,
 ): Record<string, string | number> {
   const { useCssFlexDistribution, manuallyResizedColumns, columnSizing } = options
@@ -105,11 +105,8 @@ export function getFlexCellStyle<T>(
 
   // Pinned columns always use fixed width
   if (isPinned) {
-    return {
-      width: `${column.getSize()}px`,
-      minWidth: `${column.getSize()}px`,
-      maxWidth: `${column.getSize()}px`,
-    }
+    const size = `${column.getSize()}px`
+    return { width: size, minWidth: size, maxWidth: size }
   }
 
   // fill mode: use flex with min/max constraints
@@ -135,7 +132,7 @@ export function getFlexCellStyle<T>(
     }
   }
 
-  // Default: fixed widths from TanStack
+  // Default: fixed widths from columnSizing
   return {
     width: `${column.getSize()}px`,
     minWidth: `${column.getSize()}px`,

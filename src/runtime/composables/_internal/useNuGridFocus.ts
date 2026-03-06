@@ -1,12 +1,16 @@
-import type { TableData } from '@nuxt/ui'
-import type { Column, Row, Table } from '@tanstack/vue-table'
 import type { Primitive } from 'reka-ui'
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
 import { useElementSize } from '@vueuse/core'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
-import type { NuGridEventEmitter, NuGridProps, NuGridRowSelectOptions } from '../../types'
+import type { Column, Row, Table } from '../../engine'
+import type {
+  NuGridEventEmitter,
+  NuGridProps,
+  NuGridRowSelectOptions,
+  NuGridSpreadsheetNavOptions,
+} from '../../types'
 import type {
   NuGridEditingCell,
   NuGridFocus,
@@ -14,6 +18,7 @@ import type {
   NuGridInteractionRouter,
   NuGridVirtualizer,
 } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 import { usePropWithDefault } from '../../config/_internal'
 import { useNuGridKeyboardNavigation } from './useNuGridKeyboardNavigation'
@@ -35,6 +40,7 @@ export function useNuGridFocus<T extends TableData>(
   interactionRouter?: NuGridInteractionRouter<T>,
   eventEmitter?: NuGridEventEmitter<T>,
   focusedRowIdModel?: Ref<string | null>,
+  spreadsheetNavOptions?: ComputedRef<NuGridSpreadsheetNavOptions | null>,
 ): NuGridFocus<T> {
   // Extract values from grouped props using helpers (defaults from nuGridDefaults)
   const focusMode = usePropWithDefault(props, 'focus', 'mode')
@@ -101,7 +107,7 @@ export function useNuGridFocus<T extends TableData>(
       const columns = tableApi.getAllLeafColumns()
       const row =
         newRowIndex !== null && newRowIndex >= 0 ? (currentRows[newRowIndex] ?? null) : null
-      const column: Column<T, unknown> | null =
+      const column: Column<T> | null =
         newColumnIndex !== null && newColumnIndex >= 0 ? (columns[newColumnIndex] ?? null) : null
 
       eventEmitter.focusedCellChanged({
@@ -290,6 +296,8 @@ export function useNuGridFocus<T extends TableData>(
   })
 
   onUnmounted(() => {
+    stopProcessingLock()
+
     if (ariaHiddenObserver) {
       ariaHiddenObserver.disconnect()
       ariaHiddenObserver = null
@@ -443,20 +451,20 @@ export function useNuGridFocus<T extends TableData>(
       sourceRows?.forEach((row, arrayIndex) => {
         // Skip group header rows - they shouldn't be in the focus map
         // (Note: in grouped grids, navigableRows already filters these out, but we check for safety)
-        if ((row as any).getIsGrouped?.()) {
+        if (row.getIsGrouped()) {
           return
         }
         // Map data row ID to its array index in visibleRows
         map.set(row.id, arrayIndex)
       })
 
-      for (const rowId of [...rowElementCache.keys()]) {
+      for (const rowId of rowElementCache.keys()) {
         if (!map.has(rowId)) {
           rowElementCache.delete(rowId)
         }
       }
 
-      for (const rowId of [...cellElementCache.keys()]) {
+      for (const rowId of cellElementCache.keys()) {
         if (!map.has(rowId)) {
           cellElementCache.delete(rowId)
         }
@@ -725,7 +733,7 @@ export function useNuGridFocus<T extends TableData>(
 
     const column = cols[columnIndex]
     if (!column) return false
-    const columnDef = column.columnDef as any
+    const columnDef = column.columnDef
 
     // Default to true if enableFocusing is not specified
     if (columnDef.enableFocusing === undefined) return true
@@ -1186,7 +1194,7 @@ export function useNuGridFocus<T extends TableData>(
             row &&
             canRowBeSelected
           ) {
-            // Toggle the row selection using TanStack Table's API
+            // Toggle the row selection using the table API
             row.toggleSelected(!row.getIsSelected())
             return
           }
@@ -1194,7 +1202,7 @@ export function useNuGridFocus<T extends TableData>(
           // Fallback to custom onSelect handler if provided
           if (props.onSelect && (focusMode.value === 'cell' || focusMode.value === 'row')) {
             if (row) {
-              props.onSelect(e, row)
+              props.onSelect(e, row as any)
             }
           }
         }
@@ -1548,6 +1556,27 @@ export function useNuGridFocus<T extends TableData>(
         stopProcessingLock()
       })
     } else if (!skipFinalFocus) {
+      // SpreadsheetNav: intercept at grid boundary for inter-grid navigation
+      if (newRowIndex === rowIndex && spreadsheetNavOptions?.value) {
+        const opts = spreadsheetNavOptions.value
+        if (e.key === 'ArrowUp' && rowIndex === 0) {
+          if (opts.previousGrid?.value) {
+            setFocusedCell(null)
+            opts.previousGrid.value.spreadsheetFocusLastRow?.(newColumnIndex, false)
+          }
+          // No linked grid above — stay put
+          return
+        }
+        if (e.key === 'ArrowDown' && rowIndex === visibleRows.length - 1) {
+          if (opts.nextGrid?.value) {
+            setFocusedCell(null)
+            opts.nextGrid.value.spreadsheetFocusFirstRow?.(newColumnIndex, false)
+          }
+          // No linked grid below — stay put
+          return
+        }
+      }
+
       // Normal arrow key navigation - use existing scroll-to-cell behavior
       setFocusedCell({ rowIndex: newRowIndex, columnIndex: newColumnIndex })
 

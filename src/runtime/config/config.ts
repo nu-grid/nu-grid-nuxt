@@ -1,9 +1,8 @@
-import type { TableData } from '@nuxt/ui'
-
 import { defu } from 'defu'
 
 import type { NuGridProps } from '../types'
 import type { NuGridCreateConfigOptions } from '../types/_internal'
+import type { TableData } from '../types/table-data'
 
 import { nuGridDefaults } from './_internal/options-defaults'
 import { applyNuGridPreset } from './presets'

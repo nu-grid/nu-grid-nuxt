@@ -1,10 +1,11 @@
-import type { TableData } from '@nuxt/ui'
-import type { Table } from '@tanstack/vue-table'
 import type { Primitive } from 'reka-ui'
 import type { ComputedRef, Ref } from 'vue'
 
 import { useElementSize } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
+
+import type { Table } from '../../engine'
+import type { TableData } from '../../types/table-data'
 
 export interface ScrollToCellOptions {
   /** The cell element to scroll to */

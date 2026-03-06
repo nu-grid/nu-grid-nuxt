@@ -1,9 +1,9 @@
 import type { TableColumn } from '@nuxt/ui'
-import type { ColumnSizingInfoState, GroupingState } from '@tanstack/vue-table'
 
 import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
+import type { ColumnSizingInfoState, GroupingState } from '../src/runtime/engine'
 import type { NuGridStates } from '../src/runtime/types/_internal'
 
 import {
@@ -470,7 +470,7 @@ describe('useNuGridApi', () => {
     expect(states.columnVisibilityState.value).toEqual({ status: false })
   })
 
-  it('should handle pagination state changes', () => {
+  it('should handle pagination state changes via direct ref update', () => {
     const data = ref(testData)
     const propsColumns = ref(testColumns)
     const { columns } = useNuGridColumns(propsColumns, data)
@@ -483,12 +483,13 @@ describe('useNuGridApi', () => {
 
     const { tableApi } = useNuGridApi(props, data, columns, states)
 
-    tableApi.setPagination({ pageIndex: 1, pageSize: 20 })
+    // NuGrid owns pagination — update ref directly, TanStack reads passively
+    states.paginationState.value = { pageIndex: 1, pageSize: 20 }
 
-    expect(states.paginationState.value).toEqual({ pageIndex: 1, pageSize: 20 })
+    expect(tableApi.getState().pagination).toEqual({ pageIndex: 1, pageSize: 20 })
   })
 
-  it('should handle column pinning changes', () => {
+  it('should handle column pinning changes via direct ref update', () => {
     const data = ref(testData)
     const propsColumns = ref(testColumns)
     const { columns } = useNuGridColumns(propsColumns, data)
@@ -501,9 +502,11 @@ describe('useNuGridApi', () => {
 
     const { tableApi } = useNuGridApi(props, data, columns, states)
 
-    tableApi.setColumnPinning({ left: ['id'], right: [] })
+    // NuGrid owns column pinning — update ref directly (not through tableApi.setColumnPinning)
+    states.columnPinningState.value = { left: ['id'], right: [] }
 
-    expect(states.columnPinningState.value).toEqual({ left: ['id'], right: [] })
+    // TanStack reads from our ref passively
+    expect(tableApi.getState().columnPinning).toEqual({ left: ['id'], right: [] })
   })
 
   it('should have proper filtering model', () => {

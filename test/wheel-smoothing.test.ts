@@ -10,6 +10,9 @@ describe('useNuGridWheelSmoothing', () => {
     container = document.createElement('div')
     container.scrollTop = 0
     container.scrollLeft = 0
+    // Mock scroll dimensions so the scroll-guard check passes (jsdom defaults to 0)
+    Object.defineProperty(container, 'scrollHeight', { value: 1000, configurable: true })
+    Object.defineProperty(container, 'clientHeight', { value: 500, configurable: true })
     if (!window.requestAnimationFrame) {
       window.requestAnimationFrame = (cb: FrameRequestCallback) =>
         setTimeout(() => cb(performance.now()), 16) as unknown as number

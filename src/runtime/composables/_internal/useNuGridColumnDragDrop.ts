@@ -1,10 +1,10 @@
-import type { TableData } from '@nuxt/ui'
-import type { Header, Table } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 
 import { markRaw, ref } from 'vue'
 
+import type { ColumnPinningState, Header, Table } from '../../engine'
 import type { NuGridColumnDragDrop } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 /**
  * Column drag and drop functionality
  */
@@ -12,6 +12,8 @@ export function useNuGridColumnDragDrop<T extends TableData>(
   tableApi: Table<T>,
   columnOrderState: Ref<string[]>,
   tableRef: Ref<HTMLDivElement | null>,
+  gridReorderEnabled = false,
+  columnPinningState?: Ref<ColumnPinningState>,
 ) {
   const draggedColumnId = ref<string | null>(null)
   const dropTargetColumnId = ref<string | null>(null)
@@ -33,7 +35,7 @@ export function useNuGridColumnDragDrop<T extends TableData>(
   function handleColumnDragOver(e: DragEvent, columnId: string) {
     // Check if the target column allows reordering
     const targetColumn = tableApi.getColumn(columnId)
-    if (targetColumn && (targetColumn.columnDef as any).enableReordering === false) {
+    if (targetColumn && targetColumn.columnDef.enableReordering === false) {
       return
     }
     if (!draggedColumnId.value || draggedColumnId.value === columnId) {
@@ -62,7 +64,7 @@ export function useNuGridColumnDragDrop<T extends TableData>(
     e.preventDefault()
     // Check if the target column allows reordering
     const targetColumn = tableApi.getColumn(columnId)
-    if (targetColumn && (targetColumn.columnDef as any).enableReordering === false) {
+    if (targetColumn && targetColumn.columnDef.enableReordering === false) {
       return
     }
     if (!draggedColumnId.value || draggedColumnId.value === columnId) {
@@ -70,7 +72,7 @@ export function useNuGridColumnDragDrop<T extends TableData>(
     }
 
     // Check if the dragged column is pinned and unpin it
-    const currentPinning = tableApi.getState().columnPinning
+    const currentPinning = columnPinningState?.value ?? tableApi.getState().columnPinning
     const draggedColId = draggedColumnId.value
     const isPinnedLeft = currentPinning.left?.includes(draggedColId)
     const isPinnedRight = currentPinning.right?.includes(draggedColId)
@@ -78,10 +80,12 @@ export function useNuGridColumnDragDrop<T extends TableData>(
     if (isPinnedLeft || isPinnedRight) {
       // Unpin the column before reordering
       const newPinning = {
-        left: currentPinning.left?.filter((id) => id !== draggedColId) || [],
-        right: currentPinning.right?.filter((id) => id !== draggedColId) || [],
+        left: currentPinning.left?.filter((id: string) => id !== draggedColId) || [],
+        right: currentPinning.right?.filter((id: string) => id !== draggedColId) || [],
       }
-      tableApi.setColumnPinning(newPinning)
+      if (columnPinningState) {
+        columnPinningState.value = newPinning
+      }
     }
 
     const allColumns = tableApi.getAllLeafColumns()
@@ -151,17 +155,17 @@ export function useNuGridColumnDragDrop<T extends TableData>(
     }
   }
 
-  function isHeaderDraggable(header: Header<T, any>): boolean {
+  function isHeaderDraggable(header: Header<T>): boolean {
     const columnId = header.column.id
-    // Check if the column allows reordering
-    const enableReordering = (header.column.columnDef as any).enableReordering
-    if (enableReordering === false) {
+    // Column-level enableReordering overrides grid-level reorder default
+    const enableReordering = header.column.columnDef.enableReordering ?? gridReorderEnabled
+    if (!enableReordering) {
       return false
     }
     return !header.isPlaceholder && header.colSpan === 1 && !!columnId
   }
 
-  function headerDragProps(header: Header<T, any>) {
+  function headerDragProps(header: Header<T>) {
     return {
       'data-dragging': draggedColumnId.value === header.column.id ? 'true' : 'false',
       'data-drop-target': dropTargetColumnId.value === header.column.id ? 'true' : 'false',
@@ -177,7 +181,7 @@ export function useNuGridColumnDragDrop<T extends TableData>(
     }
   }
 
-  function headerDragHandleProps(header: Header<T, any>) {
+  function headerDragHandleProps(header: Header<T>) {
     return {
       draggable: isHeaderDraggable(header),
       class: isHeaderDraggable(header) ? 'cursor-move' : '',

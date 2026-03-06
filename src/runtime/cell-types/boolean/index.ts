@@ -36,7 +36,7 @@ export const booleanCellType: NuGridCellType = {
 
       if (rowIndex !== -1 && columnDef.accessorKey) {
         const key = columnDef.accessorKey as string
-        ;(data[rowIndex] as any)[key] = newValue
+        data[rowIndex]![key] = newValue
 
         // Emit change event
         emitChange(currentValue, newValue)

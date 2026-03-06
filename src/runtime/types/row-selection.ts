@@ -1,7 +1,6 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row } from '@tanstack/vue-table'
-
+import type { Row } from '../engine'
 import type { NuGridSelectionColumnDef } from './_internal'
+import type { TableData } from './table-data'
 
 /**
  * Row selection options object type for advanced configuration
@@ -25,7 +24,7 @@ export interface NuGridRowSelectOptions<T extends TableData = TableData> {
   /**
    * Function to determine if a specific row can be selected
    * When returns false, the row's checkbox is disabled and spacebar/clicks won't toggle selection
-   * @param row - The TanStack Table Row object
+   * @param row - The Row object
    * @returns boolean - true if row can be selected, false otherwise
    * @default () => true
    * @example

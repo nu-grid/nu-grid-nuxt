@@ -1,7 +1,7 @@
 ---
 seo:
   title: NuGrid - Data Grid for Nuxt
-  description: A powerful data grid component for Nuxt with virtualization, cell editing, and TanStack Table integration.
+  description: A powerful data grid component for Nuxt with virtualization, cell editing, and a built-in data engine.
 ---
 
 ::u-page-hero{class="dark:bg-gradient-to-b from-neutral-900 to-neutral-950 -mt-16 pt-4 sm:pt-6"}
@@ -15,7 +15,7 @@ orientation: horizontal
 Build Powerful [Data Grids]{.text-primary}.
 
 #description
-NuGrid is a feature-rich data grid component for Nuxt. Built on TanStack Table with Nuxt UI integration, it provides virtualization, inline editing, row grouping, and more.
+NuGrid is a feature-rich data grid component for Nuxt. With Nuxt UI integration and a lightweight built-in engine, it provides virtualization, inline editing, row grouping, and more.
 
 #links
   :::u-button
@@ -143,10 +143,10 @@ Core Features
   icon: i-lucide-table
   ---
   #title
-  TanStack Table
+  Built-in Engine
 
   #description
-  Built on TanStack Table for powerful sorting, filtering, pagination, and column management.
+  Lightweight data engine for powerful sorting, filtering, pagination, and column management.
   :::
 ::
 

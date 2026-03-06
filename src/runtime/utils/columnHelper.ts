@@ -1,7 +1,11 @@
-import type { TableData } from '@nuxt/ui'
-import type { ColumnDefTemplate, StringOrTemplateHeader } from '@tanstack/vue-table'
-
 import type { NuGridColumn } from '../types/column'
+import type { TableData } from '../types/table-data'
+
+/** Template for column def rendering — string or render function */
+type ColumnDefTemplate<TProps extends object> = string | ((props: TProps) => any)
+
+/** Header can be a string or a template function */
+type StringOrTemplateHeader = string | ColumnDefTemplate<any>
 
 /**
  * Properties for accessor columns (columns that map to a data field)
@@ -43,7 +47,7 @@ export interface GroupColumnDef<T extends TableData> {
   /**
    * Header for the column group
    */
-  header: StringOrTemplateHeader<T, unknown>
+  header: StringOrTemplateHeader
   /**
    * Child columns in this group
    */
