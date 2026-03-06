@@ -105,6 +105,12 @@ const props = withDefaults(defineProps<NuGridProps<T>>(), {
   watchOptions: () => ({
     deep: true,
   }),
+  // Explicit undefined defaults prevent Vue's boolean prop casting (absent boolean → false).
+  // Without these, the engine's `?? true` fallback never fires.
+  enableColumnResizing: undefined,
+  enableSorting: undefined,
+  enableMultiSort: undefined,
+  enableExpanding: undefined,
 })
 
 const emit = defineEmits<{
@@ -686,25 +692,21 @@ const autosizeFns = useNuGridAutosize(props, tableApi, tableRef, columnSizingSta
 // The reactive getter in useVueTable ensures the engine sees column changes internally
 const headerGroups = computed(() => {
   void columnsUpdatedSignal.value
-  void columnVisibilityState.value
   return tableApi.getHeaderGroups()
 })
 const headerGroupsLength = computed(() => headerGroups.value.length)
 const footerGroups = computed(() => {
   void columnsUpdatedSignal.value
-  void columnVisibilityState.value
   return tableApi.getFooterGroups()
 })
 const allLeafColumns = computed(() => {
   void columnsUpdatedSignal.value
-  void columnVisibilityState.value
   return tableApi.getAllLeafColumns()
 })
 
 // Performance optimization #1: Cache visible cells for each row
 // This prevents multiple calls to row.getVisibleCells() during rendering
 const visibleCellsCache = computed(() => {
-  void columnVisibilityState.value
   const cache = new Map<string, Cell<T>[]>()
   rows.value.forEach((row) => {
     cache.set(row.id, row.getVisibleCells() as Cell<T>[])

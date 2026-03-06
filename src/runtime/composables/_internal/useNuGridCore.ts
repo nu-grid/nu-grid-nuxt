@@ -481,6 +481,7 @@ export function useNuGridApi<T extends TableData>(
     getFilteredRowModel: () => engine.value.getFilteredRowModel(),
     getGroupedRowModel: () => engine.value.getRowModel(),
     getSelectedRowModel: () => engine.value.getSelectedRowModel(),
+    getFilteredSelectedRowModel: () => engine.value.getFilteredSelectedRowModel(),
     getPrePaginationRowModel: () => engine.value.getPrePaginationRowModel(),
     getRow: (id: string, searchAll?: boolean) => engine.value.getRow(id, searchAll),
     createRow: (
@@ -493,6 +494,8 @@ export function useNuGridApi<T extends TableData>(
     ) => engine.value.createRow(id, original, index, depth, subRows, parentId),
     toggleAllPageRowsSelected: (value: boolean) => engine.value.toggleAllPageRowsSelected(value),
     toggleAllRowsSelected: (value: boolean) => engine.value.toggleAllRowsSelected(value),
+    getIsAllPageRowsSelected: () => engine.value.getIsAllPageRowsSelected(),
+    getIsSomePageRowsSelected: () => engine.value.getIsSomePageRowsSelected(),
     getTotalSize: () => engine.value.getTotalSize(),
     getState: () => ({
       ...engine.value.getState(),

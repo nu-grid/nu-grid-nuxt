@@ -44,6 +44,43 @@ export interface CreateNuGridTableOptions<T> {
 }
 
 // ---------------------------------------------------------------------------
+// Cache helpers — shallow comparison handles in-place state mutations
+// ---------------------------------------------------------------------------
+
+function shallowEqual(
+  a: Record<string, any> | undefined,
+  b: Record<string, any> | undefined,
+): boolean {
+  if (a === b) return true
+  if (!a || !b) return false
+  const keysA = Object.keys(a)
+  if (keysA.length !== Object.keys(b).length) return false
+  for (const key of keysA) {
+    const va = a[key]
+    const vb = b[key]
+    if (va === vb) continue
+    if (Array.isArray(va) && Array.isArray(vb)) {
+      if (va.length !== vb.length) return false
+      for (let i = 0; i < va.length; i++) {
+        if (va[i] !== vb[i]) return false
+      }
+      continue
+    }
+    return false
+  }
+  return true
+}
+
+/** Shallow-copy a state object, also copying any array values. */
+function snapshotState(obj: Record<string, any>): Record<string, any> {
+  const copy: Record<string, any> = {}
+  for (const key of Object.keys(obj)) {
+    copy[key] = Array.isArray(obj[key]) ? [...obj[key]] : obj[key]
+  }
+  return copy
+}
+
+// ---------------------------------------------------------------------------
 // Factory
 // ---------------------------------------------------------------------------
 
@@ -68,55 +105,55 @@ export function createNuGridTable<T>(options: CreateNuGridTableOptions<T>): Engi
   // Each cache stores the state snapshot it was computed from and the result.
   // ---------------------------------------------------------------------------
 
-  let _visCache: { vis: Record<string, boolean>; result: EngineColumn<T>[] } | null = null
+  let _visCache: { vis: Record<string, any>; result: EngineColumn<T>[] } | null = null
   const getVisibleLeafColumns = (): EngineColumn<T>[] => {
     const vis = state.columnVisibility()
-    if (_visCache && _visCache.vis === vis) return _visCache.result
+    if (_visCache && shallowEqual(_visCache.vis, vis)) return _visCache.result
     const result = allLeafColumns.filter((c) => c.getIsVisible())
-    _visCache = { vis, result }
+    _visCache = { vis: snapshotState(vis), result }
     return result
   }
 
-  let _leftCache: { pin: any; vis: any; result: EngineColumn<T>[] } | null = null
+  let _leftCache: { pin: Record<string, any>; vis: Record<string, any>; result: EngineColumn<T>[] } | null = null
   const getLeftVisibleLeafColumns = (): EngineColumn<T>[] => {
     const pin = state.columnPinning()
     const vis = state.columnVisibility()
-    if (_leftCache && _leftCache.pin === pin && _leftCache.vis === vis) return _leftCache.result
+    if (_leftCache && shallowEqual(_leftCache.pin, pin) && shallowEqual(_leftCache.vis, vis)) return _leftCache.result
     const { left } = pin
     if (!left?.length) {
-      _leftCache = { pin, vis, result: [] }
+      _leftCache = { pin: snapshotState(pin), vis: snapshotState(vis), result: [] }
       return _leftCache.result
     }
     const result = getVisibleLeafColumns().filter((c) => left.includes(c.id))
-    _leftCache = { pin, vis, result }
+    _leftCache = { pin: snapshotState(pin), vis: snapshotState(vis), result }
     return result
   }
 
-  let _rightCache: { pin: any; vis: any; result: EngineColumn<T>[] } | null = null
+  let _rightCache: { pin: Record<string, any>; vis: Record<string, any>; result: EngineColumn<T>[] } | null = null
   const getRightVisibleLeafColumns = (): EngineColumn<T>[] => {
     const pin = state.columnPinning()
     const vis = state.columnVisibility()
-    if (_rightCache && _rightCache.pin === pin && _rightCache.vis === vis) return _rightCache.result
+    if (_rightCache && shallowEqual(_rightCache.pin, pin) && shallowEqual(_rightCache.vis, vis)) return _rightCache.result
     const { right } = pin
     if (!right?.length) {
-      _rightCache = { pin, vis, result: [] }
+      _rightCache = { pin: snapshotState(pin), vis: snapshotState(vis), result: [] }
       return _rightCache.result
     }
     const result = getVisibleLeafColumns().filter((c) => right.includes(c.id))
-    _rightCache = { pin, vis, result }
+    _rightCache = { pin: snapshotState(pin), vis: snapshotState(vis), result }
     return result
   }
 
-  let _centerCache: { pin: any; vis: any; result: EngineColumn<T>[] } | null = null
+  let _centerCache: { pin: Record<string, any>; vis: Record<string, any>; result: EngineColumn<T>[] } | null = null
   const getCenterVisibleLeafColumns = (): EngineColumn<T>[] => {
     const pin = state.columnPinning()
     const vis = state.columnVisibility()
-    if (_centerCache && _centerCache.pin === pin && _centerCache.vis === vis)
+    if (_centerCache && shallowEqual(_centerCache.pin, pin) && shallowEqual(_centerCache.vis, vis))
       return _centerCache.result
     const { left, right } = pin
     const pinned = new Set([...(left ?? []), ...(right ?? [])])
     const result = getVisibleLeafColumns().filter((c) => !pinned.has(c.id))
-    _centerCache = { pin, vis, result }
+    _centerCache = { pin: snapshotState(pin), vis: snapshotState(vis), result }
     return result
   }
 
@@ -217,6 +254,11 @@ export function createNuGridTable<T>(options: CreateNuGridTableOptions<T>): Engi
       return { rows: selectedRows, flatRows: selectedRows, rowsById }
     },
 
+    getFilteredSelectedRowModel(): EngineRowModel<T> {
+      // NuGrid handles filtering externally — same as getSelectedRowModel
+      return table.getSelectedRowModel()
+    },
+
     getPrePaginationRowModel(): EngineRowModel<T> {
       // NuGrid handles pagination separately
       return table.getRowModel()
@@ -269,6 +311,23 @@ export function createNuGridTable<T>(options: CreateNuGridTableOptions<T>): Engi
     toggleAllRowsSelected(value: boolean): void {
       // Same as toggleAllPageRowsSelected — NuGrid manages pagination externally
       table.toggleAllPageRowsSelected(value)
+    },
+
+    getIsAllPageRowsSelected(): boolean {
+      const model = table.getRowModel()
+      const selection = state.rowSelection()
+      const selectableRows = model.flatRows.filter((r) => r.getCanSelect())
+      if (selectableRows.length === 0) return false
+      return selectableRows.every((r) => selection[r.id])
+    },
+
+    getIsSomePageRowsSelected(): boolean {
+      const model = table.getRowModel()
+      const selection = state.rowSelection()
+      const selectableRows = model.flatRows.filter((r) => r.getCanSelect())
+      if (selectableRows.length === 0) return false
+      const selectedCount = selectableRows.filter((r) => selection[r.id]).length
+      return selectedCount > 0 && selectedCount < selectableRows.length
     },
 
     // Sizing

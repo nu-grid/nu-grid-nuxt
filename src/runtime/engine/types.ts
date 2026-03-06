@@ -278,6 +278,7 @@ export interface EngineTable<T = any> {
   getCoreRowModel: () => EngineRowModel<T>
   getFilteredRowModel: () => EngineRowModel<T>
   getSelectedRowModel: () => EngineRowModel<T>
+  getFilteredSelectedRowModel: () => EngineRowModel<T>
   getPrePaginationRowModel: () => EngineRowModel<T>
   getRow: (rowId: string, searchAll?: boolean) => EngineRow<T> | undefined
 
@@ -294,6 +295,8 @@ export interface EngineTable<T = any> {
   // Selection
   toggleAllPageRowsSelected: (value: boolean) => void
   toggleAllRowsSelected: (value: boolean) => void
+  getIsAllPageRowsSelected: () => boolean
+  getIsSomePageRowsSelected: () => boolean
 
   // Sizing
   getTotalSize: () => number

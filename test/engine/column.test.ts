@@ -186,6 +186,20 @@ describe('column.getCanResize()', () => {
     )
     expect(col.getCanResize()).toBe(false)
   })
+
+  it('should return true when table option is undefined (Vue boolean prop regression)', () => {
+    // Regression: Vue casts absent boolean props to `false`, not `undefined`.
+    // The engine must treat `undefined` as "not set" and default to true.
+    const state = createMockStateAccessors()
+    const col = createEngineColumn(
+      { id: 'name', accessorKey: 'name', header: 'name' },
+      0,
+      undefined,
+      state,
+      { enableColumnResizing: undefined },
+    )
+    expect(col.getCanResize()).toBe(true)
+  })
 })
 
 // ---------------------------------------------------------------------------

@@ -83,6 +83,20 @@ describe('createNuGridTable — basics', () => {
     expect(groups[0].headers).toHaveLength(3)
   })
 
+  it('header.column.getCanResize() should return true by default', () => {
+    const state = createMockState()
+    const table = createNuGridTable({
+      data: testData,
+      columnDefs: testColumnDefs,
+      state,
+    })
+
+    const headers = table.getHeaderGroups()[0].headers
+    for (const header of headers) {
+      expect(header.column.getCanResize()).toBe(true)
+    }
+  })
+
   it('should create footer groups (reversed header groups)', () => {
     const state = createMockState()
     const table = createNuGridTable({
@@ -108,6 +122,118 @@ describe('createNuGridTable — basics', () => {
     expect(model.rows).toHaveLength(3)
     expect(model.rows[0].original).toBe(testData[0])
     expect(model.rows[0].getValue('name')).toBe('Alice')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Boolean option defaults — Vue boolean prop casting regression guard
+// ---------------------------------------------------------------------------
+
+describe('createNuGridTable — boolean option defaults', () => {
+  // Vue casts absent boolean props to `false` instead of `undefined`.
+  // These tests ensure the engine treats `undefined` as "not set" and defaults
+  // to enabled, matching the behavior when the option is omitted entirely.
+
+  it('enableColumnResizing defaults to true when undefined', () => {
+    const state = createMockState()
+    const table = createNuGridTable({
+      data: testData,
+      columnDefs: testColumnDefs,
+      state,
+      enableColumnResizing: undefined,
+    })
+    expect(table.options.enableColumnResizing).toBeUndefined()
+    for (const col of table.getAllLeafColumns()) {
+      expect(col.getCanResize()).toBe(true)
+    }
+  })
+
+  it('enableColumnResizing=false disables resizing', () => {
+    const state = createMockState()
+    const table = createNuGridTable({
+      data: testData,
+      columnDefs: testColumnDefs,
+      state,
+      enableColumnResizing: false,
+    })
+    for (const col of table.getAllLeafColumns()) {
+      expect(col.getCanResize()).toBe(false)
+    }
+  })
+
+  it('enableSorting defaults to true when undefined', () => {
+    const state = createMockState()
+    const table = createNuGridTable({
+      data: testData,
+      columnDefs: testColumnDefs,
+      state,
+      enableSorting: undefined,
+    })
+    expect(table.options.enableSorting).toBeUndefined()
+    for (const col of table.getAllLeafColumns()) {
+      expect(col.getCanSort()).toBe(true)
+    }
+  })
+
+  it('enableSorting=false disables sorting', () => {
+    const state = createMockState()
+    const table = createNuGridTable({
+      data: testData,
+      columnDefs: testColumnDefs,
+      state,
+      enableSorting: false,
+    })
+    for (const col of table.getAllLeafColumns()) {
+      expect(col.getCanSort()).toBe(false)
+    }
+  })
+
+  it('enableMultiSort defaults to true when undefined', () => {
+    const state = createMockState()
+    const table = createNuGridTable({
+      data: testData,
+      columnDefs: testColumnDefs,
+      state,
+      enableMultiSort: undefined,
+    })
+    expect(table.options.enableMultiSort).toBeUndefined()
+  })
+
+  it('enableExpanding defaults to true when undefined', () => {
+    const state = createMockState()
+    const table = createNuGridTable({
+      data: testData,
+      columnDefs: testColumnDefs,
+      state,
+      enableExpanding: undefined,
+    })
+    expect(table.options.enableExpanding).toBeUndefined()
+  })
+
+  it('omitting boolean options entirely behaves same as undefined', () => {
+    const state = createMockState()
+    const withOmitted = createNuGridTable({
+      data: testData,
+      columnDefs: testColumnDefs,
+      state,
+    })
+    const withUndefined = createNuGridTable({
+      data: testData,
+      columnDefs: testColumnDefs,
+      state,
+      enableColumnResizing: undefined,
+      enableSorting: undefined,
+      enableMultiSort: undefined,
+      enableExpanding: undefined,
+    })
+
+    // Both should produce identical feature flag behavior
+    for (let i = 0; i < testColumnDefs.length; i++) {
+      const omittedCol = withOmitted.getAllLeafColumns()[i]
+      const undefinedCol = withUndefined.getAllLeafColumns()[i]
+      expect(omittedCol.getCanResize()).toBe(undefinedCol.getCanResize())
+      expect(omittedCol.getCanSort()).toBe(undefinedCol.getCanSort())
+    }
   })
 })
 
