@@ -992,7 +992,7 @@ provide('nugrid-add-row', addRowContext)
 const animationContext = useNuGridAnimation(props, {
   rootRef: rootElement,
   rows,
-  animationClass: computed(() => ui.value.rowAnimation()),
+  animationClass: computed(() => ui.value.rowAnimation?.() ?? ''),
 })
 provide('nugrid-animation', animationContext)
 
