@@ -114,11 +114,16 @@ export function createNuGridTable<T>(options: CreateNuGridTableOptions<T>): Engi
     return result
   }
 
-  let _leftCache: { pin: Record<string, any>; vis: Record<string, any>; result: EngineColumn<T>[] } | null = null
+  let _leftCache: {
+    pin: Record<string, any>
+    vis: Record<string, any>
+    result: EngineColumn<T>[]
+  } | null = null
   const getLeftVisibleLeafColumns = (): EngineColumn<T>[] => {
     const pin = state.columnPinning()
     const vis = state.columnVisibility()
-    if (_leftCache && shallowEqual(_leftCache.pin, pin) && shallowEqual(_leftCache.vis, vis)) return _leftCache.result
+    if (_leftCache && shallowEqual(_leftCache.pin, pin) && shallowEqual(_leftCache.vis, vis))
+      return _leftCache.result
     const { left } = pin
     if (!left?.length) {
       _leftCache = { pin: snapshotState(pin), vis: snapshotState(vis), result: [] }
@@ -129,11 +134,16 @@ export function createNuGridTable<T>(options: CreateNuGridTableOptions<T>): Engi
     return result
   }
 
-  let _rightCache: { pin: Record<string, any>; vis: Record<string, any>; result: EngineColumn<T>[] } | null = null
+  let _rightCache: {
+    pin: Record<string, any>
+    vis: Record<string, any>
+    result: EngineColumn<T>[]
+  } | null = null
   const getRightVisibleLeafColumns = (): EngineColumn<T>[] => {
     const pin = state.columnPinning()
     const vis = state.columnVisibility()
-    if (_rightCache && shallowEqual(_rightCache.pin, pin) && shallowEqual(_rightCache.vis, vis)) return _rightCache.result
+    if (_rightCache && shallowEqual(_rightCache.pin, pin) && shallowEqual(_rightCache.vis, vis))
+      return _rightCache.result
     const { right } = pin
     if (!right?.length) {
       _rightCache = { pin: snapshotState(pin), vis: snapshotState(vis), result: [] }
@@ -144,7 +154,11 @@ export function createNuGridTable<T>(options: CreateNuGridTableOptions<T>): Engi
     return result
   }
 
-  let _centerCache: { pin: Record<string, any>; vis: Record<string, any>; result: EngineColumn<T>[] } | null = null
+  let _centerCache: {
+    pin: Record<string, any>
+    vis: Record<string, any>
+    result: EngineColumn<T>[]
+  } | null = null
   const getCenterVisibleLeafColumns = (): EngineColumn<T>[] => {
     const pin = state.columnPinning()
     const vis = state.columnVisibility()

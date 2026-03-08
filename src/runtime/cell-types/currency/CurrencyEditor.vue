@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 import type { NuGridCellEditorEmits, NuGridCellEditorProps } from '../../types'
 
@@ -14,12 +14,15 @@ const inputRef = ref<{ inputRef: HTMLInputElement } | null>(null)
 
 const { handleKeydown, handleBlur } = useNuGridCellEditor(props, emit, inputRef)
 
-// Format value for display but keep raw number for editing
-const displayValue = computed(() => {
-  const value = props.modelValue
-  if (value === null || value === undefined) return ''
-  return String(value)
-})
+// Local text ref so cursor positioning works for spreadsheet nav (type="number" doesn't support selectionStart/End)
+const inputText = ref(props.modelValue != null ? String(props.modelValue) : '')
+
+const handleInput = (value: string) => {
+  const filtered = value.replace(/[^0-9.-]/g, '')
+  inputText.value = filtered
+  const num = parseFloat(filtered)
+  emit('update:modelValue', Number.isNaN(num) ? null : num)
+}
 </script>
 
 <template>
@@ -27,12 +30,11 @@ const displayValue = computed(() => {
     <span class="text-gray-500">$</span>
     <UInput
       ref="inputRef"
-      :model-value="displayValue"
-      type="number"
-      step="0.01"
-      min="0"
+      :model-value="inputText"
+      type="text"
+      inputmode="decimal"
       class="flex-1 pl-0.5!"
-      @update:model-value="emit('update:modelValue', $event ? Number($event) : null)"
+      @update:model-value="handleInput"
       @blur="handleBlur"
       @keydown="handleKeydown"
     />

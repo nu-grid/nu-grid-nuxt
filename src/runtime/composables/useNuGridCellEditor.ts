@@ -188,7 +188,7 @@ export function useNuGridCellEditor(
    * Custom editors can call this from their own keydown handler.
    * @returns true if the key was handled (navigation scheduled)
    */
-  function handleSpreadsheetArrows(e: KeyboardEvent): boolean {
+  function handleSpreadsheetArrows(e: KeyboardEvent, beforeNavigate?: () => void): boolean {
     if (
       !spreadsheetNavEnabled?.value ||
       (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') ||
@@ -204,6 +204,7 @@ export function useNuGridCellEditor(
     // Non-input editors (e.g. checkbox): always navigate on ArrowLeft/Right
     if (!input) {
       e.preventDefault()
+      beforeNavigate?.()
       scheduleNavigation(e.key === 'ArrowRight' ? 'right' : 'left')
       return true
     }
@@ -215,6 +216,7 @@ export function useNuGridCellEditor(
     // treat as all-selected since spreadsheetNav auto-selects on focus
     if (selectionStart === null || selectionEnd === null) {
       e.preventDefault()
+      beforeNavigate?.()
       scheduleNavigation(e.key === 'ArrowRight' ? 'right' : 'left')
       return true
     }
@@ -226,10 +228,12 @@ export function useNuGridCellEditor(
 
     if (e.key === 'ArrowRight' && (atEnd || allSelected || isEmpty)) {
       e.preventDefault()
+      beforeNavigate?.()
       scheduleNavigation('right')
       return true
     } else if (e.key === 'ArrowLeft' && (atStart || allSelected || isEmpty)) {
       e.preventDefault()
+      beforeNavigate?.()
       scheduleNavigation('left')
       return true
     }

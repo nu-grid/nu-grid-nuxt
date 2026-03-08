@@ -72,6 +72,7 @@ export const nuGridThemeCompact = {
       'flex flex-1 items-center px-2 py-1 text-xs font-semibold uppercase tracking-wide text-highlighted',
     // Editor container slots - compact offsets for tighter cell padding
     editorContainer: '-ml-[8px] mt-px w-full',
+    editorContainerBoolean: 'w-full',
     editorContainerTextarea: 'absolute inset-0 -mx-1 -my-1',
     // Editor validation error styling
     editorErrorRing: 'ring-error ring-1',

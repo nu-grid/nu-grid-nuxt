@@ -18,22 +18,23 @@ const { handleKeydown, handleBlur } = useNuGridCellEditor(props, emit, inputRef)
 // Get storage mode from column definition (default: 'decimal' for 0-1, 'percent' for 0-100)
 const storageMode = computed(() => props.cell?.column?.columnDef?.percentageStorage ?? 'decimal')
 
-// Convert stored value to display value (percentage 0-100)
-const displayValue = computed(() => {
-  if (props.modelValue === null || props.modelValue === undefined) return ''
-  const numValue = Number(props.modelValue)
+// Convert stored value to display percentage string
+function toDisplayString(value: any): string {
+  if (value === null || value === undefined) return ''
+  const numValue = Number(value)
   if (Number.isNaN(numValue)) return ''
-  // If stored as decimal (0-1), convert to percentage for display
-  return storageMode.value === 'decimal' ? numValue * 100 : numValue
-})
+  const display = storageMode.value === 'decimal' ? numValue * 100 : numValue
+  return String(display)
+}
+
+// Local text ref so cursor positioning works for spreadsheet nav (type="number" doesn't support selectionStart/End)
+const inputText = ref(toDisplayString(props.modelValue))
 
 // Convert display value back to storage format and emit
-const handleInput = (value: number | string) => {
-  if (value === '' || value === null || value === undefined) {
-    emit('update:modelValue', null)
-    return
-  }
-  const numValue = Number(value)
+const handleInput = (value: string) => {
+  const filtered = value.replace(/[^0-9.-]/g, '')
+  inputText.value = filtered
+  const numValue = parseFloat(filtered)
   if (Number.isNaN(numValue)) {
     emit('update:modelValue', null)
     return
@@ -48,9 +49,9 @@ const handleInput = (value: number | string) => {
   <div class="flex w-full items-center">
     <UInput
       ref="inputRef"
-      :model-value="displayValue"
-      type="number"
-      step="0.1"
+      :model-value="inputText"
+      type="text"
+      inputmode="decimal"
       class="w-full pl-0.5!"
       @update:model-value="handleInput"
       @blur="handleBlur"

@@ -371,7 +371,7 @@ const cellTextValue = computed(() => {
   <div
     v-else-if="isEditing"
     ref="wrapperRef"
-    :class="coreContext.ui.value.editorContainer?.()"
+    :class="cellDataType === 'boolean' ? coreContext.ui.value.editorContainerBoolean?.() : coreContext.ui.value.editorContainer?.()"
     :style="wrapperStyle"
     data-editing
   >
