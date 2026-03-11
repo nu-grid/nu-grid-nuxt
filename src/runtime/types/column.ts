@@ -33,7 +33,7 @@ export interface NuGridHeaderContext<T = any> {
 
 /**
  * Context passed to cell render functions on column definitions
- * Matches the return type of EngineCell.getContext()
+ * Extends the engine's cell context with NuGrid editing capabilities
  */
 export interface NuGridCellContext<T = any> {
   table: EngineTable<T>
@@ -42,6 +42,10 @@ export interface NuGridCellContext<T = any> {
   cell: EngineCell<T>
   getValue: <V = unknown>() => V
   renderValue: <V = unknown>() => V | null
+  /** Whether this cell is editable (considers column and row-level settings) */
+  editable: boolean
+  /** Callback to update the cell value directly (bypasses edit mode) */
+  onUpdateValue: (value: any) => void
 }
 
 // ---------------------------------------------------------------------------

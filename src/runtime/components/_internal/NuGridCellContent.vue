@@ -11,7 +11,7 @@ import type {
   NuGridCoreContext,
 } from '../../types/_internal'
 
-import { nuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegistry'
+import type { useNuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegistry'
 import { FlexRender } from '../../utils/flexRender'
 import NuGridHighlightedText from './NuGridHighlightedText.vue'
 
@@ -25,6 +25,9 @@ const props = defineProps<Props>()
 
 // Inject core context for theme UI slots (editor container classes)
 const coreContext = inject<NuGridCoreContext>('nugrid-core')!
+
+// Inject cell type registry (checks custom types, then falls back to global)
+const cellTypeRegistry = inject<ReturnType<typeof useNuGridCellTypeRegistry>>('nugrid-cell-type-registry')!
 
 // Inject UI config for column defaults
 const uiConfig = inject<{ wrapText: ComputedRef<boolean> } | null>('nugrid-ui-config', null)
@@ -114,13 +117,10 @@ const cellDataType = computed(() => {
   return 'text'
 })
 
-// Use global registry directly for better performance (no reactive overhead)
-// This avoids creating reactive computed values per cell component instance
-// Cache renderer lookup - only recalculate when cellDataType changes
-// Use registry's cached getRenderer method for better performance
+// Use injected registry which checks custom cell types first, then built-ins
 const pluginRenderer = computed(() => {
   const type = cellDataType.value
-  return nuGridCellTypeRegistry.getRenderer(type)
+  return cellTypeRegistry.getRenderer(type)
 })
 
 // Determine if we should use plugin renderer (combine checks for efficiency)
@@ -293,6 +293,16 @@ const wrapperStyle = computed(() => {
   return undefined
 })
 
+// Extended cell context that adds editing capabilities to TanStack's cell context
+// This allows column `cell` render functions to receive `editable` and `onUpdateValue`
+const extendedCellContext = computed(() => ({
+  ...props.cell.getContext(),
+  editable: props.cellEditingFns.isCellEditable(props.row, props.cell),
+  onUpdateValue: (value: any) => {
+    props.cellEditingFns.stopEditing(props.row, props.cell, value)
+  },
+}))
+
 // Track shouldFocusEditor to trigger re-renders when focus state changes
 // This ensures the editor component receives updated shouldFocus prop
 const editorContent = computed(() => {
@@ -361,9 +371,9 @@ const cellTextValue = computed(() => {
     <FlexRender
       v-else-if="cell.getIsAggregated?.() && cell.column.columnDef.aggregatedCell"
       :render="cell.column.columnDef.aggregatedCell"
-      :props="cell.getContext()"
+      :props="extendedCellContext"
     />
-    <FlexRender v-else :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+    <FlexRender v-else :render="cell.column.columnDef.cell" :props="extendedCellContext" />
     <div :class="coreContext.ui.value.editorContainerTextarea?.()">
       <component :is="editorContent" />
     </div>
@@ -393,8 +403,8 @@ const cellTextValue = computed(() => {
     <FlexRender
       v-else-if="cell.getIsAggregated?.() && cell.column.columnDef.aggregatedCell"
       :render="cell.column.columnDef.aggregatedCell"
-      :props="cell.getContext()"
+      :props="extendedCellContext"
     />
-    <FlexRender v-else :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+    <FlexRender v-else :render="cell.column.columnDef.cell" :props="extendedCellContext" />
   </div>
 </template>

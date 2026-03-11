@@ -89,6 +89,7 @@ import {
   useKeyboardSetup,
 } from '../composables/_internal/keyboard-handlers'
 import { resolvePagingOptions } from '../composables/_internal/useNuGridPaging'
+import { useNuGridCellTypeRegistry } from '../composables/useNuGridCellTypeRegistry'
 import { nuGridDefaults, usePropWithDefault } from '../config/_internal'
 import { NUGRID_EVENTS_KEY } from '../types/events'
 import { expandRows, paginateRows } from '../utils/rowModelFns'
@@ -232,6 +233,7 @@ const rowSelectionModeRef = computed(() =>
 const actionMenuRef = computed(() => props.actions ?? false)
 const dataTypeInferenceRef = computed(() => props.dataTypeInference ?? true)
 const customCellTypesRef = computed(() => props.cellTypes)
+const cellTypeRegistry = useNuGridCellTypeRegistry(customCellTypesRef)
 const { columns } = useNuGridColumns(
   propsColumns,
   data,
@@ -812,6 +814,8 @@ provide('nugrid-focus', {
   focusFns,
   cellEditingFns,
 })
+
+provide('nugrid-cell-type-registry', cellTypeRegistry)
 
 provide('nugrid-resize', {
   handleResizeStart,
