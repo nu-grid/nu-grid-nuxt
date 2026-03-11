@@ -123,6 +123,14 @@ const pluginRenderer = computed(() => {
   return cellTypeRegistry.getRenderer(type)
 })
 
+// Check if this cell type opts out of editor offset (e.g. boolean, toggle types)
+const useNoEditorOffset = computed(() => {
+  const type = cellDataType.value
+  if (type === 'boolean') return true
+  const cellType = cellTypeRegistry.getCellType(type)
+  return cellType?.noEditorOffset === true
+})
+
 // Determine if we should use plugin renderer (combine checks for efficiency)
 const shouldUsePluginRenderer = computed(() => {
   if (isEditing.value || hasOverrideCellRender.value) return false
@@ -381,7 +389,7 @@ const cellTextValue = computed(() => {
   <div
     v-else-if="isEditing"
     ref="wrapperRef"
-    :class="cellDataType === 'boolean' ? coreContext.ui.value.editorContainerBoolean?.() : coreContext.ui.value.editorContainer?.()"
+    :class="useNoEditorOffset ? coreContext.ui.value.editorContainerBoolean?.() : coreContext.ui.value.editorContainer?.()"
     :style="wrapperStyle"
     data-editing
   >

@@ -329,6 +329,14 @@ export interface NuGridCellType<T extends TableData = TableData> {
   ) => NuGridColumnMenuItem<T>[]
 
   /**
+   * When true, the editor container uses no offset (same as boolean).
+   * Use this for cell types where the editor should render in exactly the
+   * same position as the display renderer (e.g. toggle/checkbox types).
+   * @defaultValue false
+   */
+  noEditorOffset?: boolean
+
+  /**
    * Default cell renderer function
    * Used if renderer component is not provided
    * Falls back to the default cell rendering
