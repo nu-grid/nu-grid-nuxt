@@ -1,10 +1,9 @@
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData } from '@nuxt/ui'
-import type { Row } from '@tanstack/vue-table'
 import type { ComponentPublicInstance } from 'vue'
 
 import { computed, inject } from 'vue'
 
+import type { Row } from '../../engine'
 import type {
   NuGridAddRowContext,
   NuGridCoreContext,
@@ -12,6 +11,7 @@ import type {
   NuGridInteractionRouterContext,
   NuGridPerformanceContext,
 } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 import { resolveStyleObject, resolveValue } from '../../composables/_internal'
 import NuGridCellContent from './NuGridCellContent.vue'

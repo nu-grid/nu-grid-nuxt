@@ -2,6 +2,8 @@
  * @internal
  */
 
+import type { Ref } from 'vue'
+
 import type {
   ColumnFiltersState,
   ColumnOrderState,
@@ -15,8 +17,7 @@ import type {
   RowSelectionState,
   SortingState,
   VisibilityState,
-} from '@tanstack/vue-table'
-import type { Ref } from 'vue'
+} from '../state-types'
 
 /**
  * Grid state refs container

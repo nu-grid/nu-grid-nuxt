@@ -1,7 +1,7 @@
 {
   "name": "@nu-grid/nuxt",
   "version": "0.3.1",
-  "description": "A powerful data grid component for Nuxt with virtualization, cell editing, and TanStack Table integration",
+  "description": "A powerful data grid component for Nuxt with virtualization, cell editing, and advanced table features",
   "homepage": "https://www.nu-grid.dev",
   "license": "MIT",
   "repository": "https://github.com/nu-grid/nu-grid-nuxt",
@@ -67,6 +67,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
+    "bench": "vitest bench",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:types": "vue-tsc --noEmit && cd playgrounds/nuxt && vue-tsc --noEmit",
@@ -78,7 +79,6 @@
   },
   "dependencies": {
     "@nuxt/kit": "catalog:",
-    "@tanstack/vue-table": "catalog:",
     "defu": "catalog:",
     "tailwind-scrollbar": "catalog:"
   },

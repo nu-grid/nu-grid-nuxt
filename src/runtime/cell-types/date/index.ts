@@ -25,7 +25,7 @@ export const dateCellType: NuGridCellType = {
     if (Number.isNaN(date.getTime())) return String(value)
 
     // Get locale from column definition or default to en-US
-    const locale = (context.columnDef as any).locale || 'en-US'
+    const locale = context.columnDef.locale || 'en-US'
 
     // Use short date format by default
     return date.toLocaleDateString(locale, {

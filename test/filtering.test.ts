@@ -1,4 +1,14 @@
 import { describe, expect, it } from 'vitest'
+// ============================================================================
+// NuGrid imports — import from the new filteringFns.ts
+// ============================================================================
+import { ref } from 'vue'
+
+// ============================================================================
+// C. Column filter pipeline tests
+// ============================================================================
+import { useNuGridFiltering } from '../src/runtime/composables/_internal/useNuGridFiltering'
+import { autoDetectFilterFn, filterFns } from '../src/runtime/utils/filteringFns'
 
 // ============================================================================
 // Reference implementations — copied verbatim from TanStack Table's filterFns.ts
@@ -9,68 +19,29 @@ function tanstackTestFalsey(val: any) {
   return val === undefined || val === null || val === ''
 }
 
-const tanstackIncludesString = (
-  row: any,
-  columnId: string,
-  filterValue: string,
-) => {
+const tanstackIncludesString = (row: any, columnId: string, filterValue: string) => {
   const search = filterValue?.toString()?.toLowerCase()
-  return Boolean(
-    row
-      .getValue(columnId)
-      ?.toString()
-      ?.toLowerCase()
-      ?.includes(search),
-  )
+  return Boolean(row.getValue(columnId)?.toString()?.toLowerCase()?.includes(search))
 }
 
-const tanstackIncludesStringSensitive = (
-  row: any,
-  columnId: string,
-  filterValue: string,
-) => {
-  return Boolean(
-    row.getValue(columnId)?.toString()?.includes(filterValue),
-  )
+const tanstackIncludesStringSensitive = (row: any, columnId: string, filterValue: string) => {
+  return Boolean(row.getValue(columnId)?.toString()?.includes(filterValue))
 }
 
-const tanstackEqualsString = (
-  row: any,
-  columnId: string,
-  filterValue: string,
-) => {
-  return (
-    row.getValue(columnId)?.toString()?.toLowerCase()
-    === filterValue?.toLowerCase()
-  )
+const tanstackEqualsString = (row: any, columnId: string, filterValue: string) => {
+  return row.getValue(columnId)?.toString()?.toLowerCase() === filterValue?.toLowerCase()
 }
 
-const tanstackArrIncludes = (
-  row: any,
-  columnId: string,
-  filterValue: unknown,
-) => {
+const tanstackArrIncludes = (row: any, columnId: string, filterValue: unknown) => {
   return row.getValue(columnId)?.includes(filterValue)
 }
 
-const tanstackArrIncludesAll = (
-  row: any,
-  columnId: string,
-  filterValue: unknown[],
-) => {
-  return !filterValue.some(
-    (val: unknown) => !row.getValue(columnId)?.includes(val),
-  )
+const tanstackArrIncludesAll = (row: any, columnId: string, filterValue: unknown[]) => {
+  return !filterValue.some((val: unknown) => !row.getValue(columnId)?.includes(val))
 }
 
-const tanstackArrIncludesSome = (
-  row: any,
-  columnId: string,
-  filterValue: unknown[],
-) => {
-  return filterValue.some((val: unknown) =>
-    row.getValue(columnId)?.includes(val),
-  )
+const tanstackArrIncludesSome = (row: any, columnId: string, filterValue: unknown[]) => {
+  return filterValue.some((val: unknown) => row.getValue(columnId)?.includes(val))
 }
 
 const tanstackEquals = (row: any, columnId: string, filterValue: unknown) => {
@@ -78,15 +49,10 @@ const tanstackEquals = (row: any, columnId: string, filterValue: unknown) => {
 }
 
 const tanstackWeakEquals = (row: any, columnId: string, filterValue: unknown) => {
-  // eslint-disable-next-line eqeqeq
   return row.getValue(columnId) == filterValue
 }
 
-const tanstackInNumberRange = (
-  row: any,
-  columnId: string,
-  filterValue: [number, number],
-) => {
+const tanstackInNumberRange = (row: any, columnId: string, filterValue: [number, number]) => {
   const [min, max] = filterValue
   const rowValue = row.getValue(columnId)
   return rowValue >= min && rowValue <= max
@@ -94,12 +60,9 @@ const tanstackInNumberRange = (
 
 function tanstackResolveInNumberRange(val: [any, any]) {
   const [unsafeMin, unsafeMax] = val
-  let parsedMin
-    = typeof unsafeMin !== 'number' ? parseFloat(unsafeMin as string) : unsafeMin
-  let parsedMax
-    = typeof unsafeMax !== 'number' ? parseFloat(unsafeMax as string) : unsafeMax
-  let min
-    = unsafeMin === null || Number.isNaN(parsedMin) ? -Infinity : parsedMin
+  let parsedMin = typeof unsafeMin !== 'number' ? parseFloat(unsafeMin as string) : unsafeMin
+  let parsedMax = typeof unsafeMax !== 'number' ? parseFloat(unsafeMax as string) : unsafeMax
+  let min = unsafeMin === null || Number.isNaN(parsedMin) ? -Infinity : parsedMin
   let max = unsafeMax === null || Number.isNaN(parsedMax) ? Infinity : parsedMax
   if (min > max) {
     const temp = min
@@ -141,7 +104,7 @@ function tanstackGlobalFilterFn(
   row: any,
   _columnId: string,
   filterValue: string,
-  columns: Array<{ accessorKey?: string, id?: string, enableSearching?: boolean }>,
+  columns: Array<{ accessorKey?: string; id?: string; enableSearching?: boolean }>,
 ) {
   if (!filterValue || filterValue.length === 0) return true
 
@@ -178,15 +141,6 @@ function mockFilterRow(data: Record<string, any>) {
     original: data,
   }
 }
-
-// ============================================================================
-// NuGrid imports — import from the new filteringFns.ts
-// ============================================================================
-
-import {
-  autoDetectFilterFn,
-  filterFns,
-} from '../src/runtime/utils/filteringFns'
 
 // ============================================================================
 // A. Filter function parity tests
@@ -424,14 +378,38 @@ describe('inNumberRange — parity with TanStack', () => {
 
 describe('inNumberRange.resolveFilterValue — parity with TanStack', () => {
   const cases: [[any, any], [number, number]][] = [
-    [[10, 20], [10, 20]],
-    [['10', '20'], [10, 20]],
-    [[null, 20], [-Infinity, 20]],
-    [[10, null], [10, Infinity]],
-    [[null, null], [-Infinity, Infinity]],
-    [['abc', 'xyz'], [-Infinity, Infinity]],
-    [[30, 10], [10, 30]], // swapped
-    [['5', '3'], [3, 5]], // swapped strings
+    [
+      [10, 20],
+      [10, 20],
+    ],
+    [
+      ['10', '20'],
+      [10, 20],
+    ],
+    [
+      [null, 20],
+      [-Infinity, 20],
+    ],
+    [
+      [10, null],
+      [10, Infinity],
+    ],
+    [
+      [null, null],
+      [-Infinity, Infinity],
+    ],
+    [
+      ['abc', 'xyz'],
+      [-Infinity, Infinity],
+    ],
+    [
+      [30, 10],
+      [10, 30],
+    ], // swapped
+    [
+      ['5', '3'],
+      [3, 5],
+    ], // swapped strings
   ]
 
   for (const [input, expected] of cases) {
@@ -497,10 +475,17 @@ describe('autoRemove — parity with TanStack', () => {
 
   describe('inNumberRange', () => {
     const values: any[] = [
-      undefined, null, '',
-      [null, null], [undefined, undefined], ['', ''],
-      [10, 20], [null, 20], [10, null],
-      0, false,
+      undefined,
+      null,
+      '',
+      [null, null],
+      [undefined, undefined],
+      ['', ''],
+      [10, 20],
+      [null, 20],
+      [10, null],
+      0,
+      false,
     ]
     for (const val of values) {
       it(`autoRemove(${JSON.stringify(val)})`, () => {
@@ -545,14 +530,6 @@ describe('autoDetectFilterFn — parity with TanStack', () => {
   }
 })
 
-// ============================================================================
-// C. Column filter pipeline tests
-// ============================================================================
-
-import { ref } from 'vue'
-
-import { useNuGridFiltering } from '../src/runtime/composables/_internal/useNuGridFiltering'
-
 describe('useNuGridFiltering — column filters', () => {
   const rawData = [
     { id: '1', name: 'Alice', age: 30, active: true, tags: ['admin', 'user'] },
@@ -564,21 +541,28 @@ describe('useNuGridFiltering — column filters', () => {
   ]
 
   function createFiltering(
-    columnFilters: { id: string, value: any }[] = [],
+    columnFilters: { id: string; value: any }[] = [],
     globalFilter: string | undefined = undefined,
     columnsOverride?: any[],
   ) {
     const data = ref([...rawData])
-    const columns = ref(columnsOverride ?? [
-      { accessorKey: 'name', header: 'Name' },
-      { accessorKey: 'age', header: 'Age' },
-      { accessorKey: 'active', header: 'Active' },
-      { accessorKey: 'tags', header: 'Tags' },
-    ])
+    const columns = ref(
+      columnsOverride ?? [
+        { accessorKey: 'name', header: 'Name' },
+        { accessorKey: 'age', header: 'Age' },
+        { accessorKey: 'active', header: 'Active' },
+        { accessorKey: 'tags', header: 'Tags' },
+      ],
+    )
     const globalFilterRef = ref(globalFilter)
     const columnFiltersRef = ref(columnFilters)
 
-    const { filteredData } = useNuGridFiltering(data, columns as any, globalFilterRef, columnFiltersRef)
+    const { filteredData } = useNuGridFiltering(
+      data,
+      columns as any,
+      globalFilterRef,
+      columnFiltersRef,
+    )
     return { filteredData, data, globalFilterRef, columnFiltersRef, columns }
   }
 
@@ -654,16 +638,12 @@ describe('useNuGridFiltering — column filters', () => {
       const val = row.getValue(columnId)
       return typeof val === 'number' && val > filterValue
     }
-    const { filteredData } = createFiltering(
-      [{ id: 'age', value: 29 }],
-      undefined,
-      [
-        { accessorKey: 'name', header: 'Name' },
-        { accessorKey: 'age', header: 'Age', filterFn: customFilterFn },
-        { accessorKey: 'active', header: 'Active' },
-        { accessorKey: 'tags', header: 'Tags' },
-      ],
-    )
+    const { filteredData } = createFiltering([{ id: 'age', value: 29 }], undefined, [
+      { accessorKey: 'name', header: 'Name' },
+      { accessorKey: 'age', header: 'Age', filterFn: customFilterFn },
+      { accessorKey: 'active', header: 'Active' },
+      { accessorKey: 'tags', header: 'Tags' },
+    ])
     // Custom filterFn: age > 29 → Alice(30), Charlie(35), Eve(30)
     expect(filteredData.value.map((d: any) => d.id)).toEqual(['1', '3', '5'])
   })
@@ -713,9 +693,14 @@ describe('useNuGridFiltering — global filter', () => {
     const data = ref([...rawData])
     const cols = ref(columnsOverride ?? columns)
     const globalFilterRef = ref(globalFilter)
-    const columnFiltersRef = ref([] as { id: string, value: any }[])
+    const columnFiltersRef = ref([] as { id: string; value: any }[])
 
-    const { filteredData } = useNuGridFiltering(data, cols as any, globalFilterRef, columnFiltersRef)
+    const { filteredData } = useNuGridFiltering(
+      data,
+      cols as any,
+      globalFilterRef,
+      columnFiltersRef,
+    )
     return { filteredData, globalFilterRef }
   }
 
@@ -790,9 +775,14 @@ describe('useNuGridFiltering — global filter', () => {
     const data = ref(dataWithNulls)
     const cols = ref(columns)
     const globalFilterRef = ref('ali')
-    const columnFiltersRef = ref([] as { id: string, value: any }[])
+    const columnFiltersRef = ref([] as { id: string; value: any }[])
 
-    const { filteredData } = useNuGridFiltering(data, cols as any, globalFilterRef, columnFiltersRef)
+    const { filteredData } = useNuGridFiltering(
+      data,
+      cols as any,
+      globalFilterRef,
+      columnFiltersRef,
+    )
     // Null row should not match
     expect(filteredData.value.map((d: any) => d.id)).toEqual(['1'])
   })
@@ -829,7 +819,7 @@ describe('useNuGridFiltering — combined global + column filters', () => {
   ]
 
   function createCombined(
-    columnFilters: { id: string, value: any }[],
+    columnFilters: { id: string; value: any }[],
     globalFilter: string | undefined,
   ) {
     const data = ref([...rawData])
@@ -837,7 +827,12 @@ describe('useNuGridFiltering — combined global + column filters', () => {
     const globalFilterRef = ref(globalFilter)
     const columnFiltersRef = ref(columnFilters)
 
-    const { filteredData } = useNuGridFiltering(data, cols as any, globalFilterRef, columnFiltersRef)
+    const { filteredData } = useNuGridFiltering(
+      data,
+      cols as any,
+      globalFilterRef,
+      columnFiltersRef,
+    )
     return { filteredData }
   }
 
@@ -845,20 +840,14 @@ describe('useNuGridFiltering — combined global + column filters', () => {
     // Column filter: age in [25, 30] → Alice, Bob, Diana, Eve
     // Global filter: 'engineering' matches dept → Alice, Charlie, Eve
     // Combined (AND): Alice, Eve
-    const { filteredData } = createCombined(
-      [{ id: 'age', value: [25, 30] }],
-      'engineering',
-    )
+    const { filteredData } = createCombined([{ id: 'age', value: [25, 30] }], 'engineering')
     expect(filteredData.value.map((d: any) => d.id)).toEqual(['1', '5'])
   })
 
   it('column filter narrows, global filter narrows further', () => {
     // Column filter: dept includes 'engin' → rows in Engineering
     // Global filter: 'ali' → Alice
-    const { filteredData } = createCombined(
-      [{ id: 'dept', value: 'engin' }],
-      'ali',
-    )
+    const { filteredData } = createCombined([{ id: 'dept', value: 'engin' }], 'ali')
     expect(filteredData.value.map((d: any) => d.id)).toEqual(['1'])
   })
 
@@ -866,18 +855,12 @@ describe('useNuGridFiltering — combined global + column filters', () => {
     // Column filter: dept includes 'sales' → Diana
     // Global filter: 'alice' → Alice
     // No overlap → empty
-    const { filteredData } = createCombined(
-      [{ id: 'dept', value: 'sales' }],
-      'alice',
-    )
+    const { filteredData } = createCombined([{ id: 'dept', value: 'sales' }], 'alice')
     expect(filteredData.value).toHaveLength(0)
   })
 
   it('empty global filter with active column filter', () => {
-    const { filteredData } = createCombined(
-      [{ id: 'dept', value: 'engin' }],
-      '',
-    )
+    const { filteredData } = createCombined([{ id: 'dept', value: 'engin' }], '')
     // Only column filter applies
     expect(filteredData.value.map((d: any) => d.id)).toEqual(['1', '3', '5'])
   })
@@ -953,24 +936,27 @@ describe('useNuGridFiltering — incremental cell edit', () => {
   ]
 
   function createWithNotify(
-    columnFilters: { id: string, value: any }[] = [],
+    columnFilters: { id: string; value: any }[] = [],
     globalFilter?: string,
   ) {
-    const data = ref(rawData.map(d => ({ ...d })))
+    const data = ref(rawData.map((d) => ({ ...d })))
     const cols = ref(columns)
     const globalFilterRef = ref(globalFilter)
     const columnFiltersRef = ref(columnFilters)
 
     const { filteredData, notifyEditedCell } = useNuGridFiltering(
-      data, cols as any, globalFilterRef, columnFiltersRef,
+      data,
+      cols as any,
+      globalFilterRef,
+      columnFiltersRef,
     )
     return { filteredData, notifyEditedCell, data }
   }
 
   it('returns same array reference when editing non-filtered column', () => {
-    const { filteredData, notifyEditedCell, data } = createWithNotify(
-      [{ id: 'name', value: 'ali' }],
-    )
+    const { filteredData, notifyEditedCell, data } = createWithNotify([
+      { id: 'name', value: 'ali' },
+    ])
     // Initial filter: only Alice passes
     const firstResult = filteredData.value
     expect(firstResult.map((d: any) => d.id)).toEqual(['1'])
@@ -987,9 +973,9 @@ describe('useNuGridFiltering — incremental cell edit', () => {
   })
 
   it('refilters when editing a filtered column', () => {
-    const { filteredData, notifyEditedCell, data } = createWithNotify(
-      [{ id: 'name', value: 'ali' }],
-    )
+    const { filteredData, notifyEditedCell, data } = createWithNotify([
+      { id: 'name', value: 'ali' },
+    ])
     expect(filteredData.value.map((d: any) => d.id)).toEqual(['1'])
 
     // Edit 'name' (in an active filter) — change Bob to Alison
@@ -1002,10 +988,7 @@ describe('useNuGridFiltering — incremental cell edit', () => {
   })
 
   it('refilters when editing a column in global search', () => {
-    const { filteredData, notifyEditedCell, data } = createWithNotify(
-      [],
-      'engineering',
-    )
+    const { filteredData, notifyEditedCell, data } = createWithNotify([], 'engineering')
     expect(filteredData.value.map((d: any) => d.id)).toEqual(['1', '3'])
 
     // Edit 'dept' (searchable column, global filter active)
@@ -1022,12 +1005,15 @@ describe('useNuGridFiltering — incremental cell edit', () => {
       { accessorKey: 'age', header: 'Age', enableSearching: false },
       { accessorKey: 'dept', header: 'Department' },
     ]
-    const data = ref(rawData.map(d => ({ ...d })))
+    const data = ref(rawData.map((d) => ({ ...d })))
     const globalFilterRef = ref('engineering')
-    const columnFiltersRef = ref([] as { id: string, value: any }[])
+    const columnFiltersRef = ref([] as { id: string; value: any }[])
 
     const { filteredData, notifyEditedCell } = useNuGridFiltering(
-      data, ref(cols) as any, globalFilterRef, columnFiltersRef,
+      data,
+      ref(cols) as any,
+      globalFilterRef,
+      columnFiltersRef,
     )
     const firstResult = filteredData.value
     expect(firstResult.map((d: any) => d.id)).toEqual(['1', '3'])
@@ -1041,9 +1027,7 @@ describe('useNuGridFiltering — incremental cell edit', () => {
   })
 
   it('does full filter without notifyEditedCell (external data change)', () => {
-    const { filteredData, data } = createWithNotify(
-      [{ id: 'name', value: 'ali' }],
-    )
+    const { filteredData, data } = createWithNotify([{ id: 'name', value: 'ali' }])
     expect(filteredData.value.map((d: any) => d.id)).toEqual(['1'])
 
     // External data change (no notifyEditedCell) — change Bob to Alina
@@ -1073,7 +1057,12 @@ describe('useNuGridFiltering — search index optimization', () => {
     const globalFilterRef = ref('engin')
     const columnFiltersRef = ref([] as any[])
 
-    const { filteredData } = useNuGridFiltering(data, columns as any, globalFilterRef, columnFiltersRef)
+    const { filteredData } = useNuGridFiltering(
+      data,
+      columns as any,
+      globalFilterRef,
+      columnFiltersRef,
+    )
     expect(filteredData.value.map((d: any) => d.id)).toEqual(['1', '3'])
 
     // Change search — search index doesn't rebuild, only filter value changes
@@ -1094,7 +1083,12 @@ describe('useNuGridFiltering — search index optimization', () => {
     const globalFilterRef = ref('ali')
     const columnFiltersRef = ref([] as any[])
 
-    const { filteredData } = useNuGridFiltering(data, columns as any, globalFilterRef, columnFiltersRef)
+    const { filteredData } = useNuGridFiltering(
+      data,
+      columns as any,
+      globalFilterRef,
+      columnFiltersRef,
+    )
     expect(filteredData.value.map((d: any) => d.id)).toEqual(['1'])
 
     // Add new matching data
@@ -1114,7 +1108,12 @@ describe('useNuGridFiltering — search index optimization', () => {
     const globalFilterRef = ref('hidden')
     const columnFiltersRef = ref([] as any[])
 
-    const { filteredData } = useNuGridFiltering(data, columns as any, globalFilterRef, columnFiltersRef)
+    const { filteredData } = useNuGridFiltering(
+      data,
+      columns as any,
+      globalFilterRef,
+      columnFiltersRef,
+    )
     // 'hidden' only exists in non-searchable column
     expect(filteredData.value).toHaveLength(0)
   })
@@ -1133,16 +1132,23 @@ describe('useNuGridFiltering — single-filter fast path', () => {
     { id: '5', name: 'Diana', age: 30 },
   ]
 
-  function createSingleFilter(filter: { id: string, value: any }, columnsOverride?: any[]) {
+  function createSingleFilter(filter: { id: string; value: any }, columnsOverride?: any[]) {
     const data = ref([...rawData])
-    const columns = ref(columnsOverride ?? [
-      { accessorKey: 'name', header: 'Name' },
-      { accessorKey: 'age', header: 'Age' },
-    ])
+    const columns = ref(
+      columnsOverride ?? [
+        { accessorKey: 'name', header: 'Name' },
+        { accessorKey: 'age', header: 'Age' },
+      ],
+    )
     const globalFilterRef = ref(undefined as string | undefined)
     const columnFiltersRef = ref([filter])
 
-    const { filteredData } = useNuGridFiltering(data, columns as any, globalFilterRef, columnFiltersRef)
+    const { filteredData } = useNuGridFiltering(
+      data,
+      columns as any,
+      globalFilterRef,
+      columnFiltersRef,
+    )
     return { filteredData, data, columnFiltersRef }
   }
 
@@ -1160,13 +1166,10 @@ describe('useNuGridFiltering — single-filter fast path', () => {
     const customFn = (row: any, colId: string, filterValue: any) => {
       return row.getValue(colId) > filterValue
     }
-    const { filteredData } = createSingleFilter(
-      { id: 'age', value: 28 },
-      [
-        { accessorKey: 'name', header: 'Name' },
-        { accessorKey: 'age', header: 'Age', filterFn: customFn },
-      ],
-    )
+    const { filteredData } = createSingleFilter({ id: 'age', value: 28 }, [
+      { accessorKey: 'name', header: 'Name' },
+      { accessorKey: 'age', header: 'Age', filterFn: customFn },
+    ])
     // age > 28: Alice(30), Charlie(35), Diana(30)
     expect(filteredData.value.map((d: any) => d.id)).toEqual(['1', '3', '5'])
   })
@@ -1180,7 +1183,12 @@ describe('useNuGridFiltering — single-filter fast path', () => {
     const globalFilterRef = ref('ali')
     const columnFiltersRef = ref([{ id: 'age', value: [25, 30] }])
 
-    const { filteredData } = useNuGridFiltering(data, columns as any, globalFilterRef, columnFiltersRef)
+    const { filteredData } = useNuGridFiltering(
+      data,
+      columns as any,
+      globalFilterRef,
+      columnFiltersRef,
+    )
     // Column: age in [25,30] → Alice, Bob, Alicia, Diana
     // Global: 'ali' matches Alice, Alicia
     // Combined: Alice, Alicia
@@ -1198,19 +1206,25 @@ describe('useNuGridFiltering — single-filter fast path', () => {
 
     // Single filter path
     const single = useNuGridFiltering(
-      data1, columns as any, ref(undefined), ref([{ id: 'name', value: 'ali' }]),
+      data1,
+      columns as any,
+      ref(undefined),
+      ref([{ id: 'name', value: 'ali' }]),
     )
 
     // Force general path by adding a second filter
     const multi = useNuGridFiltering(
-      data2, columns as any, ref(undefined),
+      data2,
+      columns as any,
+      ref(undefined),
       ref([
         { id: 'name', value: 'ali' },
         { id: 'age', value: [0, 100] }, // passes everything
       ]),
     )
 
-    expect(single.filteredData.value.map((d: any) => d.id))
-      .toEqual(multi.filteredData.value.map((d: any) => d.id))
+    expect(single.filteredData.value.map((d: any) => d.id)).toEqual(
+      multi.filteredData.value.map((d: any) => d.id),
+    )
   })
 })

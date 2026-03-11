@@ -1,7 +1,7 @@
-import type { TableData } from '@nuxt/ui'
 import type { Ref } from 'vue'
 
 import type { NuGridKeyboardHandler } from '../../../types/_internal'
+import type { TableData } from '../../../types/table-data'
 
 import { ROUTER_PRIORITIES } from '../../../types/_internal'
 import { useNuGridCellTypeRegistry } from '../../useNuGridCellTypeRegistry'
@@ -35,7 +35,7 @@ export function createCellTypeDispatchHandler<T extends TableData>(
       if (!cell || !row) return { handled: false }
 
       const columnDef = cell.column.columnDef
-      const cellDataType = (columnDef as any).cellDataType || 'text'
+      const cellDataType = columnDef.cellDataType || 'text'
 
       const keyboardHandler = typeRegistry.getKeyboardHandler(cellDataType)
       if (!keyboardHandler) {
@@ -57,7 +57,10 @@ export function createCellTypeDispatchHandler<T extends TableData>(
         data: options.data.value,
         tableApi,
         startEditing: (initialValue?: any) => cellEditingFns.startEditing(row, cell, initialValue),
-        stopEditing: (newValue: any, moveDirection?: 'up' | 'down' | 'next' | 'previous') => {
+        stopEditing: (
+          newValue: any,
+          moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous',
+        ) => {
           cellEditingFns.stopEditing(row, cell, newValue, moveDirection)
         },
         emitChange: (oldValue: any, newValue: any) => {

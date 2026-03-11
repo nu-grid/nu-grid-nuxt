@@ -1,22 +1,23 @@
 <script setup lang="ts">
 import type { Component, ComputedRef } from 'vue'
 
-import { FlexRender } from '@tanstack/vue-table'
 import { computed, inject, ref, resolveComponent, watch } from 'vue'
 
 import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
+import type { Cell, Row } from '../../engine'
 import type {
   NuGridAddRowContext,
   NuGridCellEditing,
   NuGridCoreContext,
 } from '../../types/_internal'
 
-import { nuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegistry'
+import type { useNuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegistry'
+import { FlexRender } from '../../utils/flexRender'
 import NuGridHighlightedText from './NuGridHighlightedText.vue'
 
 interface Props {
-  cell: any
-  row: any
+  cell: Cell
+  row: Row
   cellEditingFns: NuGridCellEditing<any>
 }
 
@@ -24,6 +25,9 @@ const props = defineProps<Props>()
 
 // Inject core context for theme UI slots (editor container classes)
 const coreContext = inject<NuGridCoreContext>('nugrid-core')!
+
+// Inject cell type registry (checks custom types, then falls back to global)
+const cellTypeRegistry = inject<ReturnType<typeof useNuGridCellTypeRegistry>>('nugrid-cell-type-registry')!
 
 // Inject UI config for column defaults
 const uiConfig = inject<{ wrapText: ComputedRef<boolean> } | null>('nugrid-ui-config', null)
@@ -113,13 +117,18 @@ const cellDataType = computed(() => {
   return 'text'
 })
 
-// Use global registry directly for better performance (no reactive overhead)
-// This avoids creating reactive computed values per cell component instance
-// Cache renderer lookup - only recalculate when cellDataType changes
-// Use registry's cached getRenderer method for better performance
+// Use injected registry which checks custom cell types first, then built-ins
 const pluginRenderer = computed(() => {
   const type = cellDataType.value
-  return nuGridCellTypeRegistry.getRenderer(type)
+  return cellTypeRegistry.getRenderer(type)
+})
+
+// Check if this cell type opts out of editor offset (e.g. boolean, toggle types)
+const useNoEditorOffset = computed(() => {
+  const type = cellDataType.value
+  if (type === 'boolean') return true
+  const cellType = cellTypeRegistry.getCellType(type)
+  return cellType?.noEditorOffset === true
 })
 
 // Determine if we should use plugin renderer (combine checks for efficiency)
@@ -193,21 +202,21 @@ const pluginRendererProps = computed(() => {
   // Access reactive dependencies at the TOP to ensure they're tracked before early returns
   // - valueVersion: triggers re-render when add row values change
   // - isEditing: triggers re-render when editing state changes (value saved on edit stop)
-  addRowContext?.valueVersion?.value
-  isEditing.value
+  void addRowContext?.valueVersion?.value
+  void isEditing.value
 
   if (!shouldUsePluginRenderer.value || !pluginRenderer.value || isRendererFunction.value) {
     return {}
   }
   const renderer = pluginRenderer.value
 
-  // For add rows, read value directly from row.original to bypass TanStack's cache
+  // For add rows, read value directly from row.original to bypass the cache
   // This ensures we always get the latest value after editing
   let cellValue: any
   if (isAddRow.value) {
     // Read directly from row.original using the accessor key
     const key = cellAccessorKey.value
-    cellValue = (props.row.original as any)?.[key]
+    cellValue = props.row.original?.[key]
   } else {
     cellValue = props.cell.getValue()
   }
@@ -238,9 +247,9 @@ const functionRendererResult = computed(() => {
   // For add rows, read value directly from row.original
   const getValue = () => {
     if (isAddRow.value) {
-      addRowContext?.valueVersion?.value
+      void addRowContext?.valueVersion?.value
       const key = cellAccessorKey.value
-      return (props.row.original as any)?.[key]
+      return props.row.original?.[key]
     }
     return props.cell.getValue()
   }
@@ -250,7 +259,7 @@ const functionRendererResult = computed(() => {
     row: props.row,
     getValue,
     column: props.cell.column,
-    table: props.cell.table,
+    table: props.cell.getContext().table,
   })
 })
 
@@ -292,6 +301,16 @@ const wrapperStyle = computed(() => {
   return undefined
 })
 
+// Extended cell context that adds editing capabilities to TanStack's cell context
+// This allows column `cell` render functions to receive `editable` and `onUpdateValue`
+const extendedCellContext = computed(() => ({
+  ...props.cell.getContext(),
+  editable: props.cellEditingFns.isCellEditable(props.row, props.cell),
+  onUpdateValue: (value: any) => {
+    props.cellEditingFns.stopEditing(props.row, props.cell, value)
+  },
+}))
+
 // Track shouldFocusEditor to trigger re-renders when focus state changes
 // This ensures the editor component receives updated shouldFocus prop
 const editorContent = computed(() => {
@@ -317,9 +336,9 @@ const shouldHighlight = computed(() => {
 const cellTextValue = computed(() => {
   // For add rows, read directly from row.original
   if (isAddRow.value) {
-    addRowContext?.valueVersion?.value
+    void addRowContext?.valueVersion?.value
     const key = cellAccessorKey.value
-    const value = (props.row.original as any)?.[key]
+    const value = props.row.original?.[key]
     if (value === null || value === undefined) return ''
     return String(value)
   }
@@ -357,7 +376,12 @@ const cellTextValue = computed(() => {
       v-else-if="shouldUsePluginRenderer && pluginRendererComponent"
       v-bind="pluginRendererProps"
     />
-    <FlexRender v-else :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+    <FlexRender
+      v-else-if="cell.getIsAggregated?.() && cell.column.columnDef.aggregatedCell"
+      :render="cell.column.columnDef.aggregatedCell"
+      :props="extendedCellContext"
+    />
+    <FlexRender v-else :render="cell.column.columnDef.cell" :props="extendedCellContext" />
     <div :class="coreContext.ui.value.editorContainerTextarea?.()">
       <component :is="editorContent" />
     </div>
@@ -365,7 +389,7 @@ const cellTextValue = computed(() => {
   <div
     v-else-if="isEditing"
     ref="wrapperRef"
-    :class="coreContext.ui.value.editorContainer?.()"
+    :class="useNoEditorOffset ? coreContext.ui.value.editorContainerBoolean?.() : coreContext.ui.value.editorContainer?.()"
     :style="wrapperStyle"
     data-editing
   >
@@ -384,6 +408,11 @@ const cellTextValue = computed(() => {
     />
     <!-- Use highlighted text when search is active and this column is searchable -->
     <NuGridHighlightedText v-else-if="shouldHighlight && cellTextValue" :text="cellTextValue" />
-    <FlexRender v-else :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+    <FlexRender
+      v-else-if="cell.getIsAggregated?.() && cell.column.columnDef.aggregatedCell"
+      :render="cell.column.columnDef.aggregatedCell"
+      :props="extendedCellContext"
+    />
+    <FlexRender v-else :render="cell.column.columnDef.cell" :props="extendedCellContext" />
   </div>
 </template>

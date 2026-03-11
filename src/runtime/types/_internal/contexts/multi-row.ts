@@ -1,5 +1,6 @@
-import type { Column } from '@tanstack/vue-table'
 import type { ComputedRef } from 'vue'
+
+import type { Column } from '../../../engine'
 
 /**
  * Information about a row 0 column slot for aligned mode
@@ -14,7 +15,7 @@ export interface Row0ColumnSlot {
   /** Whether this column is pinned */
   pinned: 'left' | 'right' | false
   /** The column reference for pinning calculations */
-  column: Column<any, unknown>
+  column: Column<any>
 }
 
 /**

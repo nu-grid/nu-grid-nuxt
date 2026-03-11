@@ -1,5 +1,10 @@
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData, TableSlots } from '@nuxt/ui'
+import type { Primitive } from 'reka-ui'
+import type { Ref } from 'vue'
+
+import { computed, nextTick, onMounted, provide, ref, shallowRef, watch } from 'vue'
+
+import type { NuGridStateSnapshot } from '../composables/_internal/useNuGridStatePersistence'
 import type {
   Cell,
   ColumnFiltersState,
@@ -15,13 +20,7 @@ import type {
   RowSelectionState,
   SortingState,
   VisibilityState,
-} from '@tanstack/vue-table'
-import type { Primitive } from 'reka-ui'
-import type { Ref } from 'vue'
-
-import { computed, nextTick, onMounted, provide, ref, shallowRef, watch } from 'vue'
-
-import type { NuGridStateSnapshot } from '../composables/_internal/useNuGridStatePersistence'
+} from '../engine'
 import type {
   NuGridAddRowState,
   NuGridCellClickEvent,
@@ -38,6 +37,7 @@ import type {
   NuGridProps,
   NuGridRowClickEvent,
   NuGridSortChangedEvent,
+  NuGridSpreadsheetNavOptions,
 } from '../types'
 import type {
   NuGridAddRowContext,
@@ -47,6 +47,8 @@ import type {
   NuGridGroupingFns,
 } from '../types/_internal'
 import type { RowDragEvent } from '../types/drag-drop'
+import type { NuGridSlots } from '../types/slots'
+import type { TableData } from '../types/table-data'
 
 import {
   formatAggregateValue,
@@ -87,8 +89,10 @@ import {
   useKeyboardSetup,
 } from '../composables/_internal/keyboard-handlers'
 import { resolvePagingOptions } from '../composables/_internal/useNuGridPaging'
+import { useNuGridCellTypeRegistry } from '../composables/useNuGridCellTypeRegistry'
 import { nuGridDefaults, usePropWithDefault } from '../config/_internal'
 import { NUGRID_EVENTS_KEY } from '../types/events'
+import { expandRows, paginateRows } from '../utils/rowModelFns'
 import NuGridBase from './_internal/NuGridBase.vue'
 import NuGridGroup from './_internal/NuGridGroup.vue'
 import NuGridPaging from './_internal/NuGridPaging.vue'
@@ -102,6 +106,12 @@ const props = withDefaults(defineProps<NuGridProps<T>>(), {
   watchOptions: () => ({
     deep: true,
   }),
+  // Explicit undefined defaults prevent Vue's boolean prop casting (absent boolean → false).
+  // Without these, the engine's `?? true` fallback never fires.
+  enableColumnResizing: undefined,
+  enableSorting: undefined,
+  enableMultiSort: undefined,
+  enableExpanding: undefined,
 })
 
 const emit = defineEmits<{
@@ -132,7 +142,7 @@ const emit = defineEmits<{
   keydown: [event: NuGridKeydownEvent<T>]
 }>()
 
-const slots = defineSlots<TableSlots<T>>()
+const slots = defineSlots<NuGridSlots<T>>()
 
 // Centralized event emitter for all grid events
 // Created early so it can be passed to composables that need it
@@ -223,6 +233,7 @@ const rowSelectionModeRef = computed(() =>
 const actionMenuRef = computed(() => props.actions ?? false)
 const dataTypeInferenceRef = computed(() => props.dataTypeInference ?? true)
 const customCellTypesRef = computed(() => props.cellTypes)
+const cellTypeRegistry = useNuGridCellTypeRegistry(customCellTypesRef)
 const { columns } = useNuGridColumns(
   propsColumns,
   data,
@@ -305,8 +316,13 @@ const groupingFnsRef = shallowRef<NuGridGroupingFns<T> | null>(null)
 const interactionRouter = useNuGridInteractionRouter<T>({ eventEmitter })
 let groupingFns: NuGridGroupingFns<T> | null = null
 
-// Pre-filter data before passing to TanStack (NuGrid owns filtering)
-const { filteredData, notifyEditedCell } = useNuGridFiltering(data, columns, globalFilterState, columnFiltersState)
+// Pre-filter data before passing to the engine (NuGrid owns filtering)
+const { filteredData, notifyEditedCell } = useNuGridFiltering(
+  data,
+  columns,
+  globalFilterState,
+  columnFiltersState,
+)
 
 const statePersistence = useNuGridStatePersistence(
   states,
@@ -325,15 +341,22 @@ const { tableApi, columnsUpdatedSignal } = useNuGridApi(
   eventEmitter,
 )
 
+// NuGrid owns expansion — expand grouped rows based on expandedState
 const unsortedRows = computed(() => {
   // Reactive dependency on filteredData ensures this re-evaluates when data or filters change.
-  // The sync watcher in useNuGridApi calls setOptions() so TanStack has fresh data by this point.
-  filteredData.value
-  return tableApi.getRowModel().rows
+  // The sync watcher in useNuGridApi calls setOptions() so the engine has fresh data by this point.
+  void filteredData.value
+  // The engine returns grouped rows with subRows; NuGrid flattens based on expanded state
+  return expandRows(tableApi.getRowModel().rows, expandedState.value) as Row<T>[]
 })
 
 // NuGrid-owned sorting — replaces TanStack's getSortedRowModel
-const { sortedRows, notifyEditedRow, movedRowIds } = useNuGridSorting(unsortedRows, sortingState, tableApi, rowPinningState)
+const { sortedRows, notifyEditedRow, movedRowIds } = useNuGridSorting(
+  unsortedRows,
+  sortingState,
+  tableApi,
+  rowPinningState,
+)
 
 // Sort stability — freeze row order after data changes in sorted columns
 const { displayRows, onBeforeSortedCellEdit, onAfterSortedCellEdit, staleColumns, clearStale } =
@@ -393,7 +416,7 @@ const {
 watch(
   [() => props.addNewRow, groupingState, data],
   () => {
-    // Use nextTick to ensure TanStack has processed the enhanced data
+    // Use nextTick to ensure the engine has processed the enhanced data
     // (including placeholder rows) before refreshing add rows
     nextTick(() => {
       refreshAddRows()
@@ -402,7 +425,19 @@ watch(
   { deep: true, immediate: true },
 )
 
-const rows = orderedRows
+// NuGrid owns pagination — slice after sorting for client-side mode
+const pagingResolved = computed(() => resolvePagingOptions(props.paging))
+const rows = computed(() => {
+  const opts = pagingResolved.value
+  if (!opts.enabled || opts.manualPagination) {
+    return orderedRows.value
+  }
+  return paginateRows(
+    orderedRows.value,
+    paginationState.value.pageIndex,
+    paginationState.value.pageSize,
+  )
+})
 
 // Show/hide column headers
 const showHeaders = computed(() => props.layout?.showHeaders ?? true)
@@ -447,7 +482,15 @@ const {
   getContainerWidth,
   getSizingAsRatios,
   applySizingFromRatios,
-} = useNuGridColumnResize(props, tableApi, tableRef)
+} = useNuGridColumnResize(props, tableApi, tableRef, columnSizingState, columnSizingInfoState)
+
+// When columnSizing is externally reset to {}, clear manuallyResizedColumns
+// so columns fall back to their column definition sizes / flex distribution
+watch(columnSizingState, (newSizing) => {
+  if (newSizing && Object.keys(newSizing).length === 0 && manuallyResizedColumns.value.size > 0) {
+    manuallyResizedColumns.value = new Set()
+  }
+})
 
 // Connect resize helpers to state persistence for ratio-based sizing
 statePersistence.setResizeHelpers({
@@ -457,7 +500,13 @@ statePersistence.setResizeHelpers({
 })
 
 // Column drag and drop
-const dragFns = useNuGridColumnDragDrop(tableApi, states.columnOrderState, tableRef)
+const dragFns = useNuGridColumnDragDrop(
+  tableApi,
+  states.columnOrderState,
+  tableRef,
+  props.columnDefaults?.reorder ?? false,
+  columnPinningState,
+)
 
 // Row drag and drop
 const rowDragOptions = computed(() => props.rowDragOptions || { enabled: false })
@@ -480,11 +529,20 @@ const rowDragFns = useNuGridRowDragDrop(
 const gridMode = props.layout?.mode ?? 'div'
 groupingFns =
   gridMode === 'group' || gridMode === 'splitgroup'
-    ? useNuGridGrouping(props, tableApi, rootRef, stickyEnabled, showHeaders, gridMode, {
-        addRowPosition,
-        isAddRowRow,
-        getAddRowForGroup: getGroupAddRow,
-      })
+    ? useNuGridGrouping(
+        props,
+        tableApi,
+        rootRef,
+        expandedState,
+        stickyEnabled,
+        showHeaders,
+        gridMode,
+        {
+          addRowPosition,
+          isAddRowRow,
+          getAddRowForGroup: getGroupAddRow,
+        },
+      )
     : null
 groupingFnsRef.value = groupingFns
 
@@ -532,6 +590,12 @@ const getGrandTotalValue = (columnId: string): string | undefined => {
   return formatAggregateValue(value, summaryCol.summary, { isGrandTotal: true })
 }
 
+// SpreadsheetNav: resolve object options for inter-grid linking (null if boolean or absent)
+const spreadsheetNavOptions = computed<NuGridSpreadsheetNavOptions | null>(() => {
+  if (typeof props.spreadsheetNav === 'object') return props.spreadsheetNav
+  return null
+})
+
 // Cell/row focus navigation
 const focusFns = useNuGridFocus(
   props,
@@ -541,11 +605,16 @@ const focusFns = useNuGridFocus(
   tableRef,
   rootRef,
   groupingFns?.activeStickyHeight ?? baseStickyHeight,
-  groupingFns?.virtualizer?.value ? groupingFns.virtualizer : virtualizer?.value ? virtualizer : false,
+  groupingFns?.virtualizer?.value
+    ? groupingFns.virtualizer
+    : virtualizer?.value
+      ? virtualizer
+      : false,
   editingCellRef,
   interactionRouter,
   eventEmitter,
   focusedRowIdState,
+  spreadsheetNavOptions,
 )
 focusFnsRef.value = focusFns
 
@@ -581,6 +650,7 @@ const cellEditingFns = useNuGridCellEditing(
     onBeforeSortedCellEdit(columnId, rowId)
   },
   onAfterSortedCellEdit,
+  spreadsheetNavOptions,
 )
 cellEditingFnsRef.value = cellEditingFns
 
@@ -614,41 +684,41 @@ useKeyboardSetup<T>({
 })
 
 // Autosize
-const autosizeFns = useNuGridAutosize(props, tableApi, tableRef)
+const autosizeFns = useNuGridAutosize(props, tableApi, tableRef, columnSizingState)
 
-// Performance optimization: Cache frequently accessed TanStack Table API results
+// Performance optimization: Cache frequently accessed table API results
 // These computed properties prevent redundant API calls in templates
 // Column visibility changes via row selection hidden property will trigger reactivity through columnVisibilityState
 
 // columnsUpdatedSignal triggers re-evaluation after tableApi.setOptions() completes
-// The reactive getter in useVueTable ensures TanStack sees column changes internally
+// The reactive getter in useVueTable ensures the engine sees column changes internally
 const headerGroups = computed(() => {
-  columnsUpdatedSignal.value
+  void columnsUpdatedSignal.value
   return tableApi.getHeaderGroups()
 })
 const headerGroupsLength = computed(() => headerGroups.value.length)
 const footerGroups = computed(() => {
-  columnsUpdatedSignal.value
+  void columnsUpdatedSignal.value
   return tableApi.getFooterGroups()
 })
 const allLeafColumns = computed(() => {
-  columnsUpdatedSignal.value
+  void columnsUpdatedSignal.value
   return tableApi.getAllLeafColumns()
 })
 
 // Performance optimization #1: Cache visible cells for each row
 // This prevents multiple calls to row.getVisibleCells() during rendering
 const visibleCellsCache = computed(() => {
-  const cache = new Map<string, Cell<T, unknown>[]>()
+  const cache = new Map<string, Cell<T>[]>()
   rows.value.forEach((row) => {
-    cache.set(row.id, row.getVisibleCells() as Cell<T, unknown>[])
+    cache.set(row.id, row.getVisibleCells() as Cell<T>[])
   })
   return cache
 })
 
 // Helper function to get visible cells from cache (fallback to direct call)
-function getVisibleCells(row: Row<T>): Cell<T, unknown>[] {
-  return visibleCellsCache.value.get(row.id) ?? (row.getVisibleCells() as Cell<T, unknown>[])
+function getVisibleCells(row: Row<T>): Cell<T>[] {
+  return visibleCellsCache.value.get(row.id) ?? (row.getVisibleCells() as Cell<T>[])
 }
 
 // Helper function to determine if cells should have borders for focus outline
@@ -727,6 +797,11 @@ provide('nugrid-core', {
   hasFooter,
   rows,
   rowSlot: (slots as any).row,
+  // NuGrid-owned state refs — direct updates bypass the engine
+  columnPinningState,
+  expandedState,
+  rowSelectionState,
+  paginationState,
 })
 
 provide('nugrid-drag', {
@@ -740,12 +815,15 @@ provide('nugrid-focus', {
   cellEditingFns,
 })
 
+provide('nugrid-cell-type-registry', cellTypeRegistry)
+
 provide('nugrid-resize', {
   handleResizeStart,
   handleGroupResizeStart,
   resizingGroupId,
   resizingColumnId,
   manuallyResizedColumns,
+  columnSizingState,
 })
 
 provide('nugrid-virtualization', {
@@ -843,6 +921,10 @@ provide('nugrid-enter-behavior', cellEditingFns.enterBehavior)
 provide('nugrid-stale-sort-columns', staleColumns)
 provide('nugrid-clear-stale-sort', clearStale)
 
+// SpreadsheetNav: provide boolean flag for editors (ArrowLeft/Right cursor-aware nav)
+const spreadsheetNavEnabled = computed(() => !!props.spreadsheetNav)
+provide('nugrid-spreadsheet-nav', spreadsheetNavEnabled)
+
 provide('nugrid-row-interactions', {
   rowInteractions,
   rowSelectionMode: rowSelectionModeRef,
@@ -877,10 +959,10 @@ provide('nugrid-multi-row', {
   }),
   row0Columns: computed(() => {
     // Get all visible columns that belong to row 0
-    const allColumns = tableApi.getAllLeafColumns().filter((col) => col.getIsVisible())
+    const allColumns = tableApi.getAllLeafColumns().filter((col: any) => col.getIsVisible())
     return allColumns
-      .filter((col) => (col.columnDef.row ?? 0) === 0)
-      .map((col) => ({
+      .filter((col: any) => (col.columnDef.row ?? 0) === 0)
+      .map((col: any) => ({
         id: col.id,
         width: col.getSize(),
         minWidth: col.columnDef.minSize ?? 50,
@@ -914,7 +996,7 @@ provide('nugrid-add-row', addRowContext)
 const animationContext = useNuGridAnimation(props, {
   rootRef: rootElement,
   rows,
-  animationClass: computed(() => ui.value.rowAnimation()),
+  animationClass: computed(() => ui.value.rowAnimation?.() ?? ''),
 })
 provide('nugrid-animation', animationContext)
 
@@ -922,7 +1004,9 @@ provide('nugrid-animation', animationContext)
 const pagingContext = useNuGridPaging({
   props,
   tableApi,
+  paginationState,
   rootRef: rootElement,
+  totalRowCount: computed(() => orderedRows.value.length),
   eventEmitter,
 })
 provide('nugrid-paging', pagingContext)
@@ -1031,14 +1115,14 @@ const excelExport = async (
 /**
  * Get the original data objects of all selected rows
  */
-function getSelectedRows<TRow = T>(): TRow[] {
+function getSelectedRows<TRow extends T = T>(): TRow[] {
   if (!tableApi) return []
-  return tableApi.getSelectedRowModel().rows.map((row) => row.original as unknown as TRow)
+  return tableApi.getSelectedRowModel().rows.map((row: Row<T>) => row.original as TRow)
 }
 
-// Column pinning helper methods
+// Column pinning helper methods — NuGrid owns pinning state directly
 const pinColumn = (columnId: string, side: 'left' | 'right') => {
-  const currentPinning = tableApi.getState().columnPinning
+  const currentPinning = columnPinningState.value
   const newPinning = { ...currentPinning }
 
   // Remove from opposite side if present
@@ -1055,28 +1139,28 @@ const pinColumn = (columnId: string, side: 'left' | 'right') => {
     newPinning[side] = [...newPinning[side], columnId]
   }
 
-  tableApi.setColumnPinning(newPinning)
+  columnPinningState.value = newPinning
 }
 
 const unpinColumn = (columnId: string) => {
-  const currentPinning = tableApi.getState().columnPinning
+  const currentPinning = columnPinningState.value
   const newPinning = {
     left: currentPinning.left?.filter((id) => id !== columnId) || [],
     right: currentPinning.right?.filter((id) => id !== columnId) || [],
   }
 
-  tableApi.setColumnPinning(newPinning)
+  columnPinningState.value = newPinning
 }
 
 const isPinned = (columnId: string): 'left' | 'right' | false => {
-  const pinning = tableApi.getState().columnPinning
+  const pinning = columnPinningState.value
   if (pinning.left?.includes(columnId)) return 'left'
   if (pinning.right?.includes(columnId)) return 'right'
   return false
 }
 
 const getPinnedColumns = () => {
-  const pinning = tableApi.getState().columnPinning
+  const pinning = columnPinningState.value
   return {
     left: pinning.left || [],
     right: pinning.right || [],
@@ -1119,6 +1203,56 @@ defineExpose({
   searchClear: () => searchContext.clear(),
   searchGetQuery: () => searchContext.searchQuery.value,
   searchIsActive: () => searchContext.isSearching.value,
+  // SpreadsheetNav inter-grid methods
+  spreadsheetFocusFirstRow(columnIndex: number, startEditingMode = false) {
+    const rowsList = groupingFns?.navigableRows?.value ?? rows.value
+    if (rowsList.length === 0) return
+    const firstRow = rowsList[0]
+    if (!firstRow) return
+    const visibleCells = firstRow.getVisibleCells()
+    const clampedCol =
+      columnIndex < 0 ? visibleCells.length - 1 : Math.min(columnIndex, visibleCells.length - 1)
+    focusFns.setFocusedCell({ rowIndex: 0, columnIndex: clampedCol })
+    focusFns.focusCell(firstRow, 0, clampedCol, false, () => {
+      if (startEditingMode) {
+        const cell = visibleCells[clampedCol]
+        if (cell && cellEditingFns.isCellEditable(firstRow, cell)) {
+          nextTick(() =>
+            cellEditingFns.startEditing(firstRow, cell, undefined, {
+              rowIndex: 0,
+              cellIndex: clampedCol,
+            }),
+          )
+        }
+      }
+    })
+    nextTick(() => wrapperRef.value?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }))
+  },
+  spreadsheetFocusLastRow(columnIndex: number, startEditingMode = false) {
+    const rowsList = groupingFns?.navigableRows?.value ?? rows.value
+    if (rowsList.length === 0) return
+    const lastRowIndex = rowsList.length - 1
+    const lastRow = rowsList[lastRowIndex]
+    if (!lastRow) return
+    const visibleCells = lastRow.getVisibleCells()
+    const clampedCol =
+      columnIndex < 0 ? visibleCells.length - 1 : Math.min(columnIndex, visibleCells.length - 1)
+    focusFns.setFocusedCell({ rowIndex: lastRowIndex, columnIndex: clampedCol })
+    focusFns.focusCell(lastRow, lastRowIndex, clampedCol, false, () => {
+      if (startEditingMode) {
+        const cell = visibleCells[clampedCol]
+        if (cell && cellEditingFns.isCellEditable(lastRow, cell)) {
+          nextTick(() =>
+            cellEditingFns.startEditing(lastRow, cell, undefined, {
+              rowIndex: lastRowIndex,
+              cellIndex: clampedCol,
+            }),
+          )
+        }
+      }
+    })
+    nextTick(() => wrapperRef.value?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }))
+  },
 })
 
 const childGrid = computed(() => {

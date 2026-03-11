@@ -1,3 +1,5 @@
+import type { Ref } from 'vue'
+
 import { ref } from 'vue'
 
 import type { NuGridCellType, NuGridCellTypeContext } from '../../types/cells'

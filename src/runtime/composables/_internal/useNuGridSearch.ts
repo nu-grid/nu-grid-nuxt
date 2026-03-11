@@ -1,13 +1,13 @@
-import type { TableData } from '@nuxt/ui'
-import type { Table } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
 
 import { useDebounceFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
+import type { Table } from '../../engine'
 import type { NuGridFocus, NuGridInteractionRouter } from '../../types/_internal'
 import type { NuGridSearchOptions } from '../../types/option-groups'
 import type { NuGridProps } from '../../types/props'
+import type { TableData } from '../../types/table-data'
 
 import { nuGridDefaults } from '../../config/_internal'
 
@@ -58,7 +58,7 @@ export interface NuGridSearchContext {
 interface UseNuGridSearchOptions<T extends TableData> {
   /** NuGrid props */
   props: NuGridProps<T>
-  /** TanStack table instance */
+  /** Table instance */
   tableApi: Table<T>
   /** Global filter state ref (v-model binding) */
   globalFilterState: Ref<string>

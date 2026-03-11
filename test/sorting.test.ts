@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
+import { ref } from 'vue'
 
+// ============================================================================
+// Sort engine integration tests
+// ============================================================================
+// We test the sort engine by importing useNuGridSorting and calling it with
+// mock Row/Table objects that mimic TanStack's shape.
+import { useNuGridSorting } from '../src/runtime/composables/_internal/useNuGridSorting'
 import {
   compareAlphanumeric,
   compareBasic,
@@ -288,12 +295,7 @@ describe('sortBasic', () => {
   })
 
   it('handles Infinity', () => {
-    expect(sortValues([Infinity, 1, -Infinity, 0], sortBasic)).toEqual([
-      -Infinity,
-      0,
-      1,
-      Infinity,
-    ])
+    expect(sortValues([Infinity, 1, -Infinity, 0], sortBasic)).toEqual([-Infinity, 0, 1, Infinity])
   })
 })
 
@@ -365,17 +367,6 @@ describe('resolveComparator', () => {
     expect(resolveComparator('text', 'date')).toBe(sortText)
   })
 })
-
-// ============================================================================
-// Sort engine integration tests
-// ============================================================================
-
-// We test the sort engine by importing useNuGridSorting and calling it with
-// mock Row/Table objects that mimic TanStack's shape.
-
-import { ref } from 'vue'
-
-import { useNuGridSorting } from '../src/runtime/composables/_internal/useNuGridSorting'
 
 // ---------------------------------------------------------------------------
 // Mock helpers
@@ -574,11 +565,7 @@ describe('sortRows — sortAccessor', () => {
     })
     const { sortedRows } = useNuGridSorting(rows, sorting, table)
 
-    expect(sortedRows.value.map((r: any) => r.original.name)).toEqual([
-      'Alice',
-      'Bob',
-      'Charlie',
-    ])
+    expect(sortedRows.value.map((r: any) => r.original.name)).toEqual(['Alice', 'Bob', 'Charlie'])
   })
 
   it('sorts by sortAccessor with descending', () => {
@@ -618,11 +605,7 @@ describe('sortRows — sortAccessor', () => {
     })
     const { sortedRows } = useNuGridSorting(rows, sorting, table)
 
-    expect(sortedRows.value.map((r: any) => r.original.name)).toEqual([
-      'Alice',
-      'Charlie',
-      'Bob',
-    ])
+    expect(sortedRows.value.map((r: any) => r.original.name)).toEqual(['Alice', 'Charlie', 'Bob'])
   })
 
   it('falls back to getValue when no sortAccessor', () => {
@@ -632,11 +615,7 @@ describe('sortRows — sortAccessor', () => {
     const table = mockTable({ name: { cellDataType: 'text' } })
     const { sortedRows } = useNuGridSorting(rows, sorting, table)
 
-    expect(sortedRows.value.map((r: any) => r.original.name)).toEqual([
-      'Alice',
-      'Bob',
-      'Charlie',
-    ])
+    expect(sortedRows.value.map((r: any) => r.original.name)).toEqual(['Alice', 'Bob', 'Charlie'])
   })
 })
 
@@ -754,7 +733,8 @@ describe('sortRows — auto-detection via cellDataType', () => {
     const sorting = ref([{ id: 'val', desc: false }])
     const table = mockTable({
       val: {
-        sortingFn: (a: unknown, b: unknown) => (priority[a as string] ?? 0) - (priority[b as string] ?? 0),
+        sortingFn: (a: unknown, b: unknown) =>
+          (priority[a as string] ?? 0) - (priority[b as string] ?? 0),
       },
     })
     const { sortedRows } = useNuGridSorting(rows, sorting, table)
@@ -843,14 +823,8 @@ describe('sortRows — edge cases', () => {
   it('sorts sub-rows recursively', () => {
     const parentA = mockRow(0, { name: 'Group A' })
     const parentB = mockRow(1, { name: 'Group B' })
-    parentA.subRows = [
-      mockRow(0, { name: 'Charlie' }),
-      mockRow(1, { name: 'Alice' }),
-    ]
-    parentB.subRows = [
-      mockRow(0, { name: 'Zara' }),
-      mockRow(1, { name: 'Bob' }),
-    ]
+    parentA.subRows = [mockRow(0, { name: 'Charlie' }), mockRow(1, { name: 'Alice' })]
+    parentB.subRows = [mockRow(0, { name: 'Zara' }), mockRow(1, { name: 'Bob' })]
 
     const rows = ref([parentA, parentB])
     const sorting = ref([{ id: 'name', desc: false }])
@@ -1045,11 +1019,7 @@ describe('sortRows — pre-sorted detection', () => {
     })
     const { sortedRows } = useNuGridSorting(rows, sorting, table)
 
-    expect(sortedRows.value.map((r: any) => r.original.name)).toEqual([
-      'Alice',
-      'Alice',
-      'Bob',
-    ])
+    expect(sortedRows.value.map((r: any) => r.original.name)).toEqual(['Alice', 'Alice', 'Bob'])
     expect(sortedRows.value.map((r: any) => r.original.age)).toEqual([25, 30, 20])
   })
 
@@ -1206,11 +1176,7 @@ describe('incremental sort (notifyEditedRow)', () => {
     rows.value = newData.map((d, i) => mockRow(i, d))
 
     expect(sortedRows.value.map((r: any) => r.original.val)).toEqual([5, 10, 20])
-    expect(sortedRows.value.map((r: any) => r.original.name)).toEqual([
-      'Charlie',
-      'Alice',
-      'Bob',
-    ])
+    expect(sortedRows.value.map((r: any) => r.original.name)).toEqual(['Charlie', 'Alice', 'Bob'])
   })
 
   it('incremental sort handles row staying in place', () => {

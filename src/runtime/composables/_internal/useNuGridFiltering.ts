@@ -1,10 +1,11 @@
-import type { TableData } from '@nuxt/ui'
-import type { ColumnFiltersState, FilterFn } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 
 import { computed } from 'vue'
 
+import type { ColumnFiltersState, FilterFn } from '../../engine'
 import type { NuGridColumn } from '../../types/column'
+import type { TableData } from '../../types/table-data'
+
 import { filterFns, resolveFilterFn } from '../../utils/filteringFns'
 
 // ---------------------------------------------------------------------------
@@ -16,7 +17,7 @@ interface ResolvedColumnFilter {
   id: string
   /** Accessor key to read value from raw data item */
   accessorKey: string
-  /** Resolved filter function (TanStack FilterFn signature) */
+  /** Resolved filter function (FilterFn signature) */
   filterFn: FilterFn<any>
   /** Resolved filter value (after resolveFilterValue transform) */
   resolvedValue: unknown
@@ -107,7 +108,7 @@ export function useNuGridFiltering<T extends TableData>(
     if (!hasColumnFilters && !hasGlobalFilter) return null
 
     // Build column accessor key map for quick lookup
-    const columnMap = new Map<string, { accessorKey: string, filterFn?: FilterFn<any> | string }>()
+    const columnMap = new Map<string, { accessorKey: string; filterFn?: FilterFn<any> | string }>()
     for (const col of cols) {
       const colAny = col as any
       const id = colAny.accessorKey ?? colAny.id
@@ -149,10 +150,9 @@ export function useNuGridFiltering<T extends TableData>(
   const searchableKeys = computed<string[]>(() => {
     const keys: string[] = []
     for (const col of columns.value) {
-      const colAny = col as any
-      if (!('accessorKey' in colAny) && !('id' in colAny)) continue
-      if (colAny.enableSearching === false) continue
-      const key = colAny.accessorKey ?? colAny.id
+      if (!col.accessorKey && !col.id) continue
+      if (col.enableSearching === false) continue
+      const key = col.accessorKey ?? col.id
       if (key) keys.push(key)
     }
     return keys
@@ -169,10 +169,10 @@ export function useNuGridFiltering<T extends TableData>(
     if (keys.length === 0) return null
 
     const items = data.value
-    const index: string[] = new Array(items.length)
+    const index: string[] = Array.from<string>({ length: items.length })
 
     for (let i = 0; i < items.length; i++) {
-      const item = items[i] as any
+      const item = items[i]!
       let concat = ''
       for (let k = 0; k < keys.length; k++) {
         const val = item[keys[k]!]
@@ -222,13 +222,13 @@ export function useNuGridFiltering<T extends TableData>(
       for (const entry of cfEntries) {
         const fn = resolveFilterFn(
           entry.rawFilterFn,
-          firstItem ? (firstItem as any)[entry.accessorKey] : undefined,
+          firstItem ? firstItem[entry.accessorKey] : undefined,
         )
 
         if (fn.autoRemove?.(entry.rawValue)) continue
 
-        const resolvedValue = (fn as any).resolveFilterValue
-          ? (fn as any).resolveFilterValue(entry.rawValue)
+        const resolvedValue = fn.resolveFilterValue
+          ? fn.resolveFilterValue(entry.rawValue)
           : entry.rawValue
 
         colFilters.push({
@@ -257,7 +257,7 @@ export function useNuGridFiltering<T extends TableData>(
       const editCol = pendingEditColumnId
       pendingEditColumnId = null
 
-      const affectsColumnFilter = hasColFilters && colFilters.some(cf => cf.id === editCol)
+      const affectsColumnFilter = hasColFilters && colFilters.some((cf) => cf.id === editCol)
       const affectsGlobalFilter = hasGlobalFilter && searchableKeys.value.includes(editCol)
 
       if (!affectsColumnFilter && !affectsGlobalFilter) {
@@ -283,7 +283,7 @@ export function useNuGridFiltering<T extends TableData>(
         const search = (cf.resolvedValue as string)?.toString()?.toLowerCase()
         const key = cf.accessorKey
         for (const item of items) {
-          const val = (item as any)[key]
+          const val = item[key]
           if (val != null && String(val).toLowerCase().includes(search)) {
             result.push(item)
           }
@@ -291,7 +291,7 @@ export function useNuGridFiltering<T extends TableData>(
       } else {
         // Generic single-filter path — still avoids inner loop
         for (const item of items) {
-          if (cf.filterFn(createRowShim(item) as any, cf.id, cf.resolvedValue, noopAddMeta)) {
+          if (cf.filterFn(createRowShim(item) as any, cf.id, cf.resolvedValue)) {
             result.push(item)
           }
         }
@@ -318,7 +318,7 @@ export function useNuGridFiltering<T extends TableData>(
         const rowShim = createRowShim(item) as any
         let passedAll = true
         for (const cf of colFilters) {
-          if (!cf.filterFn(rowShim, cf.id, cf.resolvedValue, noopAddMeta)) {
+          if (!cf.filterFn(rowShim, cf.id, cf.resolvedValue)) {
             passedAll = false
             break
           }
@@ -353,10 +353,8 @@ export function useNuGridFiltering<T extends TableData>(
 // Helpers
 // ---------------------------------------------------------------------------
 
-function noopAddMeta(_meta: any) {}
-
 /**
- * Create a minimal row shim that provides `getValue()` for TanStack FilterFn
+ * Create a minimal row shim that provides `getValue()` for FilterFn
  * compatibility. Reads values directly from the raw data item.
  */
 function createRowShim(item: any) {

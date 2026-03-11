@@ -1,16 +1,14 @@
 <!-- eslint-disable vue/block-tag-newline -->
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData, TableSlots } from '@nuxt/ui'
-import type { Header, Row } from '@tanstack/vue-table'
 import type { VirtualItem } from '@tanstack/vue-virtual'
 import type { ComponentPublicInstance, Ref } from 'vue'
 
-import { FlexRender } from '@tanstack/vue-table'
 import { createReusableTemplate } from '@vueuse/core'
 import { Primitive } from 'reka-ui'
 import { upperFirst } from 'scule'
 import { computed, h, inject, toValue } from 'vue'
 
+import type { Header, Row } from '../../engine'
 import type { NuGridProps } from '../../types'
 import type {
   NuGridAddRowContext,
@@ -24,6 +22,8 @@ import type {
   NuGridVirtualItemStyle,
   NuGridVirtualizationContext,
 } from '../../types/_internal'
+import type { NuGridSlots } from '../../types/slots'
+import type { TableData } from '../../types/table-data'
 
 import {
   getFlexHeaderStyle,
@@ -33,6 +33,7 @@ import {
   resolveValue,
   useNuGridGroupSelection,
 } from '../../composables/_internal'
+import { FlexRender } from '../../utils/flexRender'
 import NuGridAddRow from './NuGridAddRow.vue'
 import NuGridColumnMenu from './NuGridColumnMenu.vue'
 import NuGridGroupCheckbox from './NuGridGroupCheckbox.vue'
@@ -42,7 +43,7 @@ import NuGridRow from './NuGridRow.vue'
 defineOptions({ inheritAttrs: false })
 
 const props = defineProps<NuGridProps<T>>()
-const slots = defineSlots<TableSlots<T>>()
+const slots = defineSlots<NuGridSlots<T>>()
 
 // Inject split contexts
 const coreContext = inject<NuGridCoreContext<T>>('nugrid-core')!
@@ -70,7 +71,7 @@ if (
 }
 
 // Destructure from contexts
-const { tableRef, rootRef, tableApi, ui, hasFooter, propsUi } = coreContext
+const { tableRef, rootRef, tableApi, ui, hasFooter, propsUi, rowSelectionState } = coreContext
 const { dragFns, rowDragOptions } = dragContext
 const { handleGroupResizeStart, resizingGroupId, resizingColumnId, manuallyResizedColumns } =
   resizeContext
@@ -89,7 +90,7 @@ const {
 const staleColumns = inject<Ref<Set<string>>>('nugrid-stale-sort-columns')
 const clearStale = inject<(() => void) | undefined>('nugrid-clear-stale-sort')
 
-function handleHeaderSortClick(event: MouseEvent, header: Header<T, unknown>) {
+function handleHeaderSortClick(event: MouseEvent, header: Header<T>) {
   if (toValue(dragFns.wasDragged)) return
   if (!header.column.getCanSort()) return
   if (staleColumns?.value?.has(header.column.id) && clearStale) {
@@ -99,7 +100,7 @@ function handleHeaderSortClick(event: MouseEvent, header: Header<T, unknown>) {
   }
 }
 
-function isCompactHeader(header: Header<T, unknown>): boolean {
+function isCompactHeader(header: Header<T>): boolean {
   const opt = header.column.columnDef.compactHeader
   if (opt === true) return true
   if (opt === false) return false
@@ -114,7 +115,7 @@ const flexStyleOptions = computed(() => ({
 }))
 
 /** Get header style with flex distribution support */
-function getHeaderStyle(header: Header<T, unknown>): Record<string, string | number> {
+function getHeaderStyle(header: Header<T>): Record<string, string | number> {
   return getFlexHeaderStyle(header, flexStyleOptions.value)
 }
 
@@ -130,7 +131,7 @@ const [DefineGroupHeaderTemplate, ReuseGroupHeaderTemplate] = createReusableTemp
 
 // Reusable template for header cell
 const [DefineHeaderCellTemplate, ReuseHeaderCellTemplate] = createReusableTemplate<{
-  header: Header<T, unknown>
+  header: Header<T>
   groupId: string
   isExpanded: boolean
   rowIndex: number
@@ -138,7 +139,7 @@ const [DefineHeaderCellTemplate, ReuseHeaderCellTemplate] = createReusableTempla
 
 // Reusable template for footer cell
 const [DefineFooterCellTemplate, ReuseFooterCellTemplate] = createReusableTemplate<{
-  header: Header<T, unknown>
+  header: Header<T>
   index: number
   isExpanded: boolean
   groupId?: string
@@ -169,10 +170,13 @@ const dynamicRowHeightsEnabled = computed(() => {
 })
 
 // Group-aware row selection
-const { toggleAllGroupRows, getGroupCheckboxState } = useNuGridGroupSelection(tableApi, groupedRows)
+const { toggleAllGroupRows, getGroupCheckboxState } = useNuGridGroupSelection(
+  rowSelectionState,
+  groupedRows,
+)
 
 // Helper to render group-aware select column header
-function renderGroupSelectHeader(header: any, groupId: string) {
+function renderGroupSelectHeader(header: Header<T>, groupId: string) {
   // Only handle the selection column
   if (header.column.id !== '__selection') {
     // For non-select columns, execute the header function to get the VNode
@@ -361,8 +365,9 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           >
             <NuGridHeaderSortButton
               v-if="
-                (header.column.columnDef.sortIcons?.position ?? gridSortIcons?.position ?? 'edge') ===
-                'edge'
+                (header.column.columnDef.sortIcons?.position ??
+                  gridSortIcons?.position ??
+                  'edge') === 'edge'
               "
               :header="header"
               :sort-icons="header.column.columnDef.sortIcons"
@@ -377,8 +382,9 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           <template v-else>
             <NuGridHeaderSortButton
               v-if="
-                (header.column.columnDef.sortIcons?.position ?? gridSortIcons?.position ?? 'edge') ===
-                'edge'
+                (header.column.columnDef.sortIcons?.position ??
+                  gridSortIcons?.position ??
+                  'edge') === 'edge'
               "
               :header="header"
               :sort-icons="header.column.columnDef.sortIcons"

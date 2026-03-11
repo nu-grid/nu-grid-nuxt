@@ -1,10 +1,10 @@
 import type { TableColumn } from '@nuxt/ui'
-import type { ColumnSizingInfoState, GroupingState } from '@tanstack/vue-table'
 
 import { describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
 
 import type { NuGridStates } from '../src/runtime/types/_internal'
+import type { ColumnSizingInfoState, GroupingState } from '../src/runtime/types/state-types'
 
 import { useNuGridApi, useNuGridColumns } from '../src/runtime/composables/_internal/useNuGridCore'
 import { useNuGridSorting } from '../src/runtime/composables/_internal/useNuGridSorting'
@@ -63,7 +63,7 @@ describe('table Grouping', () => {
     paginationState: ref({ pageIndex: 0, pageSize: 10 }),
   })
 
-  it('should use Tanstack getGroupedRowModel by default', () => {
+  it('should produce grouped rows when grouping state is set', () => {
     const data = ref(testData)
     const propsColumns = ref(testColumns)
     const { columns } = useNuGridColumns(propsColumns, data)
@@ -75,10 +75,6 @@ describe('table Grouping', () => {
     }
 
     const { tableApi } = useNuGridApi(props, data, columns, states)
-
-    // Verify that the table has grouping capability
-    expect(tableApi.options.getGroupedRowModel).toBeDefined()
-    expect(typeof tableApi.options.getGroupedRowModel).toBe('function')
 
     // Verify grouping state is set
     expect(tableApi.getState().grouping).toEqual(['status'])
@@ -93,32 +89,29 @@ describe('table Grouping', () => {
     expect(groupedRows.length).toBeGreaterThan(0)
   })
 
-  it('should allow custom grouping function to override default', () => {
+  it('should return grouped row model with correct group values', () => {
     const data = ref(testData)
     const propsColumns = ref(testColumns)
     const { columns } = useNuGridColumns(propsColumns, data)
-
-    // Create a custom grouping function
-    const customGroupedRowModel = vi.fn(() => ({
-      rows: [],
-      flatRows: [],
-      rowsById: {},
-    }))
-
     const states = createStates()
 
     const props = {
       data: testData,
       columns: testColumns,
-      groupingOptions: {
-        getGroupedRowModel: customGroupedRowModel,
-      },
-    } as any
+    }
 
     const { tableApi } = useNuGridApi(props, data, columns, states)
 
-    // Verify that the custom function is used
-    expect(tableApi.options.getGroupedRowModel).toBe(customGroupedRowModel)
+    // Get grouped rows
+    const rowModel = tableApi.getGroupedRowModel()
+    const groupRows = rowModel.rows.filter((row: any) => row.getIsGrouped())
+
+    // Should have 2 groups
+    expect(groupRows.length).toBe(2)
+
+    // Each group should have the correct grouping column and value
+    const groupValues = groupRows.map((r: any) => r.groupingValue).sort()
+    expect(groupValues).toEqual(['active', 'inactive'])
   })
 
   it('should handle grouping state changes', () => {
@@ -161,7 +154,7 @@ describe('table Grouping', () => {
     expect(tableApi.getState().grouping).toEqual(['status', 'value'])
   })
 
-  it('should respect groupedColumnMode option in groupingOptions', () => {
+  it('should produce group rows with subRows containing data rows', () => {
     const data = ref(testData)
     const propsColumns = ref(testColumns)
     const { columns } = useNuGridColumns(propsColumns, data)
@@ -170,15 +163,15 @@ describe('table Grouping', () => {
     const props = {
       data: testData,
       columns: testColumns,
-      groupingOptions: {
-        groupedColumnMode: 'remove',
-      },
-    } as any
+    }
 
     const { tableApi } = useNuGridApi(props, data, columns, states)
 
-    // Verify groupedColumnMode option is set
-    expect(tableApi.options.groupedColumnMode).toBe('remove')
+    const rowModel = tableApi.getGroupedRowModel()
+    const activeGroup = rowModel.rows.find((r: any) => r.groupingValue === 'active')
+    expect(activeGroup).toBeDefined()
+    expect(activeGroup.subRows.length).toBe(2)
+    expect(activeGroup.subRows[0].original.status).toBe('active')
   })
 
   it('should work with custom aggregation functions', () => {
@@ -218,39 +211,27 @@ describe('table Grouping', () => {
     expect(valueColumn?.columnDef.aggregationFn).toBe('sum')
   })
 
-  it('should use custom grouping function from user when provided in groupingOptions', () => {
+  it('should produce correct group IDs following convention', () => {
     const data = ref(testData)
     const propsColumns = ref(testColumns)
     const { columns } = useNuGridColumns(propsColumns, data)
-
-    // Create a custom grouping function that returns a factory function
-    const mockRows: any[] = []
-    const innerFunction = vi.fn(() => ({
-      rows: mockRows,
-      flatRows: mockRows,
-      rowsById: {},
-    }))
-
-    // Tanstack expects a factory function that returns the actual grouping function
-    const customGroupedRowModel = () => innerFunction
     const states = createStates()
 
     const props = {
       data: testData,
       columns: testColumns,
-      groupingOptions: {
-        getGroupedRowModel: customGroupedRowModel,
-      },
-    } as any
+    }
 
     const { tableApi } = useNuGridApi(props, data, columns, states)
 
-    // Call getGroupedRowModel to trigger the custom function
-    const result = tableApi.getGroupedRowModel()
+    const rowModel = tableApi.getGroupedRowModel()
+    const groupIds = rowModel.rows
+      .filter((r: any) => r.getIsGrouped())
+      .map((r: any) => r.id)
+      .sort()
 
-    // Verify custom function was used
-    expect(innerFunction).toHaveBeenCalled()
-    expect(result.rows).toEqual(mockRows)
+    // Group IDs follow convention: columnId:value
+    expect(groupIds).toEqual(['status:active', 'status:inactive'])
   })
 
   it('should sort rows within groups when sorting is applied', () => {

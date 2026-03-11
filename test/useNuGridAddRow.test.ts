@@ -1,33 +1,30 @@
-import type { Row } from '@tanstack/vue-table'
-
 import { describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
 
+import type { Row } from '../src/runtime/engine'
+
 import { ADD_ROW_FLAG, useNuGridAddRow } from '../src/runtime/composables/_internal/useNuGridAddRow'
 
-vi.mock('@tanstack/table-core', () => {
+function mockCreateRow(
+  id: string,
+  original: any,
+  rowIndex: number,
+  depth: number,
+  _subRows?: any,
+  parentId?: string,
+) {
   return {
-    createRow: (
-      _table: any,
-      id: string,
-      original: any,
-      rowIndex: number,
-      depth: number,
-      _column: any,
-      parentId?: string,
-    ) => ({
-      id,
-      original,
-      index: rowIndex,
-      depth,
-      parentId,
-      subRows: [] as any[],
-      getIsGrouped: () => !!original.__group,
-      getValue: (key: string) => original[key],
-      getVisibleCells: () => [],
-    }),
+    id,
+    original,
+    index: rowIndex,
+    depth,
+    parentId,
+    subRows: [] as any[],
+    getIsGrouped: () => !!original.__group,
+    getValue: (key: string) => original[key],
+    getVisibleCells: () => [],
   }
-})
+}
 
 interface RowLike<T = any> {
   id: string
@@ -44,6 +41,7 @@ interface TableLike {
   getRowModel: () => { rowsById: Record<string, RowLike> }
   getPrePaginationRowModel: () => { rows: RowLike[] }
   getState: () => { grouping: string[] }
+  createRow: (...args: any[]) => any
 }
 
 function asRows(refRows: { value: RowLike[] }) {
@@ -65,6 +63,7 @@ function makeTable(rows: RowLike[], grouping: string[]): TableLike {
     getRowModel: () => ({ rowsById: makeRowsById(rows) }),
     getPrePaginationRowModel: () => ({ rows }),
     getState: () => ({ grouping }),
+    createRow: mockCreateRow as any,
   }
 }
 

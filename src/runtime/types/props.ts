@@ -1,8 +1,10 @@
-import type { TableData, TableProps } from '@nuxt/ui'
+import type { WatchOptions } from 'vue'
 
 import type { RowDragOptions } from '../composables/_internal/useNuGridRowDragDrop'
+import type { Row } from '../engine'
 import type { NuGridConfig, NuGridPreset, NuGridVirtualizerOptions } from './_internal'
 import type { NuGridCellType } from './cells'
+import type { NuGridColumn } from './column'
 import type {
   NuGridActionsOptions,
   NuGridAnimationOptions,
@@ -15,10 +17,12 @@ import type {
   NuGridSearchOptions,
   NuGridSelectionOptions,
   NuGridSortOptions,
+  NuGridSpreadsheetNavOptions,
   NuGridStateOptions,
   NuGridSummaryOptions,
   NuGridTooltipOptions,
 } from './option-groups'
+import type { TableData } from './table-data'
 import type { NuGridTheme } from './theme'
 import type { NuGridValidationOptions } from './validation'
 
@@ -31,14 +35,91 @@ import type { NuGridValidationOptions } from './validation'
 export type NuGridScrollbars = 'native' | 'hover' | 'scroll'
 
 /**
- * NuGrid props interface extending TableProps with additional grid-specific options
- * - Omits the base virtualize flag in favor of the grouped `virtualization` config
- * - Omits 'state' to avoid conflict with new NuGrid state persistence config
+ * NuGrid props interface — fully self-owned, no @nuxt/ui dependency
  */
-export interface NuGridProps<T extends TableData = TableData> extends Omit<
-  TableProps<T>,
-  'virtualize' | 'state'
-> {
+export interface NuGridProps<T extends TableData = TableData> {
+  // --- Base props ---
+
+  /** Row data array */
+  data?: T[]
+
+  /** Column definitions */
+  columns?: NuGridColumn<T>[]
+
+  /** Table caption text */
+  caption?: string
+
+  /** Empty state message when no data */
+  empty?: string
+
+  /** Sticky header/footer mode */
+  sticky?: boolean | 'header' | 'footer'
+
+  /** Whether the grid is in a loading state */
+  loading?: boolean
+
+  /** Color for the loading indicator */
+  loadingColor?: string
+
+  /** Animation style for the loading indicator */
+  loadingAnimation?: string
+
+  /** Metadata passed to the engine table */
+  meta?: Record<string, any>
+
+  /** Vue watch options for data change detection */
+  watchOptions?: WatchOptions
+
+  // --- Row interaction callbacks ---
+
+  /** Called when a row is selected (clicked/focused) */
+  onSelect?: (e: Event, row: Row<T>) => void
+
+  /** Called when a row is hovered */
+  onHover?: (e: Event, row: Row<T> | null) => void
+
+  /** Called on row right-click */
+  onContextmenu?: ((e: Event, row: Row<T>) => void) | ((e: Event, row: Row<T>) => void)[]
+
+  // --- Engine feature flags ---
+
+  /** Whether column resizing is enabled */
+  enableColumnResizing?: boolean
+
+  /** Whether sorting is enabled */
+  enableSorting?: boolean
+
+  /** Whether multi-column sorting is enabled */
+  enableMultiSort?: boolean
+
+  /** Whether row expansion is enabled */
+  enableExpanding?: boolean
+
+  /** Function to detect multi-sort events (e.g., shift+click) */
+  isMultiSortEvent?: (e: unknown) => boolean
+
+  /** Maximum number of columns that can be sorted simultaneously */
+  maxMultiSortColCount?: number
+
+  /** Fallback value for empty cells */
+  renderFallbackValue?: any
+
+  // --- Column resize options ---
+
+  /** Column sizing configuration */
+  columnSizingOptions?: {
+    columnResizeMode?: 'onChange' | 'onEnd'
+    columnResizeDirection?: 'ltr' | 'rtl'
+  }
+
+  /** Element tag to render the grid as */
+  as?: any
+
+  /** Additional CSS classes */
+  class?: any
+
+  // --- NuGrid-specific props ---
+
   ui?: NuGridConfig['slots']
 
   /**
@@ -573,6 +654,24 @@ export interface NuGridProps<T extends TableData = TableData> extends Omit<
    * }
    */
   summaries?: NuGridSummaryOptions
+
+  /**
+   * Spreadsheet-style navigation across linked grids
+   * - true: Enable left/right cursor-aware cell navigation in editors
+   * - object: Enable inter-grid vertical linking AND left/right cursor-aware navigation
+   *
+   * @example
+   * // Just left/right cursor nav in editors
+   * spreadsheetNav: true
+   *
+   * @example
+   * // Link grids for unified vertical + horizontal navigation
+   * spreadsheetNav: {
+   *   previousGrid: gridAboveRef,
+   *   nextGrid: gridBelowRef,
+   * }
+   */
+  spreadsheetNav?: boolean | NuGridSpreadsheetNavOptions
 }
 
 /**
