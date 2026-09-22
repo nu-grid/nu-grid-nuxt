@@ -24,13 +24,9 @@ export default defineNuxtConfig({
     optimizeDeps: {
       include: [
         '@internationalized/date',
-        '@nuxt/ui/runtime/utils/tv.js',
-        '@nuxt/ui/utils/tv',
         '@tanstack/vue-virtual',
-        '@unovis/vue',
         '@vue/devtools-core',
         '@vue/devtools-kit',
-        'date-fns',
         'reka-ui',
         'tailwind-merge',
         'zod',
