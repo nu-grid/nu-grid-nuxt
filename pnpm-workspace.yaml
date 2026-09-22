@@ -1,8 +1,32 @@
 shellEmulator: true
 
-trustPolicy:
-  no-downgrade:
-    - '!nuxt-component-meta'
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - nuxt-component-meta
+  # 6.3.1 is the July 2023 security backport to the 6.x line, published by an npm CLI maintainer
+  # without provenance after 7.5.2 shipped with it; pnpm reads that date order as a downgrade.
+  - semver@6.3.1
+
+# Exact versions published on 22 Sep 2026, the day nu-grid bumped every dependency and moved to
+# pnpm 12 (whose 1-day release-age check is on by default). Exempted so 0.4.0 could publish the
+# same day. Pinned versions only: anything newer still waits out the age check. Safe to delete
+# from 24 Sep 2026 onwards.
+minimumReleaseAgeExclude:
+  - '@iconify-json/lucide@1.2.136'
+  - '@iconify-json/vscode-icons@1.2.80'
+  - '@iconify/collections@1.0.740'
+  - '@nuxt/ui@4.11.2'
+  - electron-to-chromium@1.5.434
+  - eslint-plugin-oxlint@1.85.0
+  - eslint-plugin-perfectionist@5.12.0
+  - framer-motion@13.4.1
+  - ignore@7.0.10
+  - motion-dom@13.4.1
+  - satori@0.33.5
+  - undici@8.11.0
+
+# Was shamefully-hoist=true in .npmrc; pnpm 11+ reads settings from this file.
+shamefullyHoist: true
 
 packages:
   - ./
@@ -54,14 +78,14 @@ catalog:
   vitest: ^5.0.1
   vue-tsc: ^3.3.11
   zod: ^4.6.5
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - better-sqlite3
-  - esbuild
-  - maplibre-gl
-  - sharp
-  - unrs-resolver
-  - vue-demi
+allowBuilds:
+  '@parcel/watcher': true
+  better-sqlite3: true
+  esbuild: true
+  maplibre-gl: true
+  sharp: true
+  unrs-resolver: true
+  vue-demi: true
 peerDependencyRules:
   ignoreMissing:
     - '@tiptap/*'

@@ -121,5 +121,5 @@
   "optionalDependencies": {
     "write-excel-file": "^2.3.10"
   },
-  "packageManager": "pnpm@10.21.0"
+  "packageManager": "pnpm@12.5.1"
 }
