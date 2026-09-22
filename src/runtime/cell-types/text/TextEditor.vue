@@ -46,12 +46,19 @@ const shouldShowPopover = computed(() => {
 })
 
 // Popover styling and error ring from theme
-const popoverOuter = computed(() => coreContext.ui.value.validationPopoverContent?.())
-const popoverInner = computed(() => coreContext.ui.value.validationPopoverInner?.())
+const propsUi = computed(() => coreContext.propsUi?.value)
+const popoverOuter = computed(() =>
+  coreContext.ui.value.validationPopoverContent?.({ class: propsUi.value?.validationPopoverContent }),
+)
+const popoverInner = computed(() =>
+  coreContext.ui.value.validationPopoverInner?.({ class: propsUi.value?.validationPopoverInner }),
+)
 const popoverUi = computed(() => ({ content: popoverOuter.value }))
 const popoverIcon = computed(() => validationContext?.icon?.value ?? defaultValidationIcon)
 const errorUi = computed(() =>
-  hasError.value ? { base: coreContext.ui.value.editorErrorRing() } : undefined,
+  hasError.value
+    ? { base: coreContext.ui.value.editorErrorRing({ class: propsUi.value?.editorErrorRing }) }
+    : undefined,
 )
 </script>
 

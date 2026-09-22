@@ -81,6 +81,27 @@ describe('app.config nuGrid.ui layer', () => {
     expect(withEmpty).toBe(without)
   })
 
+  it('accepts a replacer function, which receives the classes below it', () => {
+    let received = ''
+    appConfig.value = {
+      ui: { table: {} },
+      nuGrid: {
+        ui: {
+          slots: {
+            colResizer: (defaults: string) => {
+              received = defaults
+              return 'marker-replaced'
+            },
+          },
+        },
+      },
+    }
+    const resizer = grid().ui.value.colResizer()
+    expect(received).toContain('col-resizer')
+    expect(resizer).toContain('marker-replaced')
+    expect(resizer).not.toContain('col-resizer')
+  })
+
   it('reaches the checkbox slots', () => {
     appConfig.value = { ui: { table: {} }, nuGrid: { ui: { slots: { checkboxBase: 'marker-checkbox' } } } }
     const { checkboxTheme } = grid()

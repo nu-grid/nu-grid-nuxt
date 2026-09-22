@@ -384,7 +384,13 @@ const cellTextValue = computed(() => {
       :props="extendedCellContext"
     />
     <FlexRender v-else :render="cell.column.columnDef.cell" :props="extendedCellContext" />
-    <div :class="coreContext.ui.value.editorContainerTextarea?.()">
+    <div
+      :class="
+        coreContext.ui.value.editorContainerTextarea?.({
+          class: coreContext.propsUi?.value?.editorContainerTextarea,
+        })
+      "
+    >
       <component :is="editorContent" />
     </div>
   </div>
@@ -393,8 +399,12 @@ const cellTextValue = computed(() => {
     ref="wrapperRef"
     :class="
       useNoEditorOffset
-        ? coreContext.ui.value.editorContainerBoolean?.()
-        : coreContext.ui.value.editorContainer?.()
+        ? coreContext.ui.value.editorContainerBoolean?.({
+            class: coreContext.propsUi?.value?.editorContainerBoolean,
+          })
+        : coreContext.ui.value.editorContainer?.({
+            class: coreContext.propsUi?.value?.editorContainer,
+          })
     "
     :style="wrapperStyle"
     data-editing
