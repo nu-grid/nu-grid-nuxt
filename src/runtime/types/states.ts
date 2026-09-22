@@ -15,7 +15,7 @@ import type {
 import type { Ref } from 'vue'
 
 export interface NuGridStates {
-  globalFilterState: Ref<string>
+  globalFilterState: Ref<string | undefined>
   columnFiltersState: Ref<ColumnFiltersState>
   columnOrderState: Ref<ColumnOrderState>
   columnVisibilityState: Ref<VisibilityState>

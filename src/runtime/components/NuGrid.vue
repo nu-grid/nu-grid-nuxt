@@ -172,21 +172,31 @@ const rootRef = ref<InstanceType<typeof Primitive>>()
 const tableRef = ref<HTMLDivElement | null>(null)
 const wrapperRef = ref<HTMLDivElement | null>(null)
 
-const globalFilterState = defineModel<string>('globalFilter', { default: undefined })
-const columnFiltersState = defineModel<ColumnFiltersState>('columnFilters', { default: [] })
-const columnOrderState = defineModel<ColumnOrderState>('columnOrder', { default: [] })
-const columnVisibilityState = defineModel<VisibilityState>('columnVisibility', { default: {} })
-const columnPinningState = defineModel<ColumnPinningState>('columnPinning', { default: {} })
-const columnSizingState = defineModel<ColumnSizingState>('columnSizing', { default: {} })
+const globalFilterState = defineModel<string | undefined>('globalFilter')
+const columnFiltersState = defineModel<ColumnFiltersState>('columnFilters', { default: () => [] })
+const columnOrderState = defineModel<ColumnOrderState>('columnOrder', { default: () => [] })
+const columnVisibilityState = defineModel<VisibilityState>('columnVisibility', { default: () => ({}) })
+const columnPinningState = defineModel<ColumnPinningState>('columnPinning', { default: () => ({}) })
+const columnSizingState = defineModel<ColumnSizingState>('columnSizing', { default: () => ({}) })
 const columnSizingInfoState = defineModel<ColumnSizingInfoState>('columnSizingInfo', {
-  default: {},
+  default: () => ({
+    columnSizingStart: [],
+    deltaOffset: null,
+    deltaPercentage: null,
+    isResizingColumn: false,
+    startOffset: null,
+    startSize: null,
+  }),
 })
-const rowSelectionState = defineModel<RowSelectionState>('selectedRows', { default: {} })
-const rowPinningState = defineModel<RowPinningState>('rowPinning', { default: {} })
-const sortingState = defineModel<SortingState>('sorting', { default: [] })
-const groupingState = defineModel<GroupingState>('grouping', { default: [] })
-const expandedState = defineModel<ExpandedState>('expanded', { default: {} })
-const paginationState = defineModel<PaginationState>('pagination', { default: {} })
+const rowSelectionState = defineModel<RowSelectionState>('selectedRows', { default: () => ({}) })
+const rowPinningState = defineModel<RowPinningState>('rowPinning', { default: () => ({}) })
+const sortingState = defineModel<SortingState>('sorting', { default: () => [] })
+const groupingState = defineModel<GroupingState>('grouping', { default: () => [] })
+const expandedState = defineModel<ExpandedState>('expanded', { default: () => ({}) })
+// pageSize 0 means "not initialised yet": initPaginationState fills it from the paging options.
+const paginationState = defineModel<PaginationState>('pagination', {
+  default: () => ({ pageIndex: 0, pageSize: 0 }),
+})
 const focusedRowIdState = defineModel<string | null>('focusedRowId', { default: null })
 
 // Initialize pagination state when paging is enabled
