@@ -1,6 +1,7 @@
-import { useCookie } from '#imports'
 import { StorageSerializers, useStorage } from '@vueuse/core'
 import { nextTick, onMounted, watch } from 'vue'
+
+import { useCookie } from '#imports'
 
 import type {
   ColumnFiltersState,

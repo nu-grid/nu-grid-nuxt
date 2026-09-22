@@ -1,10 +1,11 @@
 import type { ComputedRef } from 'vue'
 
-import baseCheckboxTheme from '#build/ui/checkbox'
-import { useAppConfig } from '#imports'
 import { tv } from '@nuxt/ui/runtime/utils/tv.js'
 import { twMerge } from 'tailwind-merge'
 import { computed } from 'vue'
+
+import baseCheckboxTheme from '#build/ui/checkbox'
+import { useAppConfig } from '#imports'
 
 import type { NuGridProps } from '../../types'
 import type { NuGridConfig } from '../../types/_internal'

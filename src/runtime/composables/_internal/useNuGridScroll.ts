@@ -172,15 +172,12 @@ export class NuGridScrollManager {
     const containerRect = scrollContainer.getBoundingClientRect()
 
     // Calculate sticky header height
-    let stickyHeaderHeight = 0
     const multiRowHeaders = tableElement?.querySelector(
       '[data-multi-row-headers="true"][data-sticky-header]',
     ) as HTMLElement | null
-    if (multiRowHeaders) {
-      stickyHeaderHeight = multiRowHeaders.offsetHeight
-    } else {
-      stickyHeaderHeight = this.getStickyHeaderHeight(tableElement, virtualizedStickyHeight)
-    }
+    const stickyHeaderHeight = multiRowHeaders
+      ? multiRowHeaders.offsetHeight
+      : this.getStickyHeaderHeight(tableElement, virtualizedStickyHeight)
 
     const visibleTop = containerRect.top + stickyHeaderHeight
     const hasSticky = stickyHeaderHeight > 0

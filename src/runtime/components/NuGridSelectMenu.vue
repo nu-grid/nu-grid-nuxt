@@ -233,7 +233,6 @@ export interface SelectMenuSlots<
   "
 >
 /* eslint-disable import/first */
-import { useAppConfig } from '#imports'
 import { useComponentIcons } from '@nuxt/ui/composables/useComponentIcons'
 import { useFieldGroup } from '@nuxt/ui/composables/useFieldGroup'
 import { useFormField } from '@nuxt/ui/composables/useFormField'
@@ -275,6 +274,8 @@ import {
   useTemplateRef,
   watch,
 } from 'vue'
+
+import { useAppConfig } from '#imports'
 
 defineOptions({ inheritAttrs: false })
 

@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import type theme from '#build/ui/checkbox'
 import type { ComponentConfig } from '@nuxt/ui'
 import type { AppConfig } from 'nuxt/schema'
 import type { ComponentPublicInstance } from 'vue'
 
-import { useAppConfig } from '#imports'
 import { tv } from '@nuxt/ui/runtime/utils/tv.js'
 import { CheckboxIndicator, CheckboxRoot } from 'reka-ui'
 import { computed, inject, nextTick, ref, useId } from 'vue'
+
+import type theme from '#build/ui/checkbox'
+
+import { useAppConfig } from '#imports'
 
 import type { NuGridUIConfigContext } from '../types/_internal'
 
