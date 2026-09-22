@@ -1,0 +1,49 @@
+docs/plan-nu-grid-sorting.md
+  s_064bebb658c613::t_3b94d6bb431227 30
+src/runtime/composables/_internal/useNuGridCellEditing.ts
+  s_064bebb658c613::t_3574e81c5b386f 94,1986
+src/runtime/components/NuGridSelectMenu.vue
+  s_064bebb658c613::t_3574e81c5b386f 1065
+src/runtime/themes/nuGridThemeCompact.css
+  s_064bebb658c613::t_3574e81c5b386f 40-44
+src/runtime/composables/_internal/useNuGridFocus.ts
+  s_064bebb658c613::t_3574e81c5b386f 543,547
+src/runtime/cell-types/currency/CurrencyEditor.vue
+  s_064bebb658c613::t_3574e81c5b386f 29
+src/runtime/cell-types/currency/index.ts
+  s_064bebb658c613::t_3574e81c5b386f 15
+src/runtime/components/_internal/NuGridGroup.vue
+  s_064bebb658c613::t_3574e81c5b386f 290
+src/runtime/components/_internal/NuGridCellContent.vue
+  s_064bebb658c613::t_3574e81c5b386f 7,30-32,394-398
+src/runtime/cell-types/date/DateFilter.vue
+  s_064bebb658c613::t_3574e81c5b386f 26,30
+src/runtime/cell-types/lookup/LookupEditor.vue
+  s_064bebb658c613::t_3574e81c5b386f 23-25,105-106,114-137,139-148,160-164,225,228,296-315,318,320-331,459,470,481
+test/wheel-smoothing.test.ts
+  s_064bebb658c613::t_3b94d6bb431227 178
+src/runtime/components/NuGridCellCheckbox.vue
+  s_064bebb658c613::t_3574e81c5b386f 5,33,40
+src/runtime/types/option-groups.ts
+  s_064bebb658c613::t_3574e81c5b386f 627-641
+src/runtime/composables/_internal/useNuGridWheelSmoothing.ts
+  ai_agent 54-55
+src/runtime/components/_internal/NuGridSplitGroup.vue
+  s_064bebb658c613::t_3574e81c5b386f 203
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "0a7820989f26d0e07e819120549c6fa7785c2b5c",
+  "prompts": {},
+  "sessions": {
+    "s_064bebb658c613": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "17c7b423-b4c4-41ee-8863-401936322617",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": null
+    }
+  }
+}
