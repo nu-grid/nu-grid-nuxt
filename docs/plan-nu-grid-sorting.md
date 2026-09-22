@@ -27,7 +27,7 @@ Example — display `statusText` but sort by `statusSort`:
 { accessorKey: 'statusText', header: 'Status', sortAccessor: (row) => row.statusSort }
 ```
 
-Currently in Buoy this requires the workaround of setting `accessorKey: 'statusSort'` and using a custom cell template to render the display value. With `sortAccessor`, the column accessor points to the display field naturally.
+Currently this requires the workaround of setting `accessorKey: 'statusSort'` and using a custom cell template to render the display value. With `sortAccessor`, the column accessor points to the display field naturally.
 
 ### Test-first: parity with TanStack
 Write vitest tests that run both TanStack's comparator helpers and ours against identical inputs, asserting identical output. This guarantees behavioral parity before we swap.

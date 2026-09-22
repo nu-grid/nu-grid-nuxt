@@ -287,9 +287,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
           :aria-label="`Select all in group ${groupId}`"
           class="mr-2"
           @click.stop
-          @update:model-value="
-            (value: boolean | 'indeterminate') => toggleAllGroupRows(groupId, !!value)
-          "
+          @update:model-value="(value) => toggleAllGroupRows(groupId, !!value)"
         />
         <div class="flex cursor-pointer items-center gap-3" @click="toggleGroup(groupId)">
           <UIcon

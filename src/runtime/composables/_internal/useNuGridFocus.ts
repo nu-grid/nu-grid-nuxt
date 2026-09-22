@@ -141,9 +141,6 @@ export function useNuGridFocus<T extends TableData>(
     }
   }
 
-  const cellSelector = '[data-row-id="$ID"] [data-cell-index="$COL"]'
-  const rowSelector = '[data-row-id="$ID"]'
-
   const rowHeightEstimate = ref(80)
   const containerHeight = ref(0)
   let unregisterInteraction: (() => void) | null = null
@@ -543,11 +540,11 @@ export function useNuGridFocus<T extends TableData>(
   }
 
   function resolveCellSelector(rowId: string, columnIndex: number): string {
-    return cellSelector.replace('$COL', String(columnIndex)).replace('$ID', rowId)
+    return `[data-row-id="${CSS.escape(rowId)}"] [data-cell-index="${columnIndex}"]`
   }
 
   function resolveRowSelector(rowId: string): string {
-    return rowSelector.replace('$ID', rowId)
+    return `[data-row-id="${CSS.escape(rowId)}"]`
   }
 
   function getRowElement(rowId: string): HTMLElement | null {

@@ -12,6 +12,7 @@ export const currencyCellType: NuGridCellType = {
   displayName: 'Currency',
   description: 'Currency column with formatting and range filter',
   editor: CurrencyEditor,
+  noEditorOffset: true,
   filter: {
     component: CurrencyFilter,
     defaultOperator: 'equals',
