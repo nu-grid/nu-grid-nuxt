@@ -37,6 +37,11 @@
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 0.5px var(--tw-ring-color);
 }
 
+/* --- Lookup editor container: cancel the 1px top margin from editorContainer slot --- */
+.nugrid-compact [data-editing]:has([aria-haspopup='listbox']) {
+  margin-top: 0;
+}
+
 /* --- Lookup / select menu trigger --- */
 .nugrid-compact [data-editing] [data-slot='base'][aria-haspopup='listbox'] {
   font-size: 0.8125rem;

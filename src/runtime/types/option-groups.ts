@@ -624,6 +624,21 @@ export interface NuGridLookupOptions {
    * @defaultValue true
    */
   autoOpen?: boolean
+
+  /**
+   * Allow creating new items by typing in the search input
+   * - `true` or `'always'`: show create option whenever search has text
+   * - `{ position?: 'top' | 'bottom', when?: 'empty' | 'always' }`: fine-grained control
+   * @defaultValue false
+   */
+  createItem?: boolean | 'always' | { position?: 'top' | 'bottom'; when?: 'empty' | 'always' }
+
+  /**
+   * Immediately commit the value and exit edit mode when an item is selected.
+   * When false (default), the cell stays in edit mode until focus leaves.
+   * @defaultValue false
+   */
+  commitOnSelect?: boolean
 }
 
 /**

@@ -4,6 +4,7 @@ import type { Component, ComputedRef } from 'vue'
 import { computed, inject, ref, resolveComponent, watch } from 'vue'
 
 import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
+import type { useNuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegistry'
 import type { Cell, Row } from '../../engine'
 import type {
   NuGridAddRowContext,
@@ -11,7 +12,6 @@ import type {
   NuGridCoreContext,
 } from '../../types/_internal'
 
-import type { useNuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegistry'
 import { FlexRender } from '../../utils/flexRender'
 import NuGridHighlightedText from './NuGridHighlightedText.vue'
 
@@ -27,7 +27,9 @@ const props = defineProps<Props>()
 const coreContext = inject<NuGridCoreContext>('nugrid-core')!
 
 // Inject cell type registry (checks custom types, then falls back to global)
-const cellTypeRegistry = inject<ReturnType<typeof useNuGridCellTypeRegistry>>('nugrid-cell-type-registry')!
+const cellTypeRegistry = inject<ReturnType<typeof useNuGridCellTypeRegistry>>(
+  'nugrid-cell-type-registry',
+)!
 
 // Inject UI config for column defaults
 const uiConfig = inject<{ wrapText: ComputedRef<boolean> } | null>('nugrid-ui-config', null)
@@ -389,7 +391,11 @@ const cellTextValue = computed(() => {
   <div
     v-else-if="isEditing"
     ref="wrapperRef"
-    :class="useNoEditorOffset ? coreContext.ui.value.editorContainerBoolean?.() : coreContext.ui.value.editorContainer?.()"
+    :class="
+      useNoEditorOffset
+        ? coreContext.ui.value.editorContainerBoolean?.()
+        : coreContext.ui.value.editorContainer?.()
+    "
     :style="wrapperStyle"
     data-editing
   >

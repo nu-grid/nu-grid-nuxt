@@ -175,7 +175,7 @@ describe('useNuGridWheelSmoothing', () => {
     expect(steps.at(-1)).toBeGreaterThan(0)
   })
 
-  describe('moves to absolute positions (buoysoft/buoy-server#565)', () => {
+  describe('moves to absolute positions (Safari misclick fix)', () => {
     const smoothing = {
       threshold: 10,
       adaptive: false,

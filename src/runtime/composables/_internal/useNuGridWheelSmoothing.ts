@@ -51,8 +51,8 @@ export function useNuGridWheelSmoothing(
   // Moving to a position is absolute (scrollTo), never relative (scrollBy). A relative step is
   // applied to wherever the browser believes it is, and Safari's belief can lag what it has painted
   // once script scrolls are frequent: each scrollBy then compounds the gap, until clicks land a row
-  // or two away from the one under the pointer (buoysoft/buoy-server#565). Stating the position
-  // outright leaves nothing to compound. The steps themselves, and so the feel, are unchanged.
+  // or two away from the one under the pointer. Stating the position outright leaves nothing to
+  // compound. The steps themselves, and so the feel, are unchanged.
   //
   // Anything else may move the container mid-burst: focusing a cell scrolls it into view, the user
   // drags the scrollbar, the virtualizer corrects measured row heights. If the container is no longer

@@ -2,6 +2,7 @@
 import type theme from '#build/ui/checkbox'
 import type { ComponentConfig } from '@nuxt/ui'
 import type { AppConfig } from 'nuxt/schema'
+import type { ComponentPublicInstance } from 'vue'
 
 import { useAppConfig } from '#imports'
 import { tv } from '@nuxt/ui/runtime/utils/tv.js'
@@ -29,14 +30,14 @@ const emit = defineEmits<{
 }>()
 
 // Inject the pre-merged checkbox theme from NuGrid
-const uiConfig = inject<NuGridUIConfigContext>('nugrid-ui-config', null as any)
+const uiConfig = inject<NuGridUIConfigContext | null>('nugrid-ui-config', null)
 
 const modelValue = defineModel<boolean | 'indeterminate'>({ required: true })
 
 type Checkbox = ComponentConfig<typeof theme, AppConfig, 'checkbox'>
 
 const appConfig = useAppConfig() as Checkbox['AppConfig']
-const checkboxRef = ref<InstanceType<typeof CheckboxRoot> | null>(null)
+const checkboxRef = ref<ComponentPublicInstance | null>(null)
 const id = useId()
 const showFocusRing = ref(false)
 const isMouseInteraction = ref(false)

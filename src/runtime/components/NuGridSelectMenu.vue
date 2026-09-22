@@ -1062,7 +1062,7 @@ defineExpose({
               autofocus
               autocomplete="off"
               :size="selectSize"
-              v-bind="searchInputProps"
+              v-bind="searchInputProps as any"
               data-slot="input"
               :class="ui.input({ class: props.ui?.input })"
               @change.stop

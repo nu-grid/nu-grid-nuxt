@@ -91,7 +91,7 @@ export function useNuGridCellEditing<T extends TableData>(
   const editingValue = ref<any>(null)
   const isNavigating = ref(false)
   const shouldFocusEditor = ref(false)
-  const cellSelector = '[data-row-id="$ID"] [data-cell-index="$COL"]'
+  // Removed template string — use CSS.escape() inline to handle special characters in row IDs
   // Validation state
   const validationError = ref<string | null>(null)
   const validationPending = ref(false)
@@ -1983,7 +1983,7 @@ export function useNuGridCellEditing<T extends TableData>(
         .findIndex((c) => c.column.id === editingCell.value!.columnId)
       if (cellIndex === -1) return
 
-      const selector = cellSelector.replace('$COL', String(cellIndex)).replace('$ID', currentRow.id)
+      const selector = `[data-row-id="${CSS.escape(currentRow.id)}"] [data-cell-index="${cellIndex}"]`
 
       const editingCellElement = tableRef.value.querySelector(selector) as HTMLElement
 

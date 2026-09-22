@@ -26,7 +26,7 @@ const handleInput = (value: string) => {
 </script>
 
 <template>
-  <div class="flex items-center gap-1">
+  <div class="ml-[2px] flex items-center gap-1">
     <span class="text-gray-500">$</span>
     <UInput
       ref="inputRef"
