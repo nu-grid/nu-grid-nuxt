@@ -109,7 +109,7 @@ defineExpose({
           'inline-flex rounded-sm',
           interactive &&
             showFocusRing &&
-            'outline-primary-500 dark:outline-primary-400 outline-2 outline-offset-2',
+            'outline-primary outline-2 outline-offset-2',
           !interactive && 'cursor-default',
         ]"
       >

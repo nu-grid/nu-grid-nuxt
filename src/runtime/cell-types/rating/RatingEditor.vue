@@ -213,7 +213,7 @@ function handleKeydown(e: KeyboardEvent) {
 <template>
   <div
     ref="containerRef"
-    class="focus-visible:border-primary-500 flex items-center gap-1 rounded border-2 border-transparent p-1 outline-none select-none"
+    class="focus-visible:border-primary flex items-center gap-1 rounded border-2 border-transparent p-1 outline-none select-none"
     tabindex="0"
     @keydown="handleKeydown"
     @blur="handleContainerBlur"
@@ -233,8 +233,8 @@ function handleKeydown(e: KeyboardEvent) {
       type="button"
       class="rounded transition-all hover:scale-110 focus:outline-none"
       :class="[
-        star <= (hoveredStar ?? selectedStar ?? rating ?? 0) ? 'text-yellow-400' : 'text-gray-300',
-        focusedIndex === star ? 'ring-primary-500 ring-2 ring-offset-0' : '',
+        star <= (hoveredStar ?? selectedStar ?? rating ?? 0) ? 'text-primary' : 'text-muted',
+        focusedIndex === star ? 'ring-primary ring-2 ring-offset-0' : '',
       ]"
       tabindex="0"
       @mousedown.prevent
@@ -262,7 +262,7 @@ function handleKeydown(e: KeyboardEvent) {
       variant="ghost"
       class="ml-2"
       tabindex="0"
-      :class="focusedIndex === 0 ? 'ring-primary-500 ring-2 ring-offset-0' : ''"
+      :class="focusedIndex === 0 ? 'ring-primary ring-2 ring-offset-0' : ''"
       @mousedown.prevent
       @click="setRating(null, true)"
       @focus="focusedIndex = 0"

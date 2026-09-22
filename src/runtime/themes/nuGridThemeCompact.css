@@ -87,6 +87,6 @@
 }
 
 /* --- Currency / percentage symbols --- */
-.nugrid-compact [data-editing] .text-gray-500 {
+.nugrid-compact [data-editing] [data-affix] {
   font-size: 0.8125rem;
 }

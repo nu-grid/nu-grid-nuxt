@@ -880,6 +880,14 @@ provide('nugrid-performance', {
 // Search highlight color mapping
 const HIGHLIGHT_COLOR_CLASSES: Record<string, string> = {
   primary: '', // Use theme default
+  // Nuxt UI's semantic colours follow the app's theme (and any design system mapped onto it)
+  secondary: 'bg-secondary/20 dark:bg-secondary/30',
+  success: 'bg-success/20 dark:bg-success/30',
+  info: 'bg-info/20 dark:bg-info/30',
+  warning: 'bg-warning/20 dark:bg-warning/30',
+  error: 'bg-error/20 dark:bg-error/30',
+  neutral: 'bg-inverted/15',
+  // Literal colours, for callers who asked for that exact colour
   yellow: 'bg-yellow-200 dark:bg-yellow-500/30',
   green: 'bg-green-200 dark:bg-green-500/30',
   blue: 'bg-blue-200 dark:bg-blue-500/30',

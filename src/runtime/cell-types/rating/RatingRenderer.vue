@@ -33,7 +33,7 @@ function handleSet(value: number | null) {
 }
 
 function starClass(star: number) {
-  return star <= (displayValue.value ?? 0) ? 'text-yellow-400' : 'text-gray-300'
+  return star <= (displayValue.value ?? 0) ? 'text-primary' : 'text-muted'
 }
 </script>
 
@@ -43,7 +43,7 @@ function starClass(star: number) {
       v-for="star in 5"
       :key="star"
       type="button"
-      class="focus-visible:ring-primary-500 rounded transition-all hover:scale-105 focus-visible:ring-2 focus-visible:outline-none"
+      class="focus-visible:ring-primary rounded transition-all hover:scale-105 focus-visible:ring-2 focus-visible:outline-none"
       :class="starClass(star)"
       :disabled="!isInteractive"
       :tabindex="isInteractive ? 0 : -1"
@@ -76,9 +76,9 @@ function starClass(star: number) {
       aria-label="Clear rating"
       @click.stop="handleSet(null)"
     />
-    <span v-if="displayValue !== null" class="ml-1 text-sm text-gray-500"
+    <span v-if="displayValue !== null" class="ml-1 text-sm text-muted"
       >{{ displayValue }}/5</span
     >
-    <span v-else class="ml-1 text-sm text-gray-400">—</span>
+    <span v-else class="ml-1 text-sm text-dimmed">—</span>
   </div>
 </template>

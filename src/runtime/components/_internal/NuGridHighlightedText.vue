@@ -24,7 +24,7 @@ const uiConfig = inject<{ searchHighlight?: ComputedRef<string> } | null>('nugri
 const highlightClass = computed(
   () =>
     uiConfig?.searchHighlight?.value ??
-    'text-inherit bg-yellow-200 dark:bg-yellow-500/30 rounded-sm px-0.5 -mx-0.5',
+    'text-inherit bg-primary/20 dark:bg-primary/30 rounded-sm px-0.5 -mx-0.5',
 )
 
 // Use highlight composable - highlight matches from either the search panel or type-ahead buffer

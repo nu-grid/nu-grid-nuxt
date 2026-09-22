@@ -532,8 +532,8 @@ const filterComponent = computed(() => {
         size="xs"
         :square="true"
         :class="[
-          'hover:text-primary-500 flex h-6 w-6 items-center justify-center p-0 text-gray-400/60',
-          menuOpen && 'text-primary-500',
+          'hover:text-primary flex h-6 w-6 items-center justify-center p-0 text-dimmed',
+          menuOpen && 'text-primary',
         ]"
         @click.stop
       />

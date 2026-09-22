@@ -108,7 +108,7 @@ export function useNuGridScrollbars(
       // Scroll mode: dynamic thumb color based on scrolling state
       const base = 'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-rounded'
       if (isScrolling.value) {
-        return `${base} scrollbar-thumb-gray-400/50 dark:scrollbar-thumb-gray-500/50`
+        return `${base} scrollbar-thumb-(--ui-border-accented)`
       }
       return `${base} scrollbar-thumb-transparent`
     }

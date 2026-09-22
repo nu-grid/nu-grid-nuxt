@@ -892,7 +892,9 @@ export interface NuGridSearchOptions {
   /**
    * Highlight color for matching text in cells
    * - 'primary': Uses the app's primary color (default)
-   * - 'yellow': Classic yellow highlight
+   * - 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral': Nuxt UI's semantic colors,
+   *   which follow the app's theme and any design system mapped onto it
+   * - 'yellow': Classic yellow highlight (literal colors below are fixed, whatever the theme)
    * - 'green': Green highlight
    * - 'blue': Blue highlight
    * - 'orange': Orange highlight
@@ -900,7 +902,20 @@ export interface NuGridSearchOptions {
    * - Custom string: Any valid Tailwind classes for custom styling
    * @defaultValue 'primary'
    */
-  highlightColor?: 'primary' | 'yellow' | 'green' | 'blue' | 'orange' | 'red' | string
+  highlightColor?:
+    | 'primary'
+    | 'secondary'
+    | 'success'
+    | 'info'
+    | 'warning'
+    | 'error'
+    | 'neutral'
+    | 'yellow'
+    | 'green'
+    | 'blue'
+    | 'orange'
+    | 'red'
+    | string
 }
 
 /**
