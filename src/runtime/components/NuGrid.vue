@@ -759,13 +759,8 @@ function shouldHaveBorder(row: Row<T>, cellIndex: number, side: 'left' | 'right'
 
 // Scrollbar styling - centralized here to avoid duplication in child components
 const rootElement = computed(() => rootRef.value?.$el as HTMLElement | null)
-const scrollbarTheme = computed(() => {
-  const defaults = ui.value.scrollbar?.()
-  const override = props.ui?.scrollbar
-  // Nuxt UI 4.11 lets a slot be a replacer: a function handed the default classes.
-  if (typeof override === 'function') return override(defaults ?? '')
-  return override ?? defaults
-})
+// Nuxt UI semantics: plain classes merge with the theme's; a function replaces them (tv handles it).
+const scrollbarTheme = computed(() => ui.value.scrollbar?.({ class: props.ui?.scrollbar }) ?? '')
 const { scrollbarClass, scrollbarThemeClass, scrollbarAttr } = useNuGridScrollbars({
   props,
   containerRef: rootElement,
@@ -899,19 +894,21 @@ const BASE_HIGHLIGHT_CLASSES = 'text-inherit rounded-sm px-0.5 -mx-0.5'
 // Compute search highlight class based on props
 const searchHighlightClass = computed(() => {
   const searchOpts = props.search
+  const themed = (preset?: string) =>
+    ui.value.searchHighlight?.({ class: [preset, props.ui?.searchHighlight] }) ?? ''
   if (!searchOpts || searchOpts === true) {
     // Use theme default for primary color
-    return ui.value.searchHighlight?.() ?? ''
+    return themed()
   }
   const color = searchOpts.highlightColor ?? 'primary'
   if (color === 'primary') {
     // Use theme default
-    return ui.value.searchHighlight?.() ?? ''
+    return themed()
   }
-  // Check if it's a known preset
+  // Check if it's a known preset: its colour merges over the theme's, and the ui prop still applies
   const presetClass = HIGHLIGHT_COLOR_CLASSES[color]
   if (presetClass !== undefined) {
-    return `${presetClass} ${BASE_HIGHLIGHT_CLASSES}`
+    return themed(`${presetClass} ${BASE_HIGHLIGHT_CLASSES}`)
   }
   // Custom class - use as-is (user provides full styling)
   return color
@@ -930,8 +927,8 @@ provide('nugrid-ui-config', {
   autoSizeMode: autosizeFns.autoSizeMode,
   resizeMode,
   // Search theme slots
-  searchPanel: computed(() => ui.value.searchPanel?.() ?? ''),
-  searchInput: computed(() => ui.value.searchInput?.() ?? ''),
+  searchPanel: computed(() => ui.value.searchPanel?.({ class: props.ui?.searchPanel }) ?? ''),
+  searchInput: computed(() => ui.value.searchInput?.({ class: props.ui?.searchInput }) ?? ''),
   searchHighlight: searchHighlightClass,
 })
 
@@ -1020,7 +1017,7 @@ provide('nugrid-add-row', addRowContext)
 const animationContext = useNuGridAnimation(props, {
   rootRef: rootElement,
   rows,
-  animationClass: computed(() => ui.value.rowAnimation?.() ?? ''),
+  animationClass: computed(() => ui.value.rowAnimation?.({ class: props.ui?.rowAnimation }) ?? ''),
 })
 provide('nugrid-animation', animationContext)
 
