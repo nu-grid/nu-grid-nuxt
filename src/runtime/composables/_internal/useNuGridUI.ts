@@ -7,6 +7,7 @@ import { twMerge } from 'tailwind-merge'
 import { computed } from 'vue'
 
 import type { NuGridProps } from '../../types'
+import type { NuGridConfig } from '../../types/_internal'
 
 import { getTheme } from '../../themes'
 
@@ -14,9 +15,10 @@ import { getTheme } from '../../themes'
  * UI theme configuration for tables
  */
 export function useNuGridUI(props: NuGridProps) {
-  // Untyped, as Nuxt UI's own components now do: only `ui.table` is read, and it is spread into
-  // tv() as an extension, so its exact slot shape does not matter here.
-  const appConfig = useAppConfig()
+  // Typed as NuGrid's config so `ui` keeps NuGrid's own slots. Since Nuxt UI 4.11 its AppConfig
+  // type no longer overlaps NuGrid's extended table config, so the assertion goes through unknown;
+  // at runtime it is the same object.
+  const appConfig = useAppConfig() as unknown as NuGridConfig['AppConfig']
 
   const ui = computed(() => {
     // Get theme from registry (with fallback to default)

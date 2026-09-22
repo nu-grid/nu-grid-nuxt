@@ -25,7 +25,7 @@ const uiConfig = inject<NuGridUIConfigContext>('nugrid-ui-config', null as any)
 
 type Checkbox = ComponentConfig<typeof theme, AppConfig, 'checkbox'>
 
-const modelValue = defineModel<boolean | 'indeterminate'>({ default: undefined })
+const modelValue = defineModel<boolean | 'indeterminate'>()
 
 const appConfig = useAppConfig() as Checkbox['AppConfig']
 

@@ -318,6 +318,9 @@ const rootProps = useForwardPropsEmits(
   ),
   emits,
 )
+// reka-ui 2.10 types ComboboxRoot's highlight payload as its broad AcceptableValue, wider than this
+// component's model value. The runtime payload is identical, so only the forwarded bindings are widened.
+const comboboxRootProps = computed(() => rootProps.value as Record<string, unknown>)
 const portalProps = usePortal(toRef(() => props.portal))
 const contentProps = toRef(
   () =>
@@ -929,7 +932,7 @@ defineExpose({
     :id="id"
     ref="comboboxRootRef"
     v-slot="{ modelValue, open }"
-    v-bind="{ ...rootProps, ...$attrs, ...ariaAttrs }"
+    v-bind="{ ...comboboxRootProps, ...$attrs, ...ariaAttrs }"
     ignore-filter
     as-child
     :name="name"
