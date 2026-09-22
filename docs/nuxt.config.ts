@@ -22,6 +22,7 @@ export default defineNuxtConfig({
         })
       })
     },
+    '@nuxt/fonts',
   ],
 
   devtools: {
