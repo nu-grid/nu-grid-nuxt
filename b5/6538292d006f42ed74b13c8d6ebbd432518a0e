@@ -1,0 +1,24 @@
+playgrounds/nuxt/app/layouts/default.vue
+  s_064bebb658c613::t_62ba26fc8491e3 88-94
+src/runtime/composables/_internal/useNuGridWheelSmoothing.ts
+  s_064bebb658c613::t_c869624ea05f49 21-41,69-71,163-177,192-197,205-206,208-219,265-267
+  s_064bebb658c613::t_22f95cf788825a 72,207,252-255
+playgrounds/nuxt/app/pages/safari-scroll-lab.vue
+  s_064bebb658c613::t_1fa9204c214dfb 1-350
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "b56538292d006f42ed74b13c8d6ebbd432518a0e",
+  "prompts": {},
+  "sessions": {
+    "s_064bebb658c613": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "17c7b423-b4c4-41ee-8863-401936322617",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "John Campion Jr <john@brightshore.io>"
+    }
+  }
+}
