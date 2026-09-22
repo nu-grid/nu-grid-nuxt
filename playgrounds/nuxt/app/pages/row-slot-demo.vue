@@ -252,7 +252,7 @@ const exampleCode = `<NuGrid :data="data" :columns="columns">
         <strong>Slot Props:</strong>
         <ul class="mt-1 list-inside list-disc space-y-1">
           <li>
-            <code class="bg-default rounded px-1 py-0.5 text-xs">row</code> - TanStack Row object
+            <code class="bg-default rounded px-1 py-0.5 text-xs">row</code> - Row object
           </li>
           <li>
             <code class="bg-default rounded px-1 py-0.5 text-xs">cells</code> - Array of visible

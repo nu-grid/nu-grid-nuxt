@@ -79,6 +79,7 @@
   },
   "dependencies": {
     "@nuxt/kit": "catalog:",
+    "@tanstack/vue-virtual": "catalog:",
     "defu": "catalog:",
     "tailwind-scrollbar": "catalog:"
   },

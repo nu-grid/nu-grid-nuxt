@@ -78,8 +78,6 @@ export default defineNuxtConfig({
       include: [
         '@internationalized/date',
         '@nuxt/content/utils',
-        '@tanstack/table-core',
-        '@tanstack/vue-table',
         '@tanstack/vue-virtual',
         '@vue/devtools-core',
         '@vue/devtools-kit',

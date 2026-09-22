@@ -212,15 +212,15 @@ const roleIcons: Record<string, string> = {
               </div>
               <div>
                 <div class="bg-default/50 mb-1 rounded p-2 font-mono">row</div>
-                <p class="text-muted">TanStack Row object with original data</p>
+                <p class="text-muted">Row object with original data</p>
               </div>
               <div>
                 <div class="bg-default/50 mb-1 rounded p-2 font-mono">cell</div>
-                <p class="text-muted">TanStack Cell object</p>
+                <p class="text-muted">Cell object</p>
               </div>
               <div>
                 <div class="bg-default/50 mb-1 rounded p-2 font-mono">column</div>
-                <p class="text-muted">TanStack Column definition</p>
+                <p class="text-muted">Column definition</p>
               </div>
               <div>
                 <div class="bg-default/50 mb-1 rounded p-2 font-mono">isEditing</div>
