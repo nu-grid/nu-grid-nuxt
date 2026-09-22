@@ -1,0 +1,52 @@
+src/runtime/composables/_internal/useNuGridScrollbars.ts
+  s_064bebb658c613::t_e4f4fffad0e38a 111
+src/runtime/composables/_internal/useNuGridRowDragDrop.ts
+  s_064bebb658c613::t_6e971b0c606eea 439,441
+src/runtime/cell-types/percentage/PercentageFilter.vue
+  s_064bebb658c613::t_e4f4fffad0e38a 73,88
+src/runtime/components/NuGrid.vue
+  s_064bebb658c613::t_6e971b0c606eea 883-890
+src/runtime/components/_internal/NuGridHighlightedText.vue
+  s_064bebb658c613::t_6e971b0c606eea 27
+src/runtime/themes/nuGridThemeCompact.css
+  s_064bebb658c613::t_6e971b0c606eea 90
+src/runtime/components/_internal/NuGridColumnMenu.vue
+  s_064bebb658c613::t_e4f4fffad0e38a 535-536
+src/runtime/cell-types/percentage/PercentageEditor.vue
+  s_064bebb658c613::t_6e971b0c606eea 60
+src/runtime/cell-types/currency/CurrencyEditor.vue
+  s_064bebb658c613::t_6e971b0c606eea 30
+src/runtime/cell-types/rating/RatingRenderer.vue
+  s_064bebb658c613::t_e4f4fffad0e38a 46
+  s_064bebb658c613::t_6e971b0c606eea 36,79,82
+src/runtime/components/NuGridCellCheckbox.vue
+  s_064bebb658c613::t_e4f4fffad0e38a 112
+src/runtime/themes/nuGridTheme.ts
+  s_064bebb658c613::t_e4f4fffad0e38a 21,31-32,36,38-39,100,118,131,149-150,171,176,210,220,230,238,245,252,259,266,274,281,288,298,308,325
+src/runtime/cell-types/lookup/LookupEditor.vue
+  s_064bebb658c613::t_e4f4fffad0e38a 501
+src/runtime/themes/nuGridThemeCompact.ts
+  s_064bebb658c613::t_e4f4fffad0e38a 36-37,42,44-45,100,118,131,149-150,170,175,201,211,221,229,236,243,250,257,265,272,279
+src/runtime/types/option-groups.ts
+  s_064bebb658c613::t_793f1f72b8c6f5 895-897
+  s_064bebb658c613::t_6964da08506444 905-918
+src/runtime/cell-types/rating/RatingEditor.vue
+  s_064bebb658c613::t_6e971b0c606eea 236
+  s_064bebb658c613::t_e4f4fffad0e38a 216,237,265
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "614ea1181bb0946e4083e8d4a8fa6b1ce60bb782",
+  "prompts": {},
+  "sessions": {
+    "s_064bebb658c613": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "17c7b423-b4c4-41ee-8863-401936322617",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "John Campion Jr <john@brightshore.io>"
+    }
+  }
+}
