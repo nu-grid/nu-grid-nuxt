@@ -1,0 +1,32 @@
+src/runtime/components/NuGrid.vue
+  s_064bebb658c613::t_9b2b912c98c0af 762-763,897-898,901,906,908,911,930-931,1020
+test/ui-prop-semantics.test.ts
+  s_064bebb658c613::t_d22b36024b9d19 17-20
+  s_064bebb658c613::t_c975595f2f0414 1-16,21-47
+src/runtime/components/_internal/NuGridCellContent.vue
+  s_064bebb658c613::t_9b2b912c98c0af 387-393,402-407
+src/runtime/cell-types/text/TextEditor.vue
+  s_064bebb658c613::t_9b2b912c98c0af 49-55,59-61
+src/runtime/cell-types/text/TextareaEditor.vue
+  s_064bebb658c613::t_9b2b912c98c0af 107-113
+docs/content/5.theming/3.ui-customization.md
+  s_064bebb658c613::t_32b3a21ca5db83 29-54
+test/theme-layering.test.ts
+  s_064bebb658c613::t_eaff6cf4d9a797 84-104
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "b5a1662b7a3188f618350bd9fe242e2a528d3829",
+  "prompts": {},
+  "sessions": {
+    "s_064bebb658c613": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "17c7b423-b4c4-41ee-8863-401936322617",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "John Campion Jr <john@brightshore.io>"
+    }
+  }
+}
