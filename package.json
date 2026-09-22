@@ -104,6 +104,7 @@
     "oxlint": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
+    "vue": "catalog:",
     "vue-tsc": "catalog:"
   },
   "peerDependencies": {

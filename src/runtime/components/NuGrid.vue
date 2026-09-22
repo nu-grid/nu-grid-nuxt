@@ -749,7 +749,13 @@ function shouldHaveBorder(row: Row<T>, cellIndex: number, side: 'left' | 'right'
 
 // Scrollbar styling - centralized here to avoid duplication in child components
 const rootElement = computed(() => rootRef.value?.$el as HTMLElement | null)
-const scrollbarTheme = computed(() => props.ui?.scrollbar ?? ui.value.scrollbar?.())
+const scrollbarTheme = computed(() => {
+  const defaults = ui.value.scrollbar?.()
+  const override = props.ui?.scrollbar
+  // Nuxt UI 4.11 lets a slot be a replacer: a function handed the default classes.
+  if (typeof override === 'function') return override(defaults ?? '')
+  return override ?? defaults
+})
 const { scrollbarClass, scrollbarThemeClass, scrollbarAttr } = useNuGridScrollbars({
   props,
   containerRef: rootElement,

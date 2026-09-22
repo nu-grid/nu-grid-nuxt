@@ -7,7 +7,6 @@ import { twMerge } from 'tailwind-merge'
 import { computed } from 'vue'
 
 import type { NuGridProps } from '../../types'
-import type { NuGridConfig } from '../../types/_internal'
 
 import { getTheme } from '../../themes'
 
@@ -15,7 +14,9 @@ import { getTheme } from '../../themes'
  * UI theme configuration for tables
  */
 export function useNuGridUI(props: NuGridProps) {
-  const appConfig = useAppConfig() as NuGridConfig['AppConfig']
+  // Untyped, as Nuxt UI's own components now do: only `ui.table` is read, and it is spread into
+  // tv() as an extension, so its exact slot shape does not matter here.
+  const appConfig = useAppConfig()
 
   const ui = computed(() => {
     // Get theme from registry (with fallback to default)
