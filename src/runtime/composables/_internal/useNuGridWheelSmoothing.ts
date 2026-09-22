@@ -18,6 +18,27 @@ export interface UseNuGridWheelSmoothingOptions {
   adaptive?: boolean
 }
 
+// ---------------------------------------------------------------------------------------------
+// SAFARI SCROLL LAB (temporary, branch safari-scroll-lab). Not for merge.
+// The playground page /safari-scroll-lab sets globalThis.__nuGridScrollLab to switch how the
+// smoothed scroll is applied, so each strategy can be tried in real Safari. Absent = today's
+// behaviour exactly.
+//   relative  today: el.scrollBy(step) each frame, reading the browser's position as the base
+//   absolute  own the position: el.scrollTo(tracked + step), never re-reading mid-burst
+//   resync    relative, plus write scrollTop/scrollLeft back to themselves when a burst settles
+//   native    never register the wheel listener (smoothing off, as a WebKit opt-out would do)
+// keepRemainder: when the inactivity timer fires, finish the pending delta instead of dropping it.
+// ---------------------------------------------------------------------------------------------
+export type NuGridScrollLabStrategy = 'relative' | 'absolute' | 'resync' | 'native'
+export interface NuGridScrollLab {
+  strategy?: NuGridScrollLabStrategy
+  keepRemainder?: boolean
+  onEvent?: (kind: 'burst-start' | 'flush' | 'settle' | 'resync', detail: Record<string, number>) => void
+}
+function scrollLab(): NuGridScrollLab | undefined {
+  return (globalThis as { __nuGridScrollLab?: NuGridScrollLab }).__nuGridScrollLab
+}
+
 /**
  * Smooths bursty mouse-wheel events by batching them into rAF-driven scrolls and
  * optionally caps their speed so mouse wheels cannot spike scroll velocity.
@@ -45,6 +66,10 @@ export function useNuGridWheelSmoothing(
   let inactivityTimer: ReturnType<typeof setTimeout> | null = null
   let velocityEwma = 0
   let isTouchpad = false
+  // Lab: the position we believe we're at during a burst ('absolute' strategy). Null = no burst.
+  let trackedTop: number | null = null
+  let trackedLeft: number | null = null
+  let inBurst = false
 
   const clampByVelocity = (delta: number, allowed: number) => {
     if (allowed <= 0) return 0
@@ -135,7 +160,23 @@ export function useNuGridWheelSmoothing(
     const finalY = applyWithSmoothing(pendingY, applyY)
 
     if (finalX !== 0 || finalY !== 0) {
-      el.scrollBy({ left: finalX, top: finalY })
+      const lab = scrollLab()
+      if (lab?.strategy === 'absolute') {
+        if (trackedTop === null || trackedLeft === null) {
+          trackedTop = el.scrollTop
+          trackedLeft = el.scrollLeft
+        }
+        const maxTop = el.scrollHeight - el.clientHeight
+        const maxLeft = el.scrollWidth - el.clientWidth
+        trackedTop = Math.min(maxTop, Math.max(0, trackedTop + finalY))
+        trackedLeft = Math.min(maxLeft, Math.max(0, trackedLeft + finalX))
+        el.scrollTo({ left: trackedLeft, top: trackedTop, behavior: 'instant' })
+      } else {
+        el.scrollBy({ left: finalX, top: finalY })
+      }
+      // No scrollTop read here: reading it can make Safari reconcile its scroll position, which
+      // would quietly turn 'relative' into a partial 'resync' and hide the bug under test.
+      lab?.onEvent?.('flush', { dx: finalX, dy: finalY })
       pendingX -= finalX
       pendingY -= finalY
     }
@@ -150,12 +191,34 @@ export function useNuGridWheelSmoothing(
       clearTimeout(inactivityTimer)
     }
     inactivityTimer = setTimeout(() => {
+      const lab = scrollLab()
+      if (lab?.keepRemainder && (pendingX !== 0 || pendingY !== 0)) {
+        // Let the rAF loop drain what the user asked for; settle again once it has.
+        resetInactivityTimer()
+        return
+      }
       pendingX = 0
       pendingY = 0
       lastFlushTime = null
       if (rafId !== null) {
         cancelAnimationFrame(rafId)
         rafId = null
+      }
+      trackedTop = null
+      trackedLeft = null
+      inBurst = false
+      const el = containerRef.value
+      if (el) {
+        lab?.onEvent?.('settle', {})
+        if (lab?.strategy === 'resync') {
+          // Assigning a position to itself is a no-op in the DOM, but it is a scroll *request*,
+          // which is what we want Safari to reconcile against what it has painted.
+          const top = el.scrollTop
+          const left = el.scrollLeft
+          el.scrollTop = top
+          el.scrollLeft = left
+          lab.onEvent?.('resync', {})
+        }
       }
     }, stopOnInactivityMs)
   }
@@ -188,6 +251,11 @@ export function useNuGridWheelSmoothing(
 
     event.preventDefault()
 
+    if (!inBurst) {
+      inBurst = true
+      scrollLab()?.onEvent?.('burst-start', {})
+    }
+
     pendingY += event.deltaY
     pendingX += event.deltaX
     scheduleFlush()
@@ -196,6 +264,9 @@ export function useNuGridWheelSmoothing(
 
   const addListener = (el: HTMLElement | null) => {
     if (!el) return
+    // Lab: 'native' is decided at registration, as an engine opt-out would be, so Safari stays on its
+    // compositor scroll path. The lab page remounts the grid when the strategy changes.
+    if (scrollLab()?.strategy === 'native') return
     el.addEventListener('wheel', handleWheel, { passive: false })
   }
 

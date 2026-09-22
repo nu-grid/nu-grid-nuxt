@@ -85,6 +85,14 @@ const links = [
         },
       },
       {
+        label: 'Safari Scroll Lab',
+        icon: 'i-lucide-flask-conical',
+        to: '/safari-scroll-lab',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
         label: 'Spreadsheet Nav',
         icon: 'i-lucide-table-2',
         to: '/spreadsheet-nav-demo',
