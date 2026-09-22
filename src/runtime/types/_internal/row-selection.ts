@@ -2,11 +2,12 @@
  * @internal
  */
 
-import type { TableColumn, TableData } from '@nuxt/ui'
-import type { Row } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 
+import type { Row } from '../../engine'
+import type { NuGridColumn } from '../column'
 import type { NuGridRowSelectOptions } from '../row-selection'
+import type { TableData } from '../table-data'
 
 /**
  * Column definition overrides for the selection column
@@ -14,7 +15,7 @@ import type { NuGridRowSelectOptions } from '../row-selection'
  * @internal
  */
 export type NuGridSelectionColumnDef<T extends TableData = TableData> = Partial<
-  Omit<TableColumn<T>, 'id' | 'header' | 'cell' | 'accessorFn' | 'meta' | 'cellDataType'>
+  Omit<NuGridColumn<T>, 'id' | 'header' | 'cell' | 'accessorFn' | 'meta' | 'cellDataType'>
 >
 
 /**

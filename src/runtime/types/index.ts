@@ -1,6 +1,3 @@
-// Reference module augmentation to ensure TanStack Table types are extended
-/// <reference path="./tanstack-table.d.ts" />
-
 // ============================================================================
 // PUBLIC API TYPES
 // These types are part of the stable public API for nu-grid users.
@@ -36,10 +33,12 @@ export type {
 // Column
 export type {
   NuGridAggregateType,
+  NuGridCellContext,
   NuGridColumn,
   NuGridColumnMenuItem,
   NuGridColumnMenuItemsCallback,
   NuGridColumnSummary,
+  NuGridHeaderContext,
   NuGridSummaryFormatContext,
 } from './column'
 
@@ -95,6 +94,7 @@ export type {
   NuGridSearchOptions,
   NuGridSelectionOptions,
   NuGridSortOptions,
+  NuGridSpreadsheetNavOptions,
   NuGridStateOptions,
   NuGridStatePart,
   NuGridStorageType,
@@ -112,10 +112,23 @@ export type { NuGridRow } from './row'
 export type { NuGridRowSelectOptions } from './row-selection'
 
 // Slots
-export type { NuGridCellSlotProps } from './slots'
+export type { NuGridCellSlotProps, NuGridSlots } from './slots'
 
 // Sort Icon
 export type { NuGridSortIcon } from './sort-icon'
+
+// State Types (NuGrid-owned, re-exported for convenience)
+// These are used in NuGridStateSnapshot and various v-models
+export type {
+  ColumnFiltersState,
+  ColumnPinningState,
+  PaginationState,
+  RowSelectionState,
+  SortingState,
+} from './state-types'
+
+// Table Data (NuGrid-owned generic constraint)
+export type { TableData } from './table-data'
 
 // Theme
 export type { NuGridTheme, NuGridThemeDefinition } from './theme'
@@ -127,13 +140,3 @@ export type {
   NuGridValidateOn,
   NuGridValidationOptions,
 } from './validation'
-
-// TanStack Table State Types (re-exported for convenience)
-// These are used in NuGridStateSnapshot and various v-models
-export type {
-  ColumnFiltersState,
-  ColumnPinningState,
-  PaginationState,
-  RowSelectionState,
-  SortingState,
-} from '@tanstack/vue-table'

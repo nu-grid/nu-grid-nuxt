@@ -2,9 +2,8 @@
  * @internal
  */
 
-import type { TableData } from '@nuxt/ui'
-
 import type { NuGridProps } from '../props'
+import type { TableData } from '../table-data'
 
 /**
  * Available NuGrid preset configurations

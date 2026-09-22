@@ -40,17 +40,8 @@ describe('column Pinning Feature', () => {
 
   it('should define column pinning controls interface', () => {
     // Test the expected interface of pinning controls
-    const mockTableApi = {
-      getState: () => ({
-        columnPinning: { left: ['id'], right: ['actions'] },
-      }),
-      setColumnPinning: (_pinning: any) => {
-        // Mock implementation
-      },
-    }
-
-    const tableApiRef = ref(mockTableApi as any)
-    const controls = useNuGridColumnPinning(tableApiRef)
+    const columnPinningState = ref({ left: ['id'], right: ['actions'] })
+    const controls = useNuGridColumnPinning(columnPinningState)
 
     expect(typeof controls.pinColumn).toBe('function')
     expect(typeof controls.unpinColumn).toBe('function')
@@ -59,100 +50,57 @@ describe('column Pinning Feature', () => {
   })
 
   it('should pin column to left', () => {
-    let currentPinning = { left: [] as string[], right: [] as string[] }
-
-    const mockTableApi = {
-      getState: () => ({ columnPinning: currentPinning }),
-      setColumnPinning: (pinning: any) => {
-        currentPinning = pinning
-      },
-    }
-
-    const tableApiRef = ref(mockTableApi as any)
-    const controls = useNuGridColumnPinning(tableApiRef)
+    const columnPinningState = ref({ left: [] as string[], right: [] as string[] })
+    const controls = useNuGridColumnPinning(columnPinningState)
 
     controls.pinColumn('name', 'left')
 
-    expect(currentPinning.left).toContain('name')
-    expect(currentPinning.right).not.toContain('name')
+    expect(columnPinningState.value.left).toContain('name')
+    expect(columnPinningState.value.right).not.toContain('name')
   })
 
   it('should pin column to right', () => {
-    let currentPinning = { left: [] as string[], right: [] as string[] }
-
-    const mockTableApi = {
-      getState: () => ({ columnPinning: currentPinning }),
-      setColumnPinning: (pinning: any) => {
-        currentPinning = pinning
-      },
-    }
-
-    const tableApiRef = ref(mockTableApi as any)
-    const controls = useNuGridColumnPinning(tableApiRef)
+    const columnPinningState = ref({ left: [] as string[], right: [] as string[] })
+    const controls = useNuGridColumnPinning(columnPinningState)
 
     controls.pinColumn('actions', 'right')
 
-    expect(currentPinning.right).toContain('actions')
-    expect(currentPinning.left).not.toContain('actions')
+    expect(columnPinningState.value.right).toContain('actions')
+    expect(columnPinningState.value.left).not.toContain('actions')
   })
 
   it('should unpin column', () => {
-    let currentPinning = {
+    const columnPinningState = ref({
       left: ['select', 'name'] as string[],
       right: ['actions'] as string[],
-    }
-
-    const mockTableApi = {
-      getState: () => ({ columnPinning: currentPinning }),
-      setColumnPinning: (pinning: any) => {
-        currentPinning = pinning
-      },
-    }
-
-    const tableApiRef = ref(mockTableApi as any)
-    const controls = useNuGridColumnPinning(tableApiRef)
+    })
+    const controls = useNuGridColumnPinning(columnPinningState)
 
     controls.unpinColumn('name')
 
-    expect(currentPinning.left).not.toContain('name')
-    expect(currentPinning.left).toContain('select')
+    expect(columnPinningState.value.left).not.toContain('name')
+    expect(columnPinningState.value.left).toContain('select')
   })
 
   it('should move column from left to right when re-pinned', () => {
-    let currentPinning = {
+    const columnPinningState = ref({
       left: ['name'] as string[],
       right: [] as string[],
-    }
-
-    const mockTableApi = {
-      getState: () => ({ columnPinning: currentPinning }),
-      setColumnPinning: (pinning: any) => {
-        currentPinning = pinning
-      },
-    }
-
-    const tableApiRef = ref(mockTableApi as any)
-    const controls = useNuGridColumnPinning(tableApiRef)
+    })
+    const controls = useNuGridColumnPinning(columnPinningState)
 
     controls.pinColumn('name', 'right')
 
-    expect(currentPinning.left).not.toContain('name')
-    expect(currentPinning.right).toContain('name')
+    expect(columnPinningState.value.left).not.toContain('name')
+    expect(columnPinningState.value.right).toContain('name')
   })
 
   it('should detect pinned column side correctly', () => {
-    const currentPinning = {
+    const columnPinningState = ref({
       left: ['select', 'id'],
       right: ['actions'],
-    }
-
-    const mockTableApi = {
-      getState: () => ({ columnPinning: currentPinning }),
-      setColumnPinning: () => {},
-    }
-
-    const tableApiRef = ref(mockTableApi as any)
-    const controls = useNuGridColumnPinning(tableApiRef)
+    })
+    const controls = useNuGridColumnPinning(columnPinningState)
 
     expect(controls.isPinned('select')).toBe('left')
     expect(controls.isPinned('id')).toBe('left')
@@ -161,18 +109,11 @@ describe('column Pinning Feature', () => {
   })
 
   it('should get all pinned columns', () => {
-    const currentPinning = {
+    const columnPinningState = ref({
       left: ['select', 'id'],
       right: ['actions', 'menu'],
-    }
-
-    const mockTableApi = {
-      getState: () => ({ columnPinning: currentPinning }),
-      setColumnPinning: () => {},
-    }
-
-    const tableApiRef = ref(mockTableApi as any)
-    const controls = useNuGridColumnPinning(tableApiRef)
+    })
+    const controls = useNuGridColumnPinning(columnPinningState)
 
     const pinnedColumns = controls.getPinnedColumns()
 
@@ -181,15 +122,8 @@ describe('column Pinning Feature', () => {
   })
 
   it('should handle undefined pinning arrays gracefully', () => {
-    const currentPinning = {}
-
-    const mockTableApi = {
-      getState: () => ({ columnPinning: currentPinning }),
-      setColumnPinning: () => {},
-    }
-
-    const tableApiRef = ref(mockTableApi as any)
-    const controls = useNuGridColumnPinning(tableApiRef)
+    const columnPinningState = ref({} as any)
+    const controls = useNuGridColumnPinning(columnPinningState)
 
     const pinnedColumns = controls.getPinnedColumns()
 

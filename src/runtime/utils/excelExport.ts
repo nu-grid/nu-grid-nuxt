@@ -1,9 +1,10 @@
-import type { Column, Table } from '@tanstack/vue-table'
 import type { Cell, Row } from 'write-excel-file'
 
 import writeXlsxFile from 'write-excel-file'
 
+import type { Column, Table } from '../engine'
 import type { NuGridColumn } from '../types'
+import type { TableData } from '../types/table-data'
 
 export interface ExcelExportOptions {
   /**
@@ -165,24 +166,22 @@ function calculateColumnWidth(header: string, values: unknown[], cellDataType?: 
 }
 
 /**
- * Gets column info from a TanStack column
+ * Gets column info from an engine column
  */
-function getColumnInfo<T>(
-  tableColumn: Column<T, unknown>,
+function getColumnInfo<T extends TableData>(
+  tableColumn: Column<T>,
   columnDefinitions: NuGridColumn<T>[],
 ): ColumnInfo | null {
   const colId = tableColumn.id
   const colDef = tableColumn.columnDef
-  const cellDataType = (colDef as any).cellDataType
+  const cellDataType = colDef.cellDataType
 
   // Skip special columns
   if (cellDataType === 'selection' || cellDataType === 'action-menu') {
     return null
   }
 
-  const originalCol = columnDefinitions.find(
-    (c) => (c as any).accessorKey === colId || (c as any).id === colId,
-  )
+  const originalCol = columnDefinitions.find((c) => c.accessorKey === colId || c.id === colId)
 
   let header = colId
   if (typeof colDef.header === 'string') {
@@ -194,7 +193,7 @@ function getColumnInfo<T>(
   return {
     id: colId,
     header,
-    accessorKey: (colDef as any).accessorKey || colId,
+    accessorKey: colDef.accessorKey || colId,
     cellDataType: originalCol?.cellDataType || cellDataType,
   }
 }
@@ -203,7 +202,7 @@ function getColumnInfo<T>(
  * Exports grid data to an Excel file
  * Respects current grid state: column visibility, column order, sorting, and filtering
  */
-export async function exportToExcel<T>(
+export async function exportToExcel<T extends TableData>(
   tableApi: Table<T>,
   columns: NuGridColumn<T>[],
   options: ExcelExportOptions = {},
@@ -375,7 +374,7 @@ function processGroupedRows(
  * Exports grouped grid data to an Excel file
  * Preserves group hierarchy with group header rows
  */
-export async function exportGroupedToExcel<T>(
+export async function exportGroupedToExcel<T extends TableData>(
   tableApi: Table<T>,
   columns: NuGridColumn<T>[],
   options: GroupedExcelExportOptions = {},
@@ -443,64 +442,6 @@ export async function exportGroupedToExcel<T>(
 
   // Write the file
   await writeXlsxFile(data, {
-    columns: columnWidthsArray,
-    fileName: `${filename}.xlsx`,
-    sheet: sheetName,
-  })
-}
-
-/**
- * Exports data array directly to Excel (without table API)
- */
-export async function exportDataToExcel<T extends Record<string, unknown>>(
-  data: T[],
-  columns: Array<{
-    key: string
-    header: string
-    cellDataType?: string
-  }>,
-  options: ExcelExportOptions = {},
-): Promise<void> {
-  const {
-    filename = 'export',
-    sheetName = 'Sheet1',
-    includeHeaders = true,
-    columnWidths = {},
-  } = options
-
-  const excelData: Row[] = []
-
-  // Add headers if requested
-  if (includeHeaders) {
-    const headerRow: Row = columns.map((col) => ({
-      value: col.header,
-      type: String,
-      fontWeight: 'bold' as const,
-    }))
-    excelData.push(headerRow)
-  }
-
-  // Add data rows
-  for (const row of data) {
-    const rowData: Row = columns.map((col) => {
-      const rawValue = row[col.key]
-      return formatCellForExcel(rawValue, col.cellDataType)
-    })
-    excelData.push(rowData)
-  }
-
-  // Calculate column widths
-  const columnWidthsArray = columns.map((col) => {
-    if (columnWidths[col.key]) {
-      return { width: columnWidths[col.key] }
-    }
-    const columnValues = data.map((row) => row[col.key])
-    const width = calculateColumnWidth(col.header, columnValues, col.cellDataType)
-    return { width }
-  })
-
-  // Write the file
-  await writeXlsxFile(excelData, {
     columns: columnWidthsArray,
     fileName: `${filename}.xlsx`,
     sheet: sheetName,

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { Cell, Row } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
+import type { Cell, Row } from '../../engine'
 import type { NuGridActionMenuColumnMeta } from '../../types/_internal'
 
 defineOptions({ inheritAttrs: false })
@@ -12,7 +12,7 @@ const props = defineProps<Props>()
 
 interface Props {
   row: Row<any>
-  cell?: Cell<any, unknown>
+  cell?: Cell<any>
 }
 
 // Get column meta for action menu configuration

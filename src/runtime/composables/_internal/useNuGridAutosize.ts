@@ -1,11 +1,11 @@
-import type { TableData } from '@nuxt/ui'
-import type { Table } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 
 import { useDebounceFn } from '@vueuse/core'
 import { nextTick, ref, watch } from 'vue'
 
+import type { ColumnSizingState, Table } from '../../engine'
 import type { NuGridProps } from '../../types'
+import type { TableData } from '../../types/table-data'
 
 import { usePropWithDefault } from '../../config/_internal'
 
@@ -19,6 +19,7 @@ export function useNuGridAutosize<T extends TableData>(
   props: NuGridProps<T>,
   tableApi: Table<T>,
   tableRef: Ref<HTMLElement | null>,
+  columnSizingState: Ref<ColumnSizingState>,
 ) {
   /**
    * Measure the actual content width of a single column using a pre-created measurement element
@@ -147,10 +148,7 @@ export function useNuGridAutosize<T extends TableData>(
       newSizing[column.id] = Math.max(minSize, Math.min(equalWidth, maxSize))
     })
 
-    tableApi.setColumnSizing((old) => ({
-      ...old,
-      ...newSizing,
-    }))
+    columnSizingState.value = { ...columnSizingState.value, ...newSizing }
   }
 
   function autoSizeColumns(mode?: 'content' | 'fill') {
@@ -221,10 +219,7 @@ export function useNuGridAutosize<T extends TableData>(
 
     // Apply the new sizing
     if (Object.keys(newSizing).length > 0) {
-      tableApi.setColumnSizing((old) => ({
-        ...old,
-        ...newSizing,
-      }))
+      columnSizingState.value = { ...columnSizingState.value, ...newSizing }
     }
   }
 
@@ -245,10 +240,7 @@ export function useNuGridAutosize<T extends TableData>(
     const measuredWidth = measureColumnContentWidth(columnId, columnIndex)
     const constrainedWidth = Math.max(minSize, Math.min(measuredWidth, maxSize))
 
-    tableApi.setColumnSizing((old) => ({
-      ...old,
-      [columnId]: constrainedWidth,
-    }))
+    columnSizingState.value = { ...columnSizingState.value, [columnId]: constrainedWidth }
   }
 
   // Debounced autosize to prevent excessive DOM measurements during rapid data updates
@@ -265,14 +257,14 @@ export function useNuGridAutosize<T extends TableData>(
 
   /**
    * Measure actual rendered widths of flex columns from the DOM
-   * and sync them to TanStack's columnSizing (without marking as manually resized)
+   * and sync them to columnSizing (without marking as manually resized)
    * This allows resize to work correctly from the first click
    */
   function syncFlexColumnWidths() {
     if (!tableRef.value) return
 
     const visibleColumns = tableApi.getVisibleLeafColumns()
-    const columnSizing = tableApi.getState().columnSizing
+    const columnSizing = columnSizingState.value
     const newSizing: Record<string, number> = {}
 
     // Find all header cells and measure their widths
@@ -299,13 +291,10 @@ export function useNuGridAutosize<T extends TableData>(
       }
     }
 
-    // Set the measured widths in TanStack (this doesn't trigger visual change
+    // Set the measured widths in columnSizing (this doesn't trigger visual change
     // because CSS styling checks manuallyResizedColumns, not columnSizing)
     if (Object.keys(newSizing).length > 0) {
-      tableApi.setColumnSizing((old) => ({
-        ...old,
-        ...newSizing,
-      }))
+      columnSizingState.value = { ...columnSizingState.value, ...newSizing }
     }
   }
 
@@ -332,15 +321,13 @@ export function useNuGridAutosize<T extends TableData>(
               .filter((col) => (col.columnDef as { grow?: boolean }).grow !== false)
               .map((col) => col.id)
             if (toRemove.length > 0) {
-              tableApi.setColumnSizing((old) => {
-                const next = { ...old }
-                for (const id of toRemove) delete next[id]
-                return next
-              })
+              const next = { ...columnSizingState.value }
+              for (const id of toRemove) delete next[id]
+              columnSizingState.value = next
             }
           }
 
-          // After first render, sync flex column widths to TanStack
+          // After first render, sync flex column widths to columnSizing
           // so resize works correctly from the first click
           // Check both props.data AND tableApi rows (which includes empty group placeholders)
           const hasRows =

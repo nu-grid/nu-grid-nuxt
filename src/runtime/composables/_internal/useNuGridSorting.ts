@@ -1,8 +1,9 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, RowPinningState, SortingState, Table } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 
 import { computed, shallowRef } from 'vue'
+
+import type { Row, RowPinningState, SortingState, Table } from '../../engine'
+import type { TableData } from '../../types/table-data'
 
 import { resolveComparator } from '../../utils/sortingFns'
 
@@ -54,16 +55,10 @@ export function useNuGridSorting<T extends TableData>(
       if (column.getCanSort() === false) continue
 
       const def = column.columnDef
-      const sortAccessor = def.sortAccessor as
-        | string
-        | ((row: T) => unknown)
-        | undefined
+      const sortAccessor = def.sortAccessor as string | ((row: T) => unknown) | undefined
 
       // Resolve comparator from explicit sortingFn or inferred cell type
-      const sortingFn = def.sortingFn as
-        | string
-        | ((a: unknown, b: unknown) => number)
-        | undefined
+      const sortingFn = def.sortingFn as string | ((a: unknown, b: unknown) => number) | undefined
       const cellDataType = def.cellDataType as string | undefined
       const comparator = resolveComparator(sortingFn, cellDataType || undefined)
 
@@ -282,11 +277,7 @@ function binarySearchInsert<T extends TableData>(
  * Compare two rows using the full sort config (multi-column, undefined handling,
  * desc, invertSorting). Used by binary search — only O(log n) calls per sort.
  */
-function compareRows<T extends TableData>(
-  a: Row<T>,
-  b: Row<T>,
-  config: ColumnSortEntry[],
-): number {
+function compareRows<T extends TableData>(a: Row<T>, b: Row<T>, config: ColumnSortEntry[]): number {
   for (const entry of config) {
     const aValue = entry.getValue(a)
     const bValue = entry.getValue(b)
@@ -333,10 +324,7 @@ function compareRows<T extends TableData>(
 // 3. Multi-column Schwartzian transform — full decoration for k ≥ 2
 // ---------------------------------------------------------------------------
 
-function sortRows<T extends TableData>(
-  rows: Row<T>[],
-  config: ColumnSortEntry[],
-): Row<T>[] {
+function sortRows<T extends TableData>(rows: Row<T>[], config: ColumnSortEntry[]): Row<T>[] {
   if (rows.length <= 1) {
     return handleSubRows(rows, config)
   }
@@ -359,10 +347,7 @@ function sortRows<T extends TableData>(
  * Short-circuits on the first out-of-order pair, so unsorted arrays add
  * negligible overhead.
  */
-function isAlreadySorted<T extends TableData>(
-  rows: Row<T>[],
-  config: ColumnSortEntry[],
-): boolean {
+function isAlreadySorted<T extends TableData>(rows: Row<T>[], config: ColumnSortEntry[]): boolean {
   for (let i = 1; i < rows.length; i++) {
     if (compareRows(rows[i - 1]!, rows[i]!, config) > 0) {
       return false
@@ -372,10 +357,7 @@ function isAlreadySorted<T extends TableData>(
 }
 
 /** Recursively sort sub-rows without re-sorting the top level. */
-function handleSubRows<T extends TableData>(
-  rows: Row<T>[],
-  config: ColumnSortEntry[],
-): Row<T>[] {
+function handleSubRows<T extends TableData>(rows: Row<T>[], config: ColumnSortEntry[]): Row<T>[] {
   for (const row of rows) {
     if (row.subRows?.length) {
       row.subRows = sortRows(row.subRows, config)
@@ -401,7 +383,7 @@ function sortRowsSingleColumn<T extends TableData>(
   const { comparator, desc, invertSorting, sortUndefined } = entry
 
   // Decorate: extract single value per row (no keys[] array)
-  const decorated: Array<{ row: Row<T>; value: unknown }> = new Array(n)
+  const decorated: Array<{ row: Row<T>; value: unknown }> = Array.from({ length: n })
   for (let i = 0; i < n; i++) {
     const row = rows[i]!
     decorated[i] = { row, value: entry.getValue(row) }
@@ -438,7 +420,7 @@ function sortRowsSingleColumn<T extends TableData>(
   })
 
   // Undecorate + recursively sort sub-rows
-  const result = new Array<Row<T>>(n)
+  const result = Array.from<Row<T>>({ length: n })
   for (let i = 0; i < n; i++) {
     const row = decorated[i]!.row
     if (row.subRows?.length) {
@@ -471,10 +453,10 @@ function sortRowsMultiColumn<T extends TableData>(
   const k = config.length
 
   // Decorate: extract sort keys once per row (O(n × k))
-  const decorated: DecoratedRow<T>[] = new Array(rows.length)
+  const decorated: DecoratedRow<T>[] = Array.from({ length: rows.length })
   for (let r = 0; r < rows.length; r++) {
     const row = rows[r]!
-    const keys = new Array(k)
+    const keys = Array.from({ length: k })
     for (let c = 0; c < k; c++) {
       keys[c] = config[c]!.getValue(row)
     }
@@ -526,7 +508,7 @@ function sortRowsMultiColumn<T extends TableData>(
   })
 
   // Undecorate + recursively sort sub-rows
-  const result = new Array<Row<T>>(decorated.length)
+  const result = Array.from<Row<T>>({ length: decorated.length })
   for (let i = 0; i < decorated.length; i++) {
     const row = decorated[i]!.row
     if (row.subRows?.length) {

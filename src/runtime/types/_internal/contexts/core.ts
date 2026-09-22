@@ -1,10 +1,18 @@
-import type { TableData } from '@nuxt/ui'
-import type { Cell, Row, Table } from '@tanstack/vue-table'
 import type { Primitive } from 'reka-ui'
 import type { ComputedRef, Ref } from 'vue'
 
 import type { NuGridUISlots } from '../../../composables/_internal/useNuGridUI'
+import type {
+  Cell,
+  ColumnPinningState,
+  ExpandedState,
+  PaginationState,
+  Row,
+  RowSelectionState,
+  Table,
+} from '../../../engine'
 import type { NuGridConfig } from '../../config'
+import type { TableData } from '../../table-data'
 
 /**
  * Core context - essential table API and UI
@@ -19,5 +27,10 @@ export interface NuGridCoreContext<T extends TableData = TableData> {
   hasFooter: ComputedRef<boolean>
   rows: ComputedRef<Row<T>[]>
   /** Custom row slot for replacing default cell rendering */
-  rowSlot?: (props: { row: Row<T>; cells: Cell<T, unknown>[] }) => any
+  rowSlot?: (props: { row: Row<T>; cells: Cell<T>[] }) => any
+  /** NuGrid-owned state refs — direct updates bypass the engine */
+  columnPinningState: Ref<ColumnPinningState>
+  expandedState: Ref<ExpandedState>
+  rowSelectionState: Ref<RowSelectionState>
+  paginationState: Ref<PaginationState>
 }

@@ -12,7 +12,7 @@ const emit = defineEmits<{
 }>()
 
 interface Props {
-  value: boolean
+  value?: boolean | null
   editable?: boolean
 }
 
@@ -25,7 +25,7 @@ const handleUpdate = (newValue: boolean | 'indeterminate') => {
 
 <template>
   <NuGridCellCheckbox
-    :model-value="value"
+    :model-value="value ?? false"
     :disabled="!editable"
     :interactive="editable"
     @update:model-value="handleUpdate"

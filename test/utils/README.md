@@ -121,7 +121,7 @@ expect(dispatchSpy).not.toHaveBeenCalled()
 
 #### `createMockRow<T>(data, options?)`
 
-Creates a mock TanStack Table row for testing.
+Creates a mock NuGrid engine row for testing.
 
 ```typescript
 const row = createMockRow({ id: 1, name: 'John' }, { id: 'row-1', index: 0 })
@@ -129,7 +129,7 @@ const row = createMockRow({ id: 1, name: 'John' }, { id: 'row-1', index: 0 })
 
 #### `createMockCell<T>(row, columnId, value?)`
 
-Creates a mock TanStack Table cell for testing.
+Creates a mock NuGrid engine cell for testing.
 
 ```typescript
 const cell = createMockCell(row, 'name', 'John')

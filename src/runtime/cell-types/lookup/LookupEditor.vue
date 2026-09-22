@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import type { ComputedRef } from 'vue'
 
-import { computed, inject, isRef, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import {
+  computed,
+  inject,
+  isRef,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+  watchEffect,
+} from 'vue'
 
 import type { NuGridCellEditorEmits, NuGridCellEditorProps, NuGridLookupItem } from '../../types'
 import type { NuGridKeyboardContext } from '../../types/_internal'
@@ -9,6 +19,9 @@ import type { NuGridKeyboardContext } from '../../types/_internal'
 import NuGridSelectMenu from '../../components/NuGridSelectMenu.vue'
 import { nuGridDefaults } from '../../config/_internal'
 import { ROUTER_PRIORITIES } from '../../types/_internal'
+
+// Inject spreadsheet nav flag — when enabled, ArrowLeft/Right navigate between cells when menu is closed
+const spreadsheetNavEnabled = inject<ComputedRef<boolean> | null>('nugrid-spreadsheet-nav', null)
 
 defineOptions({ inheritAttrs: false })
 
@@ -89,6 +102,8 @@ const clearable = computed(
 const autoOpen = computed(
   () => lookupConfig.value?.autoOpen ?? nuGridDefaults.columnDefaults.lookup.autoOpen,
 )
+const createItem = computed(() => lookupConfig.value?.createItem ?? false)
+const commitOnSelect = computed(() => lookupConfig.value?.commitOnSelect ?? false)
 
 const valueJustChanged = ref(false) // Prevents exit when value is being changed via selection
 const navigatingViaTab = ref(false) // Indicates Tab navigation in progress
@@ -96,7 +111,41 @@ const escapingMenu = ref(false) // Prevents exit when first Escape closes menu
 const lastKeyPressed = ref<string | null>(null) // Tracks last key pressed to detect Enter-based exits
 const lastKeyShift = ref(false) // Tracks Shift state of last key press
 
+/** Dispatch Enter to the open listbox to commit the currently highlighted item */
+function commitHighlightedItem() {
+  const enterEvent = new KeyboardEvent('keydown', {
+    key: 'Enter',
+    code: 'Enter',
+    keyCode: 13,
+    which: 13,
+    bubbles: true,
+    cancelable: true,
+  })
+  const trigger = containerRef.value?.querySelector(
+    'button[aria-haspopup="listbox"]',
+  ) as HTMLElement
+  if (trigger) {
+    const listboxId = trigger.getAttribute('aria-controls')
+    if (listboxId) {
+      const listbox = document.getElementById(listboxId)
+      if (listbox) {
+        listbox.dispatchEvent(enterEvent)
+      }
+    }
+  }
+}
+
 function handleValueChange(value: any) {
+  if (commitOnSelect.value) {
+    // Immediately commit and exit edit mode
+    emit('update:modelValue', value)
+    // If navigating via Tab or arrow keys, let the navigation handler emit stopEditing with direction
+    if (!navigatingViaTab.value) {
+      nextTick(() => emit('stopEditing'))
+    }
+    return
+  }
+
   // Set flag BEFORE emitting to ensure handleMenuClose sees it
   valueJustChanged.value = true
   emit('update:modelValue', value)
@@ -106,6 +155,11 @@ function handleValueChange(value: any) {
   setTimeout(() => {
     valueJustChanged.value = false
   }, 100)
+}
+
+function handleCreate(value: string) {
+  // Treat create as a value selection with the typed text
+  handleValueChange(value)
 }
 
 function handleMenuClose(open: boolean) {
@@ -118,13 +172,13 @@ function handleMenuClose(open: boolean) {
       if (getEnterBehavior() === 'moveDown') {
         emit('update:isNavigating', true)
 
-        emit('stop-editing', shiftHeld ? 'up' : 'down')
+        emit('stopEditing', shiftHeld ? 'up' : 'down')
       } else if (getEnterBehavior() === 'moveCell') {
         emit('update:isNavigating', true)
 
-        emit('stop-editing', shiftHeld ? 'previous' : 'next')
+        emit('stopEditing', shiftHeld ? 'previous' : 'next')
       } else {
-        emit('stop-editing')
+        emit('stopEditing')
       }
     }, 100)
     return
@@ -132,7 +186,7 @@ function handleMenuClose(open: boolean) {
 
   if (!open && !valueJustChanged.value && !navigatingViaTab.value && !escapingMenu.value) {
     setTimeout(() => {
-      emit('stop-editing')
+      emit('stopEditing')
     }, 100)
   }
 
@@ -168,47 +222,20 @@ function handleKeydown(ctx: NuGridKeyboardContext<any>) {
 
   if (e.key === 'Tab') {
     if (isOpen.value) {
-      // Menu is open - simulate Enter to select the highlighted item, then navigate
+      // Menu is open - select the highlighted item, then navigate
       navigatingViaTab.value = true
       const direction = e.shiftKey ? 'previous' : 'next'
-
-      // Dispatch Enter key to select highlighted item
-      const enterEvent = new KeyboardEvent('keydown', {
-        key: 'Enter',
-        code: 'Enter',
-        keyCode: 13,
-        which: 13,
-        bubbles: true,
-        cancelable: true,
-      })
-
-      // Find the specific listbox for this editor instance
-      // First, find the trigger within our container
-      const trigger = containerRef.value?.querySelector(
-        'button[aria-haspopup="listbox"]',
-      ) as HTMLElement
-      if (trigger) {
-        // Use aria-controls to find the specific listbox
-        const listboxId = trigger.getAttribute('aria-controls')
-        if (listboxId) {
-          const listbox = document.getElementById(listboxId)
-          if (listbox) {
-            listbox.dispatchEvent(enterEvent)
-          }
-        }
-      }
+      commitHighlightedItem()
 
       // Wait for selection to complete, then navigate
       setTimeout(() => {
         emit('update:isNavigating', true)
-
-        emit('stop-editing', direction)
+        emit('stopEditing', direction)
       }, 50)
     } else {
       // Menu already closed - just navigate
       emit('update:isNavigating', true)
-
-      emit('stop-editing', e.shiftKey ? 'previous' : 'next')
+      emit('stopEditing', e.shiftKey ? 'previous' : 'next')
     }
     return { handled: true, preventDefault: true, stopPropagation: true }
   }
@@ -237,7 +264,7 @@ function handleKeydown(ctx: NuGridKeyboardContext<any>) {
     } else {
       // Second escape: menu already closed, cancel editing
 
-      emit('cancel-editing')
+      emit('cancelEditing')
       return { handled: true, preventDefault: true, stopPropagation: true }
     }
   }
@@ -266,10 +293,42 @@ function handleKeydown(ctx: NuGridKeyboardContext<any>) {
     return { handled: true, preventDefault: true, stopPropagation: true }
   }
 
+  // Spreadsheet nav: ArrowLeft/Right navigate to adjacent cells
+  if (spreadsheetNavEnabled?.value && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+    if (!e.metaKey && !e.ctrlKey && !e.altKey) {
+      const direction = e.key === 'ArrowRight' ? 'right' : 'left'
+      if (isOpen.value) {
+        // Commit the highlighted item before navigating
+        navigatingViaTab.value = true
+        commitHighlightedItem()
+        setTimeout(() => {
+          emit('update:isNavigating', true)
+          emit('stopEditing', direction)
+        }, 50)
+      } else {
+        emit('update:isNavigating', true)
+        emit('stopEditing', direction)
+      }
+      return { handled: true, preventDefault: true, stopPropagation: true }
+    }
+  }
+
   // Handle arrow keys when menu is closed - trigger click to open with native handling
-  // Cmd/Ctrl+Arrow are page-jump keys - ignore them to prevent focus issues
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    // Cmd/Ctrl+Arrow: commit and move focus by row
     if (e.metaKey || e.ctrlKey) {
+      const direction = e.key === 'ArrowDown' ? 'down' : 'up'
+      if (isOpen.value) {
+        navigatingViaTab.value = true
+        commitHighlightedItem()
+        setTimeout(() => {
+          emit('update:isNavigating', true)
+          emit('stopEditing', direction)
+        }, 50)
+      } else {
+        emit('update:isNavigating', true)
+        emit('stopEditing', direction)
+      }
       return { handled: true, preventDefault: true, stopPropagation: true }
     }
     if (!isOpen.value) {
@@ -295,13 +354,13 @@ function handleKeydown(ctx: NuGridKeyboardContext<any>) {
       if (getEnterBehavior() === 'moveDown') {
         emit('update:isNavigating', true)
 
-        emit('stop-editing', e.shiftKey ? 'up' : 'down')
+        emit('stopEditing', e.shiftKey ? 'up' : 'down')
       } else if (getEnterBehavior() === 'moveCell') {
         emit('update:isNavigating', true)
 
-        emit('stop-editing', e.shiftKey ? 'previous' : 'next')
+        emit('stopEditing', e.shiftKey ? 'previous' : 'next')
       } else {
-        emit('stop-editing')
+        emit('stopEditing')
       }
       return { handled: true, preventDefault: true, stopPropagation: true }
     }
@@ -397,7 +456,7 @@ watch(
 </script>
 
 <template>
-  <div ref="containerRef" class="w-full pl-0.5">
+  <div ref="containerRef" class="ml-0.5 w-full">
     <NuGridSelectMenu
       ref="selectMenuRef"
       :model-value="modelValue"
@@ -408,6 +467,7 @@ watch(
       :search-input="searchable"
       :filter-fields="filterFields"
       :placeholder="placeholder"
+      :create-item="createItem || undefined"
       :loading="isLoading"
       :disabled="isLoading"
       :ui="{
@@ -418,6 +478,7 @@ watch(
       highlight-selected-on-open
       class="w-full outline-none"
       @update:model-value="handleValueChange"
+      @create="handleCreate"
       @update:open="
         (open: boolean) => {
           isOpen = open

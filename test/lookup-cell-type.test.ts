@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 import type { NuGridCellTypeContext } from '../src/runtime/types'
 import type { NuGridKeyboardContext } from '../src/runtime/types/_internal'
@@ -8,6 +8,45 @@ import type { NuGridKeyboardContext } from '../src/runtime/types/_internal'
 import { lookupCellType } from '../src/runtime/cell-types/lookup'
 import LookupEditor from '../src/runtime/cell-types/lookup/LookupEditor.vue'
 import LookupRenderer from '../src/runtime/cell-types/lookup/LookupRenderer.vue'
+
+/**
+ * Stub for NuGridSelectMenu to avoid reka-ui Popper rendering issues in tests.
+ * Emits the same events LookupEditor listens to.
+ */
+const NuGridSelectMenuStub = defineComponent({
+  name: 'NuGridSelectMenu',
+  props: {
+    modelValue: { default: undefined },
+    items: { type: Array, default: () => [] },
+    valueKey: { type: String, default: 'value' },
+    labelKey: { type: String, default: 'label' },
+    descriptionKey: { type: String, default: undefined },
+    searchInput: { type: Boolean, default: true },
+    filterFields: { type: Array, default: () => [] },
+    placeholder: { type: String, default: '' },
+    loading: { type: Boolean, default: false },
+    disabled: { type: Boolean, default: false },
+    highlight: { type: Boolean, default: false },
+    highlightSelectedOnOpen: { type: Boolean, default: true },
+    ui: { type: Object, default: () => ({}) },
+  },
+  emits: ['update:modelValue', 'update:open'],
+  setup(_props, { emit, slots }) {
+    return () =>
+      h('div', { class: 'nugrid-select-menu-stub' }, [
+        h(
+          'button',
+          {
+            'aria-haspopup': 'listbox',
+            'tabindex': '0',
+            'onClick': () => emit('update:open', true),
+          },
+          'trigger',
+        ),
+        slots.trailing?.(),
+      ])
+  },
+})
 
 /**
  * Helper to create a minimal keyboard context for testing editor handlers
@@ -267,9 +306,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: {
-            Teleport: true,
-          },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -280,7 +317,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -304,7 +341,7 @@ describe('lookupEditor', () => {
           cell: createMockCell({ lookup: { items } }),
         }),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -329,7 +366,7 @@ describe('lookupEditor', () => {
           cell: createMockCell({ lookup: { items: asyncItems } }),
         }),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -355,7 +392,7 @@ describe('lookupEditor', () => {
           cell: createMockCell({ lookup: { items: asyncItems } }),
         }),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -373,7 +410,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -388,7 +425,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -406,7 +443,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -415,14 +452,14 @@ describe('lookupEditor', () => {
 
       vm.handleMenuClose(false)
 
-      expect(wrapper.emitted('stop-editing')).toBeFalsy()
+      expect(wrapper.emitted('stopEditing')).toBeFalsy()
     })
 
     it('should not exit edit mode when navigatingViaTab flag is set', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -431,14 +468,14 @@ describe('lookupEditor', () => {
 
       vm.handleMenuClose(false)
 
-      expect(wrapper.emitted('stop-editing')).toBeFalsy()
+      expect(wrapper.emitted('stopEditing')).toBeFalsy()
     })
 
     it('should not exit edit mode when escapingMenu flag is set', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -447,14 +484,14 @@ describe('lookupEditor', () => {
 
       vm.handleMenuClose(false)
 
-      expect(wrapper.emitted('stop-editing')).toBeFalsy()
+      expect(wrapper.emitted('stopEditing')).toBeFalsy()
     })
 
     it('should exit edit mode when Enter was last key pressed', async () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -466,7 +503,7 @@ describe('lookupEditor', () => {
       // Wait for setTimeout
       await new Promise((resolve) => setTimeout(resolve, 150))
 
-      expect(wrapper.emitted('stop-editing')).toBeTruthy()
+      expect(wrapper.emitted('stopEditing')).toBeTruthy()
     })
   })
 
@@ -475,7 +512,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -515,15 +552,15 @@ describe('lookupEditor', () => {
       // Wait for setTimeout
       await new Promise((resolve) => setTimeout(resolve, 100))
 
-      expect(wrapper.emitted('stop-editing')).toBeTruthy()
-      expect(wrapper.emitted('stop-editing')![0]).toEqual(['next'])
+      expect(wrapper.emitted('stopEditing')).toBeTruthy()
+      expect(wrapper.emitted('stopEditing')![0]).toEqual(['next'])
     })
 
     it('should navigate to previous cell on Shift+Tab when menu is open', async () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -550,7 +587,7 @@ describe('lookupEditor', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100))
 
-      expect(wrapper.emitted('stop-editing')![0]).toEqual(['previous'])
+      expect(wrapper.emitted('stopEditing')![0]).toEqual(['previous'])
 
       // Cleanup
       document.body.removeChild(mockListbox)
@@ -560,7 +597,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -570,8 +607,8 @@ describe('lookupEditor', () => {
       const event = new KeyboardEvent('keydown', { key: 'Tab' })
       vm.handleKeydown(createMinimalKeyboardContext(event))
 
-      expect(wrapper.emitted('stop-editing')).toBeTruthy()
-      expect(wrapper.emitted('stop-editing')![0]).toEqual(['next'])
+      expect(wrapper.emitted('stopEditing')).toBeTruthy()
+      expect(wrapper.emitted('stopEditing')![0]).toEqual(['next'])
     })
   })
 
@@ -580,7 +617,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -597,14 +634,14 @@ describe('lookupEditor', () => {
       expect(vm.escapingMenu).toBe(true) // Flag set to prevent exit on menu close
       expect(result.preventDefault).toBe(true)
       expect(result.stopPropagation).toBe(true)
-      expect(wrapper.emitted('cancel-editing')).toBeFalsy() // Stays in edit mode
+      expect(wrapper.emitted('cancelEditing')).toBeFalsy() // Stays in edit mode
     })
 
     it('should cancel editing on second Escape', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -614,7 +651,7 @@ describe('lookupEditor', () => {
       const event = new KeyboardEvent('keydown', { key: 'Escape' })
       vm.handleKeydown(createMinimalKeyboardContext(event))
 
-      expect(wrapper.emitted('cancel-editing')).toBeTruthy()
+      expect(wrapper.emitted('cancelEditing')).toBeTruthy()
     })
   })
 
@@ -623,7 +660,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -648,7 +685,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -667,7 +704,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -692,7 +729,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -715,7 +752,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -736,7 +773,7 @@ describe('lookupEditor', () => {
       const wrapper = mount(LookupEditor, {
         props: createDefaultProps(),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -749,7 +786,7 @@ describe('lookupEditor', () => {
       const result = vm.handleKeydown(ctx)
 
       expect(result.preventDefault).toBe(true)
-      expect(wrapper.emitted('stop-editing')).toBeTruthy()
+      expect(wrapper.emitted('stopEditing')).toBeTruthy()
     })
   })
 
@@ -765,7 +802,7 @@ describe('lookupEditor', () => {
           }),
         }),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 
@@ -787,7 +824,7 @@ describe('lookupEditor', () => {
           }),
         }),
         global: {
-          stubs: { Teleport: true },
+          stubs: { Teleport: true, NuGridSelectMenu: NuGridSelectMenuStub },
         },
       })
 

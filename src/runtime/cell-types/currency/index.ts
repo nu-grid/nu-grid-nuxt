@@ -12,6 +12,7 @@ export const currencyCellType: NuGridCellType = {
   displayName: 'Currency',
   description: 'Currency column with formatting and range filter',
   editor: CurrencyEditor,
+  noEditorOffset: true,
   filter: {
     component: CurrencyFilter,
     defaultOperator: 'equals',
@@ -34,12 +35,12 @@ export const currencyCellType: NuGridCellType = {
     if (value === null || value === undefined) return ''
     const numValue = Number(value)
     if (Number.isNaN(numValue)) return String(value)
-    if (numValue === 0 && (context.columnDef as any).showZero === false) return ''
+    if (numValue === 0 && context.columnDef.showZero === false) return ''
 
     // Get currency from column definition or default to USD
-    const currency = (context.columnDef as any).currency || 'USD'
-    const locale = (context.columnDef as any).locale || 'en-US'
-    const fractionDigits = (context.columnDef as any).fractionDigits ?? 0
+    const currency = context.columnDef.currency || 'USD'
+    const locale = context.columnDef.locale || 'en-US'
+    const fractionDigits = context.columnDef.fractionDigits ?? 0
 
     return new Intl.NumberFormat(locale, {
       style: 'currency',

@@ -87,7 +87,7 @@ function setRating(value: number | null, closeEditor = false) {
   selectedStar.value = value
   focusedIndex.value = value ?? 0 // 0 = clear button, 1-5 = stars
   if (closeEditor) {
-    emit('stop-editing')
+    emit('stopEditing')
   }
 }
 
@@ -165,7 +165,7 @@ function handleKeydown(e: KeyboardEvent) {
     } else if (behavior === 'moveCell') {
       scheduleNavigation(e.shiftKey ? 'previous' : 'next')
     } else {
-      emit('stop-editing')
+      emit('stopEditing')
     }
     return
   }
@@ -194,7 +194,7 @@ function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     e.preventDefault()
 
-    emit('cancel-editing')
+    emit('cancelEditing')
     return
   }
 

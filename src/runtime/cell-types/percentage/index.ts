@@ -40,13 +40,13 @@ export const percentageCellType: NuGridCellType = {
     if (Number.isNaN(numValue)) return String(value)
 
     // Get storage mode from column definition
-    const storageMode = (context.columnDef as any).percentageStorage ?? 'decimal'
+    const storageMode = context.columnDef.percentageStorage ?? 'decimal'
 
     // Convert to percentage for display
     const displayValue = storageMode === 'decimal' ? numValue * 100 : numValue
 
     // Get decimal places from column definition or default to 1
-    const decimals = (context.columnDef as any).percentageDecimals ?? 1
+    const decimals = context.columnDef.percentageDecimals ?? 1
 
     return `${displayValue.toFixed(decimals)}%`
   },

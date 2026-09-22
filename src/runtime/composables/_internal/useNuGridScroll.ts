@@ -1,10 +1,11 @@
-import type { TableData } from '@nuxt/ui'
-import type { Table } from '@tanstack/vue-table'
 import type { Primitive } from 'reka-ui'
 import type { ComputedRef, Ref } from 'vue'
 
 import { useElementSize } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
+
+import type { Table } from '../../engine'
+import type { TableData } from '../../types/table-data'
 
 export interface ScrollToCellOptions {
   /** The cell element to scroll to */
@@ -171,15 +172,12 @@ export class NuGridScrollManager {
     const containerRect = scrollContainer.getBoundingClientRect()
 
     // Calculate sticky header height
-    let stickyHeaderHeight = 0
     const multiRowHeaders = tableElement?.querySelector(
       '[data-multi-row-headers="true"][data-sticky-header]',
     ) as HTMLElement | null
-    if (multiRowHeaders) {
-      stickyHeaderHeight = multiRowHeaders.offsetHeight
-    } else {
-      stickyHeaderHeight = this.getStickyHeaderHeight(tableElement, virtualizedStickyHeight)
-    }
+    const stickyHeaderHeight = multiRowHeaders
+      ? multiRowHeaders.offsetHeight
+      : this.getStickyHeaderHeight(tableElement, virtualizedStickyHeight)
 
     const visibleTop = containerRect.top + stickyHeaderHeight
     const hasSticky = stickyHeaderHeight > 0

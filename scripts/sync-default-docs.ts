@@ -100,7 +100,7 @@ function syncDefaultValues(): void {
     { lines: optionGroupLines, path: optionGroupsPath },
     { lines: virtualizationLines, path: virtualizationTypesPath },
   ]
-  let currentInterface: string | null = null
+  let currentInterface: string | null
   let updated = 0
 
   for (const file of files) {

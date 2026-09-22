@@ -1,9 +1,9 @@
 import type { TableColumn } from '@nuxt/ui'
-import type { ColumnSizingInfoState, GroupingState } from '@tanstack/vue-table'
 
 import { describe, expect, it } from 'vitest'
 import { nextTick, ref } from 'vue'
 
+import type { ColumnSizingInfoState, ExpandedState, GroupingState } from '../src/runtime/engine'
 import type { NuGridProps } from '../src/runtime/types'
 import type { GroupingVirtualRowHeights } from '../src/runtime/types/_internal'
 
@@ -80,7 +80,8 @@ describe('virtualization Row Heights Configuration', () => {
     const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
-    const grouping = useNuGridGrouping(props, tableApi, rootRef)
+    const expandedState = ref<ExpandedState>(true)
+    const grouping = useNuGridGrouping(props, tableApi, rootRef, expandedState)
 
     // Verify default heights are used
     expect(grouping.groupingRowHeights.value).toEqual({
@@ -116,7 +117,8 @@ describe('virtualization Row Heights Configuration', () => {
     const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
-    const grouping = useNuGridGrouping(props, tableApi, rootRef)
+    const expandedState = ref<ExpandedState>(true)
+    const grouping = useNuGridGrouping(props, tableApi, rootRef, expandedState)
 
     // Verify custom heights are used
     expect(grouping.groupingRowHeights.value).toEqual({
@@ -151,7 +153,8 @@ describe('virtualization Row Heights Configuration', () => {
     const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
-    const grouping = useNuGridGrouping(props, tableApi, rootRef)
+    const expandedState = ref<ExpandedState>(true)
+    const grouping = useNuGridGrouping(props, tableApi, rootRef, expandedState)
 
     // Verify partial heights are merged with defaults
     expect(grouping.groupingRowHeights.value).toEqual({
@@ -187,7 +190,8 @@ describe('virtualization Row Heights Configuration', () => {
     const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
-    const grouping = useNuGridGrouping(props, tableApi, rootRef)
+    const expandedState = ref<ExpandedState>(true)
+    const grouping = useNuGridGrouping(props, tableApi, rootRef, expandedState)
 
     // Wait for computed values to update
     await nextTick()
@@ -223,7 +227,8 @@ describe('virtualization Row Heights Configuration', () => {
     const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
-    const grouping = useNuGridGrouping(props, tableApi, rootRef)
+    const expandedState = ref<ExpandedState>(true)
+    const grouping = useNuGridGrouping(props, tableApi, rootRef, expandedState)
 
     // Verify all defaults are used
     expect(grouping.groupingRowHeights.value).toEqual({
@@ -252,7 +257,8 @@ describe('virtualization Row Heights Configuration', () => {
     const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
-    const grouping = useNuGridGrouping(props, tableApi, rootRef)
+    const expandedState = ref<ExpandedState>(true)
+    const grouping = useNuGridGrouping(props, tableApi, rootRef, expandedState)
 
     // Verify all defaults are used
     expect(grouping.groupingRowHeights.value).toEqual({
@@ -318,7 +324,8 @@ describe('dynamic Row Heights Configuration', () => {
     const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
-    const grouping = useNuGridGrouping(props, tableApi, rootRef)
+    const expandedState = ref<ExpandedState>(true)
+    const grouping = useNuGridGrouping(props, tableApi, rootRef, expandedState)
     const dynamicRowHeightsEnabled = grouping.virtualizer
       ? grouping.virtualizer.value.dynamicRowHeightsEnabled.value
       : false
@@ -344,7 +351,8 @@ describe('dynamic Row Heights Configuration', () => {
     const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
-    const grouping = useNuGridGrouping(props, tableApi, rootRef)
+    const expandedState = ref<ExpandedState>(true)
+    const grouping = useNuGridGrouping(props, tableApi, rootRef, expandedState)
 
     const dynamicRowHeightsEnabled = grouping.virtualizer
       ? grouping.virtualizer.value.dynamicRowHeightsEnabled.value
@@ -371,7 +379,8 @@ describe('dynamic Row Heights Configuration', () => {
     const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
-    const grouping = useNuGridGrouping(props, tableApi, rootRef)
+    const expandedState = ref<ExpandedState>(true)
+    const grouping = useNuGridGrouping(props, tableApi, rootRef, expandedState)
 
     const dynamicRowHeightsEnabled = grouping.virtualizer
       ? grouping.virtualizer.value.dynamicRowHeightsEnabled.value
@@ -398,7 +407,8 @@ describe('dynamic Row Heights Configuration', () => {
     const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
-    const grouping = useNuGridGrouping(props, tableApi, rootRef)
+    const expandedState = ref<ExpandedState>(true)
+    const grouping = useNuGridGrouping(props, tableApi, rootRef, expandedState)
 
     const dynamicRowHeightsEnabled = grouping.virtualizer
       ? grouping.virtualizer.value.dynamicRowHeightsEnabled.value
@@ -426,7 +436,8 @@ describe('dynamic Row Heights Configuration', () => {
     const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
-    const grouping = useNuGridGrouping(props, tableApi, rootRef)
+    const expandedState = ref<ExpandedState>(true)
+    const grouping = useNuGridGrouping(props, tableApi, rootRef, expandedState)
 
     const dynamicRowHeightsEnabled = grouping.virtualizer
       ? grouping.virtualizer.value.dynamicRowHeightsEnabled.value
@@ -454,7 +465,8 @@ describe('dynamic Row Heights Configuration', () => {
     const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
-    const grouping = useNuGridGrouping(props, tableApi, rootRef)
+    const expandedState = ref<ExpandedState>(true)
+    const grouping = useNuGridGrouping(props, tableApi, rootRef, expandedState)
 
     const dynamicRowHeightsEnabled = grouping.virtualizer
       ? grouping.virtualizer.value.dynamicRowHeightsEnabled.value
@@ -490,7 +502,8 @@ describe('dynamic Row Heights Configuration', () => {
     const { tableApi } = useNuGridApi(props, data, columns, states)
     const rootRef = ref(null)
 
-    const grouping = useNuGridGrouping(props, tableApi, rootRef)
+    const expandedState = ref<ExpandedState>(true)
+    const grouping = useNuGridGrouping(props, tableApi, rootRef, expandedState)
 
     const dynamicRowHeightsEnabled = grouping.virtualizer
       ? grouping.virtualizer.value.dynamicRowHeightsEnabled.value

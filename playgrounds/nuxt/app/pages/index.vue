@@ -55,8 +55,8 @@ const features = [
         <div class="space-y-4 text-center">
           <h1 class="text-3xl font-bold">Welcome to NuGrid</h1>
           <p class="text-muted mx-auto max-w-2xl text-lg">
-            A powerful data grid component for Nuxt with virtualization, cell editing, and TanStack
-            Table integration.
+            A powerful data grid component for Nuxt with virtualization, cell editing, grouping and
+            spreadsheet-style navigation.
           </p>
         </div>
 

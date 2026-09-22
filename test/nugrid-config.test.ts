@@ -160,7 +160,6 @@ describe('nuGridDefaults', () => {
     it('should default autoSize to fill', () => {
       expect(nuGridDefaults.layout.autoSize).toBe('fill')
     })
-
   })
 
   describe('other defaults', () => {
@@ -471,10 +470,7 @@ describe('prop-utils', () => {
   describe('usePropsWithDefaults', () => {
     it('should return multiple computed refs', () => {
       const props = { focus: { mode: 'cell' } }
-      const { mode, pageStep } = usePropsWithDefaults(props, 'focus', [
-        'mode',
-        'pageStep',
-      ])
+      const { mode, pageStep } = usePropsWithDefaults(props, 'focus', ['mode', 'pageStep'])
 
       expect(mode.value).toBe('cell')
       expect(pageStep.value).toBe(10) // Default
@@ -546,11 +542,12 @@ describe('prop-utils', () => {
 
     it('should work with layout group', () => {
       const props = { layout: { stickyHeaders: true, autoSize: 'fill' } }
-      const { mode, stickyHeaders, scrollbars, autoSize } = usePropsWithDefaults(
-        props,
-        'layout',
-        ['mode', 'stickyHeaders', 'scrollbars', 'autoSize'],
-      )
+      const { mode, stickyHeaders, scrollbars, autoSize } = usePropsWithDefaults(props, 'layout', [
+        'mode',
+        'stickyHeaders',
+        'scrollbars',
+        'autoSize',
+      ])
 
       expect(mode.value).toBe('div') // Default
       expect(stickyHeaders.value).toBe(true)

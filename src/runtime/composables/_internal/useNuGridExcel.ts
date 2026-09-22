@@ -1,10 +1,11 @@
-import type { TableData } from '@nuxt/ui'
-import type { Table } from '@tanstack/vue-table'
 import type { ComputedRef, MaybeRef, ShallowRef } from 'vue'
 
 import { defu } from 'defu'
+import { computed, unref } from 'vue'
 
+import type { Table } from '../../engine'
 import type { NuGridColumn } from '../../types'
+import type { TableData } from '../../types/table-data'
 import type { ExcelExportOptions, GroupedExcelExportOptions } from '../../utils/excelExport'
 
 // Dynamic import to avoid SSR issues with write-excel-file (uses navigator.userAgent)

@@ -1,5 +1,3 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, Table } from '@tanstack/vue-table'
 import type { VirtualItem, Virtualizer } from '@tanstack/vue-virtual'
 import type { Primitive } from 'reka-ui'
 import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
@@ -8,6 +6,7 @@ import { defaultRangeExtractor, useVirtualizer } from '@tanstack/vue-virtual'
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 import { computed, ref, shallowRef, toValue, triggerRef, watch } from 'vue'
 
+import type { Row, Table } from '../../engine'
 import type { NuGridProps } from '../../types'
 import type {
   GroupingVirtualRowHeights,
@@ -18,6 +17,7 @@ import type {
   OverscanSetting,
   ResolvedNuGridVirtualizeOptions,
 } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 import { nuGridDefaults } from '../../config/_internal'
 
@@ -469,8 +469,15 @@ function useSharedVirtualizer<T extends TableData>(
         if (!sticky.length) {
           return defaultRangeExtractor(range)
         }
-        const merged = new Set([...sticky, ...defaultRangeExtractor(range)])
-        return [...merged]
+        // Merge sticky indexes into the default range without Set allocation.
+        // Sticky indexes are few (typically 1-3), so linear scan is fast.
+        const defaultRange = defaultRangeExtractor(range)
+        for (const idx of sticky) {
+          if (!defaultRange.includes(idx)) {
+            defaultRange.push(idx)
+          }
+        }
+        return defaultRange
       },
     }) as Ref<Virtualizer<Element, Element>>
 

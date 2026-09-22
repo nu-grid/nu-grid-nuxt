@@ -1,10 +1,11 @@
 import type { ComputedRef } from 'vue'
 
-import baseCheckboxTheme from '#build/ui/checkbox'
-import { useAppConfig } from '#imports'
 import { tv } from '@nuxt/ui/runtime/utils/tv.js'
 import { twMerge } from 'tailwind-merge'
 import { computed } from 'vue'
+
+import baseCheckboxTheme from '#build/ui/checkbox'
+import { useAppConfig } from '#imports'
 
 import type { NuGridProps } from '../../types'
 import type { NuGridConfig } from '../../types/_internal'
@@ -15,7 +16,10 @@ import { getTheme } from '../../themes'
  * UI theme configuration for tables
  */
 export function useNuGridUI(props: NuGridProps) {
-  const appConfig = useAppConfig() as NuGridConfig['AppConfig']
+  // Typed as NuGrid's config so `ui` keeps NuGrid's own slots. Since Nuxt UI 4.11 its AppConfig
+  // type no longer overlaps NuGrid's extended table config, so the assertion goes through unknown;
+  // at runtime it is the same object.
+  const appConfig = useAppConfig() as unknown as NuGridConfig['AppConfig']
 
   const ui = computed(() => {
     // Get theme from registry (with fallback to default)

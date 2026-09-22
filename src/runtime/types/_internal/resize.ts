@@ -2,9 +2,10 @@
  * @internal
  */
 
-import type { TableData } from '@nuxt/ui'
-import type { Header } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
+
+import type { Header } from '../../engine'
+import type { TableData } from '../table-data'
 
 /**
  * Type for nugrid-resizefns injection
@@ -12,8 +13,8 @@ import type { Ref } from 'vue'
  * @internal
  */
 export interface NuGridColumnResize<T extends TableData = TableData> {
-  handleResizeStart: (event: MouseEvent | TouchEvent, header: Header<T, any>) => void
-  handleGroupResizeStart: (event: MouseEvent | TouchEvent, header: Header<T, any>) => void
+  handleResizeStart: (event: MouseEvent | TouchEvent, header: Header<T>) => void
+  handleGroupResizeStart: (event: MouseEvent | TouchEvent, header: Header<T>) => void
   handleResizeEnd: () => void
   resizingGroupId: Ref<string | null>
   resizingColumnId: Ref<string | null>

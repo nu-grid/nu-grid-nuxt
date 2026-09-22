@@ -1,16 +1,17 @@
-import type { TableData } from '@nuxt/ui'
-import type { GroupingState } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
 
 import { computed } from 'vue'
+
+import type { GroupingState } from '../../engine'
+import type { TableData } from '../../types/table-data'
 
 export const EMPTY_GROUP_PLACEHOLDER_FLAG = '__nugridEmptyGroupPlaceholder'
 
 /**
  * Check if a row is an empty group placeholder
  */
-export function isEmptyGroupPlaceholder<T>(row: T): boolean {
-  return !!(row as any)?.[EMPTY_GROUP_PLACEHOLDER_FLAG]
+export function isEmptyGroupPlaceholder<T extends TableData>(row: T): boolean {
+  return !!row?.[EMPTY_GROUP_PLACEHOLDER_FLAG]
 }
 
 /**
@@ -77,7 +78,7 @@ function combinationExistsInData<T extends TableData>(
     }
     // Check if all values in the combination match
     for (const [key, value] of Object.entries(combination)) {
-      if ((row as any)[key] !== value) {
+      if (row[key] !== value) {
         return false
       }
     }
@@ -118,8 +119,8 @@ function sortByGroupOrder<T extends TableData>(
       const orderMap = orderMaps.get(columnId)
       if (!orderMap) continue
 
-      const aValue = (a as any)[columnId]
-      const bValue = (b as any)[columnId]
+      const aValue = a[columnId]
+      const bValue = b[columnId]
       const aOrder = orderMap.get(aValue) ?? Number.MAX_SAFE_INTEGER
       const bOrder = orderMap.get(bValue) ?? Number.MAX_SAFE_INTEGER
 

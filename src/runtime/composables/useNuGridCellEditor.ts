@@ -1,6 +1,6 @@
 import type { ComputedRef, Ref } from 'vue'
 
-import { inject, nextTick, onMounted, ref, watch } from 'vue'
+import { inject, nextTick, onMounted, watch } from 'vue'
 
 import type { NuGridCellEditorEmits, NuGridCellEditorProps } from '../types'
 
@@ -83,6 +83,10 @@ export function useNuGridCellEditor(
   // Falls back to prop value for custom editors that might not be inside a NuGrid
   const injectedEnterBehavior = inject<ComputedRef<string> | null>('nugrid-enter-behavior', null)
 
+  // Inject spreadsheet nav flag — when enabled, ArrowLeft/Right navigate between cells
+  // at text boundaries (cursor at start/end or all text selected)
+  const spreadsheetNavEnabled = inject<ComputedRef<boolean> | null>('nugrid-spreadsheet-nav', null)
+
   function getEnterBehavior() {
     return injectedEnterBehavior?.value ?? props.enterBehavior ?? 'default'
   }
@@ -90,9 +94,9 @@ export function useNuGridCellEditor(
   /**
    * Request navigation to another cell
    */
-  function scheduleNavigation(direction: 'up' | 'down' | 'next' | 'previous') {
+  function scheduleNavigation(direction: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') {
     emit('update:isNavigating', true)
-    emit('stop-editing', direction)
+    emit('stopEditing', direction)
   }
 
   /**
@@ -104,18 +108,23 @@ export function useNuGridCellEditor(
       // Use custom focus callback if provided
       if (customFocusCallback) {
         customFocusCallback()
-        return
+      } else {
+        // Default focus logic
+        // Use preventScroll to avoid browser's automatic scroll-into-view behavior
+        // which can fight with our controlled scrolling
+        // Try nested ref first (e.g., UInput component has .inputRef property)
+        if (inputRef.value?.inputRef) {
+          inputRef.value.inputRef.focus({ preventScroll: true })
+        } else if (inputRef.value?.focus) {
+          // Fall back to direct focus (e.g., native input element)
+          inputRef.value.focus({ preventScroll: true })
+        }
       }
 
-      // Default focus logic
-      // Use preventScroll to avoid browser's automatic scroll-into-view behavior
-      // which can fight with our controlled scrolling
-      // Try nested ref first (e.g., UInput component has .inputRef property)
-      if (inputRef.value?.inputRef) {
-        inputRef.value.inputRef.focus({ preventScroll: true })
-      } else if (inputRef.value?.focus) {
-        // Fall back to direct focus (e.g., native input element)
-        inputRef.value.focus({ preventScroll: true })
+      // SpreadsheetNav: auto-select all text so typing replaces content
+      if (spreadsheetNavEnabled?.value) {
+        const native = getNativeInput(inputRef)
+        if (native) native.select()
       }
     })
   }
@@ -145,13 +154,91 @@ export function useNuGridCellEditor(
 
   /**
    * Handle blur events
-   * Only emits stop-editing if not currently navigating to another cell
+   * Only emits stopEditing if not currently navigating to another cell
    */
   function handleBlur() {
     // Don't handle blur if we're navigating
     if (!props.isNavigating) {
-      emit('stop-editing')
+      emit('stopEditing')
     }
+  }
+
+  /**
+   * Resolve the native HTMLInputElement from an editor ref.
+   * Handles UInput (.inputRef), direct elements, and component wrappers.
+   */
+  function getNativeInput(ref: Ref<any>): HTMLInputElement | null {
+    const el = ref.value
+    if (!el) return null
+    // UInput component: has .inputRef property pointing to native input
+    if (el.inputRef instanceof HTMLInputElement) return el.inputRef
+    // Direct HTMLInputElement
+    if (el instanceof HTMLInputElement) return el
+    // Component with $el containing an input
+    const root = el.$el ?? el
+    if (root instanceof HTMLElement) {
+      return root.querySelector('input, textarea') as HTMLInputElement | null
+    }
+    return null
+  }
+
+  /**
+   * Handle ArrowLeft/Right for spreadsheet navigation
+   * Navigates to adjacent cells when cursor is at a text boundary.
+   * Custom editors can call this from their own keydown handler.
+   * @returns true if the key was handled (navigation scheduled)
+   */
+  function handleSpreadsheetArrows(e: KeyboardEvent, beforeNavigate?: () => void): boolean {
+    if (
+      !spreadsheetNavEnabled?.value ||
+      (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') ||
+      e.metaKey ||
+      e.ctrlKey ||
+      e.altKey
+    ) {
+      return false
+    }
+
+    const input = getNativeInput(inputRef)
+
+    // Non-input editors (e.g. checkbox): always navigate on ArrowLeft/Right
+    if (!input) {
+      e.preventDefault()
+      beforeNavigate?.()
+      scheduleNavigation(e.key === 'ArrowRight' ? 'right' : 'left')
+      return true
+    }
+
+    const { selectionStart, selectionEnd, value } = input
+    const len = value.length
+
+    // For inputs where selection is not queryable (e.g. type="number"),
+    // treat as all-selected since spreadsheetNav auto-selects on focus
+    if (selectionStart === null || selectionEnd === null) {
+      e.preventDefault()
+      beforeNavigate?.()
+      scheduleNavigation(e.key === 'ArrowRight' ? 'right' : 'left')
+      return true
+    }
+
+    const atStart = selectionStart === 0 && selectionEnd === 0
+    const atEnd = selectionStart === len && selectionEnd === len
+    const allSelected = selectionStart === 0 && selectionEnd === len && len > 0
+    const isEmpty = len === 0
+
+    if (e.key === 'ArrowRight' && (atEnd || allSelected || isEmpty)) {
+      e.preventDefault()
+      beforeNavigate?.()
+      scheduleNavigation('right')
+      return true
+    } else if (e.key === 'ArrowLeft' && (atStart || allSelected || isEmpty)) {
+      e.preventDefault()
+      beforeNavigate?.()
+      scheduleNavigation('left')
+      return true
+    }
+
+    return false
   }
 
   /**
@@ -163,6 +250,7 @@ export function useNuGridCellEditor(
    * - ArrowUp: Save and move to cell above (ignored with Cmd/Ctrl)
    * - ArrowDown: Save and move to cell below (ignored with Cmd/Ctrl)
    * - Tab: Save and move to next cell (Shift+Tab for previous)
+   * - ArrowLeft/Right: Navigate cells at text boundary (spreadsheetNav mode)
    * - PageUp/PageDown: Ignored (prevented to avoid losing focus)
    */
   function handleKeydown(e: KeyboardEvent) {
@@ -177,11 +265,11 @@ export function useNuGridCellEditor(
       } else if (behavior === 'moveCell') {
         scheduleNavigation(e.shiftKey ? 'previous' : 'next')
       } else {
-        emit('stop-editing')
+        emit('stopEditing')
       }
     } else if (e.key === 'Escape') {
       e.preventDefault()
-      emit('cancel-editing')
+      emit('cancelEditing')
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
       // Cmd/Ctrl+Up is a page-jump key - ignore it in edit mode
@@ -198,6 +286,8 @@ export function useNuGridCellEditor(
       e.preventDefault()
       // Use RAF-throttled navigation to prevent overwhelming rendering when holding key
       scheduleNavigation(e.shiftKey ? 'previous' : 'next')
+    } else if (handleSpreadsheetArrows(e)) {
+      // Handled by spreadsheet nav ArrowLeft/Right
     } else if (e.key === 'PageUp' || e.key === 'PageDown') {
       // Page navigation keys are ignored in edit mode to prevent losing focus
       e.preventDefault()
@@ -220,8 +310,14 @@ export function useNuGridCellEditor(
     focusInput,
     /**
      * Schedule navigation to another cell
-     * Emits stop-editing with direction, which is throttled by the scroll processing lock
+     * Emits stopEditing with direction, which is throttled by the scroll processing lock
      */
     scheduleNavigation,
+    /**
+     * Handle ArrowLeft/Right for spreadsheet cell navigation
+     * Call from custom keydown handlers to participate in spreadsheetNav mode.
+     * Returns true if the key was handled.
+     */
+    handleSpreadsheetArrows,
   }
 }

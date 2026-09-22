@@ -1,6 +1,5 @@
-import type { TableData } from '@nuxt/ui'
-
 import type { NuGridProps } from '../../types/props'
+import type { TableData } from '../../types/table-data'
 
 export const nuGridDefaults = {
   focus: {

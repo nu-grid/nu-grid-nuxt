@@ -45,6 +45,37 @@ export function useNuGridWheelSmoothing(
   let inactivityTimer: ReturnType<typeof setTimeout> | null = null
   let velocityEwma = 0
   let isTouchpad = false
+  // Where we last told the browser to be, for the current burst. Null between bursts.
+  let position: { top: number; left: number } | null = null
+
+  // Moving to a position is absolute (scrollTo), never relative (scrollBy). A relative step is
+  // applied to wherever the browser believes it is, and Safari's belief can lag what it has painted
+  // once script scrolls are frequent: each scrollBy then compounds the gap, until clicks land a row
+  // or two away from the one under the pointer. Stating the position outright leaves nothing to
+  // compound. The steps themselves, and so the feel, are unchanged.
+  //
+  // Anything else may move the container mid-burst: focusing a cell scrolls it into view, the user
+  // drags the scrollbar, the virtualizer corrects measured row heights. If the container is no longer
+  // where we put it, adopt its position rather than yanking it back to ours.
+  const ADOPT_TOLERANCE_PX = 1
+  const applyStep = (el: HTMLElement, dx: number, dy: number) => {
+    const top = el.scrollTop
+    const left = el.scrollLeft
+    if (
+      !position ||
+      Math.abs(top - position.top) > ADOPT_TOLERANCE_PX ||
+      Math.abs(left - position.left) > ADOPT_TOLERANCE_PX
+    ) {
+      position = { top, left }
+    }
+    const maxTop = Math.max(0, el.scrollHeight - el.clientHeight)
+    const maxLeft = Math.max(0, el.scrollWidth - el.clientWidth)
+    position = {
+      top: Math.min(maxTop, Math.max(0, position.top + dy)),
+      left: Math.min(maxLeft, Math.max(0, position.left + dx)),
+    }
+    el.scrollTo({ top: position.top, left: position.left, behavior: 'instant' })
+  }
 
   const clampByVelocity = (delta: number, allowed: number) => {
     if (allowed <= 0) return 0
@@ -135,7 +166,7 @@ export function useNuGridWheelSmoothing(
     const finalY = applyWithSmoothing(pendingY, applyY)
 
     if (finalX !== 0 || finalY !== 0) {
-      el.scrollBy({ left: finalX, top: finalY })
+      applyStep(el, finalX, finalY)
       pendingX -= finalX
       pendingY -= finalY
     }
@@ -153,6 +184,7 @@ export function useNuGridWheelSmoothing(
       pendingX = 0
       pendingY = 0
       lastFlushTime = null
+      position = null
       if (rafId !== null) {
         cancelAnimationFrame(rafId)
         rafId = null
@@ -175,6 +207,12 @@ export function useNuGridWheelSmoothing(
 
     const magnitude = Math.max(Math.abs(event.deltaY), Math.abs(event.deltaX))
     if (magnitude < threshold) return
+
+    // Don't intercept if the container can't scroll in the wheel's dominant direction.
+    // Grids set to expand (auto-height) have no overflow — let the page scroll instead.
+    const isVertical = Math.abs(event.deltaY) >= Math.abs(event.deltaX)
+    if (isVertical && el.scrollHeight <= el.clientHeight) return
+    if (!isVertical && el.scrollWidth <= el.clientWidth) return
 
     // Detect touchpad vs mouse wheel based on delta magnitude
     // Touchpads typically send small deltas (3-20px), mouse wheels send larger deltas (40-120px)

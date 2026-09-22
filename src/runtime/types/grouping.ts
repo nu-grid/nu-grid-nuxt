@@ -1,8 +1,9 @@
-import type { GroupingOptions } from '@tanstack/vue-table'
-
 /**
- * NuGridGroupingOptions extends TanStack's GroupingOptions type.
- * This wrapper type allows for future NuGrid-specific extensions
- * without breaking changes to the public API.
+ * NuGrid grouping options.
+ * Replaces TanStack's GroupingOptions (minus onGroupingChange which NuGrid handles internally).
  */
-export type NuGridGroupingOptions = Omit<GroupingOptions, 'onGroupingChange'>
+export interface NuGridGroupingOptions {
+  manualGrouping?: boolean
+  enableGrouping?: boolean
+  groupedColumnMode?: false | 'reorder' | 'remove'
+}

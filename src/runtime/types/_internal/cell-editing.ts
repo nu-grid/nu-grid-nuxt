@@ -2,10 +2,10 @@
  * @internal
  */
 
-import type { TableData } from '@nuxt/ui'
-import type { Column, Row, Table } from '@tanstack/vue-table'
 import type { Component, ComputedRef, Ref } from 'vue'
 
+import type { Cell, Column, Row, Table } from '../../engine'
+import type { TableData } from '../table-data'
 import type { NuGridShowErrors } from '../validation'
 
 /**
@@ -58,20 +58,25 @@ export interface NuGridCellEditing<T extends TableData = TableData> {
   getRowValidationError: (rowId: string) => string | null
   // Cell editing functions
   isEditingCell: (row: Row<T>, columnId: string) => boolean
-  isCellEditable: (row: Row<T>, cell: any) => boolean
-  startEditing: (row: Row<T>, cell: any, initialValue?: any) => void
+  isCellEditable: (row: Row<T>, cell: Cell<T>) => boolean
+  startEditing: (
+    row: Row<T>,
+    cell: Cell<T>,
+    initialValue?: any,
+    options?: { rowIndex?: number; cellIndex?: number },
+  ) => void
   stopEditing: (
     row: Row<T>,
-    cell: any,
+    cell: Cell<T>,
     newValue: any,
-    moveDirection?: 'up' | 'down' | 'next' | 'previous',
+    moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous',
     options?: { restoreFocus?: boolean },
   ) => void
-  createDefaultEditor: (cell: any, row: Row<T>) => any
-  renderCellContent: (cell: any, row: Row<T>) => any
-  onCellClick: (event: MouseEvent, row: Row<T>, cell: any) => void
-  onCellDoubleClick: (event: MouseEvent, row: Row<T>, cell: any) => void
-  onCellKeyDown: (event: KeyboardEvent, row: Row<T>, cell: any, cellIndex: number) => void
+  createDefaultEditor: (cell: Cell<T>, row: Row<T>) => any
+  renderCellContent: (cell: Cell<T>, row: Row<T>) => any
+  onCellClick: (event: MouseEvent, row: Row<T>, cell: Cell<T>) => void
+  onCellDoubleClick: (event: MouseEvent, row: Row<T>, cell: Cell<T>) => void
+  onCellKeyDown: (event: KeyboardEvent, row: Row<T>, cell: Cell<T>, cellIndex: number) => void
 }
 
 /**
@@ -80,11 +85,11 @@ export interface NuGridCellEditing<T extends TableData = TableData> {
  * @internal
  */
 export interface NuGridEditorRenderContext<T = any> {
-  cell: any
+  cell: Cell<T>
   row: Row<T>
   getValue: () => any
   setValue: (value: any) => void
-  stopEditing: (moveDirection?: 'up' | 'down' | 'next' | 'previous') => void
+  stopEditing: (moveDirection?: 'up' | 'down' | 'left' | 'right' | 'next' | 'previous') => void
   table: Table<T>
-  column: Column<T, unknown>
+  column: Column<T>
 }

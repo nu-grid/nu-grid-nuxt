@@ -233,7 +233,6 @@ export interface SelectMenuSlots<
   "
 >
 /* eslint-disable import/first */
-import { useAppConfig } from '#imports'
 import { useComponentIcons } from '@nuxt/ui/composables/useComponentIcons'
 import { useFieldGroup } from '@nuxt/ui/composables/useFieldGroup'
 import { useFormField } from '@nuxt/ui/composables/useFormField'
@@ -275,6 +274,8 @@ import {
   useTemplateRef,
   watch,
 } from 'vue'
+
+import { useAppConfig } from '#imports'
 
 defineOptions({ inheritAttrs: false })
 
@@ -318,6 +319,9 @@ const rootProps = useForwardPropsEmits(
   ),
   emits,
 )
+// reka-ui 2.10 types ComboboxRoot's highlight payload as its broad AcceptableValue, wider than this
+// component's model value. The runtime payload is identical, so only the forwarded bindings are widened.
+const comboboxRootProps = computed(() => rootProps.value as Record<string, unknown>)
 const portalProps = usePortal(toRef(() => props.portal))
 const contentProps = toRef(
   () =>
@@ -929,7 +933,7 @@ defineExpose({
     :id="id"
     ref="comboboxRootRef"
     v-slot="{ modelValue, open }"
-    v-bind="{ ...rootProps, ...$attrs, ...ariaAttrs }"
+    v-bind="{ ...comboboxRootProps, ...$attrs, ...ariaAttrs }"
     ignore-filter
     as-child
     :name="name"
@@ -1062,7 +1066,7 @@ defineExpose({
               autofocus
               autocomplete="off"
               :size="selectSize"
-              v-bind="searchInputProps"
+              v-bind="searchInputProps as any"
               data-slot="input"
               :class="ui.input({ class: props.ui?.input })"
               @change.stop

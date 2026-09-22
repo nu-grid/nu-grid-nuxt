@@ -1,14 +1,13 @@
 <script setup lang="ts" generic="T extends TableData">
-import type { TableData, TableSlots } from '@nuxt/ui'
 import type { VirtualItem } from '@tanstack/vue-virtual'
 import type { ComponentPublicInstance, Ref } from 'vue'
 
-import { FlexRender, type Header } from '@tanstack/vue-table'
 import { createReusableTemplate } from '@vueuse/core'
 import { Primitive } from 'reka-ui'
 import { computed, inject, onMounted, ref, toValue } from 'vue'
 
 import type { NuGridSearchContext } from '../../composables/_internal/useNuGridSearch'
+import type { Header } from '../../engine'
 import type { NuGridProps } from '../../types'
 import type {
   GroupVirtualRowType,
@@ -24,6 +23,8 @@ import type {
   NuGridVirtualItemStyle,
   NuGridVirtualizationContext,
 } from '../../types/_internal'
+import type { NuGridSlots } from '../../types/slots'
+import type { TableData } from '../../types/table-data'
 
 import {
   getFlexHeaderStyle,
@@ -32,6 +33,7 @@ import {
   resolveStyleObject,
   resolveValue,
 } from '../../composables/_internal'
+import { FlexRender } from '../../utils/flexRender'
 import NuGridAddRow from './NuGridAddRow.vue'
 import NuGridColumnMenu from './NuGridColumnMenu.vue'
 import NuGridHeaderSortButton from './NuGridHeaderSortButton.vue'
@@ -41,7 +43,7 @@ defineOptions({ inheritAttrs: false })
 
 const props = defineProps<NuGridProps<T>>()
 
-const slots = defineSlots<TableSlots<T>>()
+const slots = defineSlots<NuGridSlots<T>>()
 
 // Inject split contexts
 const coreContext = inject<NuGridCoreContext<T>>('nugrid-core')!
@@ -75,13 +77,12 @@ const animationEnabled = animationContext.enabled
 // Destructure from contexts
 const { tableRef, rootRef, tableApi, ui, hasFooter, rows: contextRows, propsUi } = coreContext
 
-// Create a local computed for animated rows to ensure proper reactivity tracking
-// IMPORTANT: Return a new array reference to trigger Vue's reactivity for FLIP animations
-// The source array from TanStack may be the same reference even when order changes
+// Create a local computed for rows
+// When animations are enabled, return a shallow copy so Vue detects reordering for FLIP.
+// When disabled, pass through by reference to avoid O(n) allocation per render.
 const rows = computed(() => {
   const currentRows = contextRows.value ?? []
-  // Return a new array (shallow copy) to ensure Vue detects the change
-  return [...currentRows]
+  return animationEnabled.value ? [...currentRows] : currentRows
 })
 const { dragFns, rowDragOptions } = dragContext
 const {
@@ -114,7 +115,7 @@ const {
 const staleColumns = inject<Ref<Set<string>>>('nugrid-stale-sort-columns')
 const clearStale = inject<(() => void) | undefined>('nugrid-clear-stale-sort')
 
-function handleHeaderSortClick(event: MouseEvent, header: Header<T, unknown>) {
+function handleHeaderSortClick(event: MouseEvent, header: Header<T>) {
   if (toValue(dragFns.wasDragged)) return
   if (!header.column.getCanSort()) return
   if (staleColumns?.value?.has(header.column.id) && clearStale) {
@@ -128,9 +129,11 @@ function handleHeaderSortClick(event: MouseEvent, header: Header<T, unknown>) {
 // SSR/hydration mismatch (header.getSize() depends on container width
 // which isn't available during SSR).
 const isMounted = ref(false)
-onMounted(() => { isMounted.value = true })
+onMounted(() => {
+  isMounted.value = true
+})
 
-function isCompactHeader(header: Header<T, unknown>): boolean {
+function isCompactHeader(header: Header<T>): boolean {
   const opt = header.column.columnDef.compactHeader
   if (opt === true) return true
   if (opt === false) return false
@@ -1037,7 +1040,11 @@ function getVirtualItemStyle(
                           <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
                             <div
                               v-if="isCompactHeader(header)"
-                              :class="ui.headerControlsCompact({ class: [propsUi?.headerControlsCompact] })"
+                              :class="
+                                ui.headerControlsCompact({
+                                  class: [propsUi?.headerControlsCompact],
+                                })
+                              "
                             >
                               <NuGridHeaderSortButton
                                 v-if="
@@ -1261,7 +1268,11 @@ function getVirtualItemStyle(
                             <div :class="ui.headerControls({ class: [propsUi?.headerControls] })">
                               <div
                                 v-if="isCompactHeader(header)"
-                                :class="ui.headerControlsCompact({ class: [propsUi?.headerControlsCompact] })"
+                                :class="
+                                  ui.headerControlsCompact({
+                                    class: [propsUi?.headerControlsCompact],
+                                  })
+                                "
                               >
                                 <NuGridHeaderSortButton
                                   v-if="

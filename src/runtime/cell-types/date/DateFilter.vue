@@ -23,11 +23,11 @@ const operators = [
   { value: 'between', label: 'Between' },
 ]
 
-const filterValue2 = ref<string | null>(null)
+const filterValue2 = ref<string | undefined>(undefined)
 
 function clearFilter() {
   filterValue.value = null
-  filterValue2.value = null
+  filterValue2.value = undefined
   props.context.clearFilter()
 }
 </script>

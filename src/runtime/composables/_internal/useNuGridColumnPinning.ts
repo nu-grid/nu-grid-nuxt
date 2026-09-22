@@ -1,5 +1,6 @@
-import type { Table } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
+
+import type { ColumnPinningState } from '../../engine'
 
 export interface ColumnPinningControls {
   pinColumn: (columnId: string, side: 'left' | 'right') => void
@@ -11,9 +12,11 @@ export interface ColumnPinningControls {
 /**
  * Composable for managing column pinning state
  */
-export function useNuGridColumnPinning<T>(tableApi: Ref<Table<T>>): ColumnPinningControls {
+export function useNuGridColumnPinning(
+  columnPinningState: Ref<ColumnPinningState>,
+): ColumnPinningControls {
   const pinColumn = (columnId: string, side: 'left' | 'right') => {
-    const currentPinning = tableApi.value.getState().columnPinning
+    const currentPinning = columnPinningState.value
     const newPinning = { ...currentPinning }
 
     // Remove from opposite side if present
@@ -30,28 +33,28 @@ export function useNuGridColumnPinning<T>(tableApi: Ref<Table<T>>): ColumnPinnin
       newPinning[side] = [...newPinning[side], columnId]
     }
 
-    tableApi.value.setColumnPinning(newPinning)
+    columnPinningState.value = newPinning
   }
 
   const unpinColumn = (columnId: string) => {
-    const currentPinning = tableApi.value.getState().columnPinning
+    const currentPinning = columnPinningState.value
     const newPinning = {
       left: currentPinning.left?.filter((id) => id !== columnId) || [],
       right: currentPinning.right?.filter((id) => id !== columnId) || [],
     }
 
-    tableApi.value.setColumnPinning(newPinning)
+    columnPinningState.value = newPinning
   }
 
   const isPinned = (columnId: string): 'left' | 'right' | false => {
-    const pinning = tableApi.value.getState().columnPinning
+    const pinning = columnPinningState.value
     if (pinning.left?.includes(columnId)) return 'left'
     if (pinning.right?.includes(columnId)) return 'right'
     return false
   }
 
   const getPinnedColumns = () => {
-    const pinning = tableApi.value.getState().columnPinning
+    const pinning = columnPinningState.value
     return {
       left: pinning.left || [],
       right: pinning.right || [],

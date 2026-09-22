@@ -85,6 +85,14 @@ const links = [
         },
       },
       {
+        label: 'Spreadsheet Nav',
+        icon: 'i-lucide-table-2',
+        to: '/spreadsheet-nav-demo',
+        onSelect: () => {
+          open.value = false
+        },
+      },
+      {
         label: 'Tooltip',
         icon: 'i-lucide-message-square',
         to: '/tooltip-demo',

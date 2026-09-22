@@ -57,25 +57,25 @@ function handleKeydown(e: KeyboardEvent) {
       const behavior = getEnterBehavior()
       if (behavior === 'moveDown') {
         emit('update:isNavigating', true)
-        emit('stop-editing', e.shiftKey ? 'up' : 'down')
+        emit('stopEditing', e.shiftKey ? 'up' : 'down')
       } else if (behavior === 'moveCell') {
         emit('update:isNavigating', true)
-        emit('stop-editing', e.shiftKey ? 'previous' : 'next')
+        emit('stopEditing', e.shiftKey ? 'previous' : 'next')
       } else {
-        emit('stop-editing')
+        emit('stopEditing')
       }
     }
     // Plain Enter allows new line (default behavior)
   } else if (e.key === 'Escape') {
     e.preventDefault()
-    emit('cancel-editing')
+    emit('cancelEditing')
   } else if (e.key === 'Tab') {
     e.preventDefault()
     emit('update:isNavigating', true)
     if (e.shiftKey) {
-      emit('stop-editing', 'previous')
+      emit('stopEditing', 'previous')
     } else {
-      emit('stop-editing', 'next')
+      emit('stopEditing', 'next')
     }
   }
   // Note: Arrow keys are not intercepted to allow cursor movement within textarea

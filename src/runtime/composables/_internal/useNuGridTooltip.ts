@@ -1,9 +1,8 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, Table } from '@tanstack/vue-table'
 import type { ComputedRef, Ref } from 'vue'
 
 import { onUnmounted, ref } from 'vue'
 
+import type { Row, Table } from '../../engine'
 import type { NuGridProps } from '../../types'
 import type {
   NuGridHoverContext,
@@ -11,6 +10,7 @@ import type {
   NuGridPointerHandler,
 } from '../../types/_internal'
 import type { NuGridColumn } from '../../types/column'
+import type { TableData } from '../../types/table-data'
 
 import { usePropWithDefault } from '../../config/_internal'
 
@@ -88,7 +88,7 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
     if (!cols) return undefined
     return cols.find((col) => {
       // Handle both accessorKey and id patterns
-      const colId = (col as any).accessorKey || (col as any).id
+      const colId = col.accessorKey || col.id
       return colId === columnId
     })
   }
@@ -289,7 +289,7 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
       if (rowId) {
         const rowData = getRowData(rowId)
         if (rowData) {
-          const fieldValue = (rowData as any)[columnDef.tooltipField]
+          const fieldValue = rowData[columnDef.tooltipField]
           if (fieldValue != null) {
             return { text: String(fieldValue), forceShow: true }
           }
@@ -366,11 +366,8 @@ export function useNuGridTooltipHandler<T extends TableData = TableData>(
     // Move events update position if mouse follow is enabled
     if (type === 'move') {
       if (opts.mouseFollow && tooltipState.value) {
-        tooltipState.value = {
-          ...tooltipState.value,
-          x: lastMouseX,
-          y: lastMouseY,
-        }
+        tooltipState.value.x = lastMouseX
+        tooltipState.value.y = lastMouseY
       }
       return
     }

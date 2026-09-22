@@ -406,7 +406,7 @@ const exampleCode = `<NuGrid
       <div class="bg-default/50 text-dimmed rounded p-2 text-sm">
         <strong>How It Works:</strong>
         <p class="mt-1">
-          NuGrid uses TanStack Table's pagination model with NuxtUI's UPagination component for the
+          NuGrid uses its own pagination model with NuxtUI's UPagination component for the
           UI. The paging prop accepts either a boolean or an options object for fine-grained
           control.
         </p>

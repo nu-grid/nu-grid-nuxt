@@ -1,17 +1,17 @@
+import type { ComputedRef } from 'vue'
+
+import type { Row } from '../../engine'
+import type { NuGridActionMenuOptions, NuGridColumn, NuGridRowSelectOptions } from '../index'
 /**
  * Return type interfaces for internal composables.
  * These explicit types solve TS4058 errors where TypeScript cannot name
- * 'GroupColumnDefBase' from @tanstack/table-core in generated declarations.
+ * types from external packages in generated declarations.
  *
  * By using these explicit return types, TypeScript emits our type names
- * instead of expanding TableColumn and encountering the unexported type.
+ * instead of expanding NuGridColumn and encountering unexported types.
  * @internal
  */
-import type { TableData } from '@nuxt/ui'
-import type { Row } from '@tanstack/vue-table'
-import type { ComputedRef } from 'vue'
-
-import type { NuGridActionMenuOptions, NuGridColumn, NuGridRowSelectOptions } from '../index'
+import type { TableData } from '../table-data'
 
 /**
  * Return type for useNuGridActionMenu composable

@@ -1,8 +1,7 @@
-import type { TableData } from '@nuxt/ui'
-import type { Cell, Column, ColumnFiltersState, Row, SortingState } from '@tanstack/vue-table'
-
 import type { NuGridStateSnapshot } from '../composables/_internal/useNuGridStatePersistence'
+import type { Cell, Column, ColumnFiltersState, Row, SortingState } from '../engine'
 import type { RowDragEvent } from './drag-drop'
+import type { TableData } from './table-data'
 
 // ============================================================================
 // CELL CLICK EVENTS
@@ -15,9 +14,9 @@ export interface NuGridCellClickEvent<T extends TableData = TableData> {
   /** The row containing the clicked cell */
   row: Row<T>
   /** The column definition of the clicked cell */
-  column: Column<T, unknown>
+  column: Column<T>
   /** The cell that was clicked */
-  cell: Cell<T, unknown>
+  cell: Cell<T>
   /** The current value of the cell */
   value: unknown
   /** The original mouse event */
@@ -53,7 +52,7 @@ export interface NuGridFocusedCellChangedEvent<T extends TableData = TableData> 
   /** The currently focused row (null if no cell focused) */
   row: Row<T> | null
   /** The currently focused column (null if no cell focused) */
-  column: Column<T, unknown> | null
+  column: Column<T> | null
   /** Previous row index (null if no previous focus) */
   previousRowIndex: number | null
   /** Previous column index (null if no previous focus) */
@@ -93,7 +92,7 @@ export interface NuGridKeydownEvent<T extends TableData = TableData> {
   /** Current row index (-1 if no row focused) */
   rowIndex: number
   /** The currently focused column (null if no cell focused, or focus mode is 'row') */
-  column: Column<T, unknown> | null
+  column: Column<T> | null
   /** Current column ID (null if no cell focused, or focus mode is 'row') */
   columnId: string | null
   /** The column header name (null if no cell focused, or focus mode is 'row') */
@@ -101,7 +100,7 @@ export interface NuGridKeydownEvent<T extends TableData = TableData> {
   /** Current column index (-1 if no cell focused, or focus mode is 'row') */
   columnIndex: number
   /** The currently focused cell (null if no cell focused, or focus mode is 'row') */
-  cell: Cell<T, unknown> | null
+  cell: Cell<T> | null
   /** The current cell value (null if no cell focused, or focus mode is 'row') */
   value: unknown
   /** Set to true to prevent NuGrid's internal handling of this key */
@@ -119,7 +118,7 @@ export interface NuGridCellEditingStartedEvent<T extends TableData = TableData> 
   /** The row being edited */
   row: Row<T>
   /** The column being edited */
-  column: Column<T, unknown>
+  column: Column<T>
   /** The initial value when editing started */
   value: unknown
 }
@@ -131,7 +130,7 @@ export interface NuGridCellEditingCancelledEvent<T extends TableData = TableData
   /** The row that was being edited */
   row: Row<T>
   /** The column that was being edited */
-  column: Column<T, unknown>
+  column: Column<T>
   /** The value when editing was cancelled */
   value: unknown
 }
@@ -143,7 +142,7 @@ export interface NuGridCellValueChangedEvent<T extends TableData = TableData> {
   /** The row that was modified */
   row: Row<T>
   /** The column that was modified */
-  column: Column<T, unknown>
+  column: Column<T>
   /** The previous value before the change */
   oldValue: unknown
   /** The new value after the change */

@@ -2,10 +2,10 @@
  * @internal
  */
 
-import type { TableData } from '@nuxt/ui'
 import type { Ref } from 'vue'
 
 import type { StandardSchemaV1 } from '../../utils/standardSchema'
+import type { TableData } from '../table-data'
 import type { NuGridOnInvalid, NuGridShowErrors, NuGridValidateOn } from '../validation'
 
 /**

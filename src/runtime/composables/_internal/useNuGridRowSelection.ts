@@ -1,15 +1,15 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, Table, VisibilityState } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 
 import { computed, h, ref, watch } from 'vue'
 
+import type { Row, Table, VisibilityState } from '../../engine'
 import type { NuGridColumn, NuGridRowSelectOptions } from '../../types'
 import type {
   NuGridRowSelectionMode,
   NuGridSelectionColumnDef,
   UseNuGridRowSelectionReturn,
 } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 import NuGridCellCheckbox from '../../components/NuGridCellCheckbox.vue'
 import { getDefaults } from '../../config/_internal'
@@ -54,17 +54,17 @@ function createSelectionColumn<T extends TableData>(
     editor: nuGridCellTypeRegistry.getEditor('selection'),
     accessorFn: (_row, _index) => {
       // Return a placeholder value for the accessor
-      // The actual selection state is managed by TanStack Table
+      // The actual selection state is managed by the table engine
       return false
     },
     // Header reactively checks the current mode to show/hide "select all" checkbox
-    header: ({ table }: { table: Table<T> }) => {
+    header: ({ table }: any) => {
       // Only show select all checkbox in multi mode
       if (modeRef.value !== 'multi') {
         return ''
       }
 
-      const typedTable = table as unknown as Table<TableData>
+      const typedTable = table as Table<TableData>
       const coreRows = table.getCoreRowModel().rows as Row<TableData>[]
       const rowSelection = table.getState().rowSelection
 
@@ -110,7 +110,7 @@ function createSelectionColumn<T extends TableData>(
       })
     },
     // Store enabled ref in meta for cell renderer to access
-    // Using 'any' type assertion because ColumnMeta is user-defined in TanStack Table
+    // Using 'any' type assertion — ColumnMeta type assertion needed for selection column meta
     meta: {
       selectionEnabled: true, // Default value, actual check uses enabledRef
       enabledRef, // Pass the ref so cell renderer can access current value
@@ -255,16 +255,16 @@ export function useNuGridRowSelection<T extends TableData>(
   })
 
   /**
-   * Whether multi-row selection is enabled (for TanStack Table config)
+   * Whether multi-row selection is enabled (for table engine config)
    */
   const enableMultiRowSelection = computed(() => {
     return normalizedMode.value !== 'single'
   })
 
   /**
-   * Function for TanStack Table's enableRowSelection option.
+   * Function for the engine's enableRowSelection option.
    * Combines global interactive state and per-row selection check.
-   * Returns a function that TanStack uses to determine if a row can be selected.
+   * Returns a function that the engine uses to determine if a row can be selected.
    */
   const enableRowSelection = computed((): boolean | ((row: Row<T>) => boolean) => {
     // If globally disabled, no rows can be selected

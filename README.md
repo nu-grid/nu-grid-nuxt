@@ -11,7 +11,7 @@
   <a href="https://nuxt.com"><img src="https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js" alt="Nuxt"></a>
 </p>
 
-A powerful, feature-rich data grid component for Nuxt applications with virtualization, inline editing, and TanStack Table integration.
+A powerful, feature-rich data grid component for Nuxt applications with virtualization, inline editing, and a lightweight built-in engine.
 
 - [Release Notes](/CHANGELOG.md)
 - [Demos](https://www.nug-rid.dev/demos)
@@ -24,7 +24,7 @@ A powerful, feature-rich data grid component for Nuxt applications with virtuali
 - **Row Grouping** - Group data by columns with expandable/collapsible groups
 - **Keyboard Navigation** - Excel-like navigation and editing experience
 - **Theming** - Full customization with Nuxt UI design system integration
-- **TanStack Table** - Built on TanStack Table for sorting, filtering, and pagination
+- **Sorting & Filtering** - Built-in sorting, filtering, and pagination engine
 
 ### Built-in Cell Types
 

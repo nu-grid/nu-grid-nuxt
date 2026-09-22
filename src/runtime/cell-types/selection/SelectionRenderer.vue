@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Row } from '@tanstack/vue-table'
-
 import { computed } from 'vue'
+
+import type { Row } from '../../engine'
 
 import NuGridCellCheckbox from '../../components/NuGridCellCheckbox.vue'
 
@@ -22,7 +22,7 @@ interface Props {
 
 const isSelected = computed(() => props.row.getIsSelected())
 
-// Use TanStack's built-in row.getCanSelect() which respects enableRowSelection option
+// Use row.getCanSelect() which respects enableRowSelection option
 const canRowBeSelected = computed(() => props.row.getCanSelect())
 
 const handleUpdate = (newValue: boolean | 'indeterminate') => {

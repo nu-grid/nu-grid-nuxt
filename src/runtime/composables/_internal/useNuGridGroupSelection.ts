@@ -1,13 +1,14 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, Table } from '@tanstack/vue-table'
-import type { ComputedRef } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
+
+import type { Row, RowSelectionState } from '../../engine'
+import type { TableData } from '../../types/table-data'
 
 /**
  * Composable for managing row selection within groups in a grouped table.
  * Provides utilities to check and toggle selection state for rows within a specific group.
  */
 export function useNuGridGroupSelection<T extends TableData>(
-  tableApi: Table<T>,
+  rowSelectionState: Ref<RowSelectionState>,
   groupedRows: ComputedRef<Record<string, Row<T>[]>>,
 ) {
   function areAllGroupRowsSelected(groupId: string): boolean {
@@ -26,7 +27,7 @@ export function useNuGridGroupSelection<T extends TableData>(
   function toggleAllGroupRows(groupId: string, selected: boolean) {
     const rows = groupedRows.value[groupId] || []
 
-    const currentSelection = tableApi.getState().rowSelection
+    const currentSelection = rowSelectionState.value
     const newSelection = { ...currentSelection }
 
     rows.forEach((row) => {
@@ -37,7 +38,7 @@ export function useNuGridGroupSelection<T extends TableData>(
       }
     })
 
-    tableApi.setRowSelection(newSelection)
+    rowSelectionState.value = newSelection
   }
 
   /**

@@ -28,16 +28,8 @@ export function getTheme(name: string): NuGridThemeDefinition | undefined {
 }
 
 /**
- * Get all available theme names
- * @returns Array of registered theme names
- */
-export function getAvailableThemes(): string[] {
-  return Array.from(themeRegistry.keys())
-}
-
-/**
  * Get all registered themes
- * @returns Array of theme definitions
+ * @returns Array of all registered theme definitions
  */
 export function getAllThemes(): NuGridThemeDefinition[] {
   return Array.from(themeRegistry.values())

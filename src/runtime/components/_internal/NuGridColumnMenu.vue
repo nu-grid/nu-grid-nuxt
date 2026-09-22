@@ -1,15 +1,17 @@
 <script setup lang="ts" generic="T extends TableData">
-import type { DropdownMenuItem, TableData } from '@nuxt/ui'
-import type { Column, Header } from '@tanstack/vue-table'
+import type { DropdownMenuItem } from '@nuxt/ui'
 
 import { computed, inject, ref, resolveComponent, watch } from 'vue'
 
+import type { Column, Header } from '../../engine'
 import type { NuGridColumnMenuItem, NuGridFilterContext } from '../../types'
 import type {
   NuGridCoreContext,
   NuGridPerformanceContext,
+  NuGridResizeContext,
   NuGridUIConfigContext,
 } from '../../types/_internal'
+import type { TableData } from '../../types/table-data'
 
 import { nuGridCellTypeRegistry } from '../../composables/useNuGridCellTypeRegistry'
 import { nuGridDefaults } from '../../config/_internal'
@@ -18,9 +20,9 @@ defineOptions({ inheritAttrs: false })
 
 const props = defineProps<{
   /**
-   * The TanStack Table header object
+   * The table header object
    */
-  header: Header<any, unknown>
+  header: Header<any>
 
   /**
    * When true, skip width-based hiding — parent overlay controls visibility
@@ -32,6 +34,7 @@ const props = defineProps<{
 const coreContext = inject<NuGridCoreContext<T>>('nugrid-core')!
 const performanceContext = inject<NuGridPerformanceContext<T>>('nugrid-performance')!
 const uiConfigContext = inject<NuGridUIConfigContext<T>>('nugrid-ui-config')!
+const resizeContext = inject<NuGridResizeContext<T>>('nugrid-resize')!
 
 if (!coreContext || !performanceContext || !uiConfigContext) {
   throw new Error('NuGridColumnMenu must be used within a NuGrid component.')
@@ -43,10 +46,11 @@ const { getColumnMenuItems, showColumnVisibility, columnMenuButton } = uiConfigC
 
 // Use global registry directly for better performance (no reactive overhead)
 
-// Column pinning helper functions (inline to avoid public composable dependency)
+// Column pinning helper functions — uses injected columnPinningState directly
+const { columnPinningState } = coreContext
+
 const pinColumn = (columnId: string, side: 'left' | 'right') => {
-  if (!tableApi) return
-  const currentPinning = tableApi.getState().columnPinning
+  const currentPinning = columnPinningState.value
   const newPinning = { ...currentPinning }
 
   // Remove from opposite side if present
@@ -63,23 +67,21 @@ const pinColumn = (columnId: string, side: 'left' | 'right') => {
     newPinning[side] = [...newPinning[side], columnId]
   }
 
-  tableApi.setColumnPinning(newPinning)
+  columnPinningState.value = newPinning
 }
 
 const unpinColumn = (columnId: string) => {
-  if (!tableApi) return
-  const currentPinning = tableApi.getState().columnPinning
+  const currentPinning = columnPinningState.value
   const newPinning = {
     left: currentPinning.left?.filter((id) => id !== columnId) || [],
     right: currentPinning.right?.filter((id) => id !== columnId) || [],
   }
 
-  tableApi.setColumnPinning(newPinning)
+  columnPinningState.value = newPinning
 }
 
 const getIsPinned = (columnId: string): 'left' | 'right' | false => {
-  if (!tableApi) return false
-  const pinning = tableApi.getState().columnPinning
+  const pinning = columnPinningState.value
   if (pinning.left?.includes(columnId)) return 'left'
   if (pinning.right?.includes(columnId)) return 'right'
   return false
@@ -95,7 +97,7 @@ const column = computed(() => props.header.column)
 
 // Check if column menu is enabled (defaults to true)
 const isColumnMenuEnabled = computed(() => {
-  const colDef = column.value.columnDef as any
+  const colDef = column.value.columnDef
   return colDef.enableColumnMenu !== false
 })
 
@@ -184,7 +186,7 @@ function buildDefaultMenuItems() {
 
   // Filter item - show plugin filter if available
   if (canFilter.value) {
-    const colDef = column.value.columnDef as any
+    const colDef = column.value.columnDef
     const cellDataType = colDef.cellDataType || 'text'
     const plugin = nuGridCellTypeRegistry.get(cellDataType)
     const isFilteringEnabled = plugin?.enableFiltering !== false && !!plugin?.filter
@@ -271,10 +273,10 @@ function buildDefaultMenuItems() {
             const measuredWidth = Math.max(measureDiv.offsetWidth + 64, 100)
             document.body.removeChild(measureDiv)
 
-            tableApi.setColumnSizing((old: any) => ({
-              ...old,
+            resizeContext.columnSizingState.value = {
+              ...resizeContext.columnSizingState.value,
               [columnId]: measuredWidth,
-            }))
+            }
           }
         }
       },
@@ -291,10 +293,10 @@ function buildDefaultMenuItems() {
       onSelect: (_event?, _col?) => {
         const columnId = column.value.id
         const defaultSize = column.value.columnDef.size ?? 150
-        tableApi?.setColumnSizing((old: any) => ({
-          ...old,
+        resizeContext.columnSizingState.value = {
+          ...resizeContext.columnSizingState.value,
           [columnId]: defaultSize,
-        }))
+        }
       },
     })
     needsSeparator = true
@@ -344,7 +346,7 @@ const menuItems = computed<DropdownMenuItem[][]>(() => {
   let defaultItems = buildDefaultMenuItems()
 
   // Get column definition
-  const colDef = column.value.columnDef as any
+  const colDef = column.value.columnDef
   const cellDataType = colDef.cellDataType || 'text'
 
   // Apply plugin menu items if provided (before column/grid-level customization)
@@ -355,7 +357,7 @@ const menuItems = computed<DropdownMenuItem[][]>(() => {
     // The plugin callback is typed with unknown, but we know it's compatible with T
     const callback = pluginMenuItemsCallback as (
       defaultItems: NuGridColumnMenuItem<T>[],
-      column: Column<T, unknown>,
+      column: Column<T>,
     ) => NuGridColumnMenuItem<T>[]
     defaultItems = callback(defaultItems, column.value)
   }
@@ -371,7 +373,7 @@ const menuItems = computed<DropdownMenuItem[][]>(() => {
       // Support both signatures: (defaultItems) and (defaultItems, column)
       finalItems =
         colDef.columnMenuItems.length === 2
-          ? (colDef.columnMenuItems as any)(defaultItems, column.value)
+          ? colDef.columnMenuItems(defaultItems, column.value)
           : colDef.columnMenuItems(defaultItems)
     } else {
       // Array - replaces default items
@@ -453,7 +455,7 @@ const filterValueRef = ref<any>(null)
 // Filter context for plugin filter components
 const filterContext = computed<NuGridFilterContext<T> | null>(() => {
   if (!canFilter.value) return null
-  const colDef = column.value.columnDef as any
+  const colDef = column.value.columnDef
   const cellDataType = colDef.cellDataType || 'text'
   const plugin = nuGridCellTypeRegistry.get(cellDataType)
   if (!plugin?.filter || plugin.enableFiltering === false) return null
@@ -479,7 +481,7 @@ watch(
   [filterContext, () => (canFilter.value ? column.value.getFilterValue() : null)],
   ([context, currentFilterValue]) => {
     if (!context) return
-    const colDef = column.value.columnDef as any
+    const colDef = column.value.columnDef
     const cellDataType = colDef.cellDataType || 'text'
     const plugin = nuGridCellTypeRegistry.get(cellDataType)
     const defaultValue = plugin?.filter?.defaultValue ?? null
@@ -494,7 +496,7 @@ watch(
 // Filter component to render
 const filterComponent = computed(() => {
   if (!filterContext.value) return null
-  const colDef = column.value.columnDef as any
+  const colDef = column.value.columnDef
   const cellDataType = colDef.cellDataType || 'text'
   const plugin = nuGridCellTypeRegistry.get(cellDataType)
   if (!plugin?.filter?.component) return null

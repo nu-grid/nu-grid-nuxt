@@ -1,11 +1,11 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row, Table } from '@tanstack/vue-table'
 import type { Primitive } from 'reka-ui'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 import { computed, toValue, watch } from 'vue'
 
+import type { ExpandedState, Row, Table } from '../../engine'
 import type { NuGridProps } from '../../types'
+import type { TableData } from '../../types/table-data'
 
 import { isEmptyGroupPlaceholder } from './useNuGridEmptyGroups'
 import {
@@ -17,6 +17,7 @@ export function useNuGridGrouping<T extends TableData>(
   propsInput: MaybeRefOrGetter<NuGridProps<T>>,
   tableApi: Table<T>,
   rootRef: Ref<InstanceType<typeof Primitive> | null | undefined>,
+  expandedState: Ref<ExpandedState>,
   stickyEnabled?: Ref<boolean>,
   showHeaders?: Ref<boolean>,
   mode: 'group' | 'splitgroup' = 'splitgroup',
@@ -58,11 +59,11 @@ export function useNuGridGrouping<T extends TableData>(
     return collectAllGroupRows(rows.value)
   })
 
-  // Use TanStack's expansion state for group expansion
+  // Use the engine's expansion state for group expansion
   // This ensures pagination counts rows correctly based on expanded/collapsed state
-  // TanStack's ExpandedState can be true (all expanded), Record<string, boolean>, or ExpandedStateList
+  // ExpandedState can be true (all expanded), Record<string, boolean>, or ExpandedStateList
   const isRowExpanded = (groupId: string): boolean => {
-    const expanded = tableApi.getState().expanded
+    const expanded = expandedState.value
     if (expanded === true) return true
     if (typeof expanded === 'object' && expanded !== null) {
       return (expanded as Record<string, boolean>)[groupId] !== false
@@ -71,27 +72,27 @@ export function useNuGridGrouping<T extends TableData>(
   }
 
   const setRowExpanded = (groupId: string, expanded: boolean) => {
-    const currentState = tableApi.getState().expanded
+    const currentState = expandedState.value
     if (currentState === true) {
       // All were expanded, now we need to track individually
       const newState: Record<string, boolean> = {}
       groupRows.value.forEach((gr) => {
         newState[gr.id] = gr.id === groupId ? expanded : true
       })
-      tableApi.setExpanded(newState)
+      expandedState.value = newState
     } else if (typeof currentState === 'object' && currentState !== null) {
-      tableApi.setExpanded({
+      expandedState.value = {
         ...(currentState as Record<string, boolean>),
         [groupId]: expanded,
-      })
+      }
     } else {
-      tableApi.setExpanded({ [groupId]: expanded })
+      expandedState.value = { [groupId]: expanded }
     }
   }
 
   // Computed ref for expansion state (for compatibility with components expecting a ref)
   const groupExpanded = computed(() => {
-    const expanded = tableApi.getState().expanded
+    const expanded = expandedState.value
     if (expanded === true) {
       // All expanded - build a record
       const result: Record<string, boolean> = {}
@@ -180,14 +181,14 @@ export function useNuGridGrouping<T extends TableData>(
     (newGroupRows) => {
       if (newGroupRows.length === 0) return
 
-      const currentState = tableApi.getState().expanded
+      const currentState = expandedState.value
       // If expanded state is empty or undefined, initialize all groups as expanded
       if (
         !currentState ||
         (typeof currentState === 'object' && Object.keys(currentState).length === 0)
       ) {
         // Set all groups to expanded
-        tableApi.setExpanded(true)
+        expandedState.value = true
       }
     },
     { immediate: true },

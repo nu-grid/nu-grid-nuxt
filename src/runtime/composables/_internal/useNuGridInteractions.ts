@@ -1,12 +1,12 @@
-import type { TableData, TableRow } from '@nuxt/ui'
-
+import type { Row } from '../../engine'
 import type { NuGridProps } from '../../types'
+import type { TableData } from '../../types/table-data'
 
 /**
  * Shared row interaction handlers
  */
 export function useNuGridRowInteractions<T extends TableData>(props: NuGridProps<T>) {
-  function onRowSelect(e: Event, row: TableRow<T>) {
+  function onRowSelect(e: Event, row: Row<T>) {
     if (!props.onSelect) {
       return
     }
@@ -22,7 +22,7 @@ export function useNuGridRowInteractions<T extends TableData>(props: NuGridProps
     props.onSelect(e, row)
   }
 
-  function onRowHover(e: Event, row: TableRow<T> | null) {
+  function onRowHover(e: Event, row: Row<T> | null) {
     if (!props.onHover) {
       return
     }
@@ -30,7 +30,7 @@ export function useNuGridRowInteractions<T extends TableData>(props: NuGridProps
     props.onHover(e, row)
   }
 
-  function onRowContextmenu(e: Event, row: TableRow<T>) {
+  function onRowContextmenu(e: Event, row: Row<T>) {
     if (!props.onContextmenu) {
       return
     }

@@ -1,5 +1,5 @@
 import type { ClassValue } from 'tailwind-variants'
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
 import { computed, onUnmounted, ref, watch } from 'vue'
 

@@ -1,6 +1,7 @@
-import type { TableData } from '@nuxt/ui'
-import type { Row } from '@tanstack/vue-table'
 import type { ComputedRef, Ref, VNode } from 'vue'
+
+import type { Row } from '../../../engine'
+import type { TableData } from '../../table-data'
 
 export type NuGridAddRowPosition = 'none' | 'top' | 'bottom'
 export type NuGridAddRowState = 'idle' | 'focused' | 'editing'

@@ -26,8 +26,6 @@ export default defineNuxtConfig({
         '@internationalized/date',
         '@nuxt/ui/runtime/utils/tv.js',
         '@nuxt/ui/utils/tv',
-        '@tanstack/table-core',
-        '@tanstack/vue-table',
         '@tanstack/vue-virtual',
         '@unovis/vue',
         '@vue/devtools-core',

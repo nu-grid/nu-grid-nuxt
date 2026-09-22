@@ -1,18 +1,11 @@
-import type { TableData, TableProps, TableRow } from '@nuxt/ui'
-import type { Updater, VisibilityState } from '@tanstack/vue-table'
 import type { ComponentPublicInstance, PropType, Ref } from 'vue'
 
-import {
-  getCoreRowModel,
-  getExpandedRowModel,
-  getGroupedRowModel,
-  getPaginationRowModel,
-  useVueTable,
-} from '@tanstack/vue-table'
-import { createReusableTemplate, reactiveOmit } from '@vueuse/core'
+import { createReusableTemplate } from '@vueuse/core'
 import { upperFirst } from 'scule'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, shallowRef, watch } from 'vue'
 
+import type { Row } from '../../engine'
+import type { StateAccessors } from '../../engine/types'
 import type {
   NuGridActionMenuOptions,
   NuGridColumn,
@@ -26,8 +19,11 @@ import type {
   UseNuGridColumnsReturn,
 } from '../../types/_internal'
 import type { NuGridCellType } from '../../types/cells'
+import type { Updater, VisibilityState } from '../../types/state-types'
+import type { TableData } from '../../types/table-data'
 
 import { nuGridDefaults } from '../../config/_internal'
+import { createNuGridTable } from '../../engine/table'
 import { extractColumnValues, inferCellDataType } from '../../utils/inferCellDataType'
 import { nuGridCellTypeRegistry } from '../useNuGridCellTypeRegistry'
 import { useNuGridActionMenu } from './useNuGridActionMenu'
@@ -112,7 +108,7 @@ export function useNuGridColumns<T extends TableData>(
         col.maxSize = col.lockSize
       }
 
-      // Apply default minSize if not explicitly set (TanStack defaults to 20px which is too small)
+      // Apply default minSize if not explicitly set (engine defaults to 20px which is too small)
       if (col.minSize == null) {
         col.minSize = nuGridDefaults.columnDefaults.minSize
       }
@@ -122,23 +118,23 @@ export function useNuGridColumns<T extends TableData>(
       // - dataTypeInference is false (globally disabled)
       // - cellDataType is explicitly set (including false to opt-out)
       // - column has no accessorKey (display columns, computed columns)
-      const accessorKey = (col as any).accessorKey
+      const accessorKey = col.accessorKey
       if (
         inferenceEnabled &&
-        (col as any).cellDataType === undefined &&
+        col.cellDataType === undefined &&
         accessorKey &&
         data.value.length > 0
       ) {
         const values = extractColumnValues(data.value, accessorKey)
         const inferredType = inferCellDataType(values, accessorKey)
         if (inferredType) {
-          ;(col as any).cellDataType = inferredType
+          col.cellDataType = inferredType
         }
       }
 
       // Apply plugin defaults if column has a cellDataType (skip if false = opt-out)
-      const cellDataType = (col as any).cellDataType
-      if (cellDataType && cellDataType !== false) {
+      const cellDataType = col.cellDataType
+      if (cellDataType) {
         // Use cache to avoid repeated plugin lookups
         // Check custom cell types first, then fall back to global registry
         let plugin = pluginCache.get(cellDataType)
@@ -350,7 +346,7 @@ export function getHeaderPinningStyle(
 
 export function createRowReusableTemplate<T>() {
   return createReusableTemplate<{
-    row: TableRow<T>
+    row: Row<T>
     style?: Record<string, string>
     dataIndex?: number
     measureRef?: (el: Element | ComponentPublicInstance | null) => void
@@ -380,198 +376,170 @@ export function createRowReusableTemplate<T>() {
  * Create table API instance with all features configured
  */
 export function useNuGridApi<T extends TableData>(
-  props: NuGridProps<T> | TableProps<T>,
+  props: NuGridProps<T>,
   data: Ref<T[]>,
   columns: Ref<NuGridColumn<T>[]>,
   states: NuGridStates,
   rowSelectionMode?: Ref<NuGridRowSelectionMode<T>>,
   eventEmitter?: NuGridEventEmitter<T>,
 ) {
-  const meta = computed(() => props.meta ?? {})
-
   // Use the row selection composable to get enableMultiRowSelection
   const rowSelection = rowSelectionMode ? useNuGridRowSelection<T>(rowSelectionMode) : null
 
-  // Filter out props that are not part of TableProps by using reactive omit
-  const filteredProps = reactiveOmit(
-    props as any,
-    'as',
-    'data',
-    'columns',
-    'virtualization',
-    'caption',
-    'sticky',
-    'loading',
-    'loadingColor',
-    'loadingAnimation',
-    'class',
-    'ui',
-  )
+  // Build StateAccessors — the bridge between NuGrid state refs and the engine
+  const stateAccessors: StateAccessors = {
+    columnSizing: () => states.columnSizingState.value,
+    columnSizingInfo: () => states.columnSizingInfoState.value,
+    columnPinning: () => states.columnPinningState.value,
+    columnVisibility: () => states.columnVisibilityState.value,
+    columnOrder: () => states.columnOrderState.value,
+    sorting: () => states.sortingState.value,
+    grouping: () => states.groupingState.value,
+    rowSelection: () => states.rowSelectionState.value,
+    expanded: () => states.expandedState.value,
+    columnFilters: () => states.columnFiltersState.value,
 
-  const tableApi = useVueTable({
-    ...filteredProps,
-    get data() {
-      return data.value
-    },
-    get columns() {
-      return columns.value
-    },
-    get meta() {
-      return meta.value
-    },
-    // Use rowId prop for stable row identity (required for animations)
-    // Falls back to index if the specified field is not present
-    getRowId: (originalRow, index) => {
-      const rowIdProp = (props as NuGridProps<T>).rowId ?? nuGridDefaults.rowId
-      if (typeof rowIdProp === 'function') {
-        return rowIdProp(originalRow as T)
-      }
-      const id = (originalRow as any)[rowIdProp]
-      return id !== undefined ? String(id) : String(index)
-    },
-    getCoreRowModel: getCoreRowModel(),
-    ...(props.globalFilterOptions || {}),
-    manualFiltering: true, // NuGrid owns filtering via useNuGridFiltering
-    onGlobalFilterChange: (updaterOrValue) =>
-      valueUpdater(updaterOrValue, states.globalFilterState),
-    ...(props.columnFiltersOptions || {}),
-    onColumnFiltersChange: (updaterOrValue) => {
-      valueUpdater(updaterOrValue, states.columnFiltersState)
-      if (eventEmitter?.filterChanged) {
-        eventEmitter.filterChanged({ columnFilters: states.columnFiltersState.value })
-      }
-    },
-    onColumnOrderChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.columnOrderState),
-    ...(props.visibilityOptions || {}),
-    onColumnVisibilityChange: (updaterOrValue) =>
-      valueUpdater(updaterOrValue, states.columnVisibilityState),
-    ...(props.columnPinningOptions || {}),
-    onColumnPinningChange: (updaterOrValue) =>
-      valueUpdater(updaterOrValue, states.columnPinningState),
-    ...(props.columnSizingOptions || {}),
-    onColumnSizingChange: (updaterOrValue) =>
-      valueUpdater(updaterOrValue, states.columnSizingState),
-    onColumnSizingInfoChange: (updaterOrValue) =>
-      valueUpdater(updaterOrValue, states.columnSizingInfoState),
-    columnResizeMode: props.columnSizingOptions?.columnResizeMode ?? 'onChange',
-    ...(props.rowSelectionOptions || {}),
-    get enableMultiRowSelection() {
-      return rowSelection?.enableMultiRowSelection.value ?? true
-    },
-    get enableRowSelection() {
-      return rowSelection?.enableRowSelection.value ?? true
-    },
-    onRowSelectionChange: (updaterOrValue) =>
-      valueUpdater(updaterOrValue, states.rowSelectionState),
-    ...(props.rowPinningOptions || {}),
-    onRowPinningChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.rowPinningState),
-    ...(props.sortingOptions || {}),
-    manualSorting: true, // NuGrid owns sorting via useNuGridSorting
-    onSortingChange: (updaterOrValue) => {
-      valueUpdater(updaterOrValue, states.sortingState)
+    // Mutators — update refs and emit events
+    setSorting: (updater) => {
+      states.sortingState.value =
+        typeof updater === 'function' ? updater(states.sortingState.value) : updater
       if (eventEmitter?.sortChanged) {
         eventEmitter.sortChanged({ sorting: states.sortingState.value })
       }
     },
-    // Use Tanstack's default grouping utility, can be overridden by user's groupingOptions
-    getGroupedRowModel: getGroupedRowModel(),
-    ...(props.groupingOptions || {}),
-    onGroupingChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.groupingState),
-    ...(props.expandedOptions || {}),
-    getExpandedRowModel: getExpandedRowModel(),
-    onExpandedChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.expandedState),
-    ...(props.paginationOptions || {}),
-    // Conditionally include pagination row model when paging is enabled
-    ...(() => {
-      const pagingProp = (props as NuGridProps<T>).paging
-      const isPaginationEnabled =
-        pagingProp === true || (typeof pagingProp === 'object' && pagingProp?.enabled !== false)
-      // Always include getPaginationRowModel when paging is enabled (even for manual pagination)
-      return isPaginationEnabled ? { getPaginationRowModel: getPaginationRowModel() } : {}
-    })(),
-    // Enable manual pagination mode in TanStack Table when configured
-    ...(() => {
-      const pagingProp = (props as NuGridProps<T>).paging
-      const isManualPagination =
-        typeof pagingProp === 'object' && pagingProp?.manualPagination === true
-      // When manualPagination is true, TanStack won't auto-slice data
-      // Our paging composable handles pageCount/totalPages calculation using rowCount prop
-      return isManualPagination ? { manualPagination: true } : {}
-    })(),
-    onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, states.paginationState),
-    ...(props.facetedOptions || {}),
-    state: {
-      get globalFilter() {
-        return states.globalFilterState.value
-      },
-      get columnFilters() {
-        return states.columnFiltersState.value
-      },
-      get columnOrder() {
-        return states.columnOrderState.value
-      },
-      get columnVisibility() {
-        return states.columnVisibilityState.value
-      },
-      get columnPinning() {
-        return states.columnPinningState.value
-      },
-      get expanded() {
-        return states.expandedState.value
-      },
-      get rowSelection() {
-        return states.rowSelectionState.value
-      },
-      get sorting() {
-        return states.sortingState.value
-      },
-      get grouping() {
-        return states.groupingState.value
-      },
-      get rowPinning() {
-        return states.rowPinningState.value
-      },
-      get columnSizing() {
-        return states.columnSizingState.value
-      },
-      get columnSizingInfo() {
-        return states.columnSizingInfoState.value
-      },
-      get pagination() {
-        return states.paginationState.value
-      },
+    setRowSelection: (updater) => {
+      states.rowSelectionState.value =
+        typeof updater === 'function' ? updater(states.rowSelectionState.value) : updater
     },
-  })
+    setExpanded: (updater) => {
+      states.expandedState.value =
+        typeof updater === 'function' ? updater(states.expandedState.value) : updater
+    },
+    setColumnFilters: (updater) => {
+      states.columnFiltersState.value =
+        typeof updater === 'function' ? updater(states.columnFiltersState.value) : updater
+    },
+    setColumnVisibility: (updater) => {
+      states.columnVisibilityState.value =
+        typeof updater === 'function' ? updater(states.columnVisibilityState.value) : updater
+    },
+
+    // Column list accessors — patched by the engine at creation time
+    getVisibleLeafColumns: () => [],
+    getLeftVisibleLeafColumns: () => [],
+    getRightVisibleLeafColumns: () => [],
+    getCenterVisibleLeafColumns: () => [],
+  }
+
+  // Build the getRowId function
+  const getRowId = (originalRow: T, index: number) => {
+    const rowIdProp = (props as NuGridProps<T>).rowId ?? nuGridDefaults.rowId
+    if (typeof rowIdProp === 'function') {
+      return rowIdProp(originalRow as T)
+    }
+    const id = originalRow[rowIdProp]
+    return id !== undefined ? String(id) : String(index)
+  }
+
+  // Create engine table — columns are built from defs, data is a reactive getter
+  const buildEngine = () =>
+    createNuGridTable<T>({
+      data: () => data.value, // reactive getter — row model reads fresh data each time
+      columnDefs: columns.value,
+      state: stateAccessors,
+      getRowId,
+      meta: props.meta ?? {},
+      enableColumnResizing: props.enableColumnResizing,
+      enableSorting: props.enableSorting,
+      enableMultiSort: props.enableMultiSort,
+      enableExpanding: props.enableExpanding,
+      enableRowSelection: rowSelection?.enableRowSelection.value ?? true,
+      enableMultiRowSelection: rowSelection?.enableMultiRowSelection.value ?? true,
+      isMultiSortEvent: props.isMultiSortEvent,
+      maxMultiSortColCount: props.maxMultiSortColCount,
+      renderFallbackValue: props.renderFallbackValue,
+    })
+
+  // Engine is held in a shallowRef — rebuilt when columns change
+  const engine = shallowRef(buildEngine())
+
+  // Create a stable wrapper that delegates to the current engine.
+  // Includes table-level state setters for compatibility with existing code.
+  const tableApi = {
+    // -- Read methods (delegate to engine) --
+    getHeaderGroups: () => engine.value.getHeaderGroups(),
+    getFooterGroups: () => engine.value.getFooterGroups(),
+    getAllColumns: () => engine.value.getAllColumns(),
+    getAllLeafColumns: () => engine.value.getAllLeafColumns(),
+    getAllFlatColumns: () => engine.value.getAllFlatColumns(),
+    getVisibleLeafColumns: () => engine.value.getVisibleLeafColumns(),
+    getLeftLeafColumns: () => engine.value.getLeftLeafColumns(),
+    getRightLeafColumns: () => engine.value.getRightLeafColumns(),
+    getColumn: (id: string) => engine.value.getColumn(id),
+    getRowModel: () => engine.value.getRowModel(),
+    getCoreRowModel: () => engine.value.getCoreRowModel(),
+    getFilteredRowModel: () => engine.value.getFilteredRowModel(),
+    getGroupedRowModel: () => engine.value.getRowModel(),
+    getSelectedRowModel: () => engine.value.getSelectedRowModel(),
+    getFilteredSelectedRowModel: () => engine.value.getFilteredSelectedRowModel(),
+    getPrePaginationRowModel: () => engine.value.getPrePaginationRowModel(),
+    getRow: (id: string, searchAll?: boolean) => engine.value.getRow(id, searchAll),
+    createRow: (
+      id: string,
+      original: any,
+      index: number,
+      depth: number,
+      subRows?: any[],
+      parentId?: string,
+    ) => engine.value.createRow(id, original, index, depth, subRows, parentId),
+    toggleAllPageRowsSelected: (value: boolean) => engine.value.toggleAllPageRowsSelected(value),
+    toggleAllRowsSelected: (value: boolean) => engine.value.toggleAllRowsSelected(value),
+    getIsAllPageRowsSelected: () => engine.value.getIsAllPageRowsSelected(),
+    getIsSomePageRowsSelected: () => engine.value.getIsSomePageRowsSelected(),
+    getTotalSize: () => engine.value.getTotalSize(),
+    getState: () => ({
+      ...engine.value.getState(),
+      globalFilter: states.globalFilterState.value,
+      columnFilters: states.columnFiltersState.value,
+      pagination: states.paginationState.value,
+      rowPinning: states.rowPinningState.value,
+    }),
+    get options() {
+      return {
+        ...engine.value.options,
+        manualFiltering: true,
+        manualSorting: true,
+      }
+    },
+
+    // -- Table-level state setters (write directly to NuGrid refs) --
+    setSorting: (updater: any) => valueUpdater(updater, states.sortingState),
+    setRowSelection: (updater: any) => valueUpdater(updater, states.rowSelectionState),
+    setGlobalFilter: (updater: any) => valueUpdater(updater, states.globalFilterState),
+    setColumnFilters: (updater: any) => valueUpdater(updater, states.columnFiltersState),
+    setColumnVisibility: (updater: any) => valueUpdater(updater, states.columnVisibilityState),
+    setColumnPinning: (updater: any) => valueUpdater(updater, states.columnPinningState),
+    setColumnOrder: (updater: any) => valueUpdater(updater, states.columnOrderState),
+    setColumnSizing: (updater: any) => valueUpdater(updater, states.columnSizingState),
+    setColumnSizingInfo: (updater: any) => valueUpdater(updater, states.columnSizingInfoState),
+    setExpanded: (updater: any) => valueUpdater(updater, states.expandedState),
+    setGrouping: (updater: any) => valueUpdater(updater, states.groupingState),
+    setPagination: (updater: any) => valueUpdater(updater, states.paginationState),
+  } as any // tableApi is a superset of EngineTable<T> — includes state setters not on the interface
 
   // Signal that gets incremented after columns are updated in the table
-  // This allows components to react AFTER setOptions has been called
   const columnsUpdatedSignal = ref(0)
 
-  // Watch for column changes and update the table
-  watch(columns, async (newColumns) => {
-    tableApi.setOptions((prev) => ({
-      ...prev,
-      columns: newColumns,
-    }))
-    // Wait for Vue to process the table update, then signal that columns were updated
+  // Watch for column changes — rebuild engine with new column defs
+  watch(columns, async () => {
+    engine.value = buildEngine()
+    // Wait for Vue to process the update, then signal that columns were updated
     await nextTick()
     columnsUpdatedSignal.value++
   })
 
-  // Watch for data changes and notify TanStack.
-  // TanStack's useVueTable doesn't track data changes through its mergeProxy/getter approach,
-  // so we explicitly call setOptions when data changes.
-  // flush: 'sync' ensures TanStack has fresh data before any computed re-evaluates.
-  watch(
-    data,
-    (newData) => {
-      tableApi.setOptions((prev) => ({
-        ...prev,
-        data: newData,
-      }))
-    },
-    { flush: 'sync' },
-  )
+  // No data watch needed — the engine reads data via a reactive getter.
+  // Vue's dependency tracking automatically re-runs computeds when data.value changes.
 
   return { tableApi, columnsUpdatedSignal }
 }
@@ -606,7 +574,7 @@ export function useNuGridDataWatch<T extends TableData>(props: NuGridProps<T>, d
   watch(
     () => props.data,
     () => {
-      data.value = props.data ? [...props.data] : []
+      data.value = props.data ?? []
     },
     props.watchOptions,
   )
