@@ -5,6 +5,7 @@ import type { Ref } from 'vue'
 import { computed } from 'vue'
 
 import type { NuGridColumn } from '../../types/column'
+
 import { filterFns, resolveFilterFn } from '../../utils/filteringFns'
 
 // ---------------------------------------------------------------------------

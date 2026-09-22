@@ -1,4 +1,8 @@
 import { describe, expect, it } from 'vitest'
+import { ref } from 'vue'
+
+import { useNuGridFiltering } from '../src/runtime/composables/_internal/useNuGridFiltering'
+import { autoDetectFilterFn, filterFns } from '../src/runtime/utils/filteringFns'
 
 // ============================================================================
 // Reference implementations — copied verbatim from TanStack Table's filterFns.ts
@@ -78,7 +82,6 @@ const tanstackEquals = (row: any, columnId: string, filterValue: unknown) => {
 }
 
 const tanstackWeakEquals = (row: any, columnId: string, filterValue: unknown) => {
-  // eslint-disable-next-line eqeqeq
   return row.getValue(columnId) == filterValue
 }
 
@@ -178,15 +181,6 @@ function mockFilterRow(data: Record<string, any>) {
     original: data,
   }
 }
-
-// ============================================================================
-// NuGrid imports — import from the new filteringFns.ts
-// ============================================================================
-
-import {
-  autoDetectFilterFn,
-  filterFns,
-} from '../src/runtime/utils/filteringFns'
 
 // ============================================================================
 // A. Filter function parity tests
@@ -548,10 +542,6 @@ describe('autoDetectFilterFn — parity with TanStack', () => {
 // ============================================================================
 // C. Column filter pipeline tests
 // ============================================================================
-
-import { ref } from 'vue'
-
-import { useNuGridFiltering } from '../src/runtime/composables/_internal/useNuGridFiltering'
 
 describe('useNuGridFiltering — column filters', () => {
   const rawData = [

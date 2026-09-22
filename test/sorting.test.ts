@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { ref } from 'vue'
 
+import { useNuGridSorting } from '../src/runtime/composables/_internal/useNuGridSorting'
 import {
   compareAlphanumeric,
   compareBasic,
@@ -372,10 +374,6 @@ describe('resolveComparator', () => {
 
 // We test the sort engine by importing useNuGridSorting and calling it with
 // mock Row/Table objects that mimic TanStack's shape.
-
-import { ref } from 'vue'
-
-import { useNuGridSorting } from '../src/runtime/composables/_internal/useNuGridSorting'
 
 // ---------------------------------------------------------------------------
 // Mock helpers

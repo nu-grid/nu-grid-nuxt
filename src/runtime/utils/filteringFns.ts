@@ -97,7 +97,6 @@ const weakEquals: FilterFn<any> = (
   columnId: string,
   filterValue: unknown,
 ) => {
-  // eslint-disable-next-line eqeqeq
   return row.getValue(columnId) == filterValue
 }
 weakEquals.autoRemove = (val: any) => testFalsey(val)
