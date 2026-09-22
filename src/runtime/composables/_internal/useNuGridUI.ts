@@ -9,6 +9,7 @@ import { useAppConfig } from '#imports'
 
 import type { NuGridProps } from '../../types'
 import type { NuGridConfig } from '../../types/_internal'
+import type { NuGridAppConfig } from '../../types/config'
 
 import { getTheme } from '../../themes'
 
@@ -20,32 +21,37 @@ export function useNuGridUI(props: NuGridProps) {
   // type no longer overlaps NuGrid's extended table config, so the assertion goes through unknown;
   // at runtime it is the same object.
   const appConfig = useAppConfig() as unknown as NuGridConfig['AppConfig']
+  // NuGrid's own app.config key, read with its declared shape (see types/config.ts).
+  const gridConfig = (): NuGridAppConfig | undefined => (appConfig as { nuGrid?: NuGridAppConfig }).nuGrid
 
-  const ui = computed(() => {
-    // Get theme from registry (with fallback to default)
-    const themeName = props.theme || 'default'
-    const themeDefinition = getTheme(themeName)
+  // Theme choice: the grid's `theme` prop, else app.config `nuGrid.theme`, else 'default'.
+  const themeName = computed(() => props.theme || gridConfig()?.theme || 'default')
 
-    if (!themeDefinition) {
-      if (import.meta.dev) {
-        console.warn(`[NuGrid] Theme "${themeName}" not found. Using "default" theme.`)
-      }
-      const defaultThemeDef = getTheme('default')!
-      const virtualization = props.virtualization
-
-      return tv({ extend: tv(defaultThemeDef.theme as any), ...(appConfig.ui?.table || {}) })({
-        sticky: virtualization ? false : props.sticky,
-        loading: props.loading,
-        loadingColor: props.loadingColor,
-        loadingAnimation: props.loadingAnimation,
-        virtualize: !!virtualization,
-      } as any)
+  const themeDefinition = computed(() => {
+    const found = getTheme(themeName.value)
+    if (!found && import.meta.dev) {
+      console.warn(`[NuGrid] Theme "${themeName.value}" not found. Using "default" theme.`)
     }
+    return found || getTheme('default')!
+  })
 
-    const selectedTheme = themeDefinition.theme
+  /**
+   * Layers, lowest first:
+   *   1. the selected theme (registered via registerTheme or app.config nuGrid.themes)
+   *   2. app.config ui.table   — shared with Nuxt UI's UTable, so a grid styles like a table
+   *   3. app.config nuGrid.ui  — app-wide overrides for NuGrid, including its own slots
+   *   4. the `ui` prop         — applied per slot by the components
+   */
+  const ui = computed(() => {
+    const withTable = tv({ extend: tv(themeDefinition.value.theme as any), ...(appConfig.ui?.table || {}) })
+    const gridOverrides = gridConfig()?.ui
+    // Extending adds classes; it never removes slots, so the result has withTable's shape.
+    const layered = (
+      gridOverrides ? tv({ extend: withTable, ...gridOverrides } as any) : withTable
+    ) as typeof withTable
     const virtualization = props.virtualization
 
-    return tv({ extend: tv(selectedTheme as any), ...(appConfig.ui?.table || {}) })({
+    return layered({
       sticky: virtualization ? false : props.sticky,
       loading: props.loading,
       loadingColor: props.loadingColor,
@@ -54,26 +60,22 @@ export function useNuGridUI(props: NuGridProps) {
     } as any)
   })
 
-  // Pre-merge checkbox theme with grid theme slots (computed once per theme change)
+  // Pre-merge checkbox theme with grid theme slots (computed once per theme change).
+  // app.config nuGrid.ui can override the checkbox slots too, after the theme.
   const checkboxTheme = computed(() => {
-    const themeName = props.theme || 'default'
-    const themeDefinition = getTheme(themeName) || getTheme('default')!
-    const selectedTheme = themeDefinition.theme
+    const themeSlots = themeDefinition.value.theme.slots
+    const appSlots = (gridConfig()?.ui?.slots || {}) as Record<string, string | undefined>
+    const slot = (base: string, themeKey: string) =>
+      twMerge(base, themeSlots[themeKey as keyof typeof themeSlots], appSlots[themeKey])
 
     return {
       ...baseCheckboxTheme,
       slots: {
         ...baseCheckboxTheme.slots,
-        base: twMerge(baseCheckboxTheme.slots.base, selectedTheme.slots.checkboxBase),
-        indicator: twMerge(
-          baseCheckboxTheme.slots.indicator,
-          selectedTheme.slots.checkboxIndicator,
-        ),
-        container: twMerge(
-          baseCheckboxTheme.slots.container,
-          selectedTheme.slots.checkboxContainer,
-        ),
-        icon: twMerge(baseCheckboxTheme.slots.icon, selectedTheme.slots.checkboxIcon),
+        base: slot(baseCheckboxTheme.slots.base, 'checkboxBase'),
+        indicator: slot(baseCheckboxTheme.slots.indicator, 'checkboxIndicator'),
+        container: slot(baseCheckboxTheme.slots.container, 'checkboxContainer'),
+        icon: slot(baseCheckboxTheme.slots.icon, 'checkboxIcon'),
       },
     }
   })
