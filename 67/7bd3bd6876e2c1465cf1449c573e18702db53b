@@ -1,0 +1,28 @@
+src/runtime/composables/_internal/useNuGridUI.ts
+  s_064bebb658c613::t_cd0351b61f22b0 27,30-33,35-36,38-46,54,63-64,66,68-69,75-78
+  s_064bebb658c613::t_945a487dc4c8a9 12,24-25,28,47,67
+  s_064bebb658c613::t_c0dd962a496575 48-51
+test/theme-layering.test.ts
+  s_064bebb658c613::t_e39e1242be8865 1,16-17
+  s_064bebb658c613::t_79bc91a15dd676 2-15,18-89
+src/runtime/types/config.ts
+  s_064bebb658c613::t_945a487dc4c8a9 32-54,60
+docs/content/5.theming/1.themes.md
+  s_064bebb658c613::t_adf093c70399a2 66,68-69,71,73,77,79-112,120-121,127,129,131-135,137,139,143,145
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "677bd3bd6876e2c1465cf1449c573e18702db53b",
+  "prompts": {},
+  "sessions": {
+    "s_064bebb658c613": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "17c7b423-b4c4-41ee-8863-401936322617",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "John Campion Jr <john@brightshore.io>"
+    }
+  }
+}
