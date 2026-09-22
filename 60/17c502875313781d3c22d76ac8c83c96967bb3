@@ -1,0 +1,22 @@
+src/runtime/composables/_internal/useNuGridWheelSmoothing.ts
+  s_064bebb658c613::t_2ffe187579ca2c 48-78,169,187
+test/wheel-smoothing.test.ts
+  s_064bebb658c613::t_9f6f37d2f1ebc3 8-11,15-29,31-45,98-99,112,125-126,144-145,165,171,175-208,211-212,216-260
+  s_064bebb658c613::t_630ae2de44d1c4 209-210,213-215
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "6017c502875313781d3c22d76ac8c83c96967bb3",
+  "prompts": {},
+  "sessions": {
+    "s_064bebb658c613": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "17c7b423-b4c4-41ee-8863-401936322617",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "John Campion Jr <john@brightshore.io>"
+    }
+  }
+}
