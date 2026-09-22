@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.1](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.4.0...v0.4.1) (2026-09-22)
+
+
+### ✨ Features
+
+* Apply the ui prop to every slot, with Nuxt UI's merge and replace rules ([#26](https://github.com/nu-grid/nu-grid-nuxt/issues/26)) ([f2f75eb](https://github.com/nu-grid/nu-grid-nuxt/commit/f2f75eb943815d1b567b0f8707f42641278dc647))
+* Set the default theme and app-wide overrides in app.config ([#25](https://github.com/nu-grid/nu-grid-nuxt/issues/25)) ([f28fdaa](https://github.com/nu-grid/nu-grid-nuxt/commit/f28fdaa8186da71eb94d7a4ef2aee2ad19fc387a))
+* Theme the grid with Nuxt UI's semantic colors ([#20](https://github.com/nu-grid/nu-grid-nuxt/issues/20)) ([818550d](https://github.com/nu-grid/nu-grid-nuxt/commit/818550dc9f34c08232d2771d549b5df4f4e4e803))
+
+
+### 🐛 Bug Fixes
+
+* **playground:** Drop pre-bundle entries that break dev mode ([#23](https://github.com/nu-grid/nu-grid-nuxt/issues/23)) ([dcf8430](https://github.com/nu-grid/nu-grid-nuxt/commit/dcf8430808c9d48a89f9835f05e48eecee0777c9))
+
 ## [0.4.0](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.3.1...v0.4.0) (2026-09-22)
 
 
