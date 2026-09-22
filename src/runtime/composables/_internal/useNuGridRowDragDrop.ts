@@ -436,9 +436,9 @@ export function useNuGridRowDragDrop<T extends TableData>(
       'class': [
         isDragging && 'opacity-60',
         isDropBefore &&
-          'border-t-[3px] border-t-blue-500/80 bg-blue-500/[0.08] transition-all duration-200',
+          'border-t-[3px] border-t-primary/80 bg-primary/[0.08] transition-all duration-200',
         isDropAfter &&
-          'border-b-[3px] border-b-blue-500/80 bg-blue-500/[0.08] transition-all duration-200',
+          'border-b-[3px] border-b-primary/80 bg-primary/[0.08] transition-all duration-200',
       ]
         .filter(Boolean)
         .join(' '),

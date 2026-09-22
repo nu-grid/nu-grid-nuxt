@@ -57,6 +57,6 @@ const handleInput = (value: string) => {
       @blur="handleBlur"
       @keydown="handleKeydown"
     />
-    <span class="ml-1 shrink-0 text-gray-500 dark:text-gray-400">%</span>
+    <span data-affix class="ml-1 shrink-0 text-dimmed">%</span>
   </div>
 </template>

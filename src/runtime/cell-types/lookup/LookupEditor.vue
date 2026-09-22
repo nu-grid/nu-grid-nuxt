@@ -498,7 +498,7 @@ watch(
       </template>
     </NuGridSelectMenu>
 
-    <div v-if="loadError" class="mt-1 text-xs text-red-500">
+    <div v-if="loadError" class="mt-1 text-xs text-error">
       {{ loadError }}
     </div>
   </div>

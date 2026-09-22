@@ -33,16 +33,16 @@ export const nuGridThemeCompact = {
     // Additional NuGrid-specific slots
     rowDragHandle: 'flex shrink-0 items-center justify-center px-1 w-8 min-w-8 max-w-8',
     colResizeHandle:
-      'flex items-center justify-center w-3 h-full cursor-col-resize select-none touch-none opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200 hover:bg-primary-500/10 [&:hover_.col-resizer]:bg-primary-500/80',
-    colResizer: 'w-0.5 h-3/5 rounded-sm transition-colors duration-200 bg-gray-400/60 col-resizer',
+      'flex items-center justify-center w-3 h-full cursor-col-resize select-none touch-none opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200 hover:bg-primary/10 [&:hover_.col-resizer]:bg-primary/80',
+    colResizer: 'w-0.5 h-3/5 rounded-sm transition-colors duration-200 bg-(--ui-border-accented) col-resizer',
     rowDragHeaderHandle: 'shrink-0 w-8 min-w-8 max-w-8',
     // Tighter header inner: px-2 py-1 instead of px-3 py-2
     thInner: 'flex flex-1 items-center px-2 py-1 truncate',
     sortHandle:
-      'flex shrink-0 items-center px-1 cursor-pointer select-none opacity-100 hover:text-primary-500 transition-opacity duration-200',
+      'flex shrink-0 items-center px-1 cursor-pointer select-none opacity-100 hover:text-primary transition-opacity duration-200',
     sortHandleHover:
-      'flex shrink-0 items-center px-1 cursor-pointer select-none text-dimmed opacity-0 group-hover:opacity-100 focus-within:opacity-100 hover:text-primary-500 transition-opacity duration-200',
-    sortHandleStale: 'text-amber-500',
+      'flex shrink-0 items-center px-1 cursor-pointer select-none text-dimmed opacity-0 group-hover:opacity-100 focus-within:opacity-100 hover:text-primary transition-opacity duration-200',
+    sortHandleStale: 'text-warning',
     rowDragIcon: 'inline-block w-3.5 h-3.5',
     headerContainer: 'relative flex items-stretch w-full h-full bg-elevated',
     headerControls: 'absolute right-0 inset-y-0 flex items-center z-10 bg-inherit',
@@ -97,7 +97,7 @@ export const nuGridThemeCompact = {
     searchPanel: 'flex items-center gap-2 px-2 py-1.5 border-b border-default bg-elevated',
     searchInput: 'w-full min-w-[180px] max-w-sm',
     // Search highlight styling for matching text in cells (uses primary color by default)
-    searchHighlight: 'text-inherit bg-primary-200 dark:bg-primary-500/40 rounded-sm px-0.5 -mx-0.5',
+    searchHighlight: 'text-inherit bg-primary/20 dark:bg-primary/40 rounded-sm px-0.5 -mx-0.5',
   },
   variants: {
     ...theme.variants,
@@ -115,7 +115,7 @@ export const nuGridThemeCompact = {
     },
     focusCell: {
       true: {
-        td: 'z-1 shadow-[inset_1px_0_0_0_theme(colors.primary.500/70%),inset_-1px_0_0_0_theme(colors.primary.500/70%),inset_0_1px_0_0_theme(colors.primary.500/70%),inset_0_-1px_0_0_theme(colors.primary.500/70%)]',
+        td: 'z-1 shadow-[inset_1px_0_0_0_color-mix(in_oklab,var(--ui-primary)_70%,transparent),inset_-1px_0_0_0_color-mix(in_oklab,var(--ui-primary)_70%,transparent),inset_0_1px_0_0_color-mix(in_oklab,var(--ui-primary)_70%,transparent),inset_0_-1px_0_0_color-mix(in_oklab,var(--ui-primary)_70%,transparent)]',
       },
       false: {},
     },
@@ -128,7 +128,7 @@ export const nuGridThemeCompact = {
     },
     rowInvalid: {
       true: {
-        td: 'bg-error/10 text-error-700 dark:bg-error/20 dark:text-error-50',
+        td: 'bg-error/10 text-error dark:bg-error/20',
       },
       false: {},
     },
@@ -146,8 +146,8 @@ export const nuGridThemeCompact = {
     },
     colResizing: {
       true: {
-        colResizeHandle: 'opacity-100! bg-primary-500/10',
-        colResizer: 'bg-primary-500 w-1',
+        colResizeHandle: 'opacity-100! bg-primary/10',
+        colResizer: 'bg-primary w-1',
       },
       false: {
         colResizeHandle: '',
@@ -167,12 +167,12 @@ export const nuGridThemeCompact = {
     // compactHeader variant removed — now uses data-[compact] attribute in base slot
     colDragging: {
       true: {
-        th: 'bg-primary-500/15 opacity-50 transition-[opacity,background-color] duration-200 ease-linear',
+        th: 'bg-primary/15 opacity-50 transition-[opacity,background-color] duration-200 ease-linear',
       },
     },
     colDropTarget: {
       true: {
-        th: 'bg-primary-500/10! data-[drop-position=left]:shadow-[inset_3px_0_0_0_theme(colors.primary.500/80%)] data-[drop-position=right]:shadow-[inset_-3px_0_0_0_theme(colors.primary.500/80%)] transition-shadow duration-200 ease-linear',
+        th: 'bg-primary/10! data-[drop-position=left]:shadow-[inset_3px_0_0_0_color-mix(in_oklab,var(--ui-primary)_80%,transparent)] data-[drop-position=right]:shadow-[inset_-3px_0_0_0_color-mix(in_oklab,var(--ui-primary)_80%,transparent)] transition-shadow duration-200 ease-linear',
       },
     },
     // Multi-row focused state (row focus mode with multi-row layout)
@@ -198,7 +198,7 @@ export const nuGridThemeCompact = {
       rowInvalid: true,
       activeRow: true,
       class: {
-        td: '!bg-error/10 !text-error-700 dark:!bg-error/20 dark:!text-error-50',
+        td: '!bg-error/10 !text-error dark:!bg-error/20',
       },
     },
     {
@@ -208,7 +208,7 @@ export const nuGridThemeCompact = {
       focusCell: false,
       gridFocused: true,
       class: {
-        td: '!bg-error/10 !text-error-700 dark:!bg-error/20 dark:!text-error-50',
+        td: '!bg-error/10 !text-error dark:!bg-error/20',
       },
     },
     {
@@ -218,7 +218,7 @@ export const nuGridThemeCompact = {
       focusCell: false,
       gridFocused: false,
       class: {
-        td: '!bg-error/10 !text-error-700 dark:!bg-error/20 dark:!text-error-50',
+        td: '!bg-error/10 !text-error dark:!bg-error/20',
       },
     },
     // Unfocused grid background
@@ -226,35 +226,35 @@ export const nuGridThemeCompact = {
       focusCell: true,
       gridFocused: false,
       rowInvalid: false,
-      class: { td: 'bg-primary-500/20! dark:bg-primary-400/30!' },
+      class: { td: 'bg-primary/20! dark:bg-primary/30!' },
     },
     {
       focusRow: true,
       gridFocused: false,
       pinned: false,
       rowInvalid: false,
-      class: { td: 'bg-primary-500/20! dark:bg-primary-400/30!' },
+      class: { td: 'bg-primary/20! dark:bg-primary/30!' },
     },
     {
       focusRow: true,
       gridFocused: false,
       pinned: true,
       rowInvalid: false,
-      class: { td: 'z-10 bg-primary-500/20! dark:bg-primary-400/30!' },
+      class: { td: 'z-10 bg-primary/20! dark:bg-primary/30!' },
     },
     // Focus row outline borders
     {
       focusRow: true,
       hasLeftBorder: true,
       class: {
-        td: 'shadow-[inset_1px_0_0_0_theme(colors.primary.500/70%),inset_0_1px_0_0_theme(colors.primary.500/70%),inset_0_-1px_0_0_theme(colors.primary.500/70%)]',
+        td: 'shadow-[inset_1px_0_0_0_color-mix(in_oklab,var(--ui-primary)_70%,transparent),inset_0_1px_0_0_color-mix(in_oklab,var(--ui-primary)_70%,transparent),inset_0_-1px_0_0_color-mix(in_oklab,var(--ui-primary)_70%,transparent)]',
       },
     },
     {
       focusRow: true,
       hasRightBorder: true,
       class: {
-        td: 'shadow-[inset_-1px_0_0_0_theme(colors.primary.500/70%),inset_0_1px_0_0_theme(colors.primary.500/70%),inset_0_-1px_0_0_theme(colors.primary.500/70%)]',
+        td: 'shadow-[inset_-1px_0_0_0_color-mix(in_oklab,var(--ui-primary)_70%,transparent),inset_0_1px_0_0_color-mix(in_oklab,var(--ui-primary)_70%,transparent),inset_0_-1px_0_0_color-mix(in_oklab,var(--ui-primary)_70%,transparent)]',
       },
     },
     {
@@ -262,21 +262,21 @@ export const nuGridThemeCompact = {
       hasLeftBorder: false,
       hasRightBorder: false,
       class: {
-        td: 'shadow-[inset_0_1px_0_0_theme(colors.primary.500/70%),inset_0_-1px_0_0_theme(colors.primary.500/70%)]',
+        td: 'shadow-[inset_0_1px_0_0_color-mix(in_oklab,var(--ui-primary)_70%,transparent),inset_0_-1px_0_0_color-mix(in_oklab,var(--ui-primary)_70%,transparent)]',
       },
     },
     {
       focusRow: true,
       rowInvalid: true,
       class: {
-        td: 'bg-error/10 text-error-700 dark:bg-error/20 dark:text-error-50 shadow-none',
+        td: 'bg-error/10 text-error dark:bg-error/20 shadow-none',
       },
     },
     {
       focusCell: true,
       rowInvalid: true,
       class: {
-        td: 'bg-error/10 text-error-700 dark:bg-error/20 dark:text-error-50 shadow-none',
+        td: 'bg-error/10 text-error dark:bg-error/20 shadow-none',
       },
     },
   ],

@@ -27,7 +27,7 @@ const handleInput = (value: string) => {
 
 <template>
   <div class="ml-[2px] flex items-center gap-1">
-    <span class="text-gray-500">$</span>
+    <span data-affix class="text-dimmed">$</span>
     <UInput
       ref="inputRef"
       :model-value="inputText"
