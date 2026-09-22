@@ -4,6 +4,7 @@ import {
   addPlugin,
   createResolver,
   defineNuxtModule,
+  useLogger,
 } from '@nuxt/kit'
 
 // Module options TypeScript interface definition
@@ -42,6 +43,26 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
     addPlugin(resolver.resolve('./runtime/plugin'))
+
+    // NuGrid's classes and row-animation keyframes must be inside the app's Tailwind entry, and
+    // Tailwind skips node_modules when it scans for classes. Nuxt UI's stylesheet (`@import "@nuxt/ui"`)
+    // pulls in its generated `ui.css` template, where it lists its own `@source`s; importing our
+    // stylesheet from there puts NuGrid in whichever file is the Tailwind entry, including a design
+    // system's own (e.g. a layer that owns the only entry), with nothing for the app to add.
+    // Found after every module has set up, since Nuxt UI may register it after this module runs.
+    const cssEntry = resolver.resolve('./runtime/index.css')
+    nuxt.hook('modules:done', () => {
+      const template = nuxt.options.build.templates.find((t) => t.filename === 'ui.css')
+      if (!template?.getContents) {
+        useLogger('nu-grid').warn(
+          "Could not find Nuxt UI's ui.css template to register NuGrid's styles. Add `@import \"@nu-grid/nuxt/css\";` to your main Tailwind stylesheet, or grids will render partly unstyled.",
+        )
+        return
+      }
+      const original = template.getContents
+      template.getContents = async (data) =>
+        `@import ${JSON.stringify(cssEntry)};\n${await original(data)}`
+    })
 
     // Auto-import only PUBLIC composables (not _internal/)
     // These are the composables intended for end-user consumption

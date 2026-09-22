@@ -382,6 +382,11 @@ export function useNuGridApi<T extends TableData>(
   states: NuGridStates,
   rowSelectionMode?: Ref<NuGridRowSelectionMode<T>>,
   eventEmitter?: NuGridEventEmitter<T>,
+  options: {
+    /** False in a layout mode that doesn't render groups: the row model then ignores `grouping`, so
+     *  every row shows flat instead of one row per group. The grouping state itself is untouched. */
+    groupingRendered?: boolean
+  } = {},
 ) {
   // Use the row selection composable to get enableMultiRowSelection
   const rowSelection = rowSelectionMode ? useNuGridRowSelection<T>(rowSelectionMode) : null
@@ -394,7 +399,7 @@ export function useNuGridApi<T extends TableData>(
     columnVisibility: () => states.columnVisibilityState.value,
     columnOrder: () => states.columnOrderState.value,
     sorting: () => states.sortingState.value,
-    grouping: () => states.groupingState.value,
+    grouping: () => (options.groupingRendered === false ? [] : states.groupingState.value),
     rowSelection: () => states.rowSelectionState.value,
     expanded: () => states.expandedState.value,
     columnFilters: () => states.columnFiltersState.value,
