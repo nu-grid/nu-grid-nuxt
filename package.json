@@ -79,6 +79,7 @@
   },
   "dependencies": {
     "@nuxt/kit": "catalog:",
+    "@tanstack/vue-virtual": "catalog:",
     "defu": "catalog:",
     "tailwind-scrollbar": "catalog:"
   },
@@ -97,12 +98,14 @@
     "eslint": "catalog:",
     "eslint-plugin-oxlint": "catalog:",
     "eslint-plugin-perfectionist": "catalog:",
+    "h3-next": "npm:h3@^2.0.1-rc.32",
     "happy-dom": "catalog:",
     "nuxt": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
+    "vue": "catalog:",
     "vue-tsc": "catalog:"
   },
   "peerDependencies": {

@@ -61,7 +61,7 @@ interface UseNuGridSearchOptions<T extends TableData> {
   /** Table instance */
   tableApi: Table<T>
   /** Global filter state ref (v-model binding) */
-  globalFilterState: Ref<string>
+  globalFilterState: Ref<string | undefined>
   /** Interaction router for keyboard handling */
   interactionRouter?: NuGridInteractionRouter<T>
   /** Whether editing is currently active */

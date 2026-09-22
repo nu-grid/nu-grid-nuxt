@@ -2,10 +2,11 @@
 import type { AppConfig } from '@nuxt/schema'
 import type { ComponentConfig } from '@nuxt/ui'
 
-import theme from '#build/ui/tooltip'
-import { useAppConfig } from '#imports'
 import { tv } from '@nuxt/ui/utils/tv'
 import { computed } from 'vue'
+
+import theme from '#build/ui/tooltip'
+import { useAppConfig } from '#imports'
 
 import { useNuGridTooltip } from '../../composables/_internal/useNuGridTooltip'
 

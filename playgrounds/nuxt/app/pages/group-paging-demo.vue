@@ -483,8 +483,8 @@ const exampleCode = `<NuGrid
             <p><strong>Key Points:</strong></p>
             <ul class="list-inside list-disc space-y-1">
               <li>
-                <strong>TanStack Integration:</strong> Uses TanStack Table's pagination row model
-                which works after the grouping/expand pipeline
+                <strong>Pipeline order:</strong> Pagination runs after the grouping/expand
+                pipeline
               </li>
               <li>
                 <strong>Expand State Awareness:</strong> The page count depends on which groups are

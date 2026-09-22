@@ -16,7 +16,10 @@ vi.mock('#imports', () => ({
 
 // Mock @vueuse/core
 const mockStorageValue = ref<NuGridStateSnapshot | null>(null)
-vi.mock('@vueuse/core', () => ({
+// Partial mock: only storage is replaced. The Nuxt test environment's own app also imports
+// @vueuse/core (createSharedComposable during router navigation), so the rest must stay real.
+vi.mock('@vueuse/core', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@vueuse/core')>()),
   useStorage: vi.fn(() => mockStorageValue),
   StorageSerializers: {
     object: {},

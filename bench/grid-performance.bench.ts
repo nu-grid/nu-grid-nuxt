@@ -12,7 +12,7 @@
  * - State access (eager read-all vs lazy getters)
  * - Filtering at scale
  */
-import { bench, describe } from 'vitest'
+import { describe, test } from 'vitest'
 import { computed, ref } from 'vue'
 
 import {
@@ -22,6 +22,13 @@ import {
   sortBasic,
   sortText,
 } from '../src/runtime/utils/sortingFns'
+
+// Vitest 5 has no global bench(); a benchmark is declared through the test context and run
+// explicitly. One test per benchmark keeps the reporting granularity of the old bench() calls.
+const benchTest = (name: string, fn: () => unknown) =>
+  test(name, async ({ bench }) => {
+    await bench(name, fn).run()
+  })
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Test data generators
@@ -67,12 +74,12 @@ const alphanumericPairs = rows10K.map(
 describe('Sorting: compareBasic', () => {
   const numbers = rows10K.map((r) => r.amount)
 
-  bench('sort 10K numbers', () => {
+  benchTest('sort 10K numbers', () => {
     const arr = [...numbers]
     arr.sort(compareBasic)
   })
 
-  bench('sort 50K numbers', () => {
+  benchTest('sort 50K numbers', () => {
     const arr = rows50K.map((r) => r.amount)
     arr.sort(compareBasic)
   })
@@ -81,14 +88,14 @@ describe('Sorting: compareBasic', () => {
 describe('Sorting: sortAlphanumeric', () => {
   const strings = rows10K.map((r) => r.name)
 
-  bench('sort 10K mixed alphanumeric strings', () => {
+  benchTest('sort 10K mixed alphanumeric strings', () => {
     const arr = [...strings]
     arr.sort(sortAlphanumeric)
   })
 })
 
 describe('Sorting: compareAlphanumeric hot path', () => {
-  bench('10K compareAlphanumeric calls', () => {
+  benchTest('10K compareAlphanumeric calls', () => {
     for (const [a, b] of alphanumericPairs) {
       compareAlphanumeric(a, b)
     }
@@ -98,34 +105,34 @@ describe('Sorting: compareAlphanumeric hot path', () => {
 describe('Sorting: sortText vs sortAlphanumeric', () => {
   const strings = rows10K.map((r) => r.name)
 
-  bench('sortText (simple lowercase compare) 10K', () => {
+  benchTest('sortText (simple lowercase compare) 10K', () => {
     const arr = [...strings]
     arr.sort(sortText)
   })
 
-  bench('sortAlphanumeric (split + numeric parse) 10K', () => {
+  benchTest('sortAlphanumeric (split + numeric parse) 10K', () => {
     const arr = [...strings]
     arr.sort(sortAlphanumeric)
   })
 })
 
 describe('Sorting: full Array.sort pipeline', () => {
-  bench('sort 1K rows by numeric field', () => {
+  benchTest('sort 1K rows by numeric field', () => {
     const arr = [...rows1K]
     arr.sort((a, b) => sortBasic(a.amount, b.amount))
   })
 
-  bench('sort 10K rows by numeric field', () => {
+  benchTest('sort 10K rows by numeric field', () => {
     const arr = [...rows10K]
     arr.sort((a, b) => sortBasic(a.amount, b.amount))
   })
 
-  bench('sort 10K rows by string field (alphanumeric)', () => {
+  benchTest('sort 10K rows by string field (alphanumeric)', () => {
     const arr = [...rows10K]
     arr.sort((a, b) => sortAlphanumeric(a.name, b.name))
   })
 
-  bench('multi-sort 10K rows (2 columns)', () => {
+  benchTest('multi-sort 10K rows (2 columns)', () => {
     const arr = [...rows10K]
     arr.sort((a, b) => {
       const primary = sortText(a.category, b.category)
@@ -144,7 +151,7 @@ describe('Data reactivity: cell edit trigger', () => {
   // After optimization: triggerRef(data) (O(1))
   // We benchmark the array operations themselves (not Vue reactivity)
 
-  bench('spread copy 1K rows (old pattern)', () => {
+  benchTest('spread copy 1K rows (old pattern)', () => {
     const copy = [...rows1K]
     // Simulate mutation
     copy[500] = { ...copy[500]!, amount: 999 }
@@ -152,19 +159,19 @@ describe('Data reactivity: cell edit trigger', () => {
     void [...copy]
   })
 
-  bench('spread copy 10K rows (old pattern)', () => {
+  benchTest('spread copy 10K rows (old pattern)', () => {
     const copy = [...rows10K]
     copy[5000] = { ...copy[5000]!, amount: 999 }
     void [...copy]
   })
 
-  bench('spread copy 50K rows (old pattern)', () => {
+  benchTest('spread copy 50K rows (old pattern)', () => {
     const copy = [...rows50K]
     copy[25000] = { ...copy[25000]!, amount: 999 }
     void [...copy]
   })
 
-  bench('in-place mutate (new pattern — no copy)', () => {
+  benchTest('in-place mutate (new pattern — no copy)', () => {
     // New: mutate in place, then triggerRef() — O(1)
     rows10K[5000] = { ...rows10K[5000]!, amount: 999 }
     // triggerRef is O(1) — just marks the ref dirty
@@ -176,11 +183,11 @@ describe('Data reactivity: props.data watch', () => {
   // After: data.value = props.data ?? []
   // The spread breaks identity for downstream caches
 
-  bench('spread on prop change 10K (old pattern)', () => {
+  benchTest('spread on prop change 10K (old pattern)', () => {
     void [...rows10K]
   })
 
-  bench('direct assign on prop change (new pattern — zero cost)', () => {
+  benchTest('direct assign on prop change (new pattern — zero cost)', () => {
     void (rows10K ?? [])
   })
 })
@@ -198,7 +205,7 @@ describe('getVisibleCells: allocation patterns', () => {
   }
 
   // Old TanStack pattern: allocate new array every call
-  bench('allocating filter+map per row (old) × 1K rows', () => {
+  benchTest('allocating filter+map per row (old) × 1K rows', () => {
     for (let i = 0; i < 1000; i++) {
       const result = []
       for (const colId of visibleColumnIds) {
@@ -213,7 +220,7 @@ describe('getVisibleCells: allocation patterns', () => {
   let cachedCols: string[] | null = null
   let cachedResult: any[] | null = null
 
-  bench('identity-cached per row (new) × 1K rows', () => {
+  benchTest('identity-cached per row (new) × 1K rows', () => {
     for (let i = 0; i < 1000; i++) {
       // Identity check: same reference = return cached
       if (cachedCols === visibleColumnIds) {
@@ -240,14 +247,14 @@ describe('Range extractor: sticky row merging', () => {
   const viewportRange = Array.from({ length: 25 }, (_, i) => i + 100) // indices 100-124
   const stickyIndexes = [0, 15, 45, 80] // group headers
 
-  bench('Set dedup (old pattern) × 1K frames', () => {
+  benchTest('Set dedup (old pattern) × 1K frames', () => {
     for (let i = 0; i < 1000; i++) {
       const merged = new Set([...stickyIndexes, ...viewportRange])
       void [...merged]
     }
   })
 
-  bench('linear merge (new pattern) × 1K frames', () => {
+  benchTest('linear merge (new pattern) × 1K frames', () => {
     for (let i = 0; i < 1000; i++) {
       const result = [...viewportRange]
       for (const idx of stickyIndexes) {
@@ -263,14 +270,14 @@ describe('Range extractor: sticky row merging', () => {
   const manyStickyIndexes = Array.from({ length: 20 }, (_, i) => i * 50) // 20 sticky headers
   const largeViewport = Array.from({ length: 50 }, (_, i) => i + 200) // 50 visible rows
 
-  bench('Set dedup large (20 sticky + 50 viewport) × 1K', () => {
+  benchTest('Set dedup large (20 sticky + 50 viewport) × 1K', () => {
     for (let i = 0; i < 1000; i++) {
       const merged = new Set([...manyStickyIndexes, ...largeViewport])
       void [...merged]
     }
   })
 
-  bench('linear merge large (20 sticky + 50 viewport) × 1K', () => {
+  benchTest('linear merge large (20 sticky + 50 viewport) × 1K', () => {
     for (let i = 0; i < 1000; i++) {
       const result = [...largeViewport]
       for (const idx of manyStickyIndexes) {
@@ -355,19 +362,19 @@ describe('getState: eager vs lazy with Vue refs', () => {
     }
   }
 
-  bench('eager: computed reads all 9 refs (only needs columnSizing)', () => {
+  benchTest('eager: computed reads all 9 refs (only needs columnSizing)', () => {
     const c = computed(() => eagerGetState().columnSizing)
     void c.value
   })
 
-  bench('lazy: computed reads only columnSizing ref', () => {
+  benchTest('lazy: computed reads only columnSizing ref', () => {
     const c = computed(() => lazyGetState().columnSizing)
     void c.value
   })
 
   // Simulate the real impact: how many false re-evaluations happen
   // when unrelated state changes
-  bench('eager: 100 unrelated sorting changes trigger recompute', () => {
+  benchTest('eager: 100 unrelated sorting changes trigger recompute', () => {
     let evalCount = 0
     const c = computed(() => {
       evalCount++
@@ -380,7 +387,7 @@ describe('getState: eager vs lazy with Vue refs', () => {
     }
   })
 
-  bench('lazy: 100 unrelated sorting changes — no recompute', () => {
+  benchTest('lazy: 100 unrelated sorting changes — no recompute', () => {
     let evalCount = 0
     const c = computed(() => {
       evalCount++
@@ -401,14 +408,14 @@ describe('getState: eager vs lazy with Vue refs', () => {
 describe('Filtering: string includes', () => {
   const filterValue = 'item 5'
 
-  bench('filter 10K rows — string includes (case insensitive)', () => {
+  benchTest('filter 10K rows — string includes (case insensitive)', () => {
     const result = rows10K.filter((row) =>
       row.name.toLowerCase().includes(filterValue.toLowerCase()),
     )
     void result.length
   })
 
-  bench('filter 50K rows — string includes (case insensitive)', () => {
+  benchTest('filter 50K rows — string includes (case insensitive)', () => {
     const result = rows50K.filter((row) =>
       row.name.toLowerCase().includes(filterValue.toLowerCase()),
     )
@@ -417,19 +424,19 @@ describe('Filtering: string includes', () => {
 })
 
 describe('Filtering: number range', () => {
-  bench('filter 10K rows — number range', () => {
+  benchTest('filter 10K rows — number range', () => {
     const result = rows10K.filter((row) => row.amount >= 20 && row.amount <= 80)
     void result.length
   })
 
-  bench('filter 50K rows — number range', () => {
+  benchTest('filter 50K rows — number range', () => {
     const result = rows50K.filter((row) => row.amount >= 20 && row.amount <= 80)
     void result.length
   })
 })
 
 describe('Filtering: equality check', () => {
-  bench('filter 10K rows — string equality', () => {
+  benchTest('filter 10K rows — string equality', () => {
     const result = rows10K.filter((row) => row.category === 'A')
     void result.length
   })
@@ -443,15 +450,15 @@ describe('Row model: shallow copy vs direct reference', () => {
   // NuGridBase.vue used to ALWAYS shallow copy the rows array for animation
   // Now it only copies when animation is enabled
 
-  bench('shallow copy 1K rows (animation path)', () => {
+  benchTest('shallow copy 1K rows (animation path)', () => {
     void [...rows1K]
   })
 
-  bench('shallow copy 10K rows (animation path)', () => {
+  benchTest('shallow copy 10K rows (animation path)', () => {
     void [...rows10K]
   })
 
-  bench('direct reference (non-animation path — zero cost)', () => {
+  benchTest('direct reference (non-animation path — zero cost)', () => {
     void rows10K
   })
 })
@@ -467,13 +474,13 @@ describe('Tooltip: mouse follow update (60fps mousemove)', () => {
 
   const state = { text: 'Hello', x: 100, y: 200 }
 
-  bench('spread new object × 1K moves (old — 16.7sec @ 60fps)', () => {
+  benchTest('spread new object × 1K moves (old — 16.7sec @ 60fps)', () => {
     for (let i = 0; i < 1000; i++) {
       void { ...state, x: i, y: i + 50 }
     }
   })
 
-  bench('mutate in place × 1K moves (new — 16.7sec @ 60fps)', () => {
+  benchTest('mutate in place × 1K moves (new — 16.7sec @ 60fps)', () => {
     for (let i = 0; i < 1000; i++) {
       state.x = i
       state.y = i + 50
@@ -492,7 +499,7 @@ describe('Column sizing: proportional resize', () => {
   ])
   const deltaPercentage = 0.15
 
-  bench('calculate proportional sizes for 20 columns × 1K', () => {
+  benchTest('calculate proportional sizes for 20 columns × 1K', () => {
     for (let i = 0; i < 1000; i++) {
       const result: Record<string, number> = {}
       for (const [columnId, headerSize] of columnSizingStart) {
@@ -509,7 +516,7 @@ describe('Column sizing: proportional resize', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('Pipeline: filter → sort → paginate (simulated)', () => {
-  bench('10K rows → filter → sort → take 50', () => {
+  benchTest('10K rows → filter → sort → take 50', () => {
     // Filter
     const filtered = rows10K.filter((r) => r.category === 'A' || r.category === 'B')
     // Sort
@@ -519,14 +526,14 @@ describe('Pipeline: filter → sort → paginate (simulated)', () => {
     void page.length
   })
 
-  bench('50K rows → filter → sort → take 50', () => {
+  benchTest('50K rows → filter → sort → take 50', () => {
     const filtered = rows50K.filter((r) => r.category === 'A' || r.category === 'B')
     filtered.sort((a, b) => sortBasic(a.amount, b.amount))
     const page = filtered.slice(0, 50)
     void page.length
   })
 
-  bench('10K rows → multi-sort → paginate', () => {
+  benchTest('10K rows → multi-sort → paginate', () => {
     const arr = [...rows10K]
     arr.sort((a, b) => {
       const c1 = sortText(a.category, b.category)
@@ -567,13 +574,13 @@ describe('TanStack: valueUpdater pattern overhead', () => {
 
   const sortingRef = ref([{ id: 'col1', desc: false }])
 
-  bench('TanStack path: valueUpdater(value, ref) × 10K', () => {
+  benchTest('TanStack path: valueUpdater(value, ref) × 10K', () => {
     for (let i = 0; i < 10_000; i++) {
       valueUpdater([{ id: 'col1', desc: i % 2 === 0 }], sortingRef)
     }
   })
 
-  bench('direct path: ref.value = value × 10K', () => {
+  benchTest('direct path: ref.value = value × 10K', () => {
     for (let i = 0; i < 10_000; i++) {
       sortingRef.value = [{ id: 'col1', desc: i % 2 === 0 }]
     }
@@ -587,13 +594,13 @@ describe('TanStack: valueUpdater pattern overhead', () => {
   const bigOptions: Record<string, any> = {}
   for (let i = 0; i < 50; i++) bigOptions[`option${i}`] = i
 
-  bench('TanStack setOptions spread 50-prop object × 10K', () => {
+  benchTest('TanStack setOptions spread 50-prop object × 10K', () => {
     for (let i = 0; i < 10_000; i++) {
       void { ...bigOptions, data: rows1K }
     }
   })
 
-  bench('direct ref assignment (no spread) × 10K', () => {
+  benchTest('direct ref assignment (no spread) × 10K', () => {
     const dataRef = ref(rows1K)
     for (let i = 0; i < 10_000; i++) {
       dataRef.value = rows1K
@@ -636,7 +643,7 @@ describe('TanStack: Row object creation overhead', () => {
     }
   }
 
-  bench('create 10K TanStack-style Row objects', () => {
+  benchTest('create 10K TanStack-style Row objects', () => {
     const tanstackRows = []
     for (let i = 0; i < 10_000; i++) {
       tanstackRows.push(createTanStackRow(rows10K[i], i))
@@ -644,7 +651,7 @@ describe('TanStack: Row object creation overhead', () => {
     void tanstackRows.length
   })
 
-  bench('create 10K plain index-based row references', () => {
+  benchTest('create 10K plain index-based row references', () => {
     // NuGrid engine can reference rows directly without wrapping
     const plainRows = []
     for (let i = 0; i < 10_000; i++) {
@@ -656,7 +663,7 @@ describe('TanStack: Row object creation overhead', () => {
   // getValue through TanStack Row vs direct access
   const tanstackRows = rows1K.map((r, i) => createTanStackRow(r, i))
 
-  bench('getValue via TanStack Row × 1K rows × 5 columns', () => {
+  benchTest('getValue via TanStack Row × 1K rows × 5 columns', () => {
     const cols = ['id', 'name', 'amount', 'category', 'status']
     for (const row of tanstackRows) {
       for (const col of cols) {
@@ -665,7 +672,7 @@ describe('TanStack: Row object creation overhead', () => {
     }
   })
 
-  bench('direct property access × 1K rows × 5 columns', () => {
+  benchTest('direct property access × 1K rows × 5 columns', () => {
     const cols = ['id', 'name', 'amount', 'category', 'status'] as const
     for (const row of rows1K) {
       for (const col of cols) {
@@ -728,13 +735,13 @@ describe('TanStack: getCoreRowModel memo overhead', () => {
   tanstackGetRowModel()
   engineGetRowModel()
 
-  bench('TanStack memo: cache hit check (deps array compare) × 100K', () => {
+  benchTest('TanStack memo: cache hit check (deps array compare) × 100K', () => {
     for (let i = 0; i < 100_000; i++) {
       tanstackGetRowModel()
     }
   })
 
-  bench('identity cache: reference equality check × 100K', () => {
+  benchTest('identity cache: reference equality check × 100K', () => {
     for (let i = 0; i < 100_000; i++) {
       engineGetRowModel()
     }
@@ -759,7 +766,7 @@ describe('TanStack: column getSize() overhead', () => {
   const sizes = new Float64Array(30)
   for (let i = 0; i < 30; i++) sizes[i] = 100 + i * 10
 
-  bench('TanStack getSize: object lookup × 30 cols × 1K renders', () => {
+  benchTest('TanStack getSize: object lookup × 30 cols × 1K renders', () => {
     for (let r = 0; r < 1000; r++) {
       let total = 0
       for (let i = 0; i < 30; i++) {
@@ -769,7 +776,7 @@ describe('TanStack: column getSize() overhead', () => {
     }
   })
 
-  bench('direct array lookup × 30 cols × 1K renders', () => {
+  benchTest('direct array lookup × 30 cols × 1K renders', () => {
     for (let r = 0; r < 1000; r++) {
       let total = 0
       for (let i = 0; i < 30; i++) {

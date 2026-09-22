@@ -14,7 +14,6 @@
     "@iconify-json/lucide": "catalog:",
     "@iconify-json/simple-icons": "catalog:",
     "@nuxt/ui": "catalog:",
-    "@tanstack/vue-table": "catalog:",
     "@vueuse/nuxt": "catalog:",
     "nuxt": "catalog:",
     "scule": "catalog:",

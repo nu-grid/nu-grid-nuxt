@@ -491,7 +491,7 @@ const columns = [
       <div class="bg-default/50 text-dimmed rounded p-2 text-sm">
         <strong>How It Works:</strong>
         <p class="mt-1">
-          NuGrid uses TanStack Table's global filter with debounced input. Matching text is
+          NuGrid uses its own global filter with debounced input. Matching text is
           highlighted in cells. Use <code>enableSearching: false</code> on columns to exclude them
           from search. When type-to-search is enabled, just click the grid and start typing!
         </p>
