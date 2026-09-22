@@ -1,0 +1,32 @@
+src/runtime/components/_internal/NuGridGroupCheckbox.vue
+  s_064bebb658c613::t_f705e8b787884c 27
+src/runtime/components/NuGrid.vue
+  s_064bebb658c613::t_f705e8b787884c 175,182-189,196-198
+  s_064bebb658c613::t_5e3521f20c901a 176-180,191-195
+src/runtime/types/_internal/states.ts
+  s_064bebb658c613::t_f705e8b787884c 26
+src/runtime/types/states.ts
+  s_064bebb658c613::t_f705e8b787884c 18
+src/runtime/components/_internal/NuGridGroup.vue
+  s_064bebb658c613::t_97387b450685c6 286
+src/runtime/components/_internal/NuGridSplitGroup.vue
+  s_064bebb658c613::t_97387b450685c6 199
+src/runtime/composables/_internal/useNuGridSearch.ts
+  s_064bebb658c613::t_f705e8b787884c 64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "44f950cbd531cb957e153321fd9b7ea87d7ac313",
+  "prompts": {},
+  "sessions": {
+    "s_064bebb658c613": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "17c7b423-b4c4-41ee-8863-401936322617",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "John Campion Jr <john@brightshore.io>"
+    }
+  }
+}
