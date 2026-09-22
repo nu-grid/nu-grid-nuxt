@@ -1,0 +1,24 @@
+pnpm-lock.yaml
+  ai_agent 1-158
+pnpm-workspace.yaml
+  s_064bebb658c613::t_fa7f30b82a6c10 3-5,28-29,81-88
+  s_064bebb658c613::t_c33f9afcfd973f 6-26
+package.json
+  s_064bebb658c613::t_fa7f30b82a6c10 124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "c8b9a147f0815215b901acdb83b0c8ab5ca2902b",
+  "prompts": {},
+  "sessions": {
+    "s_064bebb658c613": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "17c7b423-b4c4-41ee-8863-401936322617",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "John Campion Jr <john@brightshore.io>"
+    }
+  }
+}
