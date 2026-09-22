@@ -196,7 +196,7 @@ function renderGroupSelectHeader(header: any, groupId: string) {
   // Render group-aware checkbox for select column
   return h(NuGridGroupCheckbox, {
     'modelValue': getGroupCheckboxState(groupId),
-    'onUpdate:modelValue': (value: boolean | 'indeterminate') => {
+    'onUpdate:modelValue': (value: unknown) => {
       toggleAllGroupRows(groupId, !!value)
     },
     'ariaLabel': `Select all in group ${groupId}`,
