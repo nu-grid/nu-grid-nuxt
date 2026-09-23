@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.3](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.4.2...v0.4.3) (2026-09-23)
+
+
+### 🐛 Bug Fixes
+
+* Line up the default theme's header labels with the cells ([#29](https://github.com/nu-grid/nu-grid-nuxt/issues/29)) ([a3554b8](https://github.com/nu-grid/nu-grid-nuxt/commit/a3554b80d7ad0e3df4470253c8b685d9e0c9629c))
+
 ## [0.4.2](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.4.1...v0.4.2) (2026-09-23)
 
 
