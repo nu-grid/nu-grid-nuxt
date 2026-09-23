@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.4](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.4.3...v0.4.4) (2026-09-23)
+
+
+### 🐛 Bug Fixes
+
+* Show rows in group layouts before grouping is set ([#31](https://github.com/nu-grid/nu-grid-nuxt/issues/31)) ([8061826](https://github.com/nu-grid/nu-grid-nuxt/commit/80618260ba76dcdb1f2672b6ca18d8e67d8ea0dc))
+
 ## [0.4.3](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.4.2...v0.4.3) (2026-09-23)
 
 
