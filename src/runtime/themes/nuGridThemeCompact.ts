@@ -20,7 +20,11 @@ export const nuGridThemeCompact = {
     checkboxIcon: '',
     // Base slots with div mode styles merged in
     // overflow-visible! overrides Nuxt UI table's overflow-clip, w-max allows content to extend for horizontal scrolling
-    base: 'flex flex-col bg-default w-max! min-w-0! overflow-visible!',
+    // w-max / min-w-0 are NOT !important: the grid adds w-full for autoSize 'fill', and tailwind-merge
+    // only resolves the two when both are plain (an !important and a plain class both survive, and the
+    // !important one always wins, so fill never filled). overflow-visible! stays: it must beat Nuxt UI
+    // table's overflow-clip.
+    base: 'flex flex-col bg-default w-max min-w-0 overflow-visible!',
     // Tighter spacing: px-2 py-1.5 instead of px-4 py-3.5
     th: 'flex shrink-0 items-stretch p-0! group bg-elevated border-r border-default last:border-r-0 text-left rtl:text-right text-xs font-semibold text-highlighted uppercase tracking-wide',
     // Tighter cell padding: px-2 py-1 instead of p-4

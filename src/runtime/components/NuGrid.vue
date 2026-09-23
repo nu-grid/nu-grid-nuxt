@@ -202,6 +202,25 @@ const rowSelectionState = defineModel<RowSelectionState>('selectedRows', { defau
 const rowPinningState = defineModel<RowPinningState>('rowPinning', { default: () => ({}) })
 const sortingState = defineModel<SortingState>('sorting', { default: () => [] })
 const groupingState = defineModel<GroupingState>('grouping', { default: () => [] })
+
+// Layout mode, resolved once at setup: the grouping machinery below is created synchronously for it.
+// Only 'group' and 'splitgroup' render groups, so a grid given `grouping` without a layout mode gets
+// 'group' rather than a flat grid fed a grouped row model (which showed one row per group).
+const gridMode = props.layout?.mode ?? (groupingState.value.length > 0 ? 'group' : 'div')
+const groupingRendered = gridMode === 'group' || gridMode === 'splitgroup'
+if (import.meta.dev || import.meta.test) {
+  watch(
+    groupingState,
+    (grouping) => {
+      if (!groupingRendered && grouping.length > 0) {
+        console.warn(
+          `[NuGrid] \`grouping\` is set but this grid's layout mode is '${gridMode}', which does not render groups; rows are shown ungrouped. Set \`layout: { mode: 'group' }\` to group them.`,
+        )
+      }
+    },
+    { immediate: true },
+  )
+}
 const expandedState = defineModel<ExpandedState>('expanded', { default: () => ({}) })
 // pageSize 0 means "not initialised yet": initPaginationState fills it from the paging options.
 const paginationState = defineModel<PaginationState>('pagination', {
@@ -349,6 +368,7 @@ const { tableApi, columnsUpdatedSignal } = useNuGridApi(
   states,
   rowSelectionModeRef,
   eventEmitter,
+  { groupingRendered },
 )
 
 // NuGrid owns expansion — expand grouped rows based on expandedState
@@ -534,11 +554,10 @@ const rowDragFns = useNuGridRowDragDrop(
   eventEmitter,
 )
 
-// Group-aware rows for focus navigation (only used when gridMode is 'group' or 'splitgroup')
-// Force synchronous evaluation of props.layout.mode to ensure proper initialization timing
-const gridMode = props.layout?.mode ?? 'div'
+// Group-aware rows for focus navigation (only used when gridMode is 'group' or 'splitgroup').
+// gridMode is resolved synchronously near the top of setup, which initialization timing requires.
 groupingFns =
-  gridMode === 'group' || gridMode === 'splitgroup'
+  groupingRendered
     ? useNuGridGrouping(
         props,
         tableApi,
@@ -1277,9 +1296,8 @@ defineExpose({
 })
 
 const childGrid = computed(() => {
-  const mode = props.layout?.mode ?? 'div'
-  if (mode === 'splitgroup') return NuGridSplitGroup
-  if (mode === 'group') return NuGridGroup
+  if (gridMode === 'splitgroup') return NuGridSplitGroup
+  if (gridMode === 'group') return NuGridGroup
   return NuGridBase
 })
 </script>
