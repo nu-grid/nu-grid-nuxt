@@ -309,10 +309,29 @@ export function useNuGridGroupVirtualization<T extends TableData>(
     const indexRef = { value: index }
 
     // Process top-level groups (from rows.value which contains top-level groups)
+    let flatHeadersAdded = false
     options.topLevelRows.value.forEach((row) => {
       if (row.getIsGrouped()) {
         processGroupRecursively(row, items, indexRef, heights, true, 0)
+        return
       }
+      // With no grouping set, the row model has no group rows: show the rows flat, under one
+      // set of column headers, rather than dropping them.
+      if (!flatHeadersAdded && options.showHeaders?.value !== false) {
+        items.push({
+          type: 'column-headers',
+          height: getColumnHeadersHeight(true),
+          index: indexRef.value++,
+        })
+      }
+      flatHeadersAdded = true
+      items.push({
+        type: 'data',
+        height: heights.dataRow,
+        dataRow: row,
+        index: indexRef.value++,
+        depth: 0,
+      })
     })
 
     return items
@@ -600,6 +619,11 @@ function resolveGroupStickyIndexes<T extends TableData>(
     activeGroupHeaderIndex = groupHeaderIndexes[0]
   }
 
+  // No groups: the rows are flat under a single column-header row, which stays sticky.
+  if (groupHeaderIndexes.length === 0 && items[0]?.type === 'column-headers') {
+    activeStickySet.add(0)
+  }
+
   if (activeGroupHeaderIndex !== undefined) {
     activeStickySet.add(activeGroupHeaderIndex)
 
@@ -739,11 +763,20 @@ export function useNuGridStandardGroupVirtualization<T extends TableData>(
       })
     }
 
-    // Then groups with their subheaders and data (process top-level groups recursively)
+    // Then groups with their subheaders and data (process top-level groups recursively).
+    // With no grouping set, the row model has no group rows: show the rows flat.
     options.topLevelRows.value.forEach((row) => {
       if (row.getIsGrouped()) {
         processGroupRecursively(row, items, indexRef, heights, true, 0)
+        return
       }
+      items.push({
+        type: 'data',
+        height: heights.dataRow,
+        dataRow: row,
+        index: indexRef.value++,
+        depth: 0,
+      })
     })
 
     // Footer at the end

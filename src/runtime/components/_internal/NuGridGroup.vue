@@ -159,6 +159,11 @@ const {
   headerGroupCount,
 } = groupingFns
 
+// Rows to draw: group headers, or data rows when no grouping is set (the rows are then flat).
+const hasBodyRows = computed(() =>
+  virtualRowItems.value.some((item) => item.type === 'group-header' || item.type === 'data'),
+)
+
 // Group-aware row selection
 const { toggleAllGroupRows, getGroupCheckboxState } = useNuGridGroupSelection(
   rowSelectionState,
@@ -534,7 +539,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
       >
         <slot name="body-top" />
 
-        <template v-if="groupRows.length">
+        <template v-if="hasBodyRows">
           <template v-if="virtualizationEnabled && virtualizer">
             <template v-for="virtualRow in virtualizer.getVirtualItems()" :key="virtualRow.index">
               <div

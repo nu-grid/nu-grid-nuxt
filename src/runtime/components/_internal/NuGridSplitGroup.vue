@@ -164,6 +164,11 @@ const {
   stickyOffsets,
 } = groupingFns
 
+// Rows to draw: group headers, or data rows when no grouping is set (the rows are then flat).
+const hasBodyRows = computed(() =>
+  virtualRowItems.value.some((item) => item.type === 'group-header' || item.type === 'data'),
+)
+
 const dynamicRowHeightsEnabled = computed(() => {
   const dyn = virtualizer?.value?.dynamicRowHeightsEnabled
   return !!dyn?.value
@@ -177,8 +182,8 @@ const { toggleAllGroupRows, getGroupCheckboxState } = useNuGridGroupSelection(
 
 // Helper to render group-aware select column header
 function renderGroupSelectHeader(header: Header<T>, groupId: string) {
-  // Only handle the selection column
-  if (header.column.id !== '__selection') {
+  // Only handle the selection column, and only under a group (flat rows use the column's own header)
+  if (header.column.id !== '__selection' || !groupId) {
     // For non-select columns, execute the header function to get the VNode
     if (typeof header.column.columnDef.header === 'function') {
       const rendered = header.column.columnDef.header(header.getContext())
@@ -513,7 +518,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
       >
         <slot name="body-top" />
 
-        <template v-if="groupRows.length">
+        <template v-if="hasBodyRows">
           <template v-if="virtualizationEnabled && virtualizer">
             <template v-for="virtualRow in virtualizer.getVirtualItems()" :key="virtualRow.index">
               <div
@@ -552,6 +557,7 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                     <!-- Collapsed headers: only show if group summaries are enabled -->
                     <div
                       v-if="
+                        virtualRowItems[virtualRow.index]?.groupId &&
                         !isGroupExpanded(virtualRowItems[virtualRow.index]?.groupId!) &&
                         summaryContext?.groupSummariesEnabled?.value
                       "
@@ -581,7 +587,10 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
 
                     <!-- Expanded headers: show full column headers -->
                     <div
-                      v-else-if="isGroupExpanded(virtualRowItems[virtualRow.index]?.groupId!)"
+                      v-else-if="
+                        !virtualRowItems[virtualRow.index]?.groupId ||
+                        isGroupExpanded(virtualRowItems[virtualRow.index]?.groupId!)
+                      "
                       :class="ui.thead({ class: [propsUi?.thead, 'border-t-0'] })"
                       :data-sticky-header="stickyEnabled ? 'true' : undefined"
                     >
@@ -755,6 +764,32 @@ function measureElementRef(el: Element | ComponentPublicInstance | null) {
                   </div>
                 </div>
               </template>
+
+              <!-- Column headers above flat rows (no grouping set); grouped headers live in each group block -->
+              <div
+                v-else-if="item.type === 'column-headers' && !item.groupId"
+                :class="ui.thead({ class: [propsUi?.thead, 'border-t-0'] })"
+                :data-sticky-header="stickyEnabled ? 'true' : undefined"
+              >
+                <div
+                  v-for="(headerGroup, rowIndex) in tableApi.getHeaderGroups()"
+                  :key="headerGroup.id"
+                  :class="ui.tr({ class: propsUi?.tr })"
+                >
+                  <div
+                    v-if="rowDragOptions.enabled"
+                    :class="['w-10 max-w-10 min-w-10 shrink-0', ui.th({ class: [propsUi?.th] })]"
+                  />
+                  <ReuseHeaderCellTemplate
+                    v-for="header in headerGroup.headers"
+                    :key="header.id"
+                    :header="header"
+                    :group-id="''"
+                    :is-expanded="true"
+                    :row-index="rowIndex"
+                  />
+                </div>
+              </div>
 
               <!-- Skip empty group placeholder rows - they only exist to create the group structure -->
               <template

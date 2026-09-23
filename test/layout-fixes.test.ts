@@ -48,6 +48,24 @@ describe('grouping without a layout mode', () => {
   })
 })
 
+describe('group layouts with no grouping set', () => {
+  // A grid pinned to a group layout so grouping can be switched on later used to render
+  // "No data available." until it was: both group layouts drew only group rows.
+  for (const mode of ['group', 'splitgroup'] as const) {
+    it(`'${mode}' shows every row flat, with column headers, then groups when grouping is set`, async () => {
+      const wrapper = await mount({ layout: { mode } })
+      expect(wrapper.findAll('[data-group-header]').length).toBe(0)
+      expect(new Set(dataRowIds(wrapper))).toEqual(new Set(['a', 'b', 'c', 'd']))
+      expect(wrapper.text()).toContain('Name')
+      expect(wrapper.text()).not.toContain('No data available')
+
+      await wrapper.setProps({ grouping: ['team'] })
+      expect(wrapper.findAll('[data-group-header]').length).toBe(2)
+      expect(new Set(dataRowIds(wrapper))).toEqual(new Set(['a', 'b', 'c', 'd']))
+    })
+  }
+})
+
 describe("compact theme with autoSize 'fill'", () => {
   it('fills: the base takes w-full, not w-max', async () => {
     const wrapper = await mount({ theme: 'compact', layout: { autoSize: 'fill' } })

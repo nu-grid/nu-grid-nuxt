@@ -208,6 +208,44 @@ describe('virtualization Row Heights Configuration', () => {
     expect(footerItem?.height).toBe(40)
   })
 
+  // Group layouts with no grouping set used to emit no data items, so a virtualized grid pinned to
+  // a group layout (so grouping can be switched on later) was empty.
+  for (const mode of ['group', 'splitgroup'] as const) {
+    it(`'${mode}' emits every row flat, under one column-header row, when grouping is empty`, async () => {
+      const data = ref(testData)
+      const propsColumns = ref(testColumns)
+      const { columns } = useNuGridColumns(propsColumns, data)
+      const states = { ...createStates(), groupingState: ref<GroupingState>([]) }
+
+      const props: NuGridProps<TestData> = {
+        data: testData,
+        columns: testColumns,
+        virtualization: true,
+        layout: { mode },
+      }
+
+      const { tableApi } = useNuGridApi(props, data, columns, states)
+      const grouping = useNuGridGrouping(
+        props,
+        tableApi,
+        ref(null),
+        ref<ExpandedState>(true),
+        ref(true),
+        ref(true),
+        mode,
+      )
+      await nextTick()
+
+      const items = grouping.virtualRowItems.value
+      expect(items.filter((item) => item.type === 'group-header')).toHaveLength(0)
+      expect(items.filter((item) => item.type === 'column-headers')).toHaveLength(1)
+      expect(items[0]?.type).toBe('column-headers')
+      expect(
+        items.filter((item) => item.type === 'data').map((item) => item.dataRow?.original.id),
+      ).toEqual([1, 2, 3, 4])
+    })
+  }
+
   it('should handle virtualization object without rowHeights', () => {
     const data = ref(testData)
     const propsColumns = ref(testColumns)
