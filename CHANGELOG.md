@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.4.1...v0.4.2) (2026-09-23)
+
+
+### 🐛 Bug Fixes
+
+* Register NuGrid's styles automatically, group without a layout mode, fill in compact ([#27](https://github.com/nu-grid/nu-grid-nuxt/issues/27)) ([6b6aac8](https://github.com/nu-grid/nu-grid-nuxt/commit/6b6aac8aed60c42ad0f43a5d659db6b78cbc00fa))
+
 ## [0.4.1](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.4.0...v0.4.1) (2026-09-22)
 
 
