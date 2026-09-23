@@ -31,7 +31,8 @@ export const nuGridTheme = {
       'flex items-center justify-center w-4 h-full cursor-col-resize select-none touch-none opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200 hover:bg-primary/10 [&:hover_.col-resizer]:bg-primary/80',
     colResizer: 'w-0.5 h-3/5 rounded-sm transition-colors duration-200 bg-(--ui-border-accented) col-resizer',
     rowDragHeaderHandle: 'shrink-0 w-10 min-w-10 max-w-10',
-    thInner: 'flex flex-1 items-center px-3 py-2 truncate',
+    // px-4 matches td's p-4, so header labels line up with the cell text beneath them (px-3 sat 4px left).
+    thInner: 'flex flex-1 items-center px-4 py-2 truncate',
     sortHandle:
       'flex shrink-0 items-center px-1 cursor-pointer select-none opacity-100 hover:text-primary transition-opacity duration-200',
     sortHandleHover:
