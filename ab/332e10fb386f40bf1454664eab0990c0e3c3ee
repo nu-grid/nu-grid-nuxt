@@ -1,0 +1,29 @@
+docs/content/4.layout/2.grouping.md
+  s_064bebb658c613::t_7cb1c01c2e1955 33-34
+test/layout-fixes.test.ts
+  s_064bebb658c613::t_7cb1c01c2e1955 51-68
+src/runtime/components/_internal/NuGridSplitGroup.vue
+  s_064bebb658c613::t_12a9a85dd63cfb 167-171,185-186,521,560,590-593,768-792
+test/virtualization-row-heights.test.ts
+  s_064bebb658c613::t_f39d1e3cc5b13b 211-248
+src/runtime/components/_internal/NuGridGroup.vue
+  s_064bebb658c613::t_12a9a85dd63cfb 162-166,542
+src/runtime/composables/_internal/useNuGridVirtualization.ts
+  s_064bebb658c613::t_12a9a85dd63cfb 312,316,318-334,622-626,766-767,771,773-779
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "ab332e10fb386f40bf1454664eab0990c0e3c3ee",
+  "prompts": {},
+  "sessions": {
+    "s_064bebb658c613": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "17c7b423-b4c4-41ee-8863-401936322617",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "John Campion Jr <john@brightshore.io>"
+    }
+  }
+}
