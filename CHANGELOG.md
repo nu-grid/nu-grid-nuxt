@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.5](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.4.4...v0.4.5) (2026-11-20)
+
+
+### 🐛 Bug Fixes
+
+* Isolate the grid root so its z-indexes stay inside the grid ([#33](https://github.com/nu-grid/nu-grid-nuxt/issues/33)) ([4525778](https://github.com/nu-grid/nu-grid-nuxt/commit/452577815fb8c9eafa9bc1ccc6af24918537baab))
+
 ## [0.4.4](https://github.com/nu-grid/nu-grid-nuxt/compare/v0.4.3...v0.4.4) (2026-09-23)
 
 
