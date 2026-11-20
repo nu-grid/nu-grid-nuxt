@@ -7,7 +7,9 @@ export const nuGridTheme = {
     // Root container - extends base with height to fill parent container
     // min-h-0 and min-w-0 allow shrinking in flex contexts (overrides default min-height/width: auto)
     // Without min-w-0, the root expands to fit content instead of scrolling horizontally
-    root: 'relative overflow-auto h-full min-h-0 min-w-0',
+    // isolate scopes the grid's sticky header, group row and pinned-cell z-indexes to the grid,
+    // so they never compete with the host page's own layers (e.g. a sticky page header)
+    root: 'relative isolate overflow-auto h-full min-h-0 min-w-0',
     // style the checkboxes to match compact theme
     checkboxBase: '',
     checkboxIndicator: '',
